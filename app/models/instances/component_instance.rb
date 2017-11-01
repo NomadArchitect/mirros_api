@@ -1,0 +1,2 @@
+class ComponentInstance < Instance
+end
