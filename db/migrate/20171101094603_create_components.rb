@@ -6,6 +6,7 @@ class CreateComponents < ActiveRecord::Migration[5.1]
       t.string :version
       t.string :website
       t.string :repository
+      t.integer :category_id
 
       t.timestamps
     end
