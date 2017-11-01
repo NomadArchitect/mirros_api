@@ -10,10 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101094603) do
+ActiveRecord::Schema.define(version: 20171101100332) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.string "website"
+    t.integer "category_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "component_instances", force: :cascade do |t|
     t.integer "component_id"
@@ -27,6 +35,7 @@ ActiveRecord::Schema.define(version: 20171101094603) do
     t.string "version"
     t.string "website"
     t.string "repository"
+    t.integer "category_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -39,6 +48,17 @@ ActiveRecord::Schema.define(version: 20171101094603) do
 
   create_table "source_instances", force: :cascade do |t|
     t.integer "source_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string "name"
+    t.string "author"
+    t.string "version"
+    t.string "website"
+    t.string "repository"
+    t.integer "category_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
