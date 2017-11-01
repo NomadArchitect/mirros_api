@@ -1,5 +1,5 @@
 class Group < ApplicationRecord
-  has_many :components
-  has_many :sources
+  has_and_belongs_to_many :components
+  has_and_belongs_to_many :sources
   belongs_to :category
 end
