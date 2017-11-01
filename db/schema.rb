@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20171101094603) do
   enable_extension "plpgsql"
 
   create_table "component_instances", force: :cascade do |t|
+    t.integer "component_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -37,6 +38,7 @@ ActiveRecord::Schema.define(version: 20171101094603) do
   end
 
   create_table "source_instances", force: :cascade do |t|
+    t.integer "source_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
