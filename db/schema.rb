@@ -55,10 +55,8 @@ ActiveRecord::Schema.define(version: 20171101102854) do
   end
 
   create_table "groups_sources", id: false, force: :cascade do |t|
-    t.integer "group_id"
-    t.integer "source_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.bigint "group_id", null: false
+    t.bigint "source_id", null: false
   end
 
   create_table "instances", force: :cascade do |t|
