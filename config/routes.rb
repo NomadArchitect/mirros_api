@@ -6,4 +6,5 @@ Rails.application.routes.draw do
   resources :component_instances
   resources :components
   resources :sources
+  resources :categories
 end
