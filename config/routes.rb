@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   resources :components
   resources :sources
   resources :categories
+  resources :groups
 end
