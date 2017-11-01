@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   resources :source_instances
   resources :component_instances
   resources :components
+  resources :sources
 end
