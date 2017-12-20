@@ -1,1 +1,5 @@
-netatmo_key: Hello World
+de:
+  netatmo:
+    key: "Schlüssel"
+    save: "Speichern"
+    next: "Weiter"
