@@ -5,3 +5,99 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+
+Category.create([
+    { name: "productivity" },
+    { name: "home-automation" },
+    { name: "mobility" },
+    { name: "entertainment" },
+    { name: "health" }
+])
+
+Group.create([
+  {
+    name: "calendar",
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "todo",
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "weather",
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "news",
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "public-transport",
+    category: Category.find_by_name("mobility")
+  },
+  {
+    name: "fuel",
+    category: Category.find_by_name("mobility")
+  },
+  {
+    name: "traffic",
+    category: Category.find_by_name("mobility")
+  },
+  {
+    name: "music-player",
+    category: Category.find_by_name("entertainment")
+  }
+])
+
+
+Component.create([
+  {
+    name: "calendar_week",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "https://glancr.de/module/produktivitaet/kalender/",
+    repository: "https://gitlab.com/glancr/calendar_week",
+    groups: [Group.find_by_name("calendar")],
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "calendar_today",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "https://glancr.de/module/produktivitaet/kalender/",
+    repository: "https://gitlab.com/glancr/calendar_today",
+    groups: [Group.find_by_name("calendar")],
+    category: Category.find_by_name("productivity")
+  }
+])
+
+Source.create([
+  {
+    name: "google_calendar",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "",
+    repository: "",
+    groups: [Group.find_by_name("calendar")],
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "icloud_calendar",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "",
+    repository: "",
+    groups: [Group.find_by_name("calendar")],
+    category: Category.find_by_name("productivity")
+  },
+  {
+    name: "ical_calendar",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "",
+    repository: "",
+    groups: [Group.find_by_name("calendar")],
+    category: Category.find_by_name("productivity")
+  }
+])
