@@ -18,35 +18,35 @@ Category.create([
 Group.create([
   {
     name: "calendar",
-    category: Category.find_by_name("productivity")
+    categories: [ Category.find_by_name("productivity") ]
   },
   {
     name: "todo",
-    category: Category.find_by_name("productivity")
+    categories: [ Category.find_by_name("productivity") ]
   },
   {
     name: "weather",
-    category: Category.find_by_name("productivity")
+    categories: [ Category.find_by_name("productivity") ]
   },
   {
     name: "news",
-    category: Category.find_by_name("productivity")
+    categories: [ Category.find_by_name("productivity") ]
   },
   {
     name: "public-transport",
-    category: Category.find_by_name("mobility")
+    categories: [ Category.find_by_name("mobility") ]
   },
   {
     name: "fuel",
-    category: Category.find_by_name("mobility")
+    categories: [ Category.find_by_name("mobility") ]
   },
   {
     name: "traffic",
-    category: Category.find_by_name("mobility")
+    categories: [ Category.find_by_name("mobility") ]
   },
   {
     name: "music-player",
-    category: Category.find_by_name("entertainment")
+    categories: [ Category.find_by_name("entertainment") ]
   }
 ])
 
@@ -59,7 +59,7 @@ Component.create([
     website: "https://glancr.de/module/produktivitaet/kalender/",
     repository: "https://gitlab.com/glancr/calendar_week",
     groups: [Group.find_by_name("calendar")],
-    category: Category.find_by_name("productivity")
+    categories: [  Category.find_by_name("productivity") ]
   },
   {
     name: "calendar_today",
@@ -68,7 +68,7 @@ Component.create([
     website: "https://glancr.de/module/produktivitaet/kalender/",
     repository: "https://gitlab.com/glancr/calendar_today",
     groups: [Group.find_by_name("calendar")],
-    category: Category.find_by_name("productivity")
+    categories: [  Category.find_by_name("productivity") ]
   }
 ])
 
@@ -80,7 +80,7 @@ Source.create([
     website: "",
     repository: "",
     groups: [Group.find_by_name("calendar")],
-    category: Category.find_by_name("productivity")
+    categories: [  Category.find_by_name("productivity") ]
   },
   {
     name: "icloud_calendar",
@@ -89,7 +89,7 @@ Source.create([
     website: "",
     repository: "",
     groups: [Group.find_by_name("calendar")],
-    category: Category.find_by_name("productivity")
+    categories: [  Category.find_by_name("productivity") ]
   },
   {
     name: "ical_calendar",
@@ -98,6 +98,6 @@ Source.create([
     website: "",
     repository: "",
     groups: [Group.find_by_name("calendar")],
-    category: Category.find_by_name("productivity")
+    categories: [  Category.find_by_name("productivity") ]
   }
 ])

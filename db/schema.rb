@@ -30,6 +30,21 @@ ActiveRecord::Schema.define(version: 20171220174632) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "categories_components", id: false, force: :cascade do |t|
+    t.bigint "component_id", null: false
+    t.bigint "category_id", null: false
+  end
+
+  create_table "categories_groups", id: false, force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "category_id", null: false
+  end
+
+  create_table "categories_sources", id: false, force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "category_id", null: false
+  end
+
   create_table "component_instances", force: :cascade do |t|
     t.integer "component_id"
     t.datetime "created_at", null: false
