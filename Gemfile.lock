@@ -1,3 +1,15 @@
+PATH
+  remote: engines/netatmo
+  specs:
+    netatmo (0.1.0)
+      rails (~> 5.1.4)
+
+PATH
+  remote: engines/blorgh
+  specs:
+    blorgh (0.1.0)
+      rails (~> 5.1.4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -131,8 +143,10 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.6)
+  blorgh!
   byebug
   listen (>= 3.0.5, < 3.2)
+  netatmo!
   pg (~> 0.18)
   puma (~> 3.7)
   rails (~> 5.1.4)

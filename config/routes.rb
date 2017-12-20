@@ -8,4 +8,8 @@ Rails.application.routes.draw do
   resources :sources
   resources :categories
   resources :groups
+
+  mount Netatmo::Engine => "/api/netatmo"
+  mount Blorgh::Engine => "/api/modules"
+
 end
