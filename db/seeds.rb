@@ -57,8 +57,8 @@ Component.create([
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "https://glancr.de/module/produktivitaet/kalender/",
-    repository: "https://gitlab.com/glancr/calendar_week",
-    groups: [Group.find_by_name("calendar")],
+    repository: "https://github.com/glancr/calendar_week",
+    groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   },
   {
@@ -66,8 +66,8 @@ Component.create([
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "https://glancr.de/module/produktivitaet/kalender/",
-    repository: "https://gitlab.com/glancr/calendar_today",
-    groups: [Group.find_by_name("calendar")],
+    repository: "https://github.com/glancr/calendar_today",
+    groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   }
 ])
@@ -78,8 +78,8 @@ Source.create([
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "",
-    repository: "",
-    groups: [Group.find_by_name("calendar")],
+    repository: "http://github.com/glancr/google_calendar-source",
+    groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   },
   {
@@ -87,8 +87,8 @@ Source.create([
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "",
-    repository: "",
-    groups: [Group.find_by_name("calendar")],
+    repository: "http://github.com/glancr/icloud_calendar-source",
+    groups: [Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   },
   {
@@ -96,8 +96,8 @@ Source.create([
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "",
-    repository: "",
-    groups: [Group.find_by_name("calendar")],
+    repository: "http://github.com/glancr/ical_calendar-source",
+    groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   }
 ])
