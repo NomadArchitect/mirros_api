@@ -5,11 +5,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'blorgh', path: 'engines/blorgh'
-gem 'netatmo', path: 'engines/netatmo'
-
-gem 'rails-erd'
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.4'
 # Use postgresql as the database for Active Record
@@ -31,6 +26,13 @@ gem 'active_model_serializers', '~> 0.10.6'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
+
+
+gem 'blorgh', path: 'engines/blorgh'
+gem 'netatmo', path: 'engines/netatmo'
+
+gem 'rails-erd'
+gem 'json-schema'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
