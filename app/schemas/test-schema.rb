@@ -1,10 +1,14 @@
 require "json"
 require "json-schema"
 
-#schema = JSON.parse(File.read("./components.json"))
-#puts JSON::Validator.validate("components.json", { "a" => 5 }, :json => true)
-
 schema = File.read("components.json")
-json = File.read("component.json")
+json = JSON.parse(File.read("component.json")).to_hash
 
-puts JSON::Validator.validate(schema, json, json: true, validate_schema: true)
+validator = JSON::Validator.fully_validate(schema, json)
+
+if validator.count == 0
+  puts "valid"
+else
+  puts "error"
+  puts validator
+end
