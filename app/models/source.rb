@@ -10,5 +10,14 @@ class Source < ApplicationRecord
   def to_s
     name
   end
-  
+
+  # TODO: add as ActiveRecord relation
+  def components
+    c = []
+    groups.each do |g|
+      c += Component.select {|s| s.groups.to_a.include?(g) }
+    end
+    c
+  end
+
 end
