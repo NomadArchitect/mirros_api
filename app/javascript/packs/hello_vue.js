@@ -7,6 +7,7 @@
 
 import Vue from 'vue'
 import App from '../app.vue'
+import TurbolinksAdapter from 'vue-turbolinks';
 
 document.addEventListener('turbolinks:load', () => {
   document.body.appendChild(document.createElement('hello'))
