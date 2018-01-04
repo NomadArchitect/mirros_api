@@ -34,6 +34,7 @@ gem 'active_model_serializers', '~> 0.10.6'
 gem 'netatmo', path: 'engines/netatmo'
 
 gem 'rails-erd'
+gem 'sass-rails'
 gem 'json-schema'
 gem 'webpacker'
 gem 'turbolinks'
