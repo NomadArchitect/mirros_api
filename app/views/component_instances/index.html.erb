@@ -13,7 +13,7 @@
   <tbody>
     <% @component_instances.each do |component_instance| %>
       <tr>
-        <td><%= component_instance.component_id %></td>
+        <td><%= component_instance.component %></td>
         <td><%= link_to 'Show', component_instance %></td>
         <td><%= link_to 'Edit', edit_component_instance_path(component_instance) %></td>
         <td><%= link_to 'Destroy', component_instance, method: :delete, data: { confirm: 'Are you sure?' } %></td>

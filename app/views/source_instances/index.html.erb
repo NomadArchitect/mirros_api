@@ -13,7 +13,7 @@
   <tbody>
     <% @source_instances.each do |source_instance| %>
       <tr>
-        <td><%= source_instance.source_id %></td>
+        <td><%= source_instance.source %></td>
         <td><%= link_to 'Show', source_instance %></td>
         <td><%= link_to 'Edit', edit_source_instance_path(source_instance) %></td>
         <td><%= link_to 'Destroy', source_instance, method: :delete, data: { confirm: 'Are you sure?' } %></td>
