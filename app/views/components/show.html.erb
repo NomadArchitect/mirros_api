@@ -25,5 +25,26 @@
   <%= @component.repository %>
 </p>
 
+<p>
+  <strong>Instances:</strong><br />
+  <% @component.component_instances.each do |ci| %>
+    - <%= link_to ci, ci %><br />
+  <% end %>
+</p>
+
+<p>
+  <strong>Groups:</strong><br />
+  <% @component.groups.each do |g| %>
+    - <%= link_to g, g %><br />
+  <% end %>
+</p>
+
+<p>
+  <strong>This component can use data from the following sources:</strong><br />
+  <% @component.sources.each do |s| %>
+    - <%= link_to s, s %><br />
+  <% end %>
+</p>
+
 <%= link_to 'Edit', edit_component_path(@component) %> |
 <%= link_to 'Back', components_path %>

@@ -25,5 +25,26 @@
   <%= @source.repository %>
 </p>
 
+<p>
+  <strong>Instances:</strong><br />
+  <% @source.source_instances.each do |si| %>
+    - <%= link_to si, si %><br />
+  <% end %>
+</p>
+
+<p>
+  <strong>Groups:</strong><br />
+  <% @source.groups.each do |g| %>
+    - <%= link_to g, g %><br />
+  <% end %>
+</p>
+
+<p>
+  <strong>This source can be used in these components:</strong><br />
+  <% @source.components.each do |c| %>
+    - <%= link_to c, c %><br />
+  <% end %>
+</p>
+
 <%= link_to 'Edit', edit_source_path(@source) %> |
 <%= link_to 'Back', sources_path %>
