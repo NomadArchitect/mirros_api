@@ -1,41 +1,64 @@
 class SourcesController < ApplicationController
-  before_action :set_source, only: [:show, :update, :destroy]
+  before_action :set_source, only: [:show, :edit, :update, :destroy]
 
   # GET /sources
+  # GET /sources.json
   def index
     @sources = Source.all
-
-    render json: @sources
   end
 
   # GET /sources/1
+  # GET /sources/1.json
   def show
-    render json: @source
+  end
+
+  # GET /sources/new
+  def new
+    @source = Source.new
+  end
+
+  # GET /sources/1/edit
+  def edit
   end
 
   # POST /sources
+  # POST /sources.json
   def create
     @source = Source.new(source_params)
 
-    if @source.save
-      render json: @source, status: :created, location: @source
-    else
-      render json: @source.errors, status: :unprocessable_entity
+    respond_to do |format|
+      if @source.save
+        format.html { redirect_to @source, notice: 'Source was successfully created.' }
+        format.json { render :show, status: :created, location: @source }
+      else
+        format.html { render :new }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   # PATCH/PUT /sources/1
+  # PATCH/PUT /sources/1.json
   def update
-    if @source.update(source_params)
-      render json: @source
-    else
-      render json: @source.errors, status: :unprocessable_entity
+    respond_to do |format|
+      if @source.update(source_params)
+        format.html { redirect_to @source, notice: 'Source was successfully updated.' }
+        format.json { render :show, status: :ok, location: @source }
+      else
+        format.html { render :edit }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   # DELETE /sources/1
+  # DELETE /sources/1.json
   def destroy
     @source.destroy
+    respond_to do |format|
+      format.html { redirect_to sources_url, notice: 'Source was successfully destroyed.' }
+      format.json { head :no_content }
+    end
   end
 
   private
@@ -44,7 +67,7 @@ class SourcesController < ApplicationController
       @source = Source.find(params[:id])
     end
 
-    # Only allow a trusted parameter "white list" through.
+    # Never trust parameters from the scary internet, only allow the white list through.
     def source_params
       params.require(:source).permit(:name, :author, :version, :website, :repository)
     end
