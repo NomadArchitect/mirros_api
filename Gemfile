@@ -36,6 +36,8 @@ gem 'netatmo', path: 'engines/netatmo'
 gem 'rails-erd'
 gem 'json-schema'
 gem 'webpacker'
+gem 'turbolinks'
+gem 'jquery-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
