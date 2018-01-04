@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Component Instances</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @component_instances.each do |component_instance| %>
+      <tr>
+        <td><%= component_instance.component_id %></td>
+        <td><%= link_to 'Show', component_instance %></td>
+        <td><%= link_to 'Edit', edit_component_instance_path(component_instance) %></td>
+        <td><%= link_to 'Destroy', component_instance, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Component Instance', new_component_instance_path %>
