@@ -21,7 +21,7 @@ Group.create([
     categories: [ Category.find_by_name("productivity") ]
   },
   {
-    name: "todo",
+    name: "reminder",
     categories: [ Category.find_by_name("productivity") ]
   },
   {
@@ -69,35 +69,81 @@ Component.create([
     repository: "https://github.com/glancr/calendar_today",
     groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
+  },
+  {
+    name: "todos",
+    author: "Marco Roth",
+    version: "1.0.0",
+    website: "https://glancr.de/module/produktivitaet/todos/",
+    repository: "https://github.com/glancr/todos",
+    groups: [ Group.find_by_name("reminder") ],
+    categories: [  Category.find_by_name("productivity") ]
   }
 ])
 
 Source.create([
   {
-    name: "google_calendar",
+    name: "google",
     author: "Mattes Angelus",
     version: "1.0.0",
     website: "",
-    repository: "http://github.com/glancr/google_calendar-source",
+    repository: "http://github.com/glancr/google_source",
+    groups: [ Group.find_by_name("calendar"), Group.find_by_name("reminder"), Group.find_by_name("news") ],
+    categories: [  Category.find_by_name("productivity") ]
+  },
+  {
+    name: "icloud",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "",
+    repository: "http://github.com/glancr/icloud_source",
+    groups: [ Group.find_by_name("calendar"), Group.find_by_name("reminder") ],
+    categories: [  Category.find_by_name("productivity") ]
+  },
+  {
+    name: "ical",
+    author: "Mattes Angelus",
+    version: "1.0.0",
+    website: "",
+    repository: "http://github.com/glancr/ical_source",
     groups: [ Group.find_by_name("calendar") ],
     categories: [  Category.find_by_name("productivity") ]
   },
   {
-    name: "icloud_calendar",
-    author: "Mattes Angelus",
+    name: "wunderlist",
+    author: "Marco Roth",
     version: "1.0.0",
     website: "",
-    repository: "http://github.com/glancr/icloud_calendar-source",
-    groups: [Group.find_by_name("calendar") ],
+    repository: "http://github.com/glancr/wunderlist_source",
+    groups: [ Group.find_by_name("reminder") ],
     categories: [  Category.find_by_name("productivity") ]
   },
   {
-    name: "ical_calendar",
-    author: "Mattes Angelus",
+    name: "todoist",
+    author: "Marco Roth",
     version: "1.0.0",
     website: "",
-    repository: "http://github.com/glancr/ical_calendar-source",
-    groups: [ Group.find_by_name("calendar") ],
+    repository: "http://github.com/glancr/todoist_source",
+    groups: [ Group.find_by_name("reminder") ],
     categories: [  Category.find_by_name("productivity") ]
+  }
+])
+
+
+ComponentInstance.create([
+  {
+    component: Component.first
+  },
+  {
+    component: Component.last
+  }
+])
+
+SourceInstance.create([
+  {
+    source: Source.first
+  },
+  {
+    source: Source.last
   }
 ])
