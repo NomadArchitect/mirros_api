@@ -6,4 +6,9 @@ class Source < ApplicationRecord
   def self.all_engines
     Rails::Engine.subclasses-[ActionView::Railtie, ActionCable::Engine]
   end
+
+  def to_s
+    name
+  end
+  
 end
