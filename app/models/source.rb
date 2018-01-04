@@ -3,7 +3,7 @@ class Source < ApplicationRecord
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :categories
 
-  def self.all
+  def self.all_engines
     Rails::Engine.subclasses-[ActionView::Railtie, ActionCable::Engine]
   end
 end
