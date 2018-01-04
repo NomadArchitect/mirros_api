@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Source Instances</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @source_instances.each do |source_instance| %>
+      <tr>
+        <td><%= source_instance.source_id %></td>
+        <td><%= link_to 'Show', source_instance %></td>
+        <td><%= link_to 'Edit', edit_source_instance_path(source_instance) %></td>
+        <td><%= link_to 'Destroy', source_instance, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Source Instance', new_source_instance_path %>
