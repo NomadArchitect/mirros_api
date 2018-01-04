@@ -10,6 +10,6 @@ Rails.application.routes.draw do
   resources :groups
 
   mount Netatmo::Engine => "/api/netatmo"
-  mount Blorgh::Engine => "/api/modules"
+  # mount Blorgh::Engine => "/api/modules"
 
 end
