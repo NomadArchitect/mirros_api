@@ -1,2 +1,0 @@
-module ComponentInstancesHelper
-end

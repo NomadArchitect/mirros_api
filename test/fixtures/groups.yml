@@ -3,11 +3,11 @@
 one:
   name: MyString
   source_id: 1
-  component_id: 1
+  widget_id: 1
   category_id: 1
 
 two:
   name: MyString
   source_id: 1
-  component_id: 1
+  widget_id: 1
   category_id: 1

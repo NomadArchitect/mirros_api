@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Widget Instances</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Widget</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @widget_instances.each do |widget_instance| %>
+      <tr>
+        <td><%= widget_instance.widget %></td>
+        <td><%= link_to 'Show', widget_instance %></td>
+        <td><%= link_to 'Edit', edit_widget_instance_path(widget_instance) %></td>
+        <td><%= link_to 'Destroy', widget_instance, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Widget Instance', new_widget_instance_path %>

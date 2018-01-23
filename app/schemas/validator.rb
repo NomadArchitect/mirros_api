@@ -16,4 +16,4 @@ def validate_schema(schema = {}, json)
 end
 
 
-puts validate_schema("components.json", File.read("component.json"))
+puts validate_schema("widgets.json", File.read("widget.json"))

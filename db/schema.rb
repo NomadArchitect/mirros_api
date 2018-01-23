@@ -22,8 +22,8 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "categories_components", id: false, force: :cascade do |t|
-    t.bigint "component_id", null: false
+  create_table "categories_widgets", id: false, force: :cascade do |t|
+    t.bigint "widget_id", null: false
     t.bigint "category_id", null: false
   end
 
@@ -37,13 +37,13 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.bigint "category_id", null: false
   end
 
-  create_table "component_instances", force: :cascade do |t|
-    t.integer "component_id"
+  create_table "widget_instances", force: :cascade do |t|
+    t.integer "widget_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "components", force: :cascade do |t|
+  create_table "widgets", force: :cascade do |t|
     t.string "name"
     t.string "author"
     t.string "version"
@@ -53,8 +53,8 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "components_groups", id: false, force: :cascade do |t|
-    t.bigint "component_id", null: false
+  create_table "widgets_groups", id: false, force: :cascade do |t|
+    t.bigint "widget_id", null: false
     t.bigint "group_id", null: false
   end
 

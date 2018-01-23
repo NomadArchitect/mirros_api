@@ -12,10 +12,10 @@ class Source < ApplicationRecord
   end
 
   # TODO: add as ActiveRecord relation
-  def components
+  def widgets
     c = []
     groups.each do |g|
-      c += Component.select {|s| s.groups.to_a.include?(g) }
+      c += Widget.select {|s| s.groups.to_a.include?(g) }
     end
     c
   end

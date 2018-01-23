@@ -1,0 +1,2 @@
+module WidgetInstancesHelper
+end

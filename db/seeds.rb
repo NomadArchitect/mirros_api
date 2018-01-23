@@ -51,7 +51,7 @@ Group.create([
 ])
 
 
-Component.create([
+Widget.create([
   {
     name: "calendar_week",
     author: "Mattes Angelus",
@@ -130,12 +130,12 @@ Source.create([
 ])
 
 
-ComponentInstance.create([
+WidgetInstance.create([
   {
-    component: Component.first
+    widget: Widget.first
   },
   {
-    component: Component.last
+    widget: Widget.last
   }
 ])
 
