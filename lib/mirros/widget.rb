@@ -16,6 +16,7 @@ module MirrOS
       "not implemented"
     end
 
+    # https://api.glancr.de/update/getVersions.php
     def Widget.list
       # TODO: implement
       "not implemented"

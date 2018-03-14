@@ -38,6 +38,10 @@ gem 'webpacker'
 gem 'turbolinks'
 gem 'jquery-rails'
 gem 'simple_form'
+gem 'git'
+gem 'rubyzip'
+gem 'zip-zip'
+gem 'httparty'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

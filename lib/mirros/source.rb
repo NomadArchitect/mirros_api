@@ -1,23 +1,24 @@
 require "bundler/inline"
+require "fileutils"
 
 module MirrOS
   module Source
 
-    def Source.load_sources(source = "")
+    BASE = "engines"
 
-      base = "engines"
+    def Source.load_sources(source = "")
 
       begin
         gemfile(true) do
           if source.empty?
-            sources = Dir.glob("#{base}/*")
+            sources = Dir.glob("#{BASE}/*")
 
             sources.each do |e|
-              gem e.gsub("#{base}/", ""), path: e
+              gem e.gsub("#{BASE}/", ""), path: e
             end
 
           else
-            gem source, path: "#{base}/#{source}"
+            gem source, path: "#{BASE}/#{source}"
           end
         end
       rescue
@@ -25,19 +26,43 @@ module MirrOS
       end
     end
 
-    def Source.install
-      # TODO: implement
-      "not implemented"
+    def Source.install(user = "marcoroth", repo = "mirrOS_netatmo", host = "github.com")
+
+      begin
+        g = Git.clone("git@#{host}:#{user}/#{repo}.git", repo, path: BASE)
+      rescue Exception => e
+        puts "Source '#{repo}' could not be installed"
+        puts "Error: #{e}"
+      end
+
+      Source.load_sources
     end
 
-    def Source.update
-      # TODO: implement
-      "not implemented"
+    def Source.update(source)
+      unless source.nil? || source.empty?
+        begin
+          Git.open("#{BASE}/#{source}").pull
+        rescue Exception => e
+          puts "Source '#{repo}' could not be updated"
+          puts "Error: #{e}"
+        end
+      end
+
+      Source.load_sources
     end
 
-    def Source.remove
-      # TODO: implement
-      "not implemented"
+    def Source.remove(source)
+
+      unless source.nil? || source.empty?
+        begin
+          FileUtils.rm_rf(dir)
+        rescue Exception => e
+          puts "Source '#{repo}' could not be removed"
+          puts "Error: #{e}"
+        end
+      end
+
+      Source.load_sources
     end
 
     def Source.list
