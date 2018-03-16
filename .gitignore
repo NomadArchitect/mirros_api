@@ -24,3 +24,5 @@
 /public/packs-test
 /node_modules
 /engines/*
+yarn-debug.log*
+.yarn-integrity
