@@ -1,0 +1,22 @@
+attributes:
+  - primary_keys
+  - content
+  - foreign_key
+  - inheritance
+disconnected: false
+filename: docs/erd
+filetype: pdf
+indirect: true
+inheritance: true
+markup: true
+notation: simple
+polymorphism: false
+sort: true
+warn: true
+title: mirrOS_api Model-Relations
+exclude: null
+only: null
+only_recursion_depth: null
+prepend_primary: false
+cluster: false
+splines: spline
