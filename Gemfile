@@ -54,8 +54,7 @@ gem "json-schema", "~> 2.8.0"
 
 # Misc
 gem "git", "~> 1.3.0"
-gem "rubyzip", "~> 1.2.1"
-gem "zip-zip", "~> 0.3"
+gem "rubyzip", "~> 1.2.0"
 
 group :development, :test do
   # Call "byebug" anywhere in the code to stop execution and get a debugger console
