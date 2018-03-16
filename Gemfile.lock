@@ -45,6 +45,7 @@ GEM
     builder (3.2.3)
     byebug (10.0.0)
     choice (0.2.0)
+    cli_spinnable (0.2)
     concurrent-ruby (1.0.5)
     crass (1.0.3)
     erubi (1.7.1)
@@ -185,6 +186,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  cli_spinnable
   git
   highline
   httparty

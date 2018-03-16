@@ -1,10 +1,13 @@
 require "thor"
 require "highline"
+require "securerandom"
+require "cli_spinnable"
 require File.expand_path('../../lib/mirros/source.rb', __FILE__)
 
 module GlancrCLI
 
   class Backup < Thor
+    include CliSpinnable
 
     desc "list", "show a list of all created backups"
     def list
@@ -19,14 +22,20 @@ module GlancrCLI
 
     desc "create", "create a backup from the current installation"
     def create
-      puts "Creating Backup..."
+
+      with_spinner do |s|
+        s.print "Getting information"
+        sleep 1
+        s.tick
+
+        s.print "Creating Backup"
+        sleep 1
+        s.print " ....backup done in 2s"
+        s.tick
+      end
+      puts "Done"
+
       puts ""
-
-      sleep(5)
-
-      puts "Backup done in 5s"
-      puts "#3  Only-Settings  marcoroth   16 Mär 16:12  3KB"
-
       puts "not implemeted"
     end
 
@@ -38,27 +47,45 @@ module GlancrCLI
   end
 
   class Source < Thor
-    desc "install <source>", "installs a source"
-    def install(source)
-      mirr.OS::Source.install(source)
+    desc "install <source>", "install a source"
+    def install(source = nil)
+      unless source.nil?
+        MirrOS::Source.install(source)
+      else
+        puts list
+      end
     end
 
     desc "list", "list all sources"
     def list
-      puts "not implemeted"
+      puts "Available sources: \n"
+
+      puts "Module      Version   Developer   Updated      Released"
+      puts "News        1.0.3     heckenhugo  17 days ago  10.04.2016"
+      puts "Netatmo     1.0.0     marcoroth   3 days ago   19.10.2016"
+      puts "Wunderlist  1.0.5     marcoroth   10 days ago  06.03.2017"
     end
   end
 
   class Widget < Thor
 
-    desc "install <widget>", "installs a widget"
-    def install(widget)
-      mirr.OS::Widget.install(widget)
+    desc "install <widget>", "install a widget"
+    def install(widget = nil)
+      unless widget.nil?
+        MirrOS::Widget.install(widget)
+      else
+        puts list
+      end
     end
 
     desc "list", "list all widgets"
     def list
-      puts "not implemeted"
+      puts "Available widgets: \n"
+
+      puts "Module      Version   Developer   Updated      Released"
+      puts "News        1.0.3     heckenhugo  17 days ago  10.04.2016"
+      puts "Netatmo     1.0.0     marcoroth   3 days ago   19.10.2016"
+      puts "Wunderlist  1.0.5     marcoroth   10 days ago  06.03.2017"
     end
   end
 
@@ -78,16 +105,19 @@ module GlancrCLI
     end
 
     desc "show <key> [<hello>]", "show a config value"
-    def show(key, *hello)
-      puts "Key: #{key}"
-      puts "hello: #{hello}" if hello.present?
+    def show(key = nil)
+      if key.nil?
+        puts "*Showing all keys in the config*"
+      else
+        puts "Key: #{key}"
+      end
       puts "not implemeted"
     end
 
   end
 
-
   class Glancr < Thor
+    include CliSpinnable
 
     desc "restore <version>", "restore a backup"
     def restore(version)
@@ -97,19 +127,25 @@ module GlancrCLI
 
     desc "update", "updates mirr.OS"
     def update
-
       puts "Updating mirr.OS to version '1.0.1' ..."
+
+      with_spinner do |s|
+        s.print "Downloading image"
+        sleep 3
+        s.print " ...downloaded #{(rand*10).to_i}MB"
+        s.tick
+
+        s.print "Installing update"
+        sleep 2
+        s.print " ...update done in 5s"
+        s.tick
+      end
+      puts "Done"
       puts ""
-
-      sleep(5)
-
-      puts "Update done in 5s"
-      puts "mirr.OS is now running on version '1.0.1'"
-
-      puts "not implemeted"
+      puts "mirr.OS is now running on version '1.0.1' 🎉"
     end
 
-    desc "info", "show information about the your mirr.OS installtion"
+    desc "info", "show information about your mirr.OS installation"
     def info
       puts "glancr-cli, version 1.0.0"
       puts "mirr.OS, version 1.0.0"
@@ -133,17 +169,26 @@ module GlancrCLI
       lastname = cli.ask("What's your lastname?") { |q| q.validate = /[a-z]+/ }; puts ""
       search_city = cli.ask ("Where do you live?") { |q| q.validate = /[a-z]+/ }
 
-      cities = ["Basel", "Berlin", "Halle", "Hamburg"]
+      puts ""
+
+      with_spinner do |s|
+        s.print "Searching cities with term '#{search_city}'"
+        sleep 3
+        s.print " ...found 4"
+        s.tick
+      end
+      puts "Done"
+
+      cities = ["Basel, Schweiz", "Berlin, Deutschland", "Halle, Deutschland", "Hamburg, Deutschland"]
 
       puts ""
 
+      puts "We found these cities, with term '#{search_city}':"
       cli.choose do |menu|
-        menu.prompt = "We found these cities, select yours."
-
         cities.each do |city|
           menu.choice(city.to_sym) {
             puts ""
-            cli.say("#{city}. That's a beautiful city")
+            cli.say("#{city.split(",").first}. That's a beautiful city")
             selected_city = city
           }
         end
@@ -153,9 +198,18 @@ module GlancrCLI
       wlans = ["MyWLAN", "SomeWLANName", "MyHotspot"]
 
       puts ""
-      cli.choose do |menu|
-        menu.prompt = "We have found these WLAN's. Select yours"
 
+      with_spinner do |s|
+        s.print "Searching WLANs"
+        sleep 3
+        s.print " ...found 3"
+        s.tick
+      end
+      puts "Done"
+
+      puts ""
+      puts "We have found these WLAN's. Select yours"
+      cli.choose do |menu|
         wlans.each do |wlan|
           menu.choice(wlan) {
             puts ""
@@ -177,7 +231,7 @@ module GlancrCLI
       end
 
       unless connection == :ethernet
-        password = cli.ask("Enter the password for '#{selected_wlan}': ") { |q| q.echo = "*" }
+        password = cli.ask("Enter password for SSID '#{selected_wlan}': ") { |q| q.echo = "*" }
       end
 
       puts ""
@@ -188,11 +242,30 @@ module GlancrCLI
       puts "WLAN: #{selected_wlan}"
       puts "Hidden WLAN: #{hidden_wlan}"
       puts "Password: #{password}"
+      puts ""
+
+      cli.agree("Are these settings correct? Continue? [y/n]")
+
+      puts ""
+
+      with_spinner do |s|
+        s.print "Setting up your Glancr"
+        sleep 3
+        s.print " ...setup complete."
+        s.tick
+      end
+      puts "Done"
+
+      puts ""
+      puts "You can now use your Glancr. Have fun."
 
     end
 
     desc "reset", "reset your mirr.OS installation"
     def reset
+      cli = HighLine.new
+      cli.agree("Are you sure? [y/n]")
+
       puts "not implemeted"
     end
 
@@ -211,6 +284,47 @@ module GlancrCLI
         puts "You're not running the latest version. Please consider updating using:"
         puts "glancr update"
       end
+    end
+
+    desc "login", "login in with your Glancr ID to register your installation"
+    def login
+      cli = HighLine.new
+
+      username = cli.ask("Glancr ID:") { |q| q.validate = /\w+/ }; puts ""
+      password = cli.ask("Password:") { |q| q.echo = "*"; q.validate = /\w+/ };
+
+      puts ""
+
+      with_spinner do |s|
+        s.print "Connecting to glancr.cloud"
+        sleep 3
+        s.print " ...connected"
+        s.tick
+      end
+      puts "Done"
+
+      puts ""
+      puts "Successfully logged in. Welcome Marco"
+    end
+
+    desc "account", "print your account inforamtion"
+    def account
+
+      types = ["Regular", "Premium", "Developer", "Module-Developer"]
+
+      with_spinner do |s|
+        s.print "Connecting to glancr.cloud"
+        sleep 3
+        s.print " ...connected"
+        s.tick
+      end
+      puts "Done"
+      puts ""
+
+      puts "Glancr ID: mr@glancr.de"
+      puts "Account-Type: #{types.sample}"
+      puts "License: #{SecureRandom.hex}"
+      puts "API-Token: #{SecureRandom.hex}"
     end
 
     desc "backup SUBCOMMAND", "manage backups"
