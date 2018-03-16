@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171220174535) do
+ActiveRecord::Schema.define(version: 20171101102857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,11 +20,6 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.string "website"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "categories_widgets", id: false, force: :cascade do |t|
-    t.bigint "widget_id", null: false
-    t.bigint "category_id", null: false
   end
 
   create_table "categories_groups", id: false, force: :cascade do |t|
@@ -37,25 +32,9 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.bigint "category_id", null: false
   end
 
-  create_table "widget_instances", force: :cascade do |t|
-    t.integer "widget_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "widgets", force: :cascade do |t|
-    t.string "name"
-    t.string "author"
-    t.string "version"
-    t.string "website"
-    t.string "repository"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "widgets_groups", id: false, force: :cascade do |t|
+  create_table "categories_widgets", id: false, force: :cascade do |t|
+    t.bigint "category_id", null: false
     t.bigint "widget_id", null: false
-    t.bigint "group_id", null: false
   end
 
   create_table "groups", force: :cascade do |t|
@@ -69,15 +48,13 @@ ActiveRecord::Schema.define(version: 20171220174535) do
     t.bigint "source_id", null: false
   end
 
-  create_table "instances", force: :cascade do |t|
-    t.string "type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+  create_table "groups_widgets", id: false, force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "widget_id", null: false
   end
 
-  create_table "netatmo_entries", force: :cascade do |t|
-    t.string "name"
-    t.text "text"
+  create_table "instances", force: :cascade do |t|
+    t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -89,6 +66,22 @@ ActiveRecord::Schema.define(version: 20171220174535) do
   end
 
   create_table "sources", force: :cascade do |t|
+    t.string "name"
+    t.string "author"
+    t.string "version"
+    t.string "website"
+    t.string "repository"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "widget_instances", force: :cascade do |t|
+    t.integer "widget_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "widgets", force: :cascade do |t|
     t.string "name"
     t.string "author"
     t.string "version"
