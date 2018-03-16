@@ -5,12 +5,14 @@ Rails.application.routes.draw do
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
-  resources :instances
-  resources :source_instances
-  resources :widget_instances
-  resources :widgets
-  resources :sources
-  resources :categories
-  resources :groups
+  jsonapi_resources :widgets do
+    jsonapi_related_resources :widget_instances
+  end
+  jsonapi_resources :services
+
+  # jsonapi_resources :sources
+  # jsonapi_related_resources :source_instances
+  #jsonapi_resources :categories
+  # jsonapi_resources :groups
 
 end
