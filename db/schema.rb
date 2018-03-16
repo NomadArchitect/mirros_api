@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101102857) do
+ActiveRecord::Schema.define(version: 20180315111538) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -59,6 +59,15 @@ ActiveRecord::Schema.define(version: 20171101102857) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "services", force: :cascade do |t|
+    t.string "status"
+    t.json "parameters"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "widget_id"
+    t.index ["widget_id"], name: "index_services_on_widget_id"
+  end
+
   create_table "source_instances", force: :cascade do |t|
     t.integer "source_id"
     t.datetime "created_at", null: false
@@ -91,4 +100,5 @@ ActiveRecord::Schema.define(version: 20171101102857) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "services", "widgets"
 end
