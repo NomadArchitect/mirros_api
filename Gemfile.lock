@@ -186,30 +186,29 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
-  cli_spinnable
-  git
-  highline
-  httparty
+  cli_spinnable (~> 0.2)
+  git (~> 1.3.0)
+  highline (~> 1.7.10)
+  httparty (~> 0.16.0)
   jbuilder (~> 2.5)
-  jquery-rails
-  json-schema
+  jquery-rails (~> 4.3.0)
+  json-schema (~> 2.8.0)
   jsonapi-resources (~> 0.9.0)
   listen (>= 3.0.5, < 3.2)
   pg (~> 0.18)
   puma (~> 3.7)
   rails (~> 5.1.5)
-  rails-erd
-  rubyzip
-  sass-rails
-  simple_form
+  rails-erd (~> 1.5.0)
+  rubyzip (~> 1.2.1)
+  sass-rails (~> 5.0.0)
+  simple_form (~> 3.5.0)
   spring
   spring-watcher-listen (~> 2.0.0)
-  thor
-  turbolinks
-  tzinfo-data
+  thor (~> 0.20.0)
+  turbolinks (~> 5.1.0)
   web-console
-  webpacker
-  zip-zip
+  webpacker (~> 3.3.0)
+  zip-zip (~> 0.3)
 
 BUNDLED WITH
    1.16.1
