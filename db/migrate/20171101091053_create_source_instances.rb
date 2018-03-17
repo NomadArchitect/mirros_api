@@ -5,5 +5,7 @@ class CreateSourceInstances < ActiveRecord::Migration[5.1]
 
       t.timestamps
     end
+
+    add_index :source_instances, :source_id
   end
 end
