@@ -62,9 +62,9 @@ ActiveRecord::Schema.define(version: 20180315111538) do
   create_table "services", force: :cascade do |t|
     t.string "status"
     t.json "parameters"
+    t.integer "widget_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "widget_id"
     t.index ["widget_id"], name: "index_services_on_widget_id"
   end
 
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 20180315111538) do
     t.integer "source_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["source_id"], name: "index_source_instances_on_source_id"
   end
 
   create_table "sources", force: :cascade do |t|
@@ -88,6 +89,7 @@ ActiveRecord::Schema.define(version: 20180315111538) do
     t.integer "widget_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["widget_id"], name: "index_widget_instances_on_widget_id"
   end
 
   create_table "widgets", force: :cascade do |t|
@@ -100,5 +102,4 @@ ActiveRecord::Schema.define(version: 20180315111538) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "services", "widgets"
 end
