@@ -58,30 +58,30 @@ Widget.create(
   [
     {
       name: "calendar_week",
-      author: "Mattes Angelus",
+      creator: "Mattes Angelus",
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
-      repository: "https://github.com/glancr/calendar_week",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: true
     },
     {
       name: "calendar_today",
-      author: "Mattes Angelus",
+      creator: "Mattes Angelus",
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
-      repository: "https://github.com/glancr/calendar_today",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: false
     },
     {
       name: "todos",
-      author: "Marco Roth",
+      creator: "Marco Roth",
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/todos/",
-      repository: "https://github.com/glancr/todos",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: true
     }
   ]
 )
@@ -90,48 +90,48 @@ Source.create(
   [
     {
       name: "google",
-      author: "Mattes Angelus",
+      creator: "Mattes Angelus",
       version: "1.0.0",
       website: "",
-      repository: "http://github.com/glancr/google_source",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder"), Group.find_by_name("news")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: true
     },
     {
       name: "icloud",
-      author: "Mattes Angelus",
+      creator: "Mattes Angelus",
       version: "1.0.0",
       website: "",
-      repository: "http://github.com/glancr/icloud_source",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder")],
-      categories: [ Category.find_by_name("productivity")]
+      categories: [ Category.find_by_name("productivity")],
+      installed: true
     },
     {
       name: "ical",
-      author: "Mattes Angelus",
+      creator: "Mattes Angelus",
       version: "1.0.0",
       website: "",
-      repository: "http://github.com/glancr/ical_source",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: false
     },
     {
       name: "wunderlist",
-      author: "Marco Roth",
+      creator: "Marco Roth",
       version: "1.0.0",
       website: "",
-      repository: "http://github.com/glancr/wunderlist_source",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: true
     },
     {
       name: "todoist",
-      author: "Marco Roth",
+      creator: "Marco Roth",
       version: "1.0.0",
       website: "",
-      repository: "http://github.com/glancr/todoist_source",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
+      categories: [Category.find_by_name("productivity")],
+      installed: true
     }
   ]
 )
@@ -168,7 +168,7 @@ Service.create(
         key: "value"
       },
       # widget: Widget.first
-      provider: Widget.first
+      widget_id: Widget.first
     },
     {
       status: "stopped",
@@ -176,7 +176,7 @@ Service.create(
         key: "value"
       },
       # widget: Widget.last
-      provider: Widget.first
+      widget_id: Widget.first
     },
   ]
 )
