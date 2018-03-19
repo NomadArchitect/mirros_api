@@ -1,4 +1,4 @@
-class WidgetsController < ApplicationController
+class WidgetsController < JSONAPI::ResourceController
   before_action :set_widget, only: [:show, :edit, :update, :destroy]
 
   # GET /widgets
