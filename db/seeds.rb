@@ -62,8 +62,7 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")],
-      installed: true
+      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "calendar_today",
@@ -71,8 +70,7 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")],
-      installed: false
+      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "todos",
@@ -80,8 +78,7 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/todos/",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")],
-      installed: true
+      categories: [Category.find_by_name("productivity")]
     }
   ]
 )
@@ -94,8 +91,7 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder"), Group.find_by_name("news")],
-      categories: [Category.find_by_name("productivity")],
-      installed: true
+      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "icloud",
@@ -103,8 +99,7 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder")],
-      categories: [ Category.find_by_name("productivity")],
-      installed: true
+      categories: [ Category.find_by_name("productivity")]
     },
     {
       name: "ical",
@@ -112,8 +107,7 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")],
-      installed: false
+      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "wunderlist",
@@ -121,8 +115,7 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")],
-      installed: true
+      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "todoist",
@@ -130,8 +123,7 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")],
-      installed: true
+      categories: [Category.find_by_name("productivity")]
     }
   ]
 )
