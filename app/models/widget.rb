@@ -7,6 +7,8 @@ class Widget < ApplicationRecord
   has_and_belongs_to_many :categories
   has_many :sources, through: :groups
 
+  validates :name, uniqueness: true
+
   extend FriendlyId
   friendly_id :name, use: :slugged
 

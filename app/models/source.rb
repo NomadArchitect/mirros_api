@@ -4,6 +4,8 @@ class Source < ApplicationRecord
   has_and_belongs_to_many :categories
   has_many :widgets, through: :groups
 
+  validates :name, uniqueness: true
+
   extend FriendlyId
   friendly_id :name, use: :slugged
 
