@@ -5,6 +5,7 @@ class CreateSources < ActiveRecord::Migration[5.1]
       t.string :creator
       t.string :version
       t.string :website
+      t.string :slug
 
       t.timestamps
     end

@@ -5,6 +5,9 @@ class Widget < ApplicationRecord
   has_and_belongs_to_many :categories
   has_many :sources, through: :groups
 
+  extend FriendlyId
+  friendly_id :name, use: :slugged
+
   def to_s
     name
   end

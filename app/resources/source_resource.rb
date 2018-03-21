@@ -1,5 +1,6 @@
 class SourceResource < JSONAPI::Resource
-  attributes :name, :author, :version
-  has_many :source_instances,
-  always_include_linkage_data: true
+  primary_key :slug
+  key_type :string
+  attributes :name, :creator, :version
+  has_many :source_instances, always_include_linkage_data: true
 end

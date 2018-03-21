@@ -6,6 +6,7 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
       t.string :version
       t.string :creator
       t.string :website
+      t.string :slug
       t.string :languages, array: true, default: ['en_GB']
 
       t.timestamps
