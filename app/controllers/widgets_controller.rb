@@ -1,74 +1,43 @@
-class WidgetsController < JSONAPI::ResourceController
-  #before_action :set_widget, only: [:show, :edit, :update, :destroy]
+# Controller for Widget actions.
+class WidgetsController < ApplicationController
+  include JSONAPI::ActsAsResourceController
+  before_action :set_widget, only: %i[update destroy]
 
-  # GET /widgets
-  # GET /widgets.json
-  # def index
-  #   @widgets = Widget.all
-  # end
-  #
-  # # GET /widgets/1
-  # # GET /widgets/1.json
-  # def show
-  # end
-  #
-  # # GET /widgets/new
-  # def new
-  #   @widget = Widget.new
-  # end
-  #
-  # # GET /widgets/1/edit
-  # def edit
-  # end
-  #
-  # # POST /widgets
-  # # POST /widgets.json
-  # def create
-  #   @widget = Widget.new(widget_params)
-  #
-  #   respond_to do |format|
-  #     if @widget.save
-  #       format.html { redirect_to @widget, notice: 'Widget was successfully created.' }
-  #       format.json { render :show, status: :created, location: @widget }
-  #     else
-  #       format.html { render :new }
-  #       format.json { render json: @widget.errors, status: :unprocessable_entity }
-  #     end
-  #   end
-  # end
-  #
-  # # PATCH/PUT /widgets/1
-  # # PATCH/PUT /widgets/1.json
-  # def update
-  #   respond_to do |format|
-  #     if @widget.update(widget_params)
-  #       format.html { redirect_to @widget, notice: 'Widget was successfully updated.' }
-  #       format.json { render :show, status: :ok, location: @widget }
-  #     else
-  #       format.html { render :edit }
-  #       format.json { render json: @widget.errors, status: :unprocessable_entity }
-  #     end
-  #   end
-  # end
-  #
-  # # DELETE /widgets/1
-  # # DELETE /widgets/1.json
-  # def destroy
-  #   @widget.destroy
-  #   respond_to do |format|
-  #     format.html { redirect_to widgets_url, notice: 'Widget was successfully destroyed.' }
-  #     format.json { head :no_content }
-  #   end
-  # end
-  #
-  # private
-  #   # Use callbacks to share common setup or constraints between actions.
-  #   def set_widget
-  #     @widget = Widget.find(params[:id])
-  #   end
-  #
-  #   # Never trust parameters from the scary internet, only allow the white list through.
-  #   def widget_params
-  #     params.require(:widget).permit(:name, :author, :version, :website, :repository)
-  #   end
+  # POST /widgets
+  def create
+    return unless verify_content_type_header
+
+    attributes = params[:data][:attributes]
+    @widget = Widget.new
+    @widget.install(attributes[:name], attributes[:version])
+
+    process_request
+  end
+
+  # PATCH/PUT /widgets/1
+  def update
+    render plain: update
+  end
+
+  # DELETE /widgets/1
+  def destroy
+
+    # TODO: RecordNotFound errors need to be handled.
+  rescue ActiveRecord::RecordNotFound
+    render json: render_errors('TODO')
+
+    if @widget.uninstall(@widget.name)
+      process_request
+    else
+      render_errors('widget not found')
+    end
+  end
+
+
+  private
+
+  def set_widget
+    @widget = Widget.find(params[:id])
+  end
+
 end
