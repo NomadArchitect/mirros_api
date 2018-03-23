@@ -109,6 +109,8 @@ ActiveRecord::Schema.define(version: 20180321134058) do
     t.string "version"
     t.string "creator"
     t.string "website"
+    t.string "download"
+    t.string "slug"
     t.string "languages", default: ["en_GB"], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

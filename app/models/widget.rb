@@ -1,5 +1,4 @@
 class Widget < ApplicationRecord
-  include Installable
 
   has_many :widget_instances, dependent: :destroy
   has_many :services, dependent: :destroy
