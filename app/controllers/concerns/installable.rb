@@ -30,11 +30,11 @@ module Installable
   end
 
   def uninstall
+    determine_type
     engine = @model.attributes
     # TODO: implement service de-registration and other cleanup
     # TODO: Specify sub-folder based on engine type?
     FileUtils.rm_rf("engines/#{engine['name']}")
-
   end
 
   def update
