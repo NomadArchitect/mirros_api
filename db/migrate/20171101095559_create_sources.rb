@@ -1,10 +1,11 @@
 class CreateSources < ActiveRecord::Migration[5.1]
   def change
     create_table :sources do |t|
-      t.string :name
+      t.string :name, null: false
       t.string :creator
-      t.string :version
+      t.string :version, null: false
       t.string :website
+      t.string :download, null: false
       t.string :slug
 
       t.timestamps
