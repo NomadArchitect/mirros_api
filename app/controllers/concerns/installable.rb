@@ -20,6 +20,8 @@ module Installable
     engine = @model.attributes
     res = download_extension(engine['download'])
     extract_zip(engine['name'], res)
+    # TODO: Service registration etc.
+    # TODO: Validate @model against downloaded extension info (TBD)
   end
 
   def installed?
@@ -30,14 +32,15 @@ module Installable
   def uninstall
     engine = @model.attributes
     # TODO: implement service de-registration and other cleanup
+    # TODO: Specify sub-folder based on engine type?
     FileUtils.rm_rf("engines/#{engine['name']}")
 
   end
 
   def update
-    # TODO: implement
+    # TODO: implement, basically the same as install but maybe diverging logic
+    # for registrations etc.
     'not implemented'
-    # download_extract_zip(['download'], engine['name'])
   end
 
   private
@@ -49,6 +52,8 @@ module Installable
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
   end
 
+  # @param [String] uri The full URI to the extension file
+  # @return [Object] The parsed response body
   def download_extension(uri)
     res = HTTParty.get(uri)
     if res.code != 200 # HTTParty follows redirects by default
@@ -59,6 +64,8 @@ module Installable
     raise JSONAPI::Exceptions::InternalServerError.new(e.message), e.message
   end
 
+  # @param [String] filename Name of the temporary file used by Tempfile.
+  # @param [Object] contents Binary ZIP file object
   def extract_zip(filename, contents)
     tmp_file = Tempfile.new(filename)
     tmp_file.binmode.write(contents)
@@ -68,6 +75,7 @@ module Installable
     Zip::File.open(tmp_file.path) do |zip_file|
       zip_file.each do |entry|
         # Overwrite existing files instead of err'ing
+        # TODO: Specify sub-folder based on engine type?
         entry.extract("engines/#{entry.name}") { true }
       end
     end
