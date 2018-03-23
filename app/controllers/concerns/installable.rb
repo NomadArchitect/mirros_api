@@ -25,8 +25,7 @@ module Installable
   end
 
   def installed?
-    engine = @model.attributes
-    File.file?("engines/#{engine['name']}")
+    File.file?("engines/#{@model.attributes['name']}")
   end
 
   def uninstall
