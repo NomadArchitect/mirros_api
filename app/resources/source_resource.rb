@@ -8,7 +8,7 @@ class SourceResource < JSONAPI::Resource
   primary_key :slug
   key_type :string
   attributes :name, :creator, :version, :website, :download
-  has_many :source_instances, always_include_linkage_data: true
+  has_many :source_instances
   has_many :groups
   has_many :widgets, through: :groups
 end
