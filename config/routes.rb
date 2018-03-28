@@ -18,6 +18,7 @@ Rails.application.routes.draw do
 
   jsonapi_resources :widget_instances do
     jsonapi_related_resources :source_instances
+    jsonapi_related_resources :instance_associations
   end
 
   jsonapi_resources :instance_associations
