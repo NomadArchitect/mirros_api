@@ -39,7 +39,7 @@ module Installable
   def update
     # TODO: implement, basically the same as install but maybe diverging logic
     # for registrations etc.
-    'not implemented'
+    install
   end
 
   private
