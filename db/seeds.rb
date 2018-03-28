@@ -6,49 +6,32 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-Category.create(
-  [
-    { name: "productivity" },
-    { name: "home-automation" },
-    { name: "mobility" },
-    { name: "entertainment" },
-    { name: "health" }
-  ]
-)
 
 Group.create(
   [
     {
       name: "calendar",
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "reminder",
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "weather",
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "news",
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "public-transport",
-      categories: [Category.find_by_name("mobility")]
     },
     {
       name: "fuel",
-      categories: [Category.find_by_name("mobility")]
     },
     {
       name: "traffic",
-      categories: [Category.find_by_name("mobility")]
     },
     {
       name: "music-player",
-      categories: [Category.find_by_name("entertainment")]
     }
   ]
 )
@@ -62,7 +45,6 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "calendar_today",
@@ -70,7 +52,6 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/kalender/",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "todos",
@@ -78,7 +59,6 @@ Widget.create(
       version: "1.0.0",
       website: "https://glancr.de/module/produktivitaet/todos/",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
     }
   ]
 )
@@ -91,7 +71,6 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder"), Group.find_by_name("news")],
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "icloud",
@@ -99,7 +78,6 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar"), Group.find_by_name("reminder")],
-      categories: [ Category.find_by_name("productivity")]
     },
     {
       name: "ical",
@@ -107,7 +85,6 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("calendar")],
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "wunderlist",
@@ -115,7 +92,6 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
     },
     {
       name: "todoist",
@@ -123,7 +99,6 @@ Source.create(
       version: "1.0.0",
       website: "",
       groups: [Group.find_by_name("reminder")],
-      categories: [Category.find_by_name("productivity")]
     }
   ]
 )
