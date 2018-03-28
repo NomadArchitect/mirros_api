@@ -32,8 +32,6 @@ gem "jquery-rails", "~> 4.3.0"
 gem "sass-rails", "~> 5.0.0"
 gem "webpacker", "~> 3.3.0"
 
-# Form Builder
-gem "simple_form", "~> 3.5.0"
 
 # Data Visualization
 gem "rails-erd", "~> 1.5.0"
