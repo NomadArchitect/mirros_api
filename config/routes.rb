@@ -1,9 +1,6 @@
+# For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
 Rails.application.routes.draw do
-
-  # root ''
-
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-
   jsonapi_resources :widgets do
     jsonapi_related_resources :widget_instances
     jsonapi_related_resources :services
@@ -15,7 +12,5 @@ Rails.application.routes.draw do
 
   jsonapi_resources :services
 
-  # jsonapi_resources :categories
-  # jsonapi_resources :groups
 
 end
