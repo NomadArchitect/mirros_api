@@ -32,10 +32,6 @@ gem "jquery-rails", "~> 4.3.0"
 gem "sass-rails", "~> 5.0.0"
 gem "webpacker", "~> 3.3.0"
 
-
-# Data Visualization
-gem "rails-erd", "~> 1.5.0"
-
 # HTTP Client
 gem "httparty", "~> 0.16.0"
 
@@ -51,7 +47,6 @@ gem "json-schema", "~> 2.8.0"
 # gem "active_model_serializers", "~> 0.10.6"
 
 # Misc
-gem "git", "~> 1.3.0"
 gem "rubyzip", "~> 1.2.0"
 gem "friendly_id", "~> 5.1.0"
 
@@ -68,6 +63,10 @@ group :development do
   gem "web-console"
   gem "better_errors", "~> 2.4.0"
   gem "binding_of_caller", "~> 0.8.0"
+
+  gem "git", "~> 1.3.0"
+  # Data Visualization
+  gem "rails-erd", "~> 1.5.0"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
