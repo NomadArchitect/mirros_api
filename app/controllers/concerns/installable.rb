@@ -20,6 +20,7 @@ module Installable
     engine = @model.attributes
     res = download_extension(engine['download'])
     extract_zip(engine['name'], res)
+    MirrOS::Source.load_sources
     # TODO: Service registration etc.
     # TODO: Validate @model against downloaded extension info (TBD)
   end
@@ -34,6 +35,7 @@ module Installable
     # TODO: implement service de-registration and other cleanup
     # TODO: Specify sub-folder based on engine type?
     FileUtils.rm_rf("engines/#{engine['name']}")
+    MirrOS::Source.load_sources
   end
 
   def update
@@ -82,4 +84,3 @@ module Installable
   end
 
 end
-
