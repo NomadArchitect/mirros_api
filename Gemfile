@@ -73,6 +73,7 @@ end
 # gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Engines gems
+=begin
 Dir["engines/*/*.gemspec"].each do |gemspec_file|
   dir_name = File.dirname(gemspec_file)
   gem_name = File.basename(gemspec_file, File.extname(gemspec_file))
@@ -83,3 +84,5 @@ Dir["engines/*/*.gemspec"].each do |gemspec_file|
   gem gem_name, path: dir_name
 
 end
+=end
+eval_gemfile('Gemfile.local')

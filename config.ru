@@ -4,4 +4,4 @@ require_relative 'config/environment'
 
 run Rails.application
 
-MirrOS::Source.load_sources
+#MirrOS::Source.load_sources
