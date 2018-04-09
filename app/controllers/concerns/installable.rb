@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+require 'bundler/setup'
+require 'bundler/dependency'
+require 'bundler/injector'
+require 'bundler/installer'
+require 'pathname'
 
-require 'zip'
-require 'fileutils'
+#require 'zip'
+#require 'fileutils'
 
 # Provides methods to install, update and uninstall widgets and sources.
 module Installable
@@ -18,9 +23,34 @@ module Installable
     # Get a copy of the model attributes, so we operate on the passed values.
     # CAUTION: ActiveRecord.attributes() returns a hash with string keys!
     engine = @model.attributes
-    res = download_extension(engine['download'])
-    extract_zip(engine['name'], res)
-    MirrOS::Source.load_sources
+
+    gem, version = engine['name'], engine['version']
+    options = {:source => engine['download']}
+    puts "Generating dependency with #{gem}, version #{version} from #{options['source']}"
+
+    begin
+      dep = Bundler::Dependency.new(gem, version, options)
+      injector = Bundler::Injector.new([dep])
+
+      # Injector._append_to expects Pathname objects instead of path strings.
+      local_gemfile = Pathname.new(File.absolute_path('Gemfile.local'))
+      lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
+      new_deps = injector.inject(local_gemfile, lockfile)
+
+      puts "Added dependency #{new_deps} to #{local_gemfile}"
+    rescue Bundler::Dsl::DSLError => e
+      bundler_error
+    end
+
+    if new_deps.first.equal?(gem)
+      installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
+      installer.run({'gemfile': 'Gemfile.local'})
+
+      require gem ? nil : bundler_error
+    else
+      bundler_error
+    end
+
     # TODO: Service registration etc.
     # TODO: Validate @model against downloaded extension info (TBD)
   end
@@ -81,6 +111,11 @@ module Installable
       end
     end
     tmp_file.unlink
+  end
+
+  def bundler_error
+    raise JSONAPI::Exceptions::InternalServerError.new(
+        "Error while installing extension #{gem}: #{e.message}, code: #{e.status_code}")
   end
 
 end
