@@ -1,2 +1,1 @@
-source 'https://rubygems.org'
-source 'http://gems.marco-roth.ch'
+source "https://rubygems.org"
