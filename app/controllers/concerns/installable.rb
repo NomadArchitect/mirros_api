@@ -48,7 +48,7 @@ module Installable
   end
 
   def installed?
-    File.file?("engines/#{@model.attributes['name']}")
+    Gem.loaded_specs.keys.any?(gem)
   end
 
   def uninstall
