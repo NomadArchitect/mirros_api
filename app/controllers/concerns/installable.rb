@@ -78,13 +78,14 @@ module Installable
         tmp.write(line) unless line =~ search_text || line =~ /#/
       end
     end
-    tmp.rewind
 
+    tmp.rewind
     FileUtils.copy(tmp, "Gemfile.local")
     tmp.close!
 
-    cleaner = Bundler.load
-    cleaner.clean
+    # Once the extension gem is removed, clear its dependencies if they are no longer required (eq. `bundle clean`)
+    extensions = Bundler.setup(@extension_type)
+    extensions.clean
   end
 
   # @param [Object] error An optional Error object that has the methods message and status_code.
