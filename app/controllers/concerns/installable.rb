@@ -68,36 +68,6 @@ module Installable
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
   end
 
-  # @param [String] uri The full URI to the extension file
-  # @return [Object] The parsed response body
-  def download_extension(uri)
-    res = HTTParty.get(uri)
-    if res.code != 200 # HTTParty follows redirects by default
-      raise JSONAPI::Exceptions::InvalidFieldValue.new('download', uri)
-    end
-    res.parsed_response
-  rescue HTTParty::Error => e
-    raise JSONAPI::Exceptions::InternalServerError.new(e.message), e.message
-  end
-
-  # @param [String] filename Name of the temporary file used by Tempfile.
-  # @param [Object] contents Binary ZIP file object
-  def extract_zip(filename, contents)
-    tmp_file = Tempfile.new(filename)
-    tmp_file.binmode.write(contents)
-    tmp_file.close
-
-    # TODO: Catch errors from ZIP extraction (apart from overwrite)
-    Zip::File.open(tmp_file.path) do |zip_file|
-      zip_file.each do |entry|
-        # Overwrite existing files instead of err'ing
-        # TODO: Specify sub-folder based on engine type?
-        entry.extract("engines/#{entry.name}") { true }
-      end
-    end
-    tmp_file.unlink
-  end
-
   def uninstall_gem
     # Bundler has no remove method yet, so we need to manually remove the gem's line from the Gemfile.
     search_text = /gem "#{@gem}"/
