@@ -16,11 +16,10 @@ module Installable
     # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
     engine = @model.attributes
 
-    gem, version = engine['name'], engine['version']
-    options = {'source' => engine['download']}
+    @gem, @version = engine['name'], engine['version']
 
     begin
-      dep = Bundler::Dependency.new(gem, version, options)
+      dep = Bundler::Dependency.new(@gem, @version, options)
       injector = Bundler::Injector.new([dep])
 
       # Injector._append_to expects Pathname objects instead of path strings.
@@ -29,7 +28,7 @@ module Installable
       new_deps = injector.inject(local_gemfile, lockfile)
 
     rescue Bundler::Dsl::DSLError => e
-      bundler_error(gem, e)
+      bundler_error(e)
     end
 
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
@@ -38,7 +37,7 @@ module Installable
     begin
       Bundler.require # bundler_error(gem) unless
     rescue Bundler::LoadError => e
-      bundler_error(gem, e)
+      bundler_error(e)
     end
 
     # TODO: Service registration etc.
@@ -101,9 +100,11 @@ module Installable
     tmp_file.unlink
   end
 
-  def uninstall_gem(gem)
-    search_text = /gem "#{gem}"/
+  def uninstall_gem
+    # Bundler has no remove method yet, so we need to manually remove the gem's line from the Gemfile.
+    search_text = /gem "#{@gem}"/
     tmp = Tempfile.new(['Gemfile.local', '.tmp'])
+
     File.open("Gemfile.local", 'r') do |file|
       file.each_line do |line|
         tmp.write(line) unless line =~ search_text || line =~ /#/
@@ -118,9 +119,9 @@ module Installable
     cleaner.clean
   end
 
-  def bundler_error(gem, error = nil)
-    uninstall_gem(gem) # Roll back changes made to Gemfile.local
-    msg = "Error while installing extension #{gem})"
+  def bundler_error(error = nil)
+    uninstall_gem(@gem) # Roll back changes made to Gemfile.local
+    msg = "Error while installing extension #{@gem})"
     msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
     raise JSONAPI::Exceptions::InternalServerError.new(msg)
   end
