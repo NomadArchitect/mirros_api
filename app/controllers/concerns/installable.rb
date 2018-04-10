@@ -55,9 +55,24 @@ module Installable
   end
 
   def update
-    # TODO: implement, basically the same as install but maybe diverging logic
-    # for registrations etc.
-    install
+    # Bundle update
+    determine_type
+    engine = @model.attributes
+
+    search = /gem "#{engine['name']}", "= [0-9].[0-9].[0-9]"/
+    replace = "gem \"#{engine['name']}\", \"= #{engine['version']}\""
+
+    tmp = Tempfile.new(['Gemfile.local', '.tmp'], Rails.root.to_s + '/tmp')
+    tmp.write(File.read(Rails.root.to_s + '/Gemfile.local').dup.gsub(search, replace))
+    tmp.rewind
+    FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile.local")
+    tmp.close!
+
+    installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
+    installer.run({})
+
+    require_type
+    # TODO: service re-registration etc. necessary?
   end
 
   private
