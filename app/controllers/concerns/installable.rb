@@ -17,6 +17,8 @@ module Installable
     engine = @model.attributes
 
     @gem, @version = engine['name'], engine['version']
+    # Bundler.injector needs a string-keyed option hash.
+    options = {'source' => engine['download'], 'group' => @extension_type}
 
     begin
       dep = Bundler::Dependency.new(@gem, @version, options)
@@ -35,7 +37,8 @@ module Installable
     installer.run({'gemfile': 'Gemfile.local'}) #.local
 
     begin
-      Bundler.require # bundler_error(gem) unless
+      # Installed extensions are scoped by group. Reload just this group instead of all gems.
+      Bundler.require(@extension_type)
     rescue Bundler::LoadError => e
       bundler_error(e)
     end
