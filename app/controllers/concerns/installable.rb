@@ -4,6 +4,7 @@ require 'bundler/dependency'
 require 'bundler/injector'
 require 'bundler/installer'
 require 'pathname'
+require 'tempfile'
 
 #require 'zip'
 #require 'fileutils'
@@ -25,7 +26,7 @@ module Installable
     engine = @model.attributes
 
     gem, version = engine['name'], engine['version']
-    options = {:source => engine['download']}
+    options = {'source' => engine['download']}
     puts "Generating dependency with #{gem}, version #{version} from #{options['source']}"
 
     begin
@@ -39,17 +40,19 @@ module Installable
 
       puts "Added dependency #{new_deps} to #{local_gemfile}"
     rescue Bundler::Dsl::DSLError => e
-      bundler_error
+      bundler_error(gem, e)
     end
 
-    if new_deps.first.equal?(gem)
-      installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
-      installer.run({'gemfile': 'Gemfile.local'})
+    installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
+    installer.run({'gemfile': 'Gemfile.local'}) #.local
 
-      require gem ? nil : bundler_error
-    else
-      bundler_error
+    begin
+      Bundler.require # bundler_error(gem) unless
+    rescue Bundler::LoadError => e
+      bundler_error(gem, e)
     end
+
+    # Gem.loaded_specs.keys.any?(gem)
 
     # TODO: Service registration etc.
     # TODO: Validate @model against downloaded extension info (TBD)
@@ -63,9 +66,7 @@ module Installable
     determine_type
     engine = @model.attributes
     # TODO: implement service de-registration and other cleanup
-    # TODO: Specify sub-folder based on engine type?
-    FileUtils.rm_rf("engines/#{engine['name']}")
-    MirrOS::Source.load_sources
+    uninstall_gem(engine['name'])
   end
 
   def update
@@ -113,9 +114,28 @@ module Installable
     tmp_file.unlink
   end
 
-  def bundler_error
-    raise JSONAPI::Exceptions::InternalServerError.new(
-        "Error while installing extension #{gem}: #{e.message}, code: #{e.status_code}")
+  def uninstall_gem(gem)
+    search_text = /gem "#{gem}"/
+    tmp = Tempfile.new(['Gemfile.local', '.tmp'])
+    File.open("Gemfile.local", 'r') do |file|
+      file.each_line do |line|
+        tmp.write(line) unless line =~ search_text || line =~ /#/
+      end
+    end
+    tmp.rewind
+
+    FileUtils.copy(tmp, "Gemfile.local")
+    tmp.close!
+
+    cleaner = Bundler.load
+    cleaner.clean
+  end
+
+  def bundler_error(gem, error = nil)
+    uninstall_gem(gem) # Roll back changes made to Gemfile.local
+    msg = "Error while installing extension #{gem})"
+    msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
+    raise JSONAPI::Exceptions::InternalServerError.new(msg)
   end
 
 end
