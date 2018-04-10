@@ -41,6 +41,7 @@ module Installable
     # TODO: Service registration etc.
   end
 
+  # Checks whether the given extension resource is properly installed.
   def installed?
     Gem.loaded_specs.keys.any?(gem)
   end
@@ -61,8 +62,7 @@ module Installable
 
   private
 
-  # Ensure that this module is only used on classes that can actually be
-  # installed.
+  # Ensure that this module is only used on classes that can actually be installed.
   def determine_type
     @extension_type = self.class.name.downcase.sub('resource', '')
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
