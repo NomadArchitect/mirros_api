@@ -54,8 +54,9 @@ module Installable
   def uninstall
     determine_type
     engine = @model.attributes
+    @gem = engine['name']
+    uninstall_gem
     # TODO: implement service de-registration and other cleanup
-    uninstall_gem(engine['name'])
   end
 
   def update
