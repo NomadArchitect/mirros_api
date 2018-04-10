@@ -36,15 +36,9 @@ module Installable
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
     installer.run({})
 
-    begin
-      # Installed extensions are scoped by group. Reload just this group instead of all gems.
-      Bundler.require(@extension_type)
-    rescue Bundler::LoadError => e
-      bundler_error(e)
-    end
-
-    # TODO: Service registration etc.
     # TODO: Validate @model against downloaded extension info (TBD)
+    require_type
+    # TODO: Service registration etc.
   end
 
   def installed?
@@ -128,6 +122,15 @@ module Installable
     msg = "Error while installing extension #{@gem})"
     msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
     raise JSONAPI::Exceptions::InternalServerError.new(msg)
+  end
+
+  def require_type
+    begin
+      # Installed extensions are scoped by group. Reload just this group instead of all gems.
+      Bundler.require(@extension_type)
+    rescue Bundler::LoadError => e
+      bundler_error(e)
+    end
   end
 
 end
