@@ -34,7 +34,7 @@ module Installable
     end
 
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
-    installer.run({'gemfile': 'Gemfile.local'}) #.local
+    installer.run({})
 
     begin
       # Installed extensions are scoped by group. Reload just this group instead of all gems.
