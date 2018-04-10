@@ -43,7 +43,7 @@ module Installable
 
   # Checks whether the given extension resource is properly installed.
   def installed?
-    Gem.loaded_specs.keys.any?(gem)
+    Gem.loaded_specs.keys.any?(@model.attributes['name'])
   end
 
   def uninstall
