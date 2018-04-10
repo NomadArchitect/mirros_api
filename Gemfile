@@ -72,17 +72,5 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-# Engines gems
-=begin
-Dir["engines/*/*.gemspec"].each do |gemspec_file|
-  dir_name = File.dirname(gemspec_file)
-  gem_name = File.basename(gemspec_file, File.extname(gemspec_file))
-
-  # gemspec_file is "engines/my-engine/my_engine.gemspec"
-  # dir_name will be engines/my-engine
-  # gem_name will be my_engine
-  gem gem_name, path: dir_name
-
-end
-=end
+# Engine gems are located in a secondary file to prevent overwriting installation state on system update.
 eval_gemfile('Gemfile.local')
