@@ -6,28 +6,18 @@ require 'bundler/installer'
 require 'pathname'
 require 'tempfile'
 
-#require 'zip'
-#require 'fileutils'
-
 # Provides methods to install, update and uninstall widgets and sources.
 module Installable
 
   EXTENSION_TYPES = %w[widget source].freeze
 
   def install
-    # TODO: Print status to stdout if used via CLI
-    # puts "installing a #{@type}"
-    # puts "Downloading image from Glancr to '#{path}'..."
-    # puts "Extracting image to '#{extract_path}'..."
-    # puts "Extracting #{entry.name}"
     determine_type
-    # Get a copy of the model attributes, so we operate on the passed values.
-    # CAUTION: ActiveRecord.attributes() returns a hash with string keys!
+    # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
     engine = @model.attributes
 
     gem, version = engine['name'], engine['version']
     options = {'source' => engine['download']}
-    puts "Generating dependency with #{gem}, version #{version} from #{options['source']}"
 
     begin
       dep = Bundler::Dependency.new(gem, version, options)
@@ -38,7 +28,6 @@ module Installable
       lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
       new_deps = injector.inject(local_gemfile, lockfile)
 
-      puts "Added dependency #{new_deps} to #{local_gemfile}"
     rescue Bundler::Dsl::DSLError => e
       bundler_error(gem, e)
     end
@@ -51,8 +40,6 @@ module Installable
     rescue Bundler::LoadError => e
       bundler_error(gem, e)
     end
-
-    # Gem.loaded_specs.keys.any?(gem)
 
     # TODO: Service registration etc.
     # TODO: Validate @model against downloaded extension info (TBD)
