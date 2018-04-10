@@ -117,6 +117,7 @@ module Installable
     cleaner.clean
   end
 
+  # @param [Object] error An optional Error object that has the methods message and status_code.
   def bundler_error(error = nil)
     uninstall_gem(@gem) # Roll back changes made to Gemfile.local
     msg = "Error while installing extension #{@gem})"
