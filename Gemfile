@@ -71,6 +71,3 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
-# Engine gems are located in a secondary file to prevent overwriting installation state on system update.
-eval_gemfile('Gemfile.local')
