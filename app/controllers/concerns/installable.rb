@@ -39,6 +39,8 @@ module Installable
     refresh_runtime
 
     puts "#{@gem} #{@version} is installed: #{installed?(@gem, @version)}"
+    puts HTTParty::VERSION
+    puts Netatmo::VERSION
     # TODO: Service registration etc.
   end
 
