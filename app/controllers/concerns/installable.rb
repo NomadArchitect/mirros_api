@@ -130,7 +130,7 @@ module Installable
   def refresh_runtime
     begin
       # Installed extensions are scoped by group. Reload just this group instead of all gems.
-      new_runtime.require(*Rails.groups, @extension_type)
+      new_runtime.require(*Rails.groups, *EXTENSION_TYPES)
         #Bundler.require(@extension_type)
     rescue Bundler::GemRequireError => e
       bundler_error(e)
