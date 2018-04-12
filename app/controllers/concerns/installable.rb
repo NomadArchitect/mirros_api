@@ -36,31 +36,38 @@ module Installable
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
     installer.run({'jobs' => 5})
 
-    # TODO: Validate @model against downloaded extension info (TBD)
-    require_gem
-    # TODO: Service registration etc.
-    blubb = installed?
+    refresh_runtime
 
-    merde = "@gem".safe_constantize
+    puts "#{@gem} #{@version} is installed: #{installed?(@gem, @version)}"
+    # TODO: Service registration etc.
   end
 
   # Checks whether the given extension resource is properly installed.
-  def installed?
-    Gem.loaded_specs.keys.any?(@model.attributes['name'])
-    blubb = Gem.loaded_specs.keys.any?(@model.attributes['name'])
-    blubb
+  # @param [String] gem The gem name that should be checked.
+  # @param [String] version The version which should be installed.
+  def installed?(gem, version)
+    gem_present = Gem.loaded_specs.keys.any?(gem)
+    if gem_present
+      Gem.loaded_specs[gem].version === Gem::Version.new(version)
+    else
+      gem_present
+    end
   end
 
   def uninstall
     determine_type
     engine = @model.attributes
     @gem = engine['name']
-    uninstall_gem
+    remove_gem
+    rt = new_runtime
+    rt.lock
+    rt.clean
+    puts "#{@gem} #{engine['version']} is installed: #{installed?(@gem, engine['version'])}"
     # TODO: implement service de-registration and other cleanup
   end
 
+  # Update the extension gem's version in the Gemfile. Bundler currently has no clean way to do this.
   def update
-    # Bundle update
     determine_type
     engine = @model.attributes
 
@@ -73,10 +80,12 @@ module Installable
     FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile")
     tmp.close!
 
-    installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
-    installer.run({})
+    installer = Bundler::Installer.new(Bundler.root, new_definition)
+    installer.run({'jobs' => 5})
 
-    Bundler.require(*Rails.groups)
+    refresh_runtime
+    puts "#{@gem} #{@version} is installed: #{installed?(@gem, @version)}"
+
     # TODO: service re-registration etc. necessary?
   end
 
@@ -88,7 +97,7 @@ module Installable
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
   end
 
-  def uninstall_gem
+  def remove_gem
     # Bundler has no remove method yet, so we need to manually remove the gem's line from the Gemfile.
     search_text = /gem "#{@gem}"/
     tmp = Tempfile.new(['Gemfile', '.tmp'])
@@ -102,29 +111,33 @@ module Installable
     tmp.rewind
     FileUtils.copy(tmp, "Gemfile")
     tmp.close!
-
-    # Once the extension gem is removed, clear its dependencies if they are no longer required (eq. `bundle clean`)
-    extensions = Bundler::Runtime.new(Bundler.root, Bundler::Definition.build(Bundler.default_gemfile, Bundler.default_lockfile, nil))
-    extensions.clean
   end
 
   # @param [Object] error An optional Error object that has the methods message and status_code.
   def bundler_error(error = nil)
-    uninstall_gem # Roll back changes made to Gemfile_extensions
+    remove_gem # Roll back changes made to Gemfile_extensions
+    clean_bundle
     msg = "Error while installing extension #{@gem})"
     msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
     raise JSONAPI::Exceptions::InternalServerError.new(msg)
   end
 
-  def require_gem
+  def refresh_runtime
     begin
       # Installed extensions are scoped by group. Reload just this group instead of all gems.
-      rt = Bundler::Runtime.new(Bundler.root, Bundler::Definition.build(Bundler.default_gemfile, Bundler.default_lockfile, nil))
-      rt.require(*Rails.groups)
+      new_runtime.require(*Rails.groups, @extension_type)
         #Bundler.require(@extension_type)
     rescue Bundler::GemRequireError => e
       bundler_error(e)
     end
+  end
+
+  def new_runtime
+    Bundler::Runtime.new(Bundler.root, new_definition)
+  end
+
+  def new_definition
+    Bundler::Definition.build(Bundler.default_gemfile, Bundler.default_lockfile, nil)
   end
 
 end
