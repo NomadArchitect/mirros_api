@@ -15,10 +15,9 @@ module Installable
     determine_type
     # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
     engine = @model.attributes
-
     @gem, @version = engine['name'], engine['version']
-    # Bundler.injector needs a string-keyed option hash.
-    options = {'source' => engine['download'], 'group' => @extension_type}
+    options = {'source' => engine['download'], 'group' => @extension_type} # Injector uses a string-keyed option hash.
+    # TODO: Validate @model against downloaded extension info (TBD)
 
     begin
       dep = Bundler::Dependency.new(@gem, @version, options)
@@ -34,8 +33,6 @@ module Installable
       bundler_error(e)
     end
 
-    # default_lock = Bundler.default_lockfile
-    #
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
     installer.run({'jobs' => 5})
 
