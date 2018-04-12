@@ -54,18 +54,6 @@ module Installable
     end
   end
 
-  def uninstall
-    determine_type
-    engine = @model.attributes
-    @gem = engine['name']
-    remove_gem
-    rt = new_runtime
-    rt.lock
-    rt.clean
-    puts "#{@gem} #{engine['version']} is installed: #{installed?(@gem, engine['version'])}"
-    # TODO: implement service de-registration and other cleanup
-  end
-
   # Update the extension gem's version in the Gemfile. Bundler currently has no clean way to do this.
   def update
     determine_type
@@ -88,6 +76,23 @@ module Installable
 
     # TODO: service re-registration etc. necessary?
   end
+  def uninstall
+    determine_type
+    engine = @model.attributes
+    @gem = engine['name']
+    puts "#{@gem} #{engine['version']} is installed: #{installed?(@gem, engine['version'])}"
+
+    remove_gem
+
+    rt = new_runtime
+    rt.lock
+    rt.clean
+    refresh_runtime
+    puts "#{@gem} #{engine['version']} is installed: #{installed?(@gem, engine['version'])}"
+    # TODO: implement service de-registration and other cleanup
+  end
+
+
 
   private
 
