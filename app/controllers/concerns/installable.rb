@@ -36,11 +36,11 @@ module Installable
     installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
     installer.run({'jobs' => 5})
 
-    refresh_runtime
+    Bundler.reset!
+    Bundler.require(*Rails.groups, *EXTENSION_TYPES)
 
-    puts "#{@gem} #{@version} is installed: #{installed?(@gem, @version)}"
-    puts HTTParty::VERSION
-    puts Netatmo::VERSION
+    raise bundler_error unless installed?(@gem, @version)
+
     # TODO: Service registration etc.
   end
 
