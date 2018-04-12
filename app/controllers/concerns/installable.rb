@@ -107,14 +107,14 @@ module Installable
     search_text = /gem "#{@gem}"/
     tmp = Tempfile.new(['Gemfile', '.tmp'])
 
-    File.open("Gemfile", 'r') do |file|
+    File.open(Bundler.default_gemfile, 'r') do |file|
       file.each_line do |line|
         tmp.write(line) unless line =~ search_text || line =~ /# Added/ || line =~/^\n$/
       end
     end
 
     tmp.rewind
-    FileUtils.copy(tmp, "Gemfile")
+    FileUtils.copy(tmp, Bundler.default_gemfile)
     tmp.close!
   end
 
