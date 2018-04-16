@@ -70,7 +70,7 @@ module Installable
     FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile")
     tmp.close!
 
-    installer = Bundler::Installer.new(Bundler.root, new_definition)
+    installer = Bundler::Installer.new(Bundler.root, new_definition(:gems => [@gem]))
     installer.run({'jobs' => 5})
 
     refresh_runtime
