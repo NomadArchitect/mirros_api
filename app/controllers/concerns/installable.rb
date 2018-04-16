@@ -135,7 +135,7 @@ module Installable
     rt.clean
     msg = "Error while installing extension #{@gem})"
     msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
-    raise JSONAPI::Exceptions::InternalServerError.new(msg)
+    raise StandardError.new(msg)
   end
 
   # Resets the Bundler runtime to ensure that the Gemfile specs are loaded. Unfortunately, this has no effect on Rubygems
