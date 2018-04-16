@@ -73,8 +73,11 @@ module Installable
     installer = Bundler::Installer.new(Bundler.root, new_definition(:gems => [@gem]))
     installer.run({'jobs' => 5})
 
-    refresh_runtime
-    puts "#{@gem} #{@version} is installed: #{installed?(@gem, @version)}"
+    # Reload the Rails class reloader.
+    ActiveSupport::Reloader.reload!
+
+    #Bundler.reset!
+    #Bundler.require(*Rails.groups, *EXTENSION_TYPES)
 
     # TODO: service re-registration etc. necessary?
   end
