@@ -3,7 +3,7 @@ class WidgetResource < JSONAPI::Resource
   include Installable
   after_create :install
   after_update :update
-  before_remove :uninstall
+  after_remove :uninstall
 
   primary_key :slug
   key_type :string
