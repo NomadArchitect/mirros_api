@@ -12,95 +12,77 @@ module Installable
   EXTENSION_TYPES = %w[widget source].freeze
 
   def install
-    determine_type
-    # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
-    engine = @model.attributes
-    @gem, @version = engine['name'], engine['version']
-    options = {'source' => engine['download'], 'group' => @extension_type} # Injector uses a string-keyed option hash.
-    # TODO: Validate @model against downloaded extension info (TBD)
-
+    setup_instance
+    inject_gem
+    
     begin
-      dep = Bundler::Dependency.new(@gem, @version, options)
-      injector = Bundler::Injector.new([dep])
-
-      # Injector._append_to expects Pathname objects instead of path strings.
-      gemfile = Pathname.new(File.absolute_path('Gemfile'))
-      lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
-
-      new_deps = injector.inject(gemfile, lockfile)
-
-    rescue Bundler::Dsl::DSLError => e
-      bundler_error(e)
+      options = {'jobs' => 5, 'without' => 'development'}
+      installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
+      installer.run(options)
+    rescue Bundler::BundlerError => e
+      remove_from_gemfile
+      raise bundler_error(error)
     end
-
-    installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
-    installer.run({'jobs' => 5})
-
+    
     refresh_runtime
 
-    raise bundler_error unless installed?(@gem, @version)
-
-    # TODO: Service registration etc.
-  end
-
-  # Checks whether the given extension resource is properly installed.
-  # @param [String] gem The gem name that should be checked.
-  # @param [String] version The version which should be installed.
-  def installed?(gem, version)
-    gem_present = Gem.loaded_specs.keys.any?(gem)
-    if gem_present
-      Gem.loaded_specs[gem].version === Gem::Version.new(version)
-    else
-      gem_present
+    unless installed?(@gem, @version)
+      remove_from_gemfile
+      raise bundler_error(error)
     end
+
+    # TODO: Service registration etc if not possible through Engine functionality.
   end
 
-  # Update the extension gem's version in the Gemfile. Use search/replace since Bundler has no clean API to update the Gemfile with a new version.
+  # Update the extension to the passed version.
   def update
-    determine_type
-    engine = @model.attributes
-    @gem, @version = engine['name'], engine['version']
+    setup_instance
 
-    search = /gem "#{@gem}", "= [0-9].[0-9].[0-9]"/
-    replace = "gem \"#{@gem}\", \"= #{@version}\""
+    prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
+    change_gem_version(@version)
+    
+    begin
+      options = {'without' => 'development', 'jobs' => 5}
+      installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => ['netatmo']), options)
+    rescue Bundler::BundlerError => e
+      change_gem_version(prev_version)
+      raise bundler_error(e)
+    end
+    
+    # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or 
+    # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.  
+    fork {
+      restart = system("rails restart")
 
-    tmp = Tempfile.new(['Gemfile', '.tmp'], Rails.root.to_s + '/tmp')
-    tmp.write(File.read(Rails.root.to_s + '/Gemfile').dup.gsub(search, replace))
-    tmp.rewind
-    FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile")
-    tmp.close!
-
-    installer = Bundler::Installer.new(Bundler.root, new_definition(:gems => [@gem]))
-    installer.run({'jobs' => 5})
-
-    # Reload the Rails class reloader.
-    ActiveSupport::Reloader.reload!
-
-    #Bundler.reset!
-    #Bundler.require(*Rails.groups, *EXTENSION_TYPES)
-
-    # TODO: service re-registration etc. necessary?
+      unless restart === true
+        change_gem_version(prev_version)
+        system("rails restart") # Restart a second time with the old gem version which should be installed.
+      end
+    }
   end
 
   # Uninstalls an extension gem.
   def uninstall
-    determine_type
-    engine = @model.attributes
-    @gem = engine['name']
-
+    setup_instance
     remove_from_gemfile
+
     # Create a new runtime to regenerate the lockfile and clean up stale dependencies.
-    rt = Bundler::Runtime.new(Bundler.root, new_definition)
-    rt.lock
-    rt.clean
+    # begin
+    #   rt = Bundler::Runtime.new(Bundler.root, new_definition)
+    #   rt.clean
+    # rescue Bundler::BundlerError => e
+    #   inject_gem
+    #   raise bundler_error(e)
+    # end
+    
+    fork {
+      restart = system("rails restart")
 
-    # Reload the bundle environment so that Rails does not try to require files from the uninstalled gem.
-    refresh_runtime
+      if restart != true
+        inject_gem # Re-add the gem so that Gemfile and installation state are consistent.
+      end
+    }
 
-    # @FIXME: Loaded specs do still include the uninstalled gem, possibly due to class caching.
-    # If the gem is no longer on the load path, it's probably safe to assume no load errors on further requests.
-    # Is there a clean way to remove the gem from $LOADED_FEATURES during runtime?
-    #raise StandardError.new("#{@gem} still on $LOAD_PATH") if in_load_path?
     # TODO: implement service de-registration and other cleanup
   end
 
@@ -118,6 +100,23 @@ module Installable
     # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 
+  def inject_gem
+    options = {'source' => @engine['download'], 'group' => @extension_type} # Injector uses a string-keyed option hash.
+    # TODO: Validate @model against downloaded extension info (TBD)
+
+    begin
+      dep = Bundler::Dependency.new(@gem, @version, options)
+      injector = Bundler::Injector.new([dep])
+
+      # Injector._append_to expects Pathname objects instead of path strings.
+      gemfile = Pathname.new(File.absolute_path('Gemfile'))
+      lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
+
+      new_deps = injector.inject(gemfile, lockfile)
+
+    rescue Bundler::Dsl::DSLError => e
+      bundler_error(e)
+    end
   end
 
   # Removes this instance's @gem from Gemfile. Bundler has no remove method yet, so we need to search/replace.
@@ -127,7 +126,7 @@ module Installable
 
     File.open(Bundler.default_gemfile, 'r') do |file|
       file.each_line do |line|
-        tmp.write(line) unless line =~ search_text || line =~ /# Added/ || line =~/^\n$/ # Removes autogenerated lines
+        tmp.write(line) unless line =~ search_text || line =~ /# Added/ # Removes autogenerated lines
       end
     end
 
@@ -136,15 +135,25 @@ module Installable
     tmp.close!
   end
 
+  def change_gem_version(version)
+    search = /gem "#{@gem}", "= [0-9].[0-9].[0-9]"/
+    replace = "gem \"#{@gem}\", \"= #{version}\""
+
+    tmp = Tempfile.new(['Gemfile', '.tmp'], Rails.root.to_s + '/tmp')
+    tmp.write(File.read(Rails.root.to_s + '/Gemfile').dup.gsub(search, replace))
+    tmp.rewind
+    FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile")
+    tmp.close!
+  end
+
   # Cleans up the bundle and raises an exception in case there is an error during Bundler operations.
   # @param [Object] error An optional Error object that has the methods message and status_code.
   def bundler_error(error = nil)
-    remove_from_gemfile # Roll back changes made to Gemfile
     rt = new_runtime
     rt.lock
     rt.clean
-    msg = "Error while installing extension #{@gem})"
-    msg += error.nil? ? ": #{error.message}, code: #{error.status_code}" : ""
+    msg = "Error while installing extension #{@gem}: "
+    msg += error.nil? ? "#{error.message}, code: #{error.status_code}" : "Gem not in loaded specs"
     raise StandardError.new(msg)
   end
 
@@ -171,9 +180,16 @@ module Installable
     Bundler::Definition.build(Bundler.default_gemfile, Bundler.default_lockfile, unlock)
   end
 
-  # @return [Boolean] Whether the gem is present in the load path. Uses the instance variable @gem.
-  def in_load_path?
-    $LOAD_PATH.any? {|path| path.include? @gem}
+  # Checks whether the given extension resource is properly installed.
+  # @param [String] gem The gem name that should be checked.
+  # @param [String] version The version which should be installed.
+  def installed?(gem, version)
+    gem_present = Gem.loaded_specs.keys.any?(gem)
+    if gem_present
+      Gem.loaded_specs[gem].version === Gem::Version.new(version)
+    else
+      gem_present
+    end
   end
 
 end
