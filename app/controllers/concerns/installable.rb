@@ -107,10 +107,17 @@ module Installable
 
   private
 
-  # Ensure that this module is only used on classes that can actually be installed.
-  def determine_type
+  # Sets up the instance variables after validation.
+  def setup_instance
     @extension_type = self.class.name.downcase.sub('resource', '')
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
+
+    @engine = @model.attributes
+    # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
+    @gem, @version = @engine['name'], @engine['version']
+    # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
+  end
+
   end
 
   # Removes this instance's @gem from Gemfile. Bundler has no remove method yet, so we need to search/replace.
