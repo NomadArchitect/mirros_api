@@ -65,15 +65,6 @@ module Installable
   def uninstall
     setup_instance
     remove_from_gemfile
-
-    # Create a new runtime to regenerate the lockfile and clean up stale dependencies.
-    # begin
-    #   rt = Bundler::Runtime.new(Bundler.root, new_definition)
-    #   rt.clean
-    # rescue Bundler::BundlerError => e
-    #   inject_gem
-    #   raise bundler_error(e)
-    # end
     
     fork {
       restart = system("rails restart")
