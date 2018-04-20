@@ -13,22 +13,22 @@ module Installable
 
   def install
     setup_instance
-    inject_gem
-    
+
     begin
+      inject_gem
       options = {'jobs' => 5, 'without' => 'development'}
       installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
       installer.run(options)
-    rescue Bundler::BundlerError => e
+    rescue Bundler::BundlerError, Net::HTTPError => e
       remove_from_gemfile
-      raise bundler_error(error)
+      raise bundler_error(e)
     end
-    
+
     refresh_runtime
 
     unless installed?(@gem, @version)
       remove_from_gemfile
-      raise bundler_error(error)
+      raise bundler_error
     end
 
     # TODO: Service registration etc if not possible through Engine functionality.
@@ -40,7 +40,7 @@ module Installable
 
     prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
     change_gem_version(@version)
-    
+
     begin
       options = {'without' => 'development', 'jobs' => 5}
       installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => ['netatmo']), options)
@@ -48,9 +48,9 @@ module Installable
       change_gem_version(prev_version)
       raise bundler_error(e)
     end
-    
-    # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or 
-    # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.  
+
+    # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
+    # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
     fork {
       restart = system("rails restart")
 
@@ -65,7 +65,7 @@ module Installable
   def uninstall
     setup_instance
     remove_from_gemfile
-    
+
     fork {
       restart = system("rails restart")
 
