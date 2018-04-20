@@ -8,21 +8,24 @@ module MirrOS
 
     def Source.load_sources(source = "")
 
-      begin
-        gemfile(true) do
-          if source.empty?
-            sources = Dir.glob("#{BASE}/*")
+      sources = Dir.glob("#{BASE}/*")
 
-            sources.each do |e|
-              gem e.gsub("#{BASE}/", ""), path: e
+      unless sources.count == 0
+        begin
+          gemfile(true) do
+            if source.empty?
+              sources.each do |e|
+                gem e.gsub("#{BASE}/", ""), path: e
+              end
+            else
+              gem source, path: "#{BASE}/#{source}"
             end
-
-          else
-            gem source, path: "#{BASE}/#{source}"
           end
+        rescue
+          puts "Source '#{source}' could not be loaded or found"
         end
-      rescue
-        puts "Source '#{source}' could not be loaded or found"
+      else
+        puts "No sources found in '#{BASE}'"
       end
     end
 
