@@ -33,6 +33,8 @@ gem "jsonapi-resources", "~> 0.9.0"
 gem "jbuilder", "~> 2.5"
 gem "json-schema", "~> 2.8.0"
 # gem "active_model_serializers", "~> 0.10.6"
+# Scheduling and task management
+gem "rufus-scheduler", "~> 3.4.2"
 # Misc
 gem "rubyzip", "~> 1.2.0"
 gem "friendly_id", "~> 5.1.0"
