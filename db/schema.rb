@@ -83,6 +83,7 @@ ActiveRecord::Schema.define(version: 20180326152530) do
 
   create_table "widget_instances", force: :cascade do |t|
     t.integer "widget_id"
+    t.json "configuration"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["widget_id"], name: "index_widget_instances_on_widget_id"
