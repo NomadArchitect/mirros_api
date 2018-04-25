@@ -2,6 +2,7 @@ class CreateWidgetInstances < ActiveRecord::Migration[5.1]
   def change
     create_table :widget_instances do |t|
       t.integer :widget_id
+      t.json :configuration
 
       t.timestamps
     end
