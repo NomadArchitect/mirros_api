@@ -65,6 +65,8 @@ ActiveRecord::Schema.define(version: 20180326152530) do
 
   create_table "source_instances", force: :cascade do |t|
     t.integer "source_id"
+    t.string "title"
+    t.json "configuration"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["source_id"], name: "index_source_instances_on_source_id"
