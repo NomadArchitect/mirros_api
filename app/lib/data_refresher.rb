@@ -30,12 +30,11 @@ class DataRefresher
     end
 
     active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
-    engine_inst = engine.new(sourceInstance.configuration)
 
     job = s.schedule_interval "#{engine.refresh_interval}", :tag => tag_instance(source.name, sourceInstance.id) do |job|
+      engine_inst = engine.new(sourceInstance.configuration)
       Rails.logger.info "current time: #{Time.now}, refreshing instance #{sourceInstance.id} of #{source.name}"
-      #, data: to_json(engine_inst.fetch_data(active_subresources))
-      sourceInstance.update(last_refresh: job.last_time)
+      sourceInstance.update(last_refresh: job.last_time, data: engine_inst.fetch_data(active_subresources))
     end
     # Update the job ID once per scheduling, so we have the current one available as a backup.
     sourceInstance.update(job_id: job.job_id)
