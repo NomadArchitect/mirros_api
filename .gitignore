@@ -28,3 +28,4 @@ yarn-debug.log*
 .yarn-integrity
 yarn-error.log
 /vendor/bundle
+/.rufus-scheduler.lock

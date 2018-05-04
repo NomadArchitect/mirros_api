@@ -42,8 +42,8 @@ module Installable
     change_gem_version(@version)
 
     begin
-      options = {'without' => 'development', 'jobs' => 5}
-      installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => ['netatmo']), options)
+      options = {'without' => ['development', 'test'], 'jobs' => 5}
+      installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => [@gem]), options)
     rescue Bundler::BundlerError => e
       change_gem_version(prev_version)
       raise bundler_error(e)

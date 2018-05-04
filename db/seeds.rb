@@ -118,10 +118,18 @@ WidgetInstance.create(
 SourceInstance.create(
   [
     {
-      source: Source.first
-    },
+      source: Source.find_by_name('ical'),
+      configuration: {'url': 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'}
+    }
+  ]
+)
+
+InstanceAssociation.create(
+  [
     {
-      source: Source.last
+      configuration: ['calendar'],
+      widget_instance: WidgetInstance.find(1),
+      source_instance: SourceInstance.first
     }
   ]
 )
