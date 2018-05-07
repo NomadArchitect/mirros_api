@@ -1,4 +1,5 @@
 class Widget < ApplicationRecord
+  self.primary_key = 'slug'
 
   has_many :widget_instances, dependent: :destroy
   has_many :services, dependent: :destroy

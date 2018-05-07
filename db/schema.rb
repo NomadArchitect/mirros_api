@@ -57,14 +57,14 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
   create_table "services", force: :cascade do |t|
     t.string "status"
     t.json "parameters"
-    t.integer "widget_id"
+    t.string "widget_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["widget_id"], name: "index_services_on_widget_id"
   end
 
   create_table "source_instances", force: :cascade do |t|
-    t.integer "source_id"
+    t.string "source_id"
     t.string "title"
     t.json "configuration"
     t.string "job_id"
@@ -82,13 +82,14 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
     t.string "version", null: false
     t.string "website"
     t.string "download", null: false
-    t.string "slug"
+    t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_sources_on_slug", unique: true
   end
 
   create_table "widget_instances", force: :cascade do |t|
-    t.integer "widget_id"
+    t.string "widget_id"
     t.json "configuration"
     t.json "position"
     t.datetime "created_at", null: false
@@ -98,15 +99,16 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
 
   create_table "widgets", force: :cascade do |t|
     t.string "name", null: false
-    t.string "icon"
     t.string "version", null: false
     t.string "creator"
     t.string "website"
     t.string "download", null: false
-    t.string "slug"
+    t.string "slug", null: false
+    t.string "icon"
     t.string "languages", default: ["en_GB"], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_widgets_on_slug", unique: true
   end
 
   add_foreign_key "instance_associations", "source_instances"
