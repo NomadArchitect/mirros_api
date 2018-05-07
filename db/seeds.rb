@@ -107,10 +107,22 @@ Source.create(
 WidgetInstance.create(
   [
     {
-      widget: Widget.first
+      widget: Widget.first,
+      position: {
+        x: 1,
+        y: 1,
+        width: 2,
+        height: 2
+      }
     },
     {
-      widget: Widget.last
+      widget: Widget.last,
+      position: {
+        x: 10,
+        y: 6,
+        width: 4,
+        height: 2
+      }
     }
   ]
 )
