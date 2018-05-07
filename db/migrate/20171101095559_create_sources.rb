@@ -6,9 +6,10 @@ class CreateSources < ActiveRecord::Migration[5.1]
       t.string :version, null: false
       t.string :website
       t.string :download, null: false
-      t.string :slug
+      t.string :slug, null: false
 
       t.timestamps
     end
+    add_index :sources, :slug, :unique => true
   end
 end

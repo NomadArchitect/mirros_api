@@ -1,4 +1,6 @@
 class Source < ApplicationRecord
+  self.primary_key = 'slug'
+
   has_many :source_instances, dependent: :destroy
   has_and_belongs_to_many :groups
   has_many :widgets, through: :groups
