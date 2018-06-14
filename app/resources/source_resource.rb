@@ -10,6 +10,6 @@ class SourceResource < JSONAPI::Resource
   key_type :string
   attributes :name, :creator, :version, :website, :download
   has_many :source_instances
-  has_many :groups
+  has_many :groups, always_include_linkage_data: true
   has_many :widgets, through: :groups
 end
