@@ -99,6 +99,8 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
 
   create_table "widgets", force: :cascade do |t|
     t.string "name", null: false
+    t.json "title", null: false
+    t.json "description", null: false
     t.string "version", null: false
     t.string "creator"
     t.string "website"
