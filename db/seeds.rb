@@ -40,7 +40,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_week-1.0.0.zip',
-      groups: [Group.find_by_name('calendar')]
+      groups: [Group.find_by(name: 'calendar')]
     },
     {
       name: 'calendar_today',
@@ -50,7 +50,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_today-1.0.0.zip',
-      groups: [Group.find_by_name('calendar')]
+      groups: [Group.find_by(name: 'calendar')]
     },
     {
       name: 'todoist',
@@ -60,10 +60,11 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/todos/',
       download: 'https://api.glancr.de/extensions/widgets/todos-1.0.0.zip',
-      groups: [Group.find_by_name('reminder')]
+      groups: [Group.find_by(name: 'reminder')]
     }
   ]
 )
+Rails.logger.info(Group.find_by(name: 'calendar'))
 
 Source.create(
   [
@@ -73,7 +74,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/google-1.0.0.zip',
-      groups: [Group.find_by_name('calendar'), Group.find_by_name('reminder'), Group.find_by_name('news')]
+      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder'), Group.find_by(name: 'news')]
     },
     {
       name: 'icloud',
@@ -81,7 +82,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/icloud-1.0.0.zip',
-      groups: [Group.find_by_name('calendar'), Group.find_by_name('reminder')]
+      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder')]
     },
     {
       name: 'ical',
@@ -89,7 +90,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/ical-1.0.0.zip',
-      groups: [Group.find_by_name('calendar')]
+      groups: [Group.find_by(name: 'calendar')]
     },
     {
       name: 'wunderlist',
@@ -97,7 +98,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/wunderlist-1.0.0.zip',
-      groups: [Group.find_by_name('reminder')]
+      groups: [Group.find_by(name: 'reminder')]
     },
     {
       name: 'todoist',
@@ -105,7 +106,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/todoist-1.0.0.zip',
-      groups: [Group.find_by_name('reminder')]
+      groups: [Group.find_by(name: 'reminder')]
     }
   ]
 )
@@ -136,7 +137,7 @@ WidgetInstance.create(
 SourceInstance.create(
   [
     {
-      source: Source.find_by_name('ical'),
+      source: Source.find_by(name: 'ical'),
       configuration: {'url': 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'}
     }
   ]

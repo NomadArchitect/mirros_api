@@ -3,14 +3,12 @@
 Rails.application.routes.draw do
   jsonapi_resources :widgets do
     jsonapi_related_resources :widget_instances
-    jsonapi_related_resources :sources
     jsonapi_related_resources :services
     jsonapi_related_resources :groups
   end
 
   jsonapi_resources :sources do
     jsonapi_related_resources :source_instances
-    jsonapi_related_resources :widgets
     jsonapi_related_resources :groups
   end
 
