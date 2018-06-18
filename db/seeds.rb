@@ -70,14 +70,20 @@ Source.create(
   [
     {
       name: 'google',
+      title: {'en_GB' => 'Google', 'de_DE' => 'Google'},
+      description: {'en_GB' => 'Access data from your Google account. Supports Calendar and Tasks.',
+                    'de_DE' => 'Greife auf Daten aus deinem Google-Konto zu. Unterstützt Kalender und Aufgaben.'},
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/google-1.0.0.zip',
-      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder'), Group.find_by(name: 'news')]
+      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder')]
     },
     {
       name: 'icloud',
+      title: {'en_GB' => 'iCloud', 'de_DE' => 'iCloud'},
+      description: {'en_GB' => 'Access data from your iCloud account. Supports Calendar and Tasks.',
+                    'de_DE' => 'Greife auf Daten aus deinem iCloud-Konto zu. Unterstützt Kalender und Aufgaben.'},
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
@@ -86,27 +92,14 @@ Source.create(
     },
     {
       name: 'ical',
+      title: {'en_GB' => 'iCalendar', 'de_DE' => 'iCalendar'},
+      description: {'en_GB' => 'Access data from online calendars in iCal format. Supports both public and password-protected iCal links.',
+                    'de_DE' => 'Greife auf Daten aus Online-Kalendern im iCal-Format zu. Unterstützt sowohl öffentliche als auch passwortgeschützte iCal-Links.'},
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/ical-1.0.0.zip',
       groups: [Group.find_by(name: 'calendar')]
-    },
-    {
-      name: 'wunderlist',
-      creator: 'Marco Roth',
-      version: '1.0.0',
-      website: '',
-      download: 'https://api.glancr.de/extensions/sources/wunderlist-1.0.0.zip',
-      groups: [Group.find_by(name: 'reminder')]
-    },
-    {
-      name: 'todoist',
-      creator: 'Marco Roth',
-      version: '1.0.0',
-      website: '',
-      download: 'https://api.glancr.de/extensions/sources/todoist-1.0.0.zip',
-      groups: [Group.find_by(name: 'reminder')]
     }
   ]
 )
