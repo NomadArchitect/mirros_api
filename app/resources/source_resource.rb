@@ -9,7 +9,7 @@ class SourceResource < JSONAPI::Resource
   primary_key :slug
   key_type :string
 
-  attributes :name, :creator, :version, :website, :download
+  attributes :name, :title, :description, :creator, :version, :website, :download
   has_many :source_instances
   has_many :groups
 end
