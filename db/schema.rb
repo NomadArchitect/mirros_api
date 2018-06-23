@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_03_26_152530) do
+ActiveRecord::Schema.define(version: 2018_06_21_103319) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,13 +35,17 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
   end
 
   create_table "groups_sources", id: false, force: :cascade do |t|
-    t.bigint "group_id", null: false
-    t.bigint "source_id", null: false
+    t.bigint "group_id"
+    t.string "source_id"
+    t.index ["group_id"], name: "index_groups_sources_on_group_id"
+    t.index ["source_id"], name: "index_groups_sources_on_source_id"
   end
 
   create_table "groups_widgets", id: false, force: :cascade do |t|
-    t.bigint "group_id", null: false
-    t.bigint "widget_id", null: false
+    t.bigint "group_id"
+    t.string "widget_id"
+    t.index ["group_id"], name: "index_groups_widgets_on_group_id"
+    t.index ["widget_id"], name: "index_groups_widgets_on_widget_id"
   end
 
   create_table "instance_associations", force: :cascade do |t|
@@ -63,6 +67,14 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
     t.index ["widget_id"], name: "index_services_on_widget_id"
   end
 
+  create_table "settings", force: :cascade do |t|
+    t.string "category"
+    t.string "key"
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "source_instances", force: :cascade do |t|
     t.string "source_id"
     t.string "title"
@@ -78,6 +90,8 @@ ActiveRecord::Schema.define(version: 2018_03_26_152530) do
 
   create_table "sources", force: :cascade do |t|
     t.string "name", null: false
+    t.json "title", null: false
+    t.json "description", null: false
     t.string "creator"
     t.string "version", null: false
     t.string "website"
