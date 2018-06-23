@@ -23,4 +23,5 @@ Rails.application.routes.draw do
 
   jsonapi_resources :instance_associations
   jsonapi_resources :groups
+  jsonapi_resources :settings
 end
