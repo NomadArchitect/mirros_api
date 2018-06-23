@@ -166,3 +166,28 @@ Service.create(
     }
   ]
 )
+
+Setting.create(
+         [
+           {
+             category: 'display',
+             key: 'orientation',
+             value: "1"
+           },
+           {
+             category: 'system',
+             key: 'language',
+             value: 'deDe'
+           },
+           {
+             category: 'personal',
+             key: 'email',
+             value: 'tg@glancr.de'
+           },
+           {
+             category: 'personal',
+             key: 'name',
+             value: 'Tobias'
+           }
+         ]
+)
