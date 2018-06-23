@@ -7,6 +7,6 @@ class Setting < ApplicationRecord
   friendly_id :category_and_key, use: :slugged
 
   def category_and_key
-    "#{category}-#{key}"
+    "#{category}_#{key}"
   end
 end
