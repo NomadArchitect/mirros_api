@@ -175,6 +175,36 @@ Setting.create(
              value: "1"
            },
            {
+             category: 'display',
+             key: 'offInterval',
+             value: 'daily'
+           },
+           {
+             category: 'display',
+             key: 'offIntervalStart',
+             value: '00:00'
+           },
+           {
+             category: 'display',
+             key: 'offIntervalEnd',
+             value: '00:00'
+           },
+           {
+             category: 'network',
+             key: 'connectionType',
+             value: 'WLAN'
+           },
+           {
+             category: 'network',
+             key: 'network',
+             value: 'my-WiFi'
+           },
+           {
+             category: 'network',
+             key: 'password',
+             value: 'my-password'
+           },
+           {
              category: 'system',
              key: 'language',
              value: 'deDe'
@@ -188,6 +218,11 @@ Setting.create(
              category: 'personal',
              key: 'name',
              value: 'Tobias'
+           },
+           {
+             category: 'personal',
+             key: 'city',
+             value: 'Halle (Saale)'
            }
          ]
 )
