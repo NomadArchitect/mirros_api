@@ -196,7 +196,7 @@ Setting.create(
            },
            {
              category: 'network',
-             key: 'network',
+             key: 'ssid',
              value: 'my-WiFi'
            },
            {
