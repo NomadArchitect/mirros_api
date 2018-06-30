@@ -10,8 +10,8 @@ class Setting < ApplicationRecord
     "#{category}_#{key}"
   end
 
-  def self.get_options(key)
-    o = SettingOptions.get_options_yaml[key.to_sym]
+  def get_options
+    o = SettingOptions.get_options_yaml[slug.to_sym]
     o = [] if o.nil?
     o
   end

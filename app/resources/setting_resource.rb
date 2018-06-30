@@ -8,7 +8,7 @@ class SettingResource < JSONAPI::Resource
   attribute :options
 
   def options
-    Setting.get_options(@model.slug)
+    @model.get_options
   end
 
   def self.updatable_fields(context)
