@@ -1,7 +1,10 @@
 module Todoist
   class Engine
-    def self.schedule_rate
-      '1m'
+    REFRESH_INTERVAL = '5m'.freeze
+
+    # @return [String]
+    def self.refresh_interval
+      REFRESH_INTERVAL
     end
 
     def refresh

@@ -1,7 +1,11 @@
 module Google
   class Engine
-    def self.schedule_rate
-      '5m'
+
+    REFRESH_INTERVAL = '5m'.freeze
+
+    # @return [String]
+    def self.refresh_interval
+      REFRESH_INTERVAL
     end
 
     def refresh
