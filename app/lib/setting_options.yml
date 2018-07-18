@@ -1,12 +1,17 @@
-setting_options:
-  display_offinterval:
-    - daily: daily
-    - "off": "off"
-  display_orientation:
-    - 1: 0°
-    - 2: 90°
-    - 3: 180°
-    - 4: 270°
-  network_connectiontype:
-    - wlan: WiFi
-    - lan: LAN
+# Enumerates options for system settings that are not arbitrary text.
+display_offinterval:
+  daily: daily
+  "off": "off"
+display_orientation:
+  1: 0°
+  2: 90°
+  3: 180°
+  4: 270°
+network_connectiontype:
+  wlan: WiFi
+  lan: LAN
+system_language:
+  deDe: Deutsch
+  enGb: English (UK)
+  frFr: Français
+  jaJp: 日本語
