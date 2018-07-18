@@ -7,12 +7,13 @@ class SettingResource < JSONAPI::Resource
   attributes :category, :key, :value
   attribute :options
 
+  # Add predefined options for this setting if available.
   def options
-    options = SettingOptions.getOptionsForSetting(@model.slug)
-    return options.nil? ? [] : [options]
+    @model.get_options
   end
 
   def self.updatable_fields(context)
     super - [:category, :key]
   end
+
 end
