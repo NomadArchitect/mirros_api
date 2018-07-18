@@ -7,6 +7,7 @@ class SettingResource < JSONAPI::Resource
   attributes :category, :key, :value
   attribute :options
 
+  # Add predefined options for this setting if available.
   def options
     @model.get_options
   end
