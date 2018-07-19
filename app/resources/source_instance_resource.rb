@@ -2,9 +2,9 @@ class SourceInstanceResource < JSONAPI::Resource
   after_create :add_to_scheduler
   after_update :update_scheduler
   after_remove :remove_from_scheduler
-  has_one :source
   attributes :title, :configuration, :data
-  has_many :widget_instances, through: :instance_associations
+  has_one :source
+  has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
 end
 
 def add_to_scheduler
