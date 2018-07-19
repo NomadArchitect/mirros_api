@@ -143,8 +143,7 @@ module Installable
     rt.lock
     rt.clean
     msg = "Error while installing extension #{@gem}: "
-    # @FIXME: Somewhere in the stack, Bundler errors like incompatible versions are lost.
-    msg += error.nil? ? "#{error.message}, code: #{error.status_code}" : "Gem not in loaded specs"
+    msg += error.nil? ? "Gem not in loaded specs" : "#{error.message}, code: #{error.status_code}"
     raise StandardError.new(msg)
   end
 
