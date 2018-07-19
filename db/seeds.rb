@@ -34,7 +34,7 @@ Widget.create(
   [
     {
       name: 'calendar_week',
-      title: {'en_GB' => 'Week Calendar', 'de_DE' => 'Wochenkalender'},
+      title: {'en_GB' => 'Week Overview', 'de_DE' => 'Wochenüberblick'},
       description: {'en_GB' => 'Displays up to five calendars in a week view.', 'de_DE' => 'Zeigt bis zu fünf Kalender in einer Wochenübersicht an.'},
       creator: 'Mattes Angelus',
       version: '1.0.0',
@@ -44,7 +44,7 @@ Widget.create(
     },
     {
       name: 'calendar_today',
-      title: {'en_GB' => 'Calendar Today', 'de_DE' => 'Kalender: Heute'},
+      title: {'en_GB' => 'Today', 'de_DE' => 'Heute'},
       description: {'en_GB' => 'Displays today\'s calendar events.', 'de_DE' => 'Deine Termine für den heutigen Tag.'},
       creator: 'Mattes Angelus',
       version: '1.0.0',
