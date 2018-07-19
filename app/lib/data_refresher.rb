@@ -19,7 +19,11 @@ class DataRefresher
     s = scheduler
     source = sourceInstance.source
     engine = "#{source.name.capitalize}::Hooks".safe_constantize
-    return if engine.nil?
+
+    if engine.nil?
+      Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
+      return
+    end
 
     # Validate the extension's refresh interval.
     begin
