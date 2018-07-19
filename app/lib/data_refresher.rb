@@ -33,9 +33,9 @@ class DataRefresher
       return
     end
 
-    active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
 
     job = s.schedule_interval "#{engine.refresh_interval}", :tag => tag_instance(source.name, sourceInstance.id) do |job|
+      active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
       engine_inst = engine.new(sourceInstance.configuration)
       Rails.logger.info "current time: #{Time.now}, refreshing instance #{sourceInstance.id} of #{source.name}"
       sourceInstance.update(last_refresh: job.last_time, data: engine_inst.fetch_data(active_subresources))
