@@ -33,6 +33,10 @@ class DataRefresher
       return
     end
 
+    if sourceInstance.configuration.empty?
+      Rails.logger.info "Configuration for instance #{sourceInstance.id} of source #{source.name} is empty, aborting."
+      return
+    end
 
     job = s.schedule_interval "#{engine.refresh_interval}", :tag => tag_instance(source.name, sourceInstance.id) do |job|
       active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
