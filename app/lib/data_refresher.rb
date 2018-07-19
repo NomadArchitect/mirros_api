@@ -18,7 +18,7 @@ class DataRefresher
   def self.schedule(sourceInstance)
     s = scheduler
     source = sourceInstance.source
-    engine = "#{source.name.capitalize}::Engine".safe_constantize
+    engine = "#{source.name.capitalize}::Hooks".safe_constantize
     return if engine.nil?
 
     # Validate the extension's refresh interval.
