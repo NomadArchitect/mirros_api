@@ -1,5 +1,5 @@
 module Google
-  class Engine
+  class Hooks
 
     REFRESH_INTERVAL = '5m'.freeze
 

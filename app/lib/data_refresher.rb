@@ -18,8 +18,12 @@ class DataRefresher
   def self.schedule(sourceInstance)
     s = scheduler
     source = sourceInstance.source
-    engine = "#{source.name.capitalize}::Engine".safe_constantize
-    return if engine.nil?
+    engine = "#{source.name.capitalize}::Hooks".safe_constantize
+
+    if engine.nil?
+      Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
+      return
+    end
 
     # Validate the extension's refresh interval.
     begin
@@ -29,12 +33,16 @@ class DataRefresher
       return
     end
 
-    active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
+    if sourceInstance.configuration.empty?
+      Rails.logger.info "Configuration for instance #{sourceInstance.id} of source #{source.name} is empty, aborting."
+      return
+    end
 
     job = s.schedule_interval "#{engine.refresh_interval}", :tag => tag_instance(source.name, sourceInstance.id) do |job|
+      active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
       engine_inst = engine.new(sourceInstance.configuration)
       Rails.logger.info "current time: #{Time.now}, refreshing instance #{sourceInstance.id} of #{source.name}"
-      sourceInstance.update(last_refresh: job.last_time, data: engine_inst.fetch_data(active_subresources))
+      sourceInstance.update(last_refresh: job.last_time.to_s, data: engine_inst.fetch_data(active_subresources))
     end
     # Update the job ID once per scheduling, so we have the current one available as a backup.
     sourceInstance.update(job_id: job.job_id)
