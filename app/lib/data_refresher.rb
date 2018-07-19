@@ -42,7 +42,7 @@ class DataRefresher
       active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
       engine_inst = engine.new(sourceInstance.configuration)
       Rails.logger.info "current time: #{Time.now}, refreshing instance #{sourceInstance.id} of #{source.name}"
-      sourceInstance.update(last_refresh: job.last_time, data: engine_inst.fetch_data(active_subresources))
+      sourceInstance.update(last_refresh: job.last_time.to_s, data: engine_inst.fetch_data(active_subresources))
     end
     # Update the job ID once per scheduling, so we have the current one available as a backup.
     sourceInstance.update(job_id: job.job_id)
