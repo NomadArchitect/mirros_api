@@ -1,4 +1,6 @@
 class Group < ApplicationRecord
+  self.primary_key = 'slug'
+
   has_and_belongs_to_many :widgets
   has_and_belongs_to_many :sources
 
@@ -10,5 +12,4 @@ class Group < ApplicationRecord
   def to_s
     name
   end
-
 end
