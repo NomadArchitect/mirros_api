@@ -10,10 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_21_103319) do
+ActiveRecord::Schema.define(version: 2018_07_23_224718) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "calendar_events", force: :cascade do |t|
+    t.bigint "calendar_id"
+    t.datetime "dtstart"
+    t.datetime "dtend"
+    t.string "summary"
+    t.string "description"
+    t.index ["calendar_id"], name: "index_calendar_events_on_calendar_id"
+  end
+
+  create_table "calendars", force: :cascade do |t|
+    t.string "type"
+    t.string "name"
+    t.string "description"
+    t.string "color"
+    t.bigint "source_instance_id"
+    t.index ["source_instance_id"], name: "index_calendars_on_source_instance_id"
+  end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -56,6 +74,23 @@ ActiveRecord::Schema.define(version: 2018_06_21_103319) do
     t.datetime "updated_at", null: false
     t.index ["source_instance_id"], name: "index_instance_associations_on_source_instance_id"
     t.index ["widget_instance_id"], name: "index_instance_associations_on_widget_instance_id"
+  end
+
+  create_table "reminder_items", force: :cascade do |t|
+    t.bigint "reminder_id"
+    t.datetime "dtstart"
+    t.string "summary"
+    t.string "description"
+    t.index ["reminder_id"], name: "index_reminder_items_on_reminder_id"
+  end
+
+  create_table "reminders", force: :cascade do |t|
+    t.string "type"
+    t.string "name"
+    t.string "description"
+    t.string "color"
+    t.bigint "source_instance_id"
+    t.index ["source_instance_id"], name: "index_reminders_on_source_instance_id"
   end
 
   create_table "services", force: :cascade do |t|
