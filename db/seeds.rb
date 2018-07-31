@@ -34,8 +34,8 @@ Widget.create(
   [
     {
       name: 'calendar_week',
-      title: {'en_GB' => 'Week Overview', 'de_DE' => 'Wochenüberblick'},
-      description: {'en_GB' => 'Displays up to five calendars in a week view.', 'de_DE' => 'Zeigt bis zu fünf Kalender in einer Wochenübersicht an.'},
+      title: { 'en_GB' => 'Week Overview', 'de_DE' => 'Wochenüberblick' },
+      description: { 'en_GB' => 'Displays up to five calendars in a week view.', 'de_DE' => 'Zeigt bis zu fünf Kalender in einer Wochenübersicht an.' },
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
@@ -44,8 +44,8 @@ Widget.create(
     },
     {
       name: 'calendar_today',
-      title: {'en_GB' => 'Today', 'de_DE' => 'Heute'},
-      description: {'en_GB' => 'Displays today\'s calendar events.', 'de_DE' => 'Deine Termine für den heutigen Tag.'},
+      title: { 'en_GB' => 'Today', 'de_DE' => 'Heute' },
+      description: { 'en_GB' => 'Displays today\'s calendar events.', 'de_DE' => 'Deine Termine für den heutigen Tag.' },
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
@@ -54,8 +54,8 @@ Widget.create(
     },
     {
       name: 'todoist',
-      title: {'en_GB' => 'Todoist', 'de_DE' => 'Todoist'},
-      description: {'en_GB' => 'Shows your tasks from Todoist on your glancr.', 'de_DE' => 'Zeigt deine Aufgaben aus Todoist auf deinem glancr an.'},
+      title: { 'en_GB' => 'Todoist', 'de_DE' => 'Todoist' },
+      description: { 'en_GB' => 'Shows your tasks from Todoist on your glancr.', 'de_DE' => 'Zeigt deine Aufgaben aus Todoist auf deinem glancr an.' },
       creator: 'Marco Roth',
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/todos/',
@@ -70,9 +70,9 @@ Source.create(
   [
     {
       name: 'google',
-      title: {'en_GB' => 'Google', 'de_DE' => 'Google'},
-      description: {'en_GB' => 'Access data from your Google account. Supports Calendar and Tasks.',
-                    'de_DE' => 'Greife auf Daten aus deinem Google-Konto zu. Unterstützt Kalender und Aufgaben.'},
+      title: { 'en_GB' => 'Google', 'de_DE' => 'Google' },
+      description: { 'en_GB' => 'Access data from your Google account. Supports Calendar and Tasks.',
+                     'de_DE' => 'Greife auf Daten aus deinem Google-Konto zu. Unterstützt Kalender und Aufgaben.' },
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
@@ -81,9 +81,9 @@ Source.create(
     },
     {
       name: 'icloud',
-      title: {'en_GB' => 'iCloud', 'de_DE' => 'iCloud'},
-      description: {'en_GB' => 'Access data from your iCloud account. Supports Calendar and Tasks.',
-                    'de_DE' => 'Greife auf Daten aus deinem iCloud-Konto zu. Unterstützt Kalender und Aufgaben.'},
+      title: { 'en_GB' => 'iCloud', 'de_DE' => 'iCloud' },
+      description: { 'en_GB' => 'Access data from your iCloud account. Supports Calendar and Tasks.',
+                     'de_DE' => 'Greife auf Daten aus deinem iCloud-Konto zu. Unterstützt Kalender und Aufgaben.' },
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
@@ -92,9 +92,9 @@ Source.create(
     },
     {
       name: 'ical',
-      title: {'en_GB' => 'iCalendar', 'de_DE' => 'iCalendar'},
-      description: {'en_GB' => 'Access data from online calendars in iCal format. Supports both public and password-protected iCal links.',
-                    'de_DE' => 'Greife auf Daten aus Online-Kalendern im iCal-Format zu. Unterstützt sowohl öffentliche als auch passwortgeschützte iCal-Links.'},
+      title: { 'en_GB' => 'iCalendar', 'de_DE' => 'iCalendar' },
+      description: { 'en_GB' => 'Access data from online calendars in iCal format. Supports both public and password-protected iCal links.',
+                     'de_DE' => 'Greife auf Daten aus Online-Kalendern im iCal-Format zu. Unterstützt sowohl öffentliche als auch passwortgeschützte iCal-Links.' },
       creator: 'Mattes Angelus',
       version: '1.0.0',
       website: '',
@@ -107,7 +107,7 @@ Source.create(
 WidgetInstance.create(
   [
     {
-      widget: Widget.first,
+      widget: Widget.find_by(name: 'calendar_today'),
       position: {
         x: 1,
         y: 1,
@@ -116,7 +116,7 @@ WidgetInstance.create(
       }
     },
     {
-      widget: Widget.last,
+      widget: Widget.find_by(name: 'calendar_week'),
       position: {
         x: 10,
         y: 6,
@@ -131,7 +131,7 @@ SourceInstance.create(
   [
     {
       source: Source.find_by(name: 'ical'),
-      configuration: {'url': 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'}
+      configuration: { 'url': 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics' }
     }
   ]
 )
@@ -139,9 +139,10 @@ SourceInstance.create(
 InstanceAssociation.create(
   [
     {
-      configuration: ['calendar'],
-      widget_instance: WidgetInstance.first,
-      source_instance: SourceInstance.first
+      configuration: { 'calendar': { display_name: nil, offset: nil } },
+      group: Group.find_by(name: 'calendar'),
+      widget_instance: WidgetInstance.find_by(widget_id: 'calendar_today'),
+      source_instance: SourceInstance.find_by(source_id: 'ical')
     }
   ]
 )
@@ -168,61 +169,61 @@ Service.create(
 )
 
 Setting.create(
-         [
-           {
-             category: 'display',
-             key: 'orientation',
-             value: "1"
-           },
-           {
-             category: 'display',
-             key: 'offInterval',
-             value: 'daily'
-           },
-           {
-             category: 'display',
-             key: 'offIntervalStart',
-             value: '00:00'
-           },
-           {
-             category: 'display',
-             key: 'offIntervalEnd',
-             value: '00:00'
-           },
-           {
-             category: 'network',
-             key: 'connectionType',
-             value: 'WLAN'
-           },
-           {
-             category: 'network',
-             key: 'ssid',
-             value: 'my-WiFi'
-           },
-           {
-             category: 'network',
-             key: 'password',
-             value: 'my-password'
-           },
-           {
-             category: 'system',
-             key: 'language',
-             value: 'deDe'
-           },
-           {
-             category: 'personal',
-             key: 'email',
-             value: 'tg@glancr.de'
-           },
-           {
-             category: 'personal',
-             key: 'name',
-             value: 'Tobias'
-           },
-           {
-             category: 'personal',
-             key: 'city',
-             value: 'Halle (Saale)'
-           }
-         ]
+  [
+    {
+      category: 'display',
+      key: 'orientation',
+      value: "1"
+    },
+    {
+      category: 'display',
+      key: 'offInterval',
+      value: 'daily'
+    },
+    {
+      category: 'display',
+      key: 'offIntervalStart',
+      value: '00:00'
+    },
+    {
+      category: 'display',
+      key: 'offIntervalEnd',
+      value: '00:00'
+    },
+    {
+      category: 'network',
+      key: 'connectionType',
+      value: 'WLAN'
+    },
+    {
+      category: 'network',
+      key: 'ssid',
+      value: 'my-WiFi'
+    },
+    {
+      category: 'network',
+      key: 'password',
+      value: 'my-password'
+    },
+    {
+      category: 'system',
+      key: 'language',
+      value: 'deDe'
+    },
+    {
+      category: 'personal',
+      key: 'email',
+      value: 'tg@glancr.de'
+    },
+    {
+      category: 'personal',
+      key: 'name',
+      value: 'Tobias'
+    },
+    {
+      category: 'personal',
+      key: 'city',
+      value: 'Halle (Saale)'
+    }
+  ]
 )

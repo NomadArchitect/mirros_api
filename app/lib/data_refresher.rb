@@ -4,56 +4,67 @@ class DataRefresher
   def self.scheduler
     s = Rufus::Scheduler.singleton(:lockfile => "#{Rails.root}/.rufus-scheduler.lock")
     s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
-    return s
+    s
   end
 
   def self.schedule_all
     instances = SourceInstance.all
 
-    instances.each do |sourceInstance|
-      schedule(sourceInstance)
+    instances.each do |source_instance|
+      schedule(source_instance)
     end
   end
 
-  def self.schedule(sourceInstance)
+  def self.schedule(source_instance)
     s = scheduler
-    source = sourceInstance.source
-    engine = "#{source.name.capitalize}::Hooks".safe_constantize
+    source = source_instance.source
 
-    if engine.nil?
+    if source_instance.configuration.empty?
+      Rails.logger.info "Configuration for instance #{source_instance.id} of source #{source.name} is empty, aborting."
+      return
+    end
+
+    source_hooks = "#{source.name.capitalize}::Hooks".safe_constantize
+    if source_hooks.nil?
       Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
       return
     end
 
-    # Validate the extension's refresh interval.
     begin
-      Rufus::Scheduler.parse(engine.refresh_interval)
+      Rufus::Scheduler.parse(source_hooks.refresh_interval)
     rescue ArgumentError => e
       Rails.logger.error "Error parsing refresh rate from #{source.name}: #{e.message}"
       return
     end
 
-    if sourceInstance.configuration.empty?
-      Rails.logger.info "Configuration for instance #{sourceInstance.id} of source #{source.name} is empty, aborting."
-      return
-    end
+    job = s.schedule_interval source_hooks.refresh_interval.to_s, tag: tag_instance(source.name, source_instance.id) do |job|
+      assocs = source_instance.instance_associations
+      subresources = assocs.map {|assoc| assoc.configuration.keys}.flatten
+      source_hooks_instance = source_hooks.new(source_instance.configuration)
 
-    job = s.schedule_interval "#{engine.refresh_interval}", :tag => tag_instance(source.name, sourceInstance.id) do |job|
-      active_subresources = sourceInstance.instance_associations.pluck('configuration').flatten
-      engine_inst = engine.new(sourceInstance.configuration)
-      Rails.logger.info "current time: #{Time.now}, refreshing instance #{sourceInstance.id} of #{source.name}"
-      sourceInstance.update(last_refresh: job.last_time.to_s, data: engine_inst.fetch_data(active_subresources))
+      assocs.pluck('group_id').each do |group|
+        # TODO: Specify should_update hook to determine if a SourceInstance needs to be refreshed at all (e. g. by testing HTTP status – 304 means no update necessary)
+        # engine.should_update(group.name, active_subresources)
+        begin
+          source_hooks_instance.fetch_data(group, subresources, source_instance.id)
+        rescue Error => e
+          Rails.logger.error e.message
+        end
+      end
+
+      # Rails.logger.info "current time: #{Time.now}, refreshing instance #{source_instance.id} of #{source.name}"
+      source_instance.update(last_refresh: job.last_time.to_s)
     end
     # Update the job ID once per scheduling, so we have the current one available as a backup.
-    sourceInstance.update(job_id: job.job_id)
+    source_instance.update(job_id: job.job_id)
 
-    Rails.logger.info "scheduled #{tag_instance(source.name, sourceInstance.id)}"
+    Rails.logger.info "scheduled #{tag_instance(source.name, source_instance.id)}"
   end
 
   # Removes the refresh job for a given SourceInstance from the central schedule.
-  def self.unschedule(sourceInstance)
+  def self.unschedule(source_instance)
     s = scheduler
-    tag = tag_instance(sourceInstance.source.name, sourceInstance.id)
+    tag = tag_instance(source_instance.source.name, source_instance.id)
     s.jobs(:tag => tag).each(&:unschedule)
     Rails.logger.info "unscheduled job with tag #{tag}"
   end

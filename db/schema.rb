@@ -15,7 +15,7 @@ ActiveRecord::Schema.define(version: 2018_07_23_224718) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "calendar_events", force: :cascade do |t|
+  create_table "calendar_events", primary_key: "uid", force: :cascade do |t|
     t.bigint "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
@@ -53,14 +53,14 @@ ActiveRecord::Schema.define(version: 2018_07_23_224718) do
   end
 
   create_table "groups_sources", id: false, force: :cascade do |t|
-    t.bigint "group_id"
+    t.string "group_id"
     t.string "source_id"
     t.index ["group_id"], name: "index_groups_sources_on_group_id"
     t.index ["source_id"], name: "index_groups_sources_on_source_id"
   end
 
   create_table "groups_widgets", id: false, force: :cascade do |t|
-    t.bigint "group_id"
+    t.string "group_id"
     t.string "widget_id"
     t.index ["group_id"], name: "index_groups_widgets_on_group_id"
     t.index ["widget_id"], name: "index_groups_widgets_on_widget_id"
@@ -68,10 +68,12 @@ ActiveRecord::Schema.define(version: 2018_07_23_224718) do
 
   create_table "instance_associations", force: :cascade do |t|
     t.json "configuration"
+    t.string "group_id", null: false
     t.bigint "widget_instance_id", null: false
     t.bigint "source_instance_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_instance_associations_on_group_id"
     t.index ["source_instance_id"], name: "index_instance_associations_on_source_instance_id"
     t.index ["widget_instance_id"], name: "index_instance_associations_on_widget_instance_id"
   end
@@ -103,8 +105,9 @@ ActiveRecord::Schema.define(version: 2018_07_23_224718) do
   end
 
   create_table "settings", force: :cascade do |t|
-    t.string "category"
-    t.string "key"
+    t.string "slug", null: false
+    t.string "category", null: false
+    t.string "key", null: false
     t.string "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

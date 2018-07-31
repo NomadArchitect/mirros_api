@@ -8,7 +8,7 @@ class SourceInstanceResource < JSONAPI::Resource
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
 
   def records
-    @model.get_records.as_json
+    @model.get_records.as_json.as_json # FIXME: Required to stringify nested resources, but can we do something better with associations?
   end
 
   def add_to_scheduler

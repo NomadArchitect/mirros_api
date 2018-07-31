@@ -5,7 +5,7 @@ class CreateReminder < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :description
       t.string :color
-      t.references :source_instance
+      t.references :source_instance, index: true, foreign_key: true
     end
   end
 end
