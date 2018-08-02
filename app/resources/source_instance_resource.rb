@@ -2,14 +2,12 @@ class SourceInstanceResource < JSONAPI::Resource
   after_create :add_to_scheduler
   after_update :update_scheduler
   after_remove :remove_from_scheduler
+
   attributes :title, :configuration
-  attribute :records
+
   has_one :source
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
-
-  def records
-    @model.get_records.as_json.as_json # FIXME: Required to stringify nested resources, but can we do something better with associations?
-  end
+  has_many :record_links
 
   def add_to_scheduler
     DataRefresher.schedule(@model)
