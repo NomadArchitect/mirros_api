@@ -1,17 +1,14 @@
-require 'bundler/cli'
-require 'bundler/cli/show'
+#require 'bundler/cli'
+#require 'bundler/cli/list'
 
 class TemplatesController < ApplicationController
 
   def show
-    extension = params[:extension]
-    application = params[:application]
-    extension_path = Bundler::CLI::Show.new({}, extension).run
+    extension_path = Gem.loaded_specs[params[:extension]].full_gem_path
+    file_path = "#{extension_path}/app/assets/#{params[:application]}.vue"
 
-    if extension_path
-      file_path = "#{extension_path}/app/assets/#{extension}-#{application}.vue"
+    if Pathname.new(file_path).exist?
       send_file(file_path)
-
     else
       head :not_found
     end
