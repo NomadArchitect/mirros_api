@@ -1,13 +1,74 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 
+Setting.create(
+  [
+    {
+      category: 'display',
+      key: 'orientation',
+      value: "1"
+    },
+    {
+      category: 'display',
+      key: 'offInterval',
+      value: 'daily'
+    },
+    {
+      category: 'display',
+      key: 'offIntervalStart',
+      value: '00:00'
+    },
+    {
+      category: 'display',
+      key: 'offIntervalEnd',
+      value: '00:00'
+    },
+    {
+      category: 'network',
+      key: 'connectionType',
+      value: 'WLAN'
+    },
+    {
+      category: 'network',
+      key: 'ssid',
+      value: 'my-WiFi'
+    },
+    {
+      category: 'network',
+      key: 'password',
+      value: 'my-password'
+    },
+    {
+      category: 'system',
+      key: 'language',
+      value: 'deDe'
+    },
+    {
+      category: 'personal',
+      key: 'email',
+      value: 'no_reply@example.com'
+    },
+    {
+      category: 'personal',
+      key: 'name',
+      value: 'glancr Team'
+    },
+    {
+      category: 'personal',
+      key: 'city',
+      value: 'Halle (Saale)'
+    }
+  ]
+)
+
+
 Group.create(
   [
     {
       name: 'calendar'
     },
     {
-      name: 'reminder'
+      name: 'reminder_list'
     },
     {
       name: 'weather'
@@ -60,11 +121,10 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/todos/',
       download: 'https://api.glancr.de/extensions/widgets/todos-1.0.0.zip',
-      groups: [Group.find_by(name: 'reminder')]
+      groups: [Group.find_by(name: 'reminder_list')]
     }
   ]
 )
-Rails.logger.info(Group.find_by(name: 'calendar'))
 
 Source.create(
   [
@@ -77,7 +137,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/google-1.0.0.zip',
-      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder')]
+      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder_list')]
     },
     {
       name: 'icloud',
@@ -88,7 +148,7 @@ Source.create(
       version: '1.0.0',
       website: '',
       download: 'https://api.glancr.de/extensions/sources/icloud-1.0.0.zip',
-      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder')]
+      groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder_list')]
     },
     {
       name: 'ical',
@@ -100,6 +160,27 @@ Source.create(
       website: '',
       download: 'https://api.glancr.de/extensions/sources/ical-1.0.0.zip',
       groups: [Group.find_by(name: 'calendar')]
+    }
+  ]
+)
+
+Service.create(
+  [
+    {
+      status: 'running',
+      parameters: {
+        key: 'value'
+      },
+      # widget: Widget.first
+      widget_id: Widget.first
+    },
+    {
+      status: 'stopped',
+      parameters: {
+        key: 'value'
+      },
+      # widget: Widget.last
+      widget_id: Widget.first
     }
   ]
 )
@@ -147,83 +228,55 @@ InstanceAssociation.create(
   ]
 )
 
-Service.create(
+# Use the parent class since ical extension might not be installed
+cal_seed = GroupSchemas::Calendar.create(
   [
     {
-      status: 'running',
-      parameters: {
-        key: 'value'
-      },
-      # widget: Widget.first
-      widget_id: Widget.first
-    },
-    {
-      status: 'stopped',
-      parameters: {
-        key: 'value'
-      },
-      # widget: Widget.last
-      widget_id: Widget.first
+      type: 'Ical::Calendar',
+      name: 'calendar'
     }
   ]
 )
 
-Setting.create(
+cal_seed.first.events << GroupSchemas::CalendarEvent.create(
   [
     {
-      category: 'display',
-      key: 'orientation',
-      value: "1"
+      dtstart: DateTime.now,
+      dtend: DateTime.now + 2,
+      summary: 'A test event in calendar',
+      description: 'A description of test event'
     },
     {
-      category: 'display',
-      key: 'offInterval',
-      value: 'daily'
+      dtstart: DateTime.now + 2,
+      dtend: DateTime.now + 4,
+      summary: 'A second test event in calendar',
+      description: 'A description of second test event'
+    }
+  ]
+)
+
+reminders_seed = GroupSchemas::ReminderList.create(
+  [
+    {
+      type: 'Ical::ReminderList',
+      name: 'reminders'
+    }
+  ]
+)
+
+RecordLink.create(
+  [
+    {
+      source_instance: SourceInstance.find_by(source_id: 'ical'),
+      group: Group.find('calendar'),
+      recordable_type: 'GroupSchemas::Calendar',
+      recordable: cal_seed.first
     },
     {
-      category: 'display',
-      key: 'offIntervalStart',
-      value: '00:00'
-    },
-    {
-      category: 'display',
-      key: 'offIntervalEnd',
-      value: '00:00'
-    },
-    {
-      category: 'network',
-      key: 'connectionType',
-      value: 'WLAN'
-    },
-    {
-      category: 'network',
-      key: 'ssid',
-      value: 'my-WiFi'
-    },
-    {
-      category: 'network',
-      key: 'password',
-      value: 'my-password'
-    },
-    {
-      category: 'system',
-      key: 'language',
-      value: 'deDe'
-    },
-    {
-      category: 'personal',
-      key: 'email',
-      value: 'tg@glancr.de'
-    },
-    {
-      category: 'personal',
-      key: 'name',
-      value: 'Tobias'
-    },
-    {
-      category: 'personal',
-      key: 'city',
-      value: 'Halle (Saale)'
+      source_instance: SourceInstance.find_by(source_id: 'ical'),
+      group: Group.find('reminder_list'),
+      recordable_type: 'GroupSchemas::Calendar',
+      recordable: cal_seed.first
     }
   ]
 )
