@@ -1,6 +1,3 @@
-#require 'bundler/cli'
-#require 'bundler/cli/list'
-
 class TemplatesController < ApplicationController
 
   def show
