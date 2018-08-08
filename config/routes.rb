@@ -26,7 +26,10 @@ Rails.application.routes.draw do
   end
 
   jsonapi_resources :instance_associations
-  jsonapi_resources :groups
+  jsonapi_resources :groups do
+    jsonapi_related_resources :sources
+    jsonapi_related_resources :widgets
+  end
   jsonapi_resources :settings, only: %i[index show update]
 
   get 'templates/:extension/:application', to: 'templates#show'
