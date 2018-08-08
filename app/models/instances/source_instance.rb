@@ -12,12 +12,12 @@ class SourceInstance < Instance
   end
 
   def options
-    record_links.collect { |record| record.recordable.name } unless record_links.length === 0 #.camelize(:lower)
+    record_links.collect { |record| record.recordable.name } unless record_links.length === 0
     if configuration.empty?
       []
     else
       hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-      hooks.new(configuration).list_sub_resources #.map { |sub_resource| sub_resource.camelize(:lower) }
+      hooks.new(configuration).list_sub_resources
     end
   end
 end
