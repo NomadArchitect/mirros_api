@@ -1,7 +1,10 @@
 class TemplatesController < ApplicationController
 
   def show
-    extension_path = Gem.loaded_specs[params[:extension]].full_gem_path
+    gem = Gem.loaded_specs[params[:extension]]
+    return head :not_found if gem.nil?
+
+    extension_path = gem.full_gem_path
     file_path = "#{extension_path}/app/assets/#{params[:application]}.vue"
 
     if Pathname.new(file_path).exist?
