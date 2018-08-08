@@ -3,11 +3,15 @@ class SourceInstanceResource < JSONAPI::Resource
   after_update :update_scheduler
   after_remove :remove_from_scheduler
 
-  attributes :title, :configuration
+  attributes :title, :configuration, :options
 
   has_one :source
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
   has_many :record_links
+
+  def options
+    @model.options
+  end
 
   def add_to_scheduler
     DataRefresher.schedule(@model)
