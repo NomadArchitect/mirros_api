@@ -37,16 +37,17 @@ class DataRefresher
       return
     end
 
-    job = s.schedule_interval source_hooks.refresh_interval.to_s, tag: tag_instance(source.name, source_instance.id) do |job|
-      assocs = source_instance.instance_associations
-      subresources = assocs.map {|assoc| assoc.configuration.keys}.flatten
+    si_job_tag = tag_instance(source.name, source_instance.id)
+    job = s.schedule_interval source_hooks.refresh_interval.to_s, tag: si_job_tag do |job|
+      associations = source_instance.instance_associations
+      sub_resources = associations.map {|assoc| assoc.configuration.keys}.flatten
       source_hooks_instance = source_hooks.new(source_instance.configuration)
 
       assocs.pluck('group_id').each do |group|
         # TODO: Specify should_update hook to determine if a SourceInstance needs to be refreshed at all (e. g. by testing HTTP status – 304 means no update necessary)
         # engine.should_update(group.name, active_subresources)
         begin
-          source_hooks_instance.fetch_data(group, subresources, source_instance.id)
+          source_hooks_instance.fetch_data(group, sub_resources, source_instance.id)
         rescue Error => e
           Rails.logger.error e.message
         end
@@ -58,7 +59,7 @@ class DataRefresher
     # Update the job ID once per scheduling, so we have the current one available as a backup.
     source_instance.update(job_id: job.job_id)
 
-    Rails.logger.info "scheduled #{tag_instance(source.name, source_instance.id)}"
+    Rails.logger.info "scheduled #{si_job_tag}"
   end
 
   # Removes the refresh job for a given SourceInstance from the central schedule.
