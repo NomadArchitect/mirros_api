@@ -2,7 +2,7 @@ class DataRefresher
 
   # TODO: Clean this up and document methods once we reach a stable API.
   def self.scheduler
-    s = Rufus::Scheduler.singleton(:lockfile => "#{Rails.root}/.rufus-scheduler.lock")
+    s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/.rufus-scheduler.lock")
     s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
     s
   end
@@ -38,8 +38,9 @@ class DataRefresher
       return
     end
 
-    si_job_tag = tag_instance(source.name, source_instance.id)
-    job = s.schedule_interval source_hooks.refresh_interval.to_s, tag: si_job_tag do |job|
+    job_tag = tag_instance(source.name, source_instance.id)
+    job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
+
       associations = source_instance.instance_associations
       sub_resources = associations.map {|assoc| assoc.configuration.keys}.flatten
       source_hooks_instance = source_hooks.new(source_instance.configuration)
@@ -56,16 +57,16 @@ class DataRefresher
 
       source_instance.update(last_refresh: job.last_time.to_s)
     end
-    source_instance.update(job_id: job.job_id)
 
-    Rails.logger.info "scheduled #{si_job_tag}"
+    source_instance.update(job_id: job_instance.job_id)
+    Rails.logger.info "scheduled #{job_tag}"
   end
 
   # Removes the refresh job for a given SourceInstance from the central schedule.
   def self.unschedule(source_instance)
     s = scheduler
     tag = tag_instance(source_instance.source.name, source_instance.id)
-    s.jobs(:tag => tag).each(&:unschedule)
+    s.jobs(tag: tag).each(&:unschedule)
     Rails.logger.info "unscheduled job with tag #{tag}"
   end
 
