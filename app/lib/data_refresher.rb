@@ -15,12 +15,13 @@ class DataRefresher
     end
   end
 
+  # FIXME: Refactor to smaller method, maybe convert class methods to instance
   def self.schedule(source_instance)
     s = scheduler
     source = source_instance.source
 
     if source_instance.configuration.empty?
-      Rails.logger.info "Configuration for instance #{source_instance.id} of source #{source.name} is empty, aborting."
+      Rails.logger.info "Configuration for instance #{source_instance.id} of source #{source.name} is empty, aborting scheduling."
       return
     end
 
@@ -33,7 +34,7 @@ class DataRefresher
     begin
       Rufus::Scheduler.parse(source_hooks.refresh_interval)
     rescue ArgumentError => e
-      Rails.logger.error "Error parsing refresh rate from #{source.name}: #{e.message}"
+      Rails.logger.error "Faulty refresh interval of #{source.name}: #{e.message}"
       return
     end
 
@@ -53,10 +54,8 @@ class DataRefresher
         end
       end
 
-      # Rails.logger.info "current time: #{Time.now}, refreshing instance #{source_instance.id} of #{source.name}"
       source_instance.update(last_refresh: job.last_time.to_s)
     end
-    # Update the job ID once per scheduling, so we have the current one available as a backup.
     source_instance.update(job_id: job.job_id)
 
     Rails.logger.info "scheduled #{si_job_tag}"
