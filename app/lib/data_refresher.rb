@@ -42,17 +42,27 @@ class DataRefresher
     job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
 
       associations = source_instance.instance_associations
-      sub_resources = associations.map {|assoc| assoc.configuration.keys}.flatten
-      source_hooks_instance = source_hooks.new(source_instance.configuration)
+      sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
+                                  .flatten
+                                  .uniq
+      source_hooks_instance = source_hooks.new(source_instance.id,
+                                               source_instance.configuration)
 
-      assocs.pluck('group_id').each do |group|
-        # TODO: Specify should_update hook to determine if a SourceInstance needs to be refreshed at all (e. g. by testing HTTP status – 304 means no update necessary)
-        # engine.should_update(group.name, active_subresources)
-        begin
-          source_hooks_instance.fetch_data(group, sub_resources, source_instance.id)
-        rescue Error => e
-          Rails.logger.error e.message
+      associations.pluck('group_id').each do |group|
+        # TODO: Specify should_update hook to determine if a SourceInstance needs
+        #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+        # engine.should_update(group.name, active_sub_resources)
+
+        recordables = source_hooks_instance.fetch_data(group, sub_resources)
+        recordables.each do |recordable|
+          recordable.save
+          next unless recordable.record_link.nil?
+          source_instance.record_links <<
+            RecordLink.create(recordable: recordable, group_id: group)
+          source_instance.save
         end
+      rescue Error => e
+        Rails.logger.error e.message
       end
 
       source_instance.update(last_refresh: job.last_time.to_s)
