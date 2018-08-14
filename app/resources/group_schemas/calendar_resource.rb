@@ -3,6 +3,6 @@ class CalendarResource < RecordableResource
   attributes :name, :description, :events
 
   def events
-    @model.events.as_json(except: %i[uid calendar_id])
+    @model.events.sort_by(&:dtstart).as_json(except: %i[uid calendar_id])
   end
 end
