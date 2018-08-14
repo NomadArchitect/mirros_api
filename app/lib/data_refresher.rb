@@ -48,7 +48,7 @@ class DataRefresher
       source_hooks_instance = source_hooks.new(source_instance.id,
                                                source_instance.configuration)
 
-      associations.pluck('group_id').each do |group|
+      associations.pluck('group_id').uniq.each do |group|
         # TODO: Specify should_update hook to determine if a SourceInstance needs
         #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
         # engine.should_update(group.name, active_sub_resources)
