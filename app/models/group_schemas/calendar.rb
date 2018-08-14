@@ -5,4 +5,3 @@ module GroupSchemas
     has_one :record_link, as: :recordable, dependent: :destroy
   end
 end
-

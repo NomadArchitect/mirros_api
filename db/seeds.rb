@@ -212,6 +212,7 @@ SourceInstance.create(
   [
     {
       source: Source.find_by(name: 'ical'),
+      title: 'calendar',
       configuration: { 'url': 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics' }
     }
   ]
@@ -220,7 +221,7 @@ SourceInstance.create(
 InstanceAssociation.create(
   [
     {
-      configuration: { 'calendar': { display_name: nil, offset: nil } },
+      configuration: { 'chosen': ['calendar'] },
       group: Group.find_by(name: 'calendar'),
       widget_instance: WidgetInstance.find_by(widget_id: 'calendar_today'),
       source_instance: SourceInstance.find_by(source_id: 'ical')
@@ -232,6 +233,7 @@ InstanceAssociation.create(
 cal_seed = GroupSchemas::Calendar.create(
   [
     {
+      uid: "#{SourceInstance.first.id}_calendar",
       type: 'Ical::Calendar',
       name: 'calendar'
     }
@@ -241,14 +243,18 @@ cal_seed = GroupSchemas::Calendar.create(
 cal_seed.first.events << GroupSchemas::CalendarEvent.create(
   [
     {
+      uid: SecureRandom.uuid,
       dtstart: DateTime.now,
       dtend: DateTime.now + 2,
+      all_day: false,
       summary: 'A test event in calendar',
       description: 'A description of test event'
     },
     {
-      dtstart: DateTime.now + 2,
-      dtend: DateTime.now + 4,
+      uid: SecureRandom.uuid,
+      dtstart: Date.today + 2,
+      dtend: Date.today + 4,
+      all_day: true,
       summary: 'A second test event in calendar',
       description: 'A description of second test event'
     }
@@ -258,6 +264,7 @@ cal_seed.first.events << GroupSchemas::CalendarEvent.create(
 reminders_seed = GroupSchemas::ReminderList.create(
   [
     {
+      uid: "#{SourceInstance.first.id}_reminders",
       type: 'Ical::ReminderList',
       name: 'reminders'
     }
@@ -275,8 +282,8 @@ RecordLink.create(
     {
       source_instance: SourceInstance.find_by(source_id: 'ical'),
       group: Group.find('reminder_list'),
-      recordable_type: 'GroupSchemas::Calendar',
-      recordable: cal_seed.first
+      recordable_type: 'GroupSchemas::ReminderList',
+      recordable: reminders_seed.first
     }
   ]
 )
