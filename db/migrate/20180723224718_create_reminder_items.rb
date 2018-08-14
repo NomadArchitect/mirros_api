@@ -1,6 +1,7 @@
 class CreateReminderItems < ActiveRecord::Migration[5.2]
   def change
-    create_table :reminder_items do |t|
+    create_table :reminder_items, id: false do |t|
+      t.string :uid, primary_key: true
       t.references :reminder_list
       t.datetime :dtstart
       t.string :summary

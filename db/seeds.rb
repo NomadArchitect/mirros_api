@@ -232,6 +232,7 @@ InstanceAssociation.create(
 cal_seed = GroupSchemas::Calendar.create(
   [
     {
+      uid: "#{SourceInstance.first.id}_calendar",
       type: 'Ical::Calendar',
       name: 'calendar'
     }
@@ -241,6 +242,7 @@ cal_seed = GroupSchemas::Calendar.create(
 cal_seed.first.events << GroupSchemas::CalendarEvent.create(
   [
     {
+      uid: SecureRandom.uuid,
       dtstart: DateTime.now,
       dtend: DateTime.now + 2,
       all_day: false,
@@ -250,6 +252,7 @@ cal_seed.first.events << GroupSchemas::CalendarEvent.create(
     {
       dtstart: DateTime.now + 2,
       dtend: DateTime.now + 4,
+      uid: SecureRandom.uuid,
       all_day: true,
       summary: 'A second test event in calendar',
       description: 'A description of second test event'
@@ -260,6 +263,7 @@ cal_seed.first.events << GroupSchemas::CalendarEvent.create(
 reminders_seed = GroupSchemas::ReminderList.create(
   [
     {
+      uid: "#{SourceInstance.first.id}_reminders",
       type: 'Ical::ReminderList',
       name: 'reminders'
     }
