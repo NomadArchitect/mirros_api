@@ -6,18 +6,22 @@ class SourceInstance < Instance
 
   before_update :set_title, if: :configuration_changed?
 
-  def set_title
-    hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-    self.title = hooks.new(configuration).default_title
-  end
-
   def options
     record_links.collect { |record| record.recordable.name } unless record_links.length === 0
     if configuration.empty?
       []
     else
-      hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-      hooks.new(configuration).list_sub_resources
+      hook_instance.list_sub_resources
     end
+  end
+  def set_title
+    self.title = hook_instance.default_title
+  end
+
+  private
+
+  def hook_instance
+    hooks = "#{source_id.capitalize}::Hooks".safe_constantize
+    hooks.new(id, configuration)
   end
 end
