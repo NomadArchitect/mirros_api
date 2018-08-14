@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.bigint "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
+    t.boolean "all_day"
     t.string "summary"
     t.string "description"
     t.index ["calendar_id"], name: "index_calendar_events_on_calendar_id"

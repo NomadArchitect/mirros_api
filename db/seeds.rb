@@ -243,12 +243,14 @@ cal_seed.first.events << GroupSchemas::CalendarEvent.create(
     {
       dtstart: DateTime.now,
       dtend: DateTime.now + 2,
+      all_day: false,
       summary: 'A test event in calendar',
       description: 'A description of test event'
     },
     {
       dtstart: DateTime.now + 2,
       dtend: DateTime.now + 4,
+      all_day: true,
       summary: 'A second test event in calendar',
       description: 'A description of second test event'
     }

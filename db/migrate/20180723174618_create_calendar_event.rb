@@ -5,6 +5,7 @@ class CreateCalendarEvent < ActiveRecord::Migration[5.2]
       t.references :calendar
       t.datetime :dtstart
       t.datetime :dtend
+      t.boolean :all_day
       t.string :summary
       t.string :description
     end
