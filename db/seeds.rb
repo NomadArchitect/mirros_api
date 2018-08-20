@@ -101,7 +101,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_week-1.0.0.zip',
-      groups: [Group.find_by(name: 'calendar')]
+      group_id: Group.find_by(name: 'calendar')
     },
     {
       name: 'calendar_today',
@@ -111,7 +111,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_today-1.0.0.zip',
-      groups: [Group.find_by(name: 'calendar')]
+      group_id: Group.find_by(name: 'calendar')
     },
     {
       name: 'todoist',
@@ -121,7 +121,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/todos/',
       download: 'https://api.glancr.de/extensions/widgets/todos-1.0.0.zip',
-      groups: [Group.find_by(name: 'reminder_list')]
+      group_id: Group.find_by(name: 'reminder_list')
     }
   ]
 )
