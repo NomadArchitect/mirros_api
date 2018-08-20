@@ -11,5 +11,5 @@ class WidgetResource < JSONAPI::Resource
   attributes :name, :title, :description, :icon, :version, :creator, :website, :download, :languages
   has_many :services, always_include_linkage_data: true
   has_many :widget_instances, always_include_linkage_data: true
-  has_many :groups, always_include_linkage_data: true
+  belongs_to :group
 end
