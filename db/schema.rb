@@ -59,13 +59,6 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.index ["source_id"], name: "index_groups_sources_on_source_id"
   end
 
-  create_table "groups_widgets", id: false, force: :cascade do |t|
-    t.string "group_id"
-    t.string "widget_id"
-    t.index ["group_id"], name: "index_groups_widgets_on_group_id"
-    t.index ["widget_id"], name: "index_groups_widgets_on_widget_id"
-  end
-
   create_table "instance_associations", force: :cascade do |t|
     t.json "configuration"
     t.string "group_id", null: false
