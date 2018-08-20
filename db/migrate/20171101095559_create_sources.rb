@@ -12,6 +12,6 @@ class CreateSources < ActiveRecord::Migration[5.1]
 
       t.timestamps
     end
-    add_index :sources, :slug, :unique => true
+    add_index :sources, :slug, unique: true
   end
 end

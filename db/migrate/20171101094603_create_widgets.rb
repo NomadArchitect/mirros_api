@@ -15,6 +15,6 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
 
       t.timestamps
     end
-    add_index :widgets, :slug, :unique => true
+    add_index :widgets, :slug, unique: true
   end
 end
