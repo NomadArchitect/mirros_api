@@ -142,7 +142,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
 
   create_table "widget_instances", force: :cascade do |t|
     t.string "widget_id"
-    t.json "configuration"
+    t.json "configuration", default: {}
     t.json "position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
