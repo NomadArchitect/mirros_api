@@ -32,5 +32,5 @@ Rails.application.routes.draw do
   end
   jsonapi_resources :settings, only: %i[index show update]
 
-  get 'templates/:extension/:application', to: 'templates#show'
+  get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
 end
