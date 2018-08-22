@@ -8,11 +8,14 @@ class SourceInstance < Instance
   validate :validate_configuration, if: :configuration_changed?
 
   def options
-    record_links.collect { |record| record.recordable.name } unless record_links.length === 0
     if configuration.empty?
       []
     else
-      hook_instance.list_sub_resources
+      options = []
+      hook_instance.list_sub_resources.map do |option|
+        options << { uid: option[0], display: option[1] }
+      end
+      options
     end
   end
 
