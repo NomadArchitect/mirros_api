@@ -33,4 +33,6 @@ Rails.application.routes.draw do
   jsonapi_resources :settings, only: %i[index show update]
 
   get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
+  get 'system/status', to: 'system#status'
+  post 'system/setup/:category/:setting', to: 'system#apply_setting'
 end
