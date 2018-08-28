@@ -18,10 +18,6 @@ gem "puma", "~> 3.7"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
 # JavaScript / CSS
-gem "turbolinks", "~> 5.1.0"
-gem "jquery-rails", "~> 4.3.0"
-gem "sass-rails", "~> 5.0.0"
-gem "webpacker", "~> 3.3.0"
 # HTTP Client
 gem "httparty", "~> 0.16.0"
 # CLI
