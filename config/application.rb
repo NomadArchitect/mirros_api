@@ -9,13 +9,16 @@ Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
 
 module MirrOSApi
   class Application < Rails::Application
+
+    VERSION = '0.1.0'.freeze
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
     # Load instances models
-    config.autoload_paths += %W(#{config.root}/app/models/instances)
-    config.autoload_paths += %W(#{config.root}/app/models/group_schemas)
-    config.autoload_paths += %W(#{config.root}/app/resources/group_schemas)
+    config.autoload_paths += %W[#{config.root}/app/models/instances]
+    config.autoload_paths += %W[#{config.root}/app/models/group_schemas]
+    config.autoload_paths += %W[#{config.root}/app/resources/group_schemas]
 
     config.api_only = true
 

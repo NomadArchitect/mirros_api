@@ -38,6 +38,8 @@ gem "rufus-scheduler", "~> 3.4.2"
 # Misc
 gem "rubyzip", "~> 1.2.0"
 gem "friendly_id", "~> 5.1.0"
+gem "os", "~> 1.0.0"
+gem "terrapin", "~> 0.6.0"
 group :development, :test do
   # Call "byebug" anywhere in the code to stop execution and get a debugger console
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
