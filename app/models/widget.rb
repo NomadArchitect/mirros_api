@@ -1,4 +1,6 @@
 class Widget < ApplicationRecord
+  serialize :languages, Array
+
   self.primary_key = 'slug'
 
   has_many :widget_instances, dependent: :destroy

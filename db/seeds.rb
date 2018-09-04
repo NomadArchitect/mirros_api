@@ -101,6 +101,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_week-1.0.0.zip',
+      languages: ['en_GB'],
       group_id: Group.find_by(name: 'calendar')
     },
     {
@@ -111,6 +112,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/kalender/',
       download: 'https://api.glancr.de/extensions/widgets/calendar_today-1.0.0.zip',
+      languages: ['en_GB'],
       group_id: Group.find_by(name: 'calendar')
     },
     {
@@ -121,6 +123,7 @@ Widget.create(
       version: '1.0.0',
       website: 'https://glancr.de/module/produktivitaet/todos/',
       download: 'https://api.glancr.de/extensions/widgets/todos-1.0.0.zip',
+      languages: ['en_GB'],
       group_id: Group.find_by(name: 'reminder_list')
     }
   ]

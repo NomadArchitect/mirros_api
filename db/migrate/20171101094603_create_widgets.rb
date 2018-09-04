@@ -10,7 +10,7 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
       t.string :download, null: false
       t.string :slug, null: false
       t.string :icon
-      t.string :languages, array: true, default: ['en_GB']
+      t.string :languages, array: true
       t.string :group_id, null: false, index: true, foreign_key: 'slug'
 
       t.timestamps

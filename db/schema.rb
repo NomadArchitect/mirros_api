@@ -12,17 +12,15 @@
 
 ActiveRecord::Schema.define(version: 2018_07_31_183445) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "calendar_events", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.bigint "calendar_id"
+    t.integer "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
     t.boolean "all_day"
     t.string "summary"
     t.string "description"
     t.index ["calendar_id"], name: "index_calendar_events_on_calendar_id"
+    t.index ["uid"], name: "sqlite_autoindex_calendar_events_1", unique: true
   end
 
   create_table "calendars", force: :cascade do |t|
@@ -62,8 +60,8 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
   create_table "instance_associations", force: :cascade do |t|
     t.json "configuration"
     t.string "group_id", null: false
-    t.bigint "widget_instance_id", null: false
-    t.bigint "source_instance_id", null: false
+    t.integer "widget_instance_id", null: false
+    t.integer "source_instance_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_instance_associations_on_group_id"
@@ -73,8 +71,8 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
 
   create_table "record_links", force: :cascade do |t|
     t.string "recordable_type"
-    t.bigint "recordable_id"
-    t.bigint "source_instance_id"
+    t.integer "recordable_id"
+    t.integer "source_instance_id"
     t.string "group_id"
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
@@ -82,11 +80,12 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
   end
 
   create_table "reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.bigint "reminder_list_id"
+    t.integer "reminder_list_id"
     t.datetime "dtstart"
     t.string "summary"
     t.string "description"
     t.index ["reminder_list_id"], name: "index_reminder_items_on_reminder_list_id"
+    t.index ["uid"], name: "sqlite_autoindex_reminder_items_1", unique: true
   end
 
   create_table "reminder_lists", force: :cascade do |t|
@@ -159,7 +158,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.string "download", null: false
     t.string "slug", null: false
     t.string "icon"
-    t.string "languages", default: ["en_GB"], array: true
+    t.string "languages"
     t.string "group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -167,7 +166,4 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.index ["slug"], name: "index_widgets_on_slug", unique: true
   end
 
-  add_foreign_key "instance_associations", "source_instances"
-  add_foreign_key "instance_associations", "widget_instances"
-  add_foreign_key "record_links", "source_instances"
 end
