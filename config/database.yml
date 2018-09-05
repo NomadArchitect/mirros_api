@@ -80,4 +80,4 @@ test:
 #
 production:
   <<: *default
-  database: db/mirrOS_api_production.sqlite3
+  database: <%= ENV.fetch("RAILS_DATABASE_LOCATION") { 'db/mirrOS_api_production.sqlite3' } %>
