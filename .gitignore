@@ -22,10 +22,5 @@
 .byebug_history
 /public/packs
 /public/packs-test
-/node_modules
-/engines/*
-yarn-debug.log*
-.yarn-integrity
-yarn-error.log
 /vendor/bundle
 /.rufus-scheduler.lock
