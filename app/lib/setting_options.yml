@@ -11,7 +11,7 @@ network_connectiontype:
   wlan: WiFi
   lan: LAN
 system_language:
-  deDe: Deutsch
   enGb: English (UK)
+  deDe: Deutsch
   frFr: Français
   jaJp: 日本語
