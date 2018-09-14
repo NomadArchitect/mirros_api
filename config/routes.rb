@@ -35,4 +35,5 @@ Rails.application.routes.draw do
   get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
   get 'system/status', to: 'system#status'
   post 'system/setup/:category/:setting', to: 'system#apply_setting'
+  post 'system/debugcmd', to: 'system#proxy_command' # TODO: Remove once stable
 end

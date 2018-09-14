@@ -13,4 +13,10 @@ class SystemController < ApplicationController
              end
     render json: { success: result }
   end
+
+  # TODO: Remove once debugging is complete
+  def proxy_command
+    line = Terrapin::CommandLine.new(params[:command])
+    render json: {result: line.run}
+  end
 end
