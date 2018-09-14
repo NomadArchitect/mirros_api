@@ -26,7 +26,7 @@ Setting.create(
     {
       category: 'network',
       key: 'connectionType',
-      value: ''
+      value: 'WLAN'
     },
     {
       category: 'network',
@@ -93,7 +93,6 @@ Group.create(
 
 # Only seed test data in development
 if Rails.env.development?
-  puts "Seeding development data"
 
   Widget.create(
     [
