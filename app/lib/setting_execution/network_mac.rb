@@ -17,7 +17,8 @@ module SettingExecution
     end
 
     def self.list
-      # TODO
+      # TODO. Airport Utility at /System/Library/PrivateFrameworks/Apple80211.framework/
+      # Versions/Current/Resources/airport has a legacy switch `-s`
       raise NotImplementedError
     end
 
