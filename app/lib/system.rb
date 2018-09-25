@@ -13,7 +13,7 @@ class System
     ip_address = determine_ip
     {
       version: MirrOSApi::Application::VERSION,
-      setup_completed: true,
+      setup_completed: setup_completed?,
       online: online?,
       ip: ip_address,
       os: RUBY_PLATFORM
@@ -39,6 +39,18 @@ class System
     `lsb_release -i -s`
   end
 
+  # Tests whether all required parts of the initial setup are present.
+  private_class_method def self.setup_completed?
+    network_configured = case Setting.find_by_slug('network_connectionType')
+                         when 'WLAN'
+                           Setting.find('network_ssid').value.present? &&
+                           Setting.find('network_ssid').value.present?
+                         else
+                           true
+                         end
+    email_configured = Setting.find_by_slug('personal_email').value.present?
+    network_configured && email_configured
+  end
 
   private_class_method def self.online?
     Resolv::DNS.new.getaddress(PING_ADDRESS)
