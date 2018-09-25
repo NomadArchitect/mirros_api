@@ -32,8 +32,9 @@ Rails.application.routes.draw do
   end
   jsonapi_resources :settings, only: %i[index show update]
 
+  # Non-resourceful routes for controlling the system
   get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
   get 'system/status', to: 'system#status'
-  post 'system/setup/:category/:setting', to: 'system#apply_setting'
+  get 'system/control/:category/:command', to: 'system#setting_execution'
   post 'system/debugcmd', to: 'system#proxy_command' # TODO: Remove once stable
 end

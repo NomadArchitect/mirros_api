@@ -4,14 +4,23 @@ class SystemController < ApplicationController
     render json: { meta: System.info }
   end
 
-  def apply_setting
-    executor = "SettingExecution::#{params[:category].capitalize}::".safe_constantize
-    result = if executor.respond_to?(params[:setting])
-               executor.send(params[:setting], params[:value])
-             else
-               false
-             end
-    render json: { success: result }
+  def setting_execution
+    executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
+    if executor.respond_to?(params[:command])
+      begin
+        result = executor.send(params[:command])
+        success = true
+      rescue NotImplementedError, Terrapin::ExitStatusError => e
+        result = e.message
+        success = false
+      end
+    else
+      result = "#{params[:action]} is not a valid action for "\
+               "#{params[:category]} settings. Valid actions are: "\
+               "#{executor.methods}"
+      success = false
+    end
+    render json: { success: success, result: result.chomp }
   end
 
   # TODO: Remove once debugging is complete
@@ -24,6 +33,6 @@ class SystemController < ApplicationController
       result = e.message
       success = false
     end
-    render json: {success: success, result: result}
+    render json: { success: success, result: result.chomp }
   end
 end
