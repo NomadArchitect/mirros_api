@@ -29,7 +29,7 @@ module SettingExecution
     def self.list_command_for_distro
       distro = System.determine_linux_distro
       {
-        'Ubuntu': Terrapin::CommandLine.new('nmcli -t d wifi list'),
+        'Ubuntu': Terrapin::CommandLine.new('nmcli -t --fields SSID d wifi list'),
         'Raspbian': Terrapin::CommandLine.new('iwlist wlan0 scan | grep ESSID | cut -d "\"" -f 2')
       }[distro]
     end
