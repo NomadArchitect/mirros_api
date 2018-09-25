@@ -4,7 +4,7 @@ module SettingExecution
   class NetworkLinux < Network
 
     # TODO: Support other authentication methods as well
-    def self.join_network(ssid, password)
+    def self.join(ssid, password)
       line = join_command_for_distro
       line.command(ssid: ssid, password: password)
       line.run
@@ -19,7 +19,7 @@ module SettingExecution
       line = Terrapin::CommandLine.new('nmcli', 'c add type wifi ')
     end
 
-    def self.join_command_for_distro(ssid, password)
+    def self.join_command_for_distro
       distro = System.determine_linux_distro
       {
         'Ubuntu': Terrapin::CommandLine.new('nmcli', 'd wifi connect :ssid password :password'),
