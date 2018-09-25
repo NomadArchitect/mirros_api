@@ -21,6 +21,7 @@ class SourceInstance < Instance
 
   def validate_configuration
     return if configuration.empty?
+
     errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
   end
 
@@ -32,6 +33,7 @@ class SourceInstance < Instance
 
   def hook_instance
     hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-    hooks.new(id, configuration)
+    hooks&.new(id, configuration)
+    JSONAPI::Exceptions::InternalServerError.new(e) if hooks.nil?
   end
 end
