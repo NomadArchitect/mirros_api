@@ -4,7 +4,10 @@ module SettingExecution
   class Network
 
     # TODO: Support other authentication methods as well
-    def self.join(ssid, password)
+    def self.join
+      ssid = Setting.find_by_slug('network_ssid').value
+      password = Setting.find_by_slug('network_password').value
+
       success = os_subclass.join(ssid, password)
       Rails.logger.error "Error setting SSID to #{ssid}" unless success
       success
@@ -21,6 +24,7 @@ module SettingExecution
         NetworkLinux
       elsif OS.mac?
         NetworkMac
+      # TODO: Maybe implement Windows someday.
       end
     end
 
