@@ -1,7 +1,7 @@
 class SystemController < ApplicationController
 
   def status
-    render json: {meta: System.info }
+    render json: { meta: System.info }
   end
 
   def apply_setting
