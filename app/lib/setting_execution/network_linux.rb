@@ -6,8 +6,7 @@ module SettingExecution
     # TODO: Support other authentication methods as well
     def self.join(ssid, password)
       line = join_command_for_distro
-      line.command(ssid: ssid, password: password)
-      line.run
+      line.run(ssid: ssid, password: password)
     end
 
     def self.list
