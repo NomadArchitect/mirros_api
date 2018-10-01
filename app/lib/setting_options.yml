@@ -8,7 +8,7 @@ display_orientation:
   3: 180°
   4: 270°
 network_connectiontype:
-  wlan: WiFi
+  wlan: WLAN
   lan: LAN
 system_language:
   enGb: English (UK)
