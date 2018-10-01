@@ -2,6 +2,7 @@
 
 require 'os'
 require 'resolv'
+require 'rake'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
@@ -21,6 +22,11 @@ class System
   def self.reboot
     # TODO: Implement Windows version
     `sudo reboot` if OS.linux? || OS.mac?
+  end
+
+  def self.reset
+    MirrOSApi::Application.load_tasks
+    Rake::Task['db:recycle'].invoke
   end
 
   def self.current_interface

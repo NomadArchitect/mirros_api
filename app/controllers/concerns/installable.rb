@@ -74,6 +74,9 @@ module Installable
       end
     }
 
+  def uninstall_without_restart
+    setup_instance
+    remove_from_gemfile
     # TODO: implement service de-registration and other cleanup
   end
 
