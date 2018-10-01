@@ -39,11 +39,11 @@ class System
   end
 
   # Tests whether all required parts of the initial setup are present.
-  private_class_method def self.setup_completed?
-    network_configured = case Setting.find_by_slug('network_connectionType')
-                         when 'WLAN'
-                           Setting.find('network_ssid').value.present? &&
-                           Setting.find('network_ssid').value.present?
+  def self.setup_completed?
+    network_configured = case Setting.find_by_slug('network_connectiontype').value
+                         when 'wlan'
+                           Setting.find_by_slug('network_ssid').value.present? &&
+                           Setting.find_by_slug('network_password').value.present?
                          else
                            true
                          end
