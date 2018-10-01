@@ -15,7 +15,13 @@ module SettingExecution
     end
 
     def self.open_ap
-      line = Terrapin::CommandLine.new('nmcli', 'c add type wifi ')
+      line = Terrapin::CommandLine.new('nmcli', 'c up glancrsetup')
+      line.run
+    end
+
+    def self.close_ap
+      line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
+      line.run
     end
 
     def self.connect_command_for_distro
