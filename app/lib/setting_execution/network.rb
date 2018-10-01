@@ -22,6 +22,18 @@ module SettingExecution
       available_networks
     end
 
+    def self.open_ap
+      success = os_subclass.open_ap
+      Rails.logger.error 'Could not open GlancrAP' unless success
+      success
+    end
+
+    def self.close_ap
+      success = os_subclass.close_ap
+      Rails.logger.error 'Could not close GlancrAP' unless success
+      success
+    end
+
     def self.os_subclass
       if OS.linux?
         NetworkLinux
