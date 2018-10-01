@@ -42,8 +42,10 @@ module Installable
     change_gem_version(@version)
 
     begin
-      options = {'without' => ['development', 'test'], 'jobs' => 5}
-      installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => [@gem]), options)
+      options = {'without' => %w[development test], 'jobs' => 5}
+      Bundler::Installer.install(Bundler.root,
+                                 new_definition(gems: [@gem]),
+                                 options)
     rescue Bundler::BundlerError => e
       change_gem_version(prev_version)
       raise bundler_error(e)
@@ -51,28 +53,31 @@ module Installable
 
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
-    fork {
-      restart = system("rails restart")
+    fork do
+      restart_successful = System.restart_application
 
-      unless restart === true
+      unless restart_successful
         change_gem_version(prev_version)
-        system("rails restart") # Restart a second time with the old gem version which should be installed.
+        # Restart a second time with the old gem version which should be installed.
+        System.restart_application
       end
-    }
+    end
   end
 
   # Uninstalls an extension gem.
   def uninstall
     setup_instance
     remove_from_gemfile
+    # TODO: implement service de-registration and other cleanup
 
-    fork {
-      restart = system("rails restart")
+    fork do
+      restart_successful = System.restart_application
 
-      if restart != true
-        inject_gem # Re-add the gem so that Gemfile and installation state are consistent.
-      end
-    }
+      # Re-add the gem so that Gemfile and installation state are consistent.
+      inject_gem unless restart_successful
+
+    end
+  end
 
   def uninstall_without_restart
     setup_instance
