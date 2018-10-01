@@ -31,8 +31,11 @@ class System
   end
 
   def self.reset
+    Source.all.each(&:uninstall_without_restart)
+
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
+    restart_application
   end
 
   def self.current_interface
