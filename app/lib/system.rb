@@ -24,6 +24,12 @@ class System
     `sudo reboot` if OS.linux? || OS.mac?
   end
 
+  # Restarts the Rails application.
+  def self.restart_application
+    line = Terrapin::CommandLine.new('bin/rails', 'restart')
+    line.run
+  end
+
   def self.reset
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
