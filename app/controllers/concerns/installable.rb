@@ -42,8 +42,10 @@ module Installable
     change_gem_version(@version)
 
     begin
-      options = {'without' => ['development', 'test'], 'jobs' => 5}
-      installer = Bundler::Installer.install(Bundler.root, new_definition(:gems => [@gem]), options)
+      options = {'without' => %w[development test], 'jobs' => 5}
+      Bundler::Installer.install(Bundler.root,
+                                 new_definition(gems: [@gem]),
+                                 options)
     rescue Bundler::BundlerError => e
       change_gem_version(prev_version)
       raise bundler_error(e)
@@ -51,29 +53,35 @@ module Installable
 
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
-    fork {
-      restart = system("rails restart")
+    fork do
+      restart_successful = System.restart_application
 
-      unless restart === true
+      unless restart_successful
         change_gem_version(prev_version)
-        system("rails restart") # Restart a second time with the old gem version which should be installed.
+        # Restart a second time with the old gem version which should be installed.
+        System.restart_application
       end
-    }
+    end
   end
 
   # Uninstalls an extension gem.
   def uninstall
     setup_instance
     remove_from_gemfile
+    # TODO: implement service de-registration and other cleanup
 
-    fork {
-      restart = system("rails restart")
+    fork do
+      restart_successful = System.restart_application
 
-      if restart != true
-        inject_gem # Re-add the gem so that Gemfile and installation state are consistent.
-      end
-    }
+      # Re-add the gem so that Gemfile and installation state are consistent.
+      inject_gem unless restart_successful
 
+    end
+  end
+
+  def uninstall_without_restart
+    setup_instance
+    remove_from_gemfile
     # TODO: implement service de-registration and other cleanup
   end
 
@@ -82,12 +90,13 @@ module Installable
 
   # Sets up the instance variables after validation.
   def setup_instance
-    @extension_type = self.class.name.downcase.sub('resource', '')
+    @extension_type = self.class.name.downcase
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
 
-    @engine = @model.attributes
+    @engine = name
     # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
-    @gem, @version = @engine['name'], @engine['version']
+    @gem = name
+    @version = version
     # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 

@@ -1,6 +1,11 @@
 class Source < ApplicationRecord
   self.primary_key = 'slug'
 
+  include Installable
+  after_create :install
+  after_update :update
+  before_destroy :uninstall
+
   has_many :source_instances, dependent: :destroy
   has_and_belongs_to_many :groups
 
