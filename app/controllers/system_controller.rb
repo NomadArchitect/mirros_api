@@ -31,13 +31,18 @@ class SystemController < ApplicationController
 
     render json: { success: success, result: result }
   end
+
+  # TODO: Respond with appropriate status codes in addition to success
   def setting_execution
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
     if executor.respond_to?(params[:command])
       begin
         result = executor.send(params[:command])
         success = true
-      rescue NotImplementedError, Terrapin::ExitStatusError => e
+      rescue ArgumentError,
+        NotImplementedError,
+        Terrapin::ExitStatusError,
+        HTTPBadResponse => e
         result = e.message
         success = false
       end
@@ -47,7 +52,7 @@ class SystemController < ApplicationController
                "#{executor.methods}"
       success = false
     end
-    render json: { success: success, result: result.chomp }
+    render json: {success: success, result: result}
   end
 
   # TODO: Remove once debugging is complete
@@ -60,6 +65,6 @@ class SystemController < ApplicationController
       result = e.message
       success = false
     end
-    render json: { success: success, result: result.chomp }
+    render json: {success: success, result: result}
   end
 end
