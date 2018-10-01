@@ -29,5 +29,7 @@ module MirrOSApi
     config.i18n.default_locale = :de
     config.i18n.enforce_available_locales = false
 
+    config.active_record.sqlite3.represent_boolean_as_integer = true
+
   end
 end
