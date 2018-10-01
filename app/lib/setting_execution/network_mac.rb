@@ -19,8 +19,23 @@ module SettingExecution
     def self.list
       # TODO. Airport Utility at /System/Library/PrivateFrameworks/Apple80211.framework/
       # Versions/Current/Resources/airport has a legacy switch `-s`
-      raise NotImplementedError
+      raise NotImplementedError unless Rails.env.development?
+
+      ['this is not a real wifi, just testing', 'this is neither']
     end
 
+    def self.open_ap
+      raise NotImplementedError unless Rails.env.development?
+
+      # TODO: Implement this if possible through CLI tools in macOS
+      true
+    end
+
+    def self.close_ap
+      raise NotImplementedError unless Rails.env.development?
+
+      # TODO: Implement this if possible through CLI tools in macOS
+      true
+    end
   end
 end
