@@ -85,12 +85,13 @@ module Installable
 
   # Sets up the instance variables after validation.
   def setup_instance
-    @extension_type = self.class.name.downcase.sub('resource', '')
+    @extension_type = self.class.name.downcase
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
 
-    @engine = @model.attributes
+    @engine = name
     # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
-    @gem, @version = @engine['name'], @engine['version']
+    @gem = name
+    @version = version
     # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 
