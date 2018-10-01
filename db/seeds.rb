@@ -61,8 +61,8 @@ Setting.create(
     },
     {
       category: 'personal',
-      key: 'city',
-      value: ''
+      key: 'privacyConsent',
+      value: 'no' # Requires frontend to specify checkbox values.
     }
   ]
 )
