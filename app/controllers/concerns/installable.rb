@@ -93,15 +93,14 @@ module Installable
     @extension_type = self.class.name.downcase
     raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
 
-    @engine = name
-    # CAUTION: ActiveRecord.attributes() returns a hash with string keys, not symbols!
     @gem = name
     @version = version
     # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 
   def inject_gem
-    options = {'source' => @engine['download'], 'group' => @extension_type} # Injector uses a string-keyed option hash.
+    # Injector uses a string-keyed option hash.
+    options = { 'source' => download, 'group' => [@extension_type] }
     # TODO: Validate @model against downloaded extension info (TBD)
 
     begin
@@ -112,7 +111,7 @@ module Installable
       gemfile = Pathname.new(File.absolute_path('Gemfile'))
       lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
 
-      new_deps = injector.inject(gemfile, lockfile)
+      injector.inject(gemfile, lockfile)
 
     rescue Bundler::Dsl::DSLError => e
       bundler_error(e)
