@@ -2,6 +2,7 @@
 
 require 'os'
 require 'resolv'
+require 'rake'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
@@ -21,6 +22,20 @@ class System
   def self.reboot
     # TODO: Implement Windows version
     `sudo reboot` if OS.linux? || OS.mac?
+  end
+
+  # Restarts the Rails application.
+  def self.restart_application
+    line = Terrapin::CommandLine.new('bin/rails', 'restart')
+    line.run
+  end
+
+  def self.reset
+    Source.all.each(&:uninstall_without_restart)
+
+    MirrOSApi::Application.load_tasks
+    Rake::Task['db:recycle'].invoke
+    restart_application
   end
 
   def self.current_interface
@@ -55,6 +70,14 @@ class System
       Rails.logger.error 'Could not determine OS in query for IP address'
     end
   end
+
+  def self.online?
+    Resolv::DNS.new.getaddress(API_HOST)
+    true
+  rescue Resolv::ResolvError
+    false
+  end
+
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
     network_configured = case Setting.find_by_slug('network_connectiontype').value
@@ -70,12 +93,6 @@ class System
 
   private_class_method :setup_completed?
 
-  def self.online?
-    Resolv::DNS.new.getaddress(API_HOST)
-    true
-  rescue Resolv::ResolvError
-    false
-  end
 
 
   # @param [Symbol] operating_system
