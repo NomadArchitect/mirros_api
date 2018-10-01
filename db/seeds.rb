@@ -6,7 +6,7 @@ Setting.create(
     {
       category: 'display',
       key: 'orientation',
-      value: "1"
+      value: '1'
     },
     {
       category: 'display',
@@ -16,22 +16,27 @@ Setting.create(
     {
       category: 'display',
       key: 'offIntervalStart',
-      value: '00:00'
+      value: ''
     },
     {
       category: 'display',
       key: 'offIntervalEnd',
-      value: '00:00'
+      value: ''
     },
     {
       category: 'network',
       key: 'connectionType',
-      value: 'WLAN'
+      value: 'wlan'
     },
     {
       category: 'network',
       key: 'ssid',
       value: ''
+    },
+    {
+      category: 'network',
+      key: 'ssidInvisible',
+      value: 'no' # Requires frontend to specify checkbox values.
     },
     {
       category: 'network',
@@ -41,7 +46,8 @@ Setting.create(
     {
       category: 'system',
       key: 'language',
-      value: 'enGb'
+      value: '' # Settings SPA defaults to browser language until user chooses a language.
+
     },
     {
       category: 'personal',
