@@ -5,8 +5,7 @@ require 'resolv'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
-
-  PING_ADDRESS = 'api.glancr.de'
+  API_HOST = 'api.glancr.de'
 
   def self.info
     # TODO: complete this
@@ -52,8 +51,10 @@ class System
     network_configured && email_configured
   end
 
-  private_class_method def self.online?
-    Resolv::DNS.new.getaddress(PING_ADDRESS)
+  private_class_method :setup_completed?
+
+  def self.online?
+    Resolv::DNS.new.getaddress(API_HOST)
     true
   rescue Resolv::ResolvError
     false
