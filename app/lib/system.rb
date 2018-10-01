@@ -9,12 +9,11 @@ class System
 
   def self.info
     # TODO: complete this
-    ip_address = determine_ip
     {
       version: MirrOSApi::Application::VERSION,
       setup_completed: setup_completed?,
       online: online?,
-      ip: ip_address,
+      ip: current_ip,
       os: RUBY_PLATFORM
     }
   end
@@ -25,12 +24,14 @@ class System
   end
 
   def self.current_interface
+    conn_type = Setting.find_by_slug('network_connectiontype').value
+
     if OS.linux?
-      map_interfaces(:linux)
+      map_interfaces(:linux, conn_type)
     elsif OS.mac?
-      map_interfaces(:mac)
+      map_interfaces(:mac, conn_type)
     else
-      Rails.logger.error 'Not running on a Linux or macOS host'
+      raise NotImplementedError 'Not running on a Linux or macOS host'
     end
   end
 
@@ -38,6 +39,22 @@ class System
     `lsb_release -i -s`
   end
 
+  def self.current_ip
+    conn_type = Setting.find_by_slug('network_connectiontype').value
+    return '' if conn_type.blank?
+
+    if OS.linux?
+      # FIXME: This returns multiple IPs if configured, and ignores connection type
+      `hostname --all-ip-addresses`.chomp!
+    elsif OS.mac?
+      `ipconfig getifaddr #{map_interfaces(:mac, conn_type)}`.chomp!
+    elsif OS.windows?
+      # TODO: Does Windows have a cmd to JUST show the IP for an interface?
+      raise NotImplementedError
+    else
+      Rails.logger.error 'Could not determine OS in query for IP address'
+    end
+  end
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
     network_configured = case Setting.find_by_slug('network_connectiontype').value
@@ -60,28 +77,15 @@ class System
     false
   end
 
-  private_class_method def self.determine_ip
-    if OS.linux?
-      # FIXME: This returns multiple IPs if configured, and ignores connection type
-      `hostname --all-ip-addresses`.chomp!
-    elsif OS.mac?
-      `ipconfig getifaddr #{map_interfaces(:mac)}`.chomp!
-    elsif OS.windows?
-      # FIXME: Does Windows have a cmd to JUST show the IP for an interface?
-    else
-      Rails.logger.error "Could not determine OS in query for #{conn_type} IP address"
-    end
-  end
-
-  private_class_method
 
   # @param [Symbol] operating_system
-  def self.map_interfaces(operating_system)
-    conn_type = Setting.find('network_connectiontype').value
+  # @@param [Symbol] interface The interface to query for the current IP.
+  def self.map_interfaces(operating_system, interface)
     {
-      'mac': { ETHERNET: 'en0', WLAN: 'en1' },
-      'linux': { ETHERNET: 'eth0', WLAN: 'wlan0' }
-    }[operating_system][conn_type.to_sym]
+      'mac': { lan: 'en1', wlan: 'en0' },
+      'linux': { lan: 'eth0', wlan: 'wlan0' }
+    }[operating_system][interface.to_sym]
   end
 
+  private_class_method :map_interfaces
 end
