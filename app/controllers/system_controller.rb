@@ -66,7 +66,7 @@ class SystemController < ApplicationController
     begin
       result = line.run
       success = true
-    rescue Terrapin::ExitStatusError => e
+    rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
       result = e.message
       success = false
     end
