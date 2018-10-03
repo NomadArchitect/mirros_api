@@ -45,9 +45,9 @@ class SystemController < ApplicationController
         result = executor.send(params[:command])
         success = true
       rescue ArgumentError,
-        NotImplementedError,
-        Terrapin::ExitStatusError,
-        HTTPBadResponse => e
+             NotImplementedError,
+             Terrapin::ExitStatusError,
+             Net::HTTPBadResponse => e
         result = e.message
         success = false
       end
