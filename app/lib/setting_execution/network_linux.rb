@@ -15,13 +15,23 @@ module SettingExecution
     end
 
     def self.open_ap
-      line = Terrapin::CommandLine.new('nmcli', 'c up glancrsetup')
-      line.run
+      dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
+      result = dns_line.run
+
+      wifi_line = Terrapin::CommandLine.new('nmcli', 'c up glancrsetup')
+      result << "\n"
+      result << wifi_line.run
+      result
     end
 
     def self.close_ap
-      line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
-      line.run
+      wifi_line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
+      result = wifi_line.run
+
+      dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
+      result << "\n"
+      result << dns_line.run
+      result
     end
 
     def self.connect_command_for_distro
