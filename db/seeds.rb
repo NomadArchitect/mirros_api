@@ -3,6 +3,7 @@
 
 Setting.create(
   [
+=begin
     {
       category: 'display',
       key: 'orientation',
@@ -23,6 +24,7 @@ Setting.create(
       key: 'offIntervalEnd',
       value: ''
     },
+=end
     {
       category: 'network',
       key: 'connectionType',
