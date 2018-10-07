@@ -78,6 +78,11 @@ class System
     false
   end
 
+  def self.check_ip_change
+    SettingExecution::Personal.send_change_email if Rails.configuration.current_ip != current_ip
+    Rails.configuration.current_ip = current_ip
+  end
+
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
     network_configured = case Setting.find_by_slug('network_connectiontype').value
@@ -92,7 +97,6 @@ class System
   end
 
   private_class_method :setup_completed?
-
 
 
   # @param [Symbol] operating_system
