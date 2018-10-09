@@ -56,7 +56,7 @@ class SourceGenerator < Rails::Generators::NamedBase
   end
 
   def append_to_gemfile
-    append_to_file './Gemfile', "gem \"#{name.downcase}\", path: \"./#{@path}\""
+    append_to_file './Gemfile', "gem \"#{name.downcase}\", path: \"./#{@path}\"\r\n"
   end
 
   def initialize_git_repo
