@@ -1,0 +1,7 @@
+require 'test_helper'
+
+class <%= name.capitalize %>::Test < ActiveSupport::TestCase
+  test "truth" do
+    assert_kind_of Module, <%= name.capitalize %>
+  end
+end
