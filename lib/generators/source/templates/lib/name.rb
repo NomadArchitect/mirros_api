@@ -1,5 +1,5 @@
-require '<%= name.downcase %>/engine'
-require '<%= name.downcase %>/fetcher'
+require '<%= name.underscore %>/engine'
+require '<%= name.underscore %>/fetcher'
 require 'httparty'
 
 module <%= name.camelcase %>

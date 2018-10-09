@@ -10,7 +10,7 @@
 
 <script>
 module.exports = {
-  name: "<%= name.downcase %>",
+  name: "<%= name.underscore %>",
   props: {
     currentSettings: {
       type: Object,

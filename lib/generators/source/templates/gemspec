@@ -1,15 +1,15 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "<%= name.downcase %>/version"
+require "<%= name.underscore %>/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "<%= name.downcase %>"
+  s.name        = "<%= name.underscore %>"
   s.version     = <%= name.camelcase %>::VERSION
   s.authors     = ["<%= @author_name %>"]
   s.email       = ["<%= @author_email %>"]
-  s.homepage    = "https://glancr.de/modules/<%= name.downcase %>"
+  s.homepage    = "https://glancr.de/modules/<%= name.underscore %>"
   s.summary     = "Summary of <%= name.camelcase %>."
   s.description = "Description of <%= name.camelcase %>."
   s.license     = "MIT"
