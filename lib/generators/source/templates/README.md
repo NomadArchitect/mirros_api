@@ -1,4 +1,4 @@
-# <%= name.capitalize %>
+# <%= name.camelcase %>
 Short description and motivation.
 
 ## Usage

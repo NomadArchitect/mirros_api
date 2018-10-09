@@ -21,7 +21,7 @@ module <%= name.camelcase %>
     end
 
     def default_title
-      "<%= name.capitalize %>"
+      "<%= name.camelcase %>"
     end
 
     def configuration_valid?

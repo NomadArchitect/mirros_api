@@ -1,6 +1,6 @@
 require 'test_helper'
 
-module <%= name.capitalize %>
+module <%= name.camelcase %>
   class SchemaTest < ActiveSupport::TestCase
     # test "the truth" do
     #   assert true

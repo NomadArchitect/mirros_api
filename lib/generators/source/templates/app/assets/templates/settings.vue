@@ -34,10 +34,10 @@ module.exports = {
   },
   locales: {
     deDe: {
-      "<%= name %> title": "<%= name.capitalize %>",
-      "<%= name %> description": "<%= name.capitalize %> Beschreibung"<% if fields.to_a.any? %>,<% end %>
+      "<%= name %> title": "<%= name.camelcase %>",
+      "<%= name %> description": "<%= name.camelcase %> Beschreibung"<% if fields.to_a.any? %>,<% end %>
       <%- fields.each do |key, type| -%>
-      "<%= name %> <%= key %>": "<%= name.capitalize %> <%= key %>"<% if fields.to_a.last.last != key %>,<%end %>
+      "<%= name %> <%= key %>": "<%= name.camelcase %> <%= key %>"<% if fields.to_a.last.last != key %>,<%end %>
       <%- end -%>
     }
   }
