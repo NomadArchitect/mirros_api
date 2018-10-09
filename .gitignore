@@ -24,3 +24,4 @@
 /public/packs-test
 /vendor/bundle
 /.rufus-scheduler.lock
+/sources/
