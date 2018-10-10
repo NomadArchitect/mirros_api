@@ -9,7 +9,6 @@ class System
   API_HOST = 'api.glancr.de'
 
   def self.info
-    # TODO: complete this
     {
       version: MirrOSApi::Application::VERSION,
       setup_completed: setup_completed?,
@@ -21,7 +20,6 @@ class System
   end
 
   def self.reboot
-    # TODO: Implement Windows version
     `sudo reboot` if OS.linux? || OS.mac?
   end
 
@@ -64,11 +62,8 @@ class System
       `hostname --all-ip-addresses`.chomp!
     elsif OS.mac?
       `ipconfig getifaddr #{map_interfaces(:mac, conn_type)}`.chomp!
-    elsif OS.windows?
-      # TODO: Does Windows have a cmd to JUST show the IP for an interface?
-      raise NotImplementedError
     else
-      Rails.logger.error 'Could not determine OS in query for IP address'
+      Rails.logger.error 'Unknown or unsupported OS in query for IP address'
     end
   end
 

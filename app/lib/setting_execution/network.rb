@@ -43,7 +43,9 @@ module SettingExecution
         NetworkLinux
       elsif OS.mac?
         NetworkMac
-        # TODO: Maybe implement Windows someday.
+      else
+        Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
+        raise NotImplementedError
       end
     end
 
