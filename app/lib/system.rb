@@ -14,7 +14,7 @@ class System
       version: MirrOSApi::Application::VERSION,
       setup_completed: setup_completed?,
       online: online?,
-      ip: current_ip,
+      ip: Rails.configuration.current_ip,
       os: RUBY_PLATFORM
     }
   end
@@ -54,7 +54,7 @@ class System
     `lsb_release -i -s`
   end
 
-  def self.current_ip
+  def self.current_ip_address
     conn_type = Setting.find_by_slug('network_connectiontype').value
     return '' if conn_type.blank?
 
