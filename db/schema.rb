@@ -159,7 +159,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.string "slug", null: false
     t.string "icon"
     t.string "languages"
-    t.string "group_id", null: false
+    t.string "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_widgets_on_group_id"
