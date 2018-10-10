@@ -86,6 +86,13 @@ class System
       Rails.configuration.current_ip = current_ip
     end
   end
+
+  # Determines if the internal access point needs to be opened because mirr.OS does
+  # not have an IP address. Also checks if the AP is already open to avoid
+  # activating an already-active connection.
+  def self.check_network_status
+    system_has_ip = Rails.configuration.current_ip.present?
+    SettingExecution::Network.open_ap unless system_has_ip || SettingExecution::Network.ap_active?
   end
 
   # Tests whether all required parts of the initial setup are present.
