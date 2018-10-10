@@ -38,7 +38,7 @@ module SettingExecution
         name: Setting.find_by_slug('personal_name').value,
         email: Setting.find_by_slug('personal_email').value,
         language: convert_language_tag(Setting.find_by_slug('system_language').value),
-        localip: System.current_ip
+        localip: System.current_ip_address
       }
     end
     private_class_method :compose_body

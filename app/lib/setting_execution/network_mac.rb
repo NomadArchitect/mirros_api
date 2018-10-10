@@ -31,6 +31,13 @@ module SettingExecution
       true
     end
 
+    def self.ap_active?
+      raise NotImplementedError unless Rails.env.development?
+
+      # TODO: Implement this if possible through /usr/sbin/networksetup
+      false
+    end
+
     def self.close_ap
       raise NotImplementedError unless Rails.env.development?
 

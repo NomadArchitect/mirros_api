@@ -8,19 +8,20 @@ require 'rake'
 class System
   API_HOST = 'api.glancr.de'
 
+  # TODO: Using stored values in Rails.configuration might have performance potential
+  # if the frontend requests system status less frequently than the backend updates itself.
   def self.info
-    # TODO: complete this
     {
       version: MirrOSApi::Application::VERSION,
       setup_completed: setup_completed?,
       online: online?,
-      ip: current_ip,
+      ip: current_ip_address,
+      ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM
     }
   end
 
   def self.reboot
-    # TODO: Implement Windows version
     `sudo reboot` if OS.linux? || OS.mac?
   end
 
@@ -54,7 +55,7 @@ class System
     `lsb_release -i -s`
   end
 
-  def self.current_ip
+  def self.current_ip_address
     conn_type = Setting.find_by_slug('network_connectiontype').value
     return '' if conn_type.blank?
 
@@ -63,11 +64,8 @@ class System
       `hostname --all-ip-addresses`.chomp!
     elsif OS.mac?
       `ipconfig getifaddr #{map_interfaces(:mac, conn_type)}`.chomp!
-    elsif OS.windows?
-      # TODO: Does Windows have a cmd to JUST show the IP for an interface?
-      raise NotImplementedError
     else
-      Rails.logger.error 'Could not determine OS in query for IP address'
+      Rails.logger.error 'Unknown or unsupported OS in query for IP address'
     end
   end
 
@@ -78,9 +76,23 @@ class System
     false
   end
 
+  # Sends out a notification if the IP address of the configured interface has
+  # changed, is not empty (i. e. we have no IP) and the system has connectivity.
   def self.check_ip_change
-    SettingExecution::Personal.send_change_email if Rails.configuration.current_ip != current_ip
-    Rails.configuration.current_ip = current_ip
+    current_ip = current_ip_address
+    if Rails.configuration.current_ip != current_ip
+      # Do not attempt to send an email if the current IP is empty or we are offline
+      SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
+      Rails.configuration.current_ip = current_ip
+    end
+  end
+
+  # Determines if the internal access point needs to be opened because mirr.OS does
+  # not have an IP address. Also checks if the AP is already open to avoid
+  # activating an already-active connection.
+  def self.check_network_status
+    system_has_ip = Rails.configuration.current_ip.present?
+    SettingExecution::Network.open_ap unless system_has_ip || SettingExecution::Network.ap_active?
   end
 
   # Tests whether all required parts of the initial setup are present.
