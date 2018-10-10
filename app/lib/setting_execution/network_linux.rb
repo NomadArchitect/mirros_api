@@ -24,6 +24,11 @@ module SettingExecution
       result
     end
 
+    def self.ap_active?
+      line = Terrapin::CommandLine.new('nmcli', 'c show --active | grep -i glancrsetup')
+      line.run.empty?
+    end
+
     def self.close_ap
       wifi_line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
       result = wifi_line.run

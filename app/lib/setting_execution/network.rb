@@ -28,6 +28,10 @@ module SettingExecution
       success
     end
 
+    def self.ap_active?
+      os_subclass.ap_active?
+    end
+
     def self.close_ap
       success = os_subclass.close_ap
       Rails.logger.error 'Could not close GlancrAP' unless success
