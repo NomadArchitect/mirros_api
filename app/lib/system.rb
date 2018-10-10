@@ -15,6 +15,7 @@ class System
       setup_completed: setup_completed?,
       online: online?,
       ip: Rails.configuration.current_ip,
+      ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM
     }
   end
