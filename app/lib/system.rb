@@ -74,8 +74,11 @@ class System
     false
   end
 
+  # Sends out a notification if the IP address of the configured interface has
+  # changed and is not empty (i. e. we have no IP).
   def self.check_ip_change
-    SettingExecution::Personal.send_change_email if Rails.configuration.current_ip != current_ip
+    current_ip = current_ip_address
+    SettingExecution::Personal.send_change_email if current_ip != Rails.configuration.current_ip && current_ip.present?
     Rails.configuration.current_ip = current_ip
   end
 
