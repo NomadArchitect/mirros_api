@@ -8,12 +8,14 @@ require 'rake'
 class System
   API_HOST = 'api.glancr.de'
 
+  # TODO: Using stored values in Rails.configuration might have performance potential
+  # if the frontend requests system status less frequently than the backend updates itself.
   def self.info
     {
       version: MirrOSApi::Application::VERSION,
       setup_completed: setup_completed?,
       online: online?,
-      ip: Rails.configuration.current_ip,
+      ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM
     }
