@@ -12,4 +12,10 @@ if Rails.const_defined? 'Server'
   Rufus::Scheduler.s.every '1m', tag: 'ip-change-check' do
     System.check_ip_change
   end
+
+  # Perform initial network status check if required and schedule consecutive checking.
+  System.check_network_status unless Rails.configuration.current_ip.present?
+  Rufus::Scheduler.s.every '2m', tag: 'network-status-check' do
+    System.check_network_status
+  end
 end
