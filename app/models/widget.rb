@@ -10,7 +10,7 @@ class Widget < ApplicationRecord
 
   has_many :widget_instances, dependent: :destroy
   has_many :services, dependent: :destroy
-  belongs_to :group
+  belongs_to :group, optional: true
 
   validates :name, uniqueness: true
 
