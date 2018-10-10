@@ -77,11 +77,15 @@ class System
   end
 
   # Sends out a notification if the IP address of the configured interface has
-  # changed and is not empty (i. e. we have no IP).
+  # changed, is not empty (i. e. we have no IP) and the system has connectivity.
   def self.check_ip_change
     current_ip = current_ip_address
-    SettingExecution::Personal.send_change_email if current_ip != Rails.configuration.current_ip && current_ip.present?
-    Rails.configuration.current_ip = current_ip
+    if Rails.configuration.current_ip != current_ip
+      # Do not attempt to send an email if the current IP is empty or we are offline
+      SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
+      Rails.configuration.current_ip = current_ip
+    end
+  end
   end
 
   # Tests whether all required parts of the initial setup are present.
