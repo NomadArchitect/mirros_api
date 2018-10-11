@@ -7,6 +7,7 @@ class CreateSources < ActiveRecord::Migration[5.1]
       t.string :creator
       t.string :version, null: false
       t.string :website
+      t.string :icon
       t.string :download, null: false
       t.string :slug, null: false
 

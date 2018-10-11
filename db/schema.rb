@@ -132,6 +132,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.string "creator"
     t.string "version", null: false
     t.string "website"
+    t.string "icon"
     t.string "download", null: false
     t.string "slug", null: false
     t.datetime "created_at", null: false
