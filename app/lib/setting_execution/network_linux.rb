@@ -18,7 +18,7 @@ module SettingExecution
       # would be prettier, but we require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        'wlan0 scan | grep ESSID | cut -d "\"" -f 2')
-      line.run
+      line.run.split("\n")
     end
 
     def self.open_ap
