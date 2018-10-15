@@ -34,9 +34,12 @@ Rails.application.routes.draw do
 
   # Non-resourceful routes for controlling the system
   get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
+  get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'
+
   get 'system/status', to: 'system#status'
   get 'system/run_setup', to: 'system#run_setup' # TODO: maybe clean those up
   get 'system/reset', to: 'system#reset'
   get 'system/control/:category/:command', to: 'system#setting_execution'
+
   post 'system/debugcmd', to: 'system#proxy_command' # TODO: Remove once stable
 end

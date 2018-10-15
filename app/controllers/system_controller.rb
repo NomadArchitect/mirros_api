@@ -72,4 +72,15 @@ class SystemController < ApplicationController
     end
     render json: {success: success, result: result}
   end
+
+  def fetch_extensions
+    begin
+      render json: HTTParty.get("http://#{System::API_HOST}/list/#{params[:type]}", {timeout: 5 })
+    rescue Net::OpenTimeout => e
+      head :gateway_timeout
+      return
+    end
+  end
+
+
 end
