@@ -116,6 +116,7 @@ class System
   # @param [Symbol] operating_system
   # @@param [Symbol] interface The interface to query for the current IP.
   def self.map_interfaces(operating_system, interface)
+    # TODO: Maybe use nmcli -f DEVICE,TYPE d | grep -E "(wifi)|(ethernet)" | awk '{ print $1; }' to determine IF names.
     {
       'mac': { lan: 'en1', wlan: 'en0' },
       'linux': { lan: 'eth0', wlan: 'wlan0' }

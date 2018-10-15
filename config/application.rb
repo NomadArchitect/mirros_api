@@ -12,6 +12,9 @@ module MirrOSApi
 
     VERSION = '0.1.0'.freeze
 
+    # Set custom log path for terrapin commands. TODO: Enable if sensitive commands can be filtered.
+    # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
