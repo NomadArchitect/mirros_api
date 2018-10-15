@@ -70,6 +70,8 @@ class System
   end
 
   def self.online?
+    return false if SettingExecution::Network.ap_active? # dnsmasq is active and prevents outgoing connections
+
     Resolv::DNS.new.getaddress(API_HOST)
     true
   rescue Resolv::ResolvError
