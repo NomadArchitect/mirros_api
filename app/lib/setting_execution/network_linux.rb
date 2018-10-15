@@ -16,7 +16,8 @@ module SettingExecution
     def self.list
       # TODO: Terrapin::CommandLine.new('nmcli -t --fields SSID d wifi list')
       # would be prettier, but we require two interfaces to scan while in AP mode.
-      line = Terrapin::CommandLine.new('iwlist', 'wlan0 scan | grep ESSID | cut -d "\"" -f 2')
+      line = Terrapin::CommandLine.new('iwlist',
+                                       'wlan0 scan | grep ESSID | cut -d "\"" -f 2')
       line.run
     end
 
@@ -30,9 +31,14 @@ module SettingExecution
       result
     end
 
+    #
+    # @return [Boolean] True if the AP connection is among the active nmcli connections.
     def self.ap_active?
-      line = Terrapin::CommandLine.new('nmcli', 'c show --active | grep -i glancrsetup')
-      line.run.empty?
+      line = Terrapin::CommandLine.new('nmcli',
+                                       '-f NAME c show --active | grep glancrsetup',
+                                       expected_outcodes: [0, 1])
+      line.run
+      line.exit_status.zero?
     end
 
     def self.close_ap
