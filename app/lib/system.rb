@@ -6,7 +6,7 @@ require 'rake'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
-  API_HOST = 'gems.marco-roth.ch' # 'api.glancr.de'
+  API_HOST = 'api.glancr.de'
 
   # TODO: Using stored values in Rails.configuration might have performance potential
   # if the frontend requests system status less frequently than the backend updates itself.

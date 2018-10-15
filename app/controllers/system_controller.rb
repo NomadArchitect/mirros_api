@@ -75,9 +75,11 @@ class SystemController < ApplicationController
 
   def fetch_extensions
     begin
-      render json: HTTParty.get("http://#{System::API_HOST}/list/#{params[:type]}", {timeout: 5 })
+      # FIXME: Use API_HOST as well once migration is done.
+      render json: HTTParty.get("http://gems.marco-roth.ch/list/#{params[:type]}", {timeout: 5 })
     rescue Net::OpenTimeout => e
       head :gateway_timeout
+      Rails.logger.error e.message
       return
     end
   end
