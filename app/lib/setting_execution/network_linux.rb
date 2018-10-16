@@ -16,6 +16,7 @@ module SettingExecution
     def self.list
       # TODO: Terrapin::CommandLine.new('nmcli -t --fields SSID d wifi list')
       # would be prettier, but we require two interfaces to scan while in AP mode.
+      # FIXME: This also assumes that the WiFi interface is named wlan0 (nmcli would manage that for us)
       line = Terrapin::CommandLine.new('iwlist',
                                        'wlan0 scan | grep ESSID | cut -d "\"" -f 2')
       line.run.split("\n")
