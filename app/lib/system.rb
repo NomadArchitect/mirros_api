@@ -33,6 +33,7 @@ class System
 
   def self.reset
     Source.all.each(&:uninstall_without_restart)
+    SettingExecution::Personal.send_reset_email
 
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
