@@ -24,6 +24,12 @@ module SettingExecution
       ['this is not a real wifi, just testing', 'this is neither']
     end
 
+    def self.reset
+      raise NotImplementedError unless Rails.env.development?
+      # TODO: Use /usr/sbin/networksetup to remove a preferred network.
+      true
+    end
+
     def self.open_ap
       raise NotImplementedError unless Rails.env.development?
 

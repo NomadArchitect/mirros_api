@@ -36,6 +36,8 @@ class System
 
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
+    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value == 'lan'
+
     restart_application
   end
 

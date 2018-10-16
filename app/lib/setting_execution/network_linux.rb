@@ -22,6 +22,11 @@ module SettingExecution
       line.run.split("\n")
     end
 
+    def self.reset
+      line = Terrapin::CommandLine.new('nmcli', 'c delete :ssid')
+      line.run(ssid: Setting.find_by_slug('network_ssid').value)
+    end
+
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       result = dns_line.run
