@@ -9,6 +9,9 @@ module SettingExecution
 
     # TODO: Support other authentication methods as well
     def self.connect(ssid, password)
+      # Clear existing connections so that we only have one connection with that name.
+      remove_connection(ssid)
+
       line = Terrapin::CommandLine.new('nmcli', 'd wifi connect :ssid password :password')
       line.run(ssid: ssid, password: password)
     end
@@ -24,11 +27,7 @@ module SettingExecution
 
     def self.reset
       ssid = Setting.find_by_slug('network_ssid').value
-      # Exit status 10: "cannot delete unknown connection(s)"
-      line = Terrapin::CommandLine.new('nmcli',
-                                       'c delete :ssid',
-                                       expected_outcodes: [0, 10])
-      line.run(ssid: ssid) unless ssid.empty?
+      remove_connection(ssid) unless ssid.empty?
     end
 
     def self.open_ap
@@ -61,4 +60,14 @@ module SettingExecution
       result
     end
   end
+
+  # Removes a named nmcli connection. Catch exit code 10 ("cannot delete unknown connection(s)").
+  # @param [String] connection The connection name to remove.
+  def self.remove_connection(connection)
+    line = Terrapin::CommandLine.new('nmcli',
+                                     'c delete :connection',
+                                     expected_outcodes: [0, 10])
+    line.run(connection: connection)
+  end
+  private_class_method :remove_connection
 end
