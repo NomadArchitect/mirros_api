@@ -23,8 +23,12 @@ module SettingExecution
     end
 
     def self.reset
-      line = Terrapin::CommandLine.new('nmcli', 'c delete :ssid')
-      line.run(ssid: Setting.find_by_slug('network_ssid').value)
+      ssid = Setting.find_by_slug('network_ssid').value
+      # Exit status 10: "cannot delete unknown connection(s)"
+      line = Terrapin::CommandLine.new('nmcli',
+                                       'c delete :ssid',
+                                       expected_outcodes: [0, 10])
+      line.run(ssid: ssid) unless ssid.empty?
     end
 
     def self.open_ap
