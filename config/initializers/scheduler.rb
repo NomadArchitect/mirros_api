@@ -5,6 +5,9 @@ require 'rufus-scheduler'
 
 # only schedule when not running from the Ruby on Rails console or from a rake task
 if Rails.const_defined? 'Server'
+  s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
+  s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
+
   MirrOSApi::DataRefresher.schedule_all
 
   # Store the current IP and schedule consecutive change checks.

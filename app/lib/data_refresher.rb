@@ -2,9 +2,7 @@ class DataRefresher
 
   # TODO: Clean this up and document methods once we reach a stable API.
   def self.scheduler
-    s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
-    s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
-    s
+    Rufus::Scheduler.singleton
   end
 
   def self.schedule_all
