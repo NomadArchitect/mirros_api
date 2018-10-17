@@ -1,7 +1,5 @@
 # frozen-string-literal: true
 
-require 'os'
-
 module SettingExecution
 
   # Provides methods to apply settings in the personal namespace.
