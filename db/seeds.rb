@@ -101,7 +101,7 @@ Group.create(
 
 # Only seed test data in development
 if Rails.env.development?
-
+=begin
   Widget.create(
     [
       {
@@ -110,7 +110,7 @@ if Rails.env.development?
         description: {'en_GB' => 'Displays up to five calendars in a week view.', 'de_DE' => 'Zeigt bis zu fünf Kalender in einer Wochenübersicht an.'},
         creator: 'Mattes Angelus',
         version: '1.0.0',
-        website: 'https://glancr.de/module/produktivitaet/kalender/',
+        homepage: 'https://glancr.de/module/produktivitaet/kalender/',
         download: 'https://api.glancr.de/extensions/widgets/calendar_week-1.0.0.zip',
         languages: ['en_GB'],
         group_id: Group.find_by(name: 'calendar')
@@ -121,7 +121,7 @@ if Rails.env.development?
         description: {'en_GB' => 'Displays today\'s calendar events.', 'de_DE' => 'Deine Termine für den heutigen Tag.'},
         creator: 'Mattes Angelus',
         version: '1.0.0',
-        website: 'https://glancr.de/module/produktivitaet/kalender/',
+        homepage: 'https://glancr.de/module/produktivitaet/kalender/',
         download: 'https://api.glancr.de/extensions/widgets/calendar_today-1.0.0.zip',
         languages: ['en_GB'],
         group_id: Group.find_by(name: 'calendar')
@@ -132,7 +132,7 @@ if Rails.env.development?
         description: {'en_GB' => 'Shows your tasks from Todoist on your glancr.', 'de_DE' => 'Zeigt deine Aufgaben aus Todoist auf deinem glancr an.'},
         creator: 'Marco Roth',
         version: '1.0.0',
-        website: 'https://glancr.de/module/produktivitaet/todos/',
+        homepage: 'https://glancr.de/module/produktivitaet/todos/',
         download: 'https://api.glancr.de/extensions/widgets/todos-1.0.0.zip',
         languages: ['en_GB'],
         group_id: Group.find_by(name: 'reminder_list')
@@ -149,7 +149,7 @@ if Rails.env.development?
                       'de_DE' => 'Greife auf Daten aus deinem Google-Konto zu. Unterstützt Kalender und Aufgaben.'},
         creator: 'Mattes Angelus',
         version: '1.0.0',
-        website: '',
+        homepage: '',
         download: 'https://api.glancr.de/extensions/sources/google-1.0.0.zip',
         groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder_list')]
       },
@@ -160,7 +160,7 @@ if Rails.env.development?
                       'de_DE' => 'Greife auf Daten aus deinem iCloud-Konto zu. Unterstützt Kalender und Aufgaben.'},
         creator: 'Mattes Angelus',
         version: '1.0.0',
-        website: '',
+        homepage: '',
         download: 'https://api.glancr.de/extensions/sources/icloud-1.0.0.zip',
         groups: [Group.find_by(name: 'calendar'), Group.find_by(name: 'reminder_list')]
       },
@@ -171,7 +171,7 @@ if Rails.env.development?
                       'de_DE' => 'Greife auf Daten aus Online-Kalendern im iCal-Format zu. Unterstützt sowohl öffentliche als auch passwortgeschützte iCal-Links.'},
         creator: 'Mattes Angelus',
         version: '1.0.0',
-        website: '',
+        homepage: '',
         download: 'https://api.glancr.de/extensions/sources/ical-1.0.0.zip',
         groups: [Group.find_by(name: 'calendar')]
       }
@@ -301,6 +301,7 @@ if Rails.env.development?
       }
     ]
   )
+=end
 else
   # No seeding
 end

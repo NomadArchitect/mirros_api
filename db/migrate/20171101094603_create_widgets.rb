@@ -6,7 +6,7 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
       t.json :description, null: false
       t.string :version, null: false
       t.string :creator
-      t.string :website
+      t.string :homepage
       t.string :download, null: false
       t.string :slug, null: false
       t.string :icon

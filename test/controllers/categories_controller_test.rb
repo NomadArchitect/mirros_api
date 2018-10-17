@@ -12,7 +12,7 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create category" do
     assert_difference('Category.count') do
-      post categories_url, params: { category: { category_id: @category.category_id, name: @category.name, website: @category.website } }, as: :json
+      post categories_url, params: { category: { category_id: @category.category_id, name: @category.name, homepage: @category.homepage } }, as: :json
     end
 
     assert_response 201
@@ -24,7 +24,7 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update category" do
-    patch category_url(@category), params: { category: { category_id: @category.category_id, name: @category.name, website: @category.website } }, as: :json
+    patch category_url(@category), params: { category: { category_id: @category.category_id, name: @category.name, homepage: @category.homepage } }, as: :json
     assert_response 200
   end
 

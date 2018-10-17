@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.json "description", null: false
     t.string "creator"
     t.string "version", null: false
-    t.string "website"
+    t.string "homepage"
     t.string "icon"
     t.string "download", null: false
     t.string "slug", null: false
@@ -155,7 +155,7 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.json "description", null: false
     t.string "version", null: false
     t.string "creator"
-    t.string "website"
+    t.string "homepage"
     t.string "download", null: false
     t.string "slug", null: false
     t.string "icon"
