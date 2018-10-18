@@ -26,6 +26,7 @@ module SettingExecution
 
     def self.reset
       raise NotImplementedError unless Rails.env.development?
+
       # TODO: Use /usr/sbin/networksetup to remove a preferred network.
       true
     end
