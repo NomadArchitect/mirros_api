@@ -6,6 +6,7 @@ class SystemController < ApplicationController
 
   def reset
     System.reset
+    head :no_content
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
