@@ -58,13 +58,21 @@ class System
     `lsb_release -i -s`
   end
 
+  # TODO: Add support for IPv6.
   def self.current_ip_address
     conn_type = Setting.find_by_slug('network_connectiontype').value
     return '' if conn_type.blank?
 
     if OS.linux?
-      # FIXME: This returns multiple IPs if configured, and ignores connection type
-      `hostname --all-ip-addresses`.chomp!
+      # FIXME: When implementing a solution for dynamic interface names, use
+      # '-t -m tabular -f GENERAL.TYPE,IP4.ADDRESS d show | grep ":interface" -A 1 | cut -d "/" -f 1'
+      # and switch map_interfaces values for Linux to ethernet/wifi generic names.
+      line = Terrapin::CommandLine.new('nmcli',
+                                       '-t -m tabular -f IP4.ADDRESS \
+                                               d show :interface \
+                                               | cut -d "/" -f 1')
+      line.run(interface: map_interfaces(:linux, conn_type))
+
     elsif OS.mac?
       # FIXME: This command returns only the IPv4.
       line = Terrapin::CommandLine.new('ipconfig', 'getifaddr :interface')
@@ -107,7 +115,7 @@ class System
     network_configured = case Setting.find_by_slug('network_connectiontype').value
                          when 'wlan'
                            Setting.find_by_slug('network_ssid').value.present? &&
-                           Setting.find_by_slug('network_password').value.present?
+                             Setting.find_by_slug('network_password').value.present?
                          else
                            true
                          end
@@ -123,8 +131,8 @@ class System
   def self.map_interfaces(operating_system, interface)
     # TODO: Maybe use nmcli -f DEVICE,TYPE d | grep -E "(wifi)|(ethernet)" | awk '{ print $1; }' to determine IF names.
     {
-      'mac': { lan: 'en1', wlan: 'en0' },
-      'linux': { lan: 'eth0', wlan: 'wlan0' }
+      'mac': {lan: 'en1', wlan: 'en0'},
+      'linux': {lan: 'eth0', wlan: 'wlan0'}
     }[operating_system][interface.to_sym]
   end
 
