@@ -59,15 +59,16 @@ module SettingExecution
       result << dns_line.run
       result
     end
-  end
 
-  # Removes a named nmcli connection. Catch exit code 10 ("cannot delete unknown connection(s)").
-  # @param [String] connection The connection name to remove.
-  def self.remove_connection(connection)
-    line = Terrapin::CommandLine.new('nmcli',
-                                     'c delete :connection',
-                                     expected_outcodes: [0, 10])
-    line.run(connection: connection)
+    # Removes a named nmcli connection. Catch exit code 10 ("cannot delete unknown connection(s)").
+    # @param [String] connection The connection name to remove.
+    def self.remove_connection(connection)
+      line = Terrapin::CommandLine.new('nmcli',
+                                       'c delete :connection',
+                                       expected_outcodes: [0, 10])
+      line.run(connection: connection)
+    end
+    private_class_method :remove_connection
+
   end
-  private_class_method :remove_connection
 end
