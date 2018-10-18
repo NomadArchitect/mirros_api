@@ -66,7 +66,9 @@ class System
       # FIXME: This returns multiple IPs if configured, and ignores connection type
       `hostname --all-ip-addresses`.chomp!
     elsif OS.mac?
-      `ipconfig getifaddr #{map_interfaces(:mac, conn_type)}`.chomp!
+      # FIXME: This command returns only the IPv4.
+      line = Terrapin::CommandLine.new('ipconfig', 'getifaddr :interface')
+      line.run(interface: map_interfaces(:mac, conn_type)).chomp!
     else
       Rails.logger.error 'Unknown or unsupported OS in query for IP address'
     end
