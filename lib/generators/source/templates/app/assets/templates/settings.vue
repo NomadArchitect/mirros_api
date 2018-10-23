@@ -23,8 +23,7 @@ module.exports = {
         <%- fields.each do |key, type| -%>
         <%= key %>: ""<% if fields.to_a.last.last != key %>,<%end %>
         <%- end -%>
-      },
-      urlRequiresAuth: false
+      }
     };
   },
   computed: {
