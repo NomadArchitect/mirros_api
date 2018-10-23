@@ -5,7 +5,7 @@ class SourceGenerator < Rails::Generators::NamedBase
   class_option :mailer, type: :boolean, default: false, desc: "Generate a scoped ActionMailer"
   class_option :job, type: :boolean, default: false, desc: "Generate a scoped ActionJob"
   class_option :controller, type: :boolean, default: false, desc: "Generate a scoped ApplicationController"
-  class_option :tasks, type: :boolean, default: true, desc: "Generate a rake tasks file"
+  class_option :tasks, type: :boolean, default: false, desc: "Generate a rake tasks file"
 
   def initialize_variables
     @fields = fields
