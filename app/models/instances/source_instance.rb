@@ -33,7 +33,7 @@ class SourceInstance < Instance
 
   def hook_instance
     hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-    hooks&.new(id, configuration)
     JSONAPI::Exceptions::InternalServerError.new(e) if hooks.nil?
+    hooks.new(id, configuration)
   end
 end
