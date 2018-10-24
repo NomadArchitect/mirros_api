@@ -28,6 +28,7 @@ class SourceGenerator < Rails::Generators::NamedBase
 
   def generate_app_dir
     template "app/assets/templates/settings.vue", "#{@path}/app/assets/templates/settings.vue"
+    template "app/assets/icons/name.svg", "#{@path}/app/assets/icons/#{name.underscore}.svg"
     template "app/controllers/name/application_controller.rb", "#{@path}/app/controllers/#{name.underscore}/application_controller.rb" if options[:controller]
     template "app/jobs/name/application_job.rb", "#{@path}/app/jobs/#{name.underscore}/application_job.rb" if options[:job]
     template "app/mailers/name/application_mailer.rb", "#{@path}/app/mailers/#{name.underscore}/application_mailer.rb" if options[:mailer]
