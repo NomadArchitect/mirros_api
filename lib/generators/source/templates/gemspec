@@ -1,3 +1,5 @@
+require 'json'
+
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
@@ -13,6 +15,20 @@ Gem::Specification.new do |s|
   s.summary     = "Summary of <%= name.camelcase %>."
   s.description = "Description of <%= name.camelcase %>."
   s.license     = "MIT"
+  s.metadata    = { 'json' =>
+                {
+                  type: 'sources',
+                  title: {
+                    enGb: 'Calendar' # Add your source's title in other languages
+                  },
+                  description: {
+                    enGb: s.description
+                    # Add description for other languages keyed by the snakeCased language tag.
+                  },
+                  languages: [:enGb], # Add snake-cased language tags if your templates have the locales for it.
+                  groups: [] # see https://gitlab.com/glancr/mirros_one/wikis/home for available groups
+                }.to_json
+              }
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
