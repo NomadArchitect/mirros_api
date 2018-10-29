@@ -1,0 +1,36 @@
+require 'json'
+$:.push File.expand_path("../lib", __FILE__)
+
+# Maintain your gem's version:
+require "<%= name.underscore %>/version"
+
+# Describe your gem and declare its dependencies:
+Gem::Specification.new do |s|
+  s.name        = "<%= name.underscore %>"
+  s.version     = <%= name.camelcase %>::VERSION
+  s.authors     = ["<%= @author_name %>"]
+  s.email       = ["<%= @author_email %>"]
+  s.homepage    = "https://glancr.de/modules/<%= name.underscore %>"
+  s.summary     = "Summary of <%= name.camelcase %>."
+  s.description = "Description of <%= name.camelcase %>."
+  s.license     = "MIT"
+  s.metadata    = { 'json' =>
+                  {
+                    type: 'widgets',
+                    title: {
+                      enGb: '<%= name.camelcase %>' # Add your source's title in other languages
+                    },
+                    description: {
+                      enGb: s.description
+                      # Add description for other languages keyed by the snakeCased language tag.
+                    },
+                    languages: [:enGb], # Add snake-cased language tags if your templates have the locales for it.
+                    group: nil # see https://gitlab.com/glancr/mirros_one/wikis/home for available groups
+                  }.to_json
+                }
+
+  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+
+  s.add_dependency "rails", "<%= Rails.version %>"
+  s.add_development_dependency "sqlite3"
+end
