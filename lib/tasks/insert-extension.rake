@@ -38,7 +38,7 @@ namespace :extension do
                               description: meta[:description],
                               version: spec.version.to_s,
                               creator: spec.author,
-                              website: spec.homepage,
+                              homepage: spec.homepage,
                               download: 'http://my-gemserver.local',
                             }.merge(type_specifics)
     )
