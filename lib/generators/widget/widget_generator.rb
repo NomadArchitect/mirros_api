@@ -69,4 +69,8 @@ class WidgetGenerator < Rails::Generators::NamedBase
     git commit: "-m 'initial commit'"
   end
 
+  def show_dev_info
+    Thor::Shell::Color.new.say("You can now insert your widget by invoking rails extension:insert[widget, #{name.underscore}]", :yellow)
+  end
+
 end
