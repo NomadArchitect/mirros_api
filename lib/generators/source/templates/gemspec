@@ -32,5 +32,5 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency "rails", "~> <%= Rails.version %>"
+  s.add_dependency "rails", "~> <%= Gem::Version.new(Rails.version).approximate_recommendation %>"
 end
