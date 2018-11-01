@@ -7,10 +7,12 @@ class AssetsController < ApplicationController
     extension_path = gem.full_gem_path
     file_path = "#{extension_path}/app/assets/#{params[:type]}/#{params[:file]}"
 
-    if Pathname.new(file_path).exist?
-      send_file(file_path)
+    return head :not_found unless Pathname.new(file_path).exist?
+
+    if request.head?
+      head :ok
     else
-      head :not_found
+      send_file(file_path)
     end
   end
 end
