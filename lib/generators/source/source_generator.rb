@@ -63,7 +63,7 @@ class SourceGenerator < Rails::Generators::NamedBase
   def initialize_git_repo
     Dir.chdir(@path)
     git :init
-    git add: "."
+    git add: '.'
     git commit: "-m 'initial commit'"
   end
 
