@@ -51,6 +51,23 @@ namespace :extension do
     true
   end
 
+  task :remove, %i[type extension] => [:environment] do |task, args|
+    next unless arguments_valid?(args)
+
+    unless Gem.loaded_specs['bundler'].version >= Gem::Version.new('1.17.0')
+      puts 'Please upgrade your bundler installation to 1.17.0 or later to run this task.'
+      next
+    end
+
+    extension_class = args[:type].capitalize.safe_constantize
+    extension_class.skip_callback :destroy, :before, :uninstall
+    extension_class.create!(construct_attributes(args, spec, meta))
+    puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
+    extension_class.set_callback :destroy, :before, :uninstall
+
+    Bundler::Injector.remove([args[:extension]])
+  end
+
   # Helpers
   def spec_valid?(type, spec, meta)
     if type.to_sym.equal? :source
