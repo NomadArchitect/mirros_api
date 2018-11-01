@@ -55,6 +55,7 @@ class DataRefresher
         recordables.each do |recordable|
           recordable.save
           next unless recordable.record_link.nil?
+
           source_instance.record_links <<
             RecordLink.create(recordable: recordable, group_id: group)
           source_instance.save
