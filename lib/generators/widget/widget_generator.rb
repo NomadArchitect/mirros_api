@@ -36,7 +36,6 @@ class WidgetGenerator < Rails::Generators::NamedBase
     template 'app/jobs/name/application_job.rb', "#{@path}/app/jobs/#{name.underscore}/application_job.rb" if options[:job]
     template 'app/mailers/name/application_mailer.rb', "#{@path}/app/mailers/#{name.underscore}/application_mailer.rb" if options[:mailer]
     template 'app/models/name/application_record.rb', "#{@path}/app/models/#{name.underscore}/application_record.rb"
-    template 'app/models/name/name_data.rb', "#{@path}/app/models/#{name.underscore}/#{name.underscore}_data.rb"
   end
 
   def generate_bin_dir

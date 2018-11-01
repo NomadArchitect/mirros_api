@@ -1,7 +1,7 @@
-module <%= name.camelcase %>
+# module <%= name.camelcase %>
 
-  # TODO: you need to lookup the right GroupSchema and make this class inherit from it
-  class <%= name.camelcase %>Data < ::GroupSchemas::<%= name.camelcase %>Schema
-  end
+  # TODO: you need to lookup the right GroupSchema and make this class inherit from it, see example below.
+  # class Calendar < ::GroupSchemas::Calendar
+  # end
 
-end
+# end
