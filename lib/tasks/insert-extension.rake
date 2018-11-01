@@ -7,45 +7,34 @@ namespace :extension do
 
     next unless arguments_valid?(args)
 
-    spec = Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
-    meta = JSON.parse(spec.metadata['json'], symbolize_names: true)
+    spec = load_spec(args)
+    meta = parse_meta(spec)
 
     next unless spec_valid?(args[:type], spec, meta)
 
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.skip_callback :create, :after, :install
-
-    type_specifics = if args[:type].to_sym.equal? :widget
-                       attrs = {
-                         icon: "http://backend-server.tld/icons/#{spec.name}.svg",
-                         languages: meta[:languages]
-                       }
-                       if meta[:group].nil?
-                         attrs
-                       else
-                         attrs.merge({group_id: Group.find_by(name: meta[:group])})
-                       end
-                     else
-                       {
-                         groups: meta[:groups].map {|g| Group.find_by(name: g)}
-                       }
-                     end
-
-
-    extension_class.create!({
-                              name: spec.name,
-                              title: meta[:title],
-                              description: meta[:description],
-                              version: spec.version.to_s,
-                              creator: spec.author,
-                              homepage: spec.homepage,
-                              download: 'http://my-gemserver.local',
-                            }.merge(type_specifics)
-    )
-
+    extension_class.create!(construct_attributes(args, spec, meta))
     puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
     extension_class.set_callback :create, :after, :install
   end
+
+  task :update, %i[type extension] => [:environment] do |task, args|
+    next unless arguments_valid?(args)
+
+    spec = load_spec(args)
+    meta = parse_meta(spec)
+
+    next unless spec_valid?(args[:type], spec, meta)
+
+    extension_class = args[:type].capitalize.safe_constantize
+    extension_class.skip_callback :update, :after, :update
+    record = extension_class.find_by(slug: args[:extension])
+    record.update!(construct_attributes(args, spec, meta))
+    puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
+    extension_class.set_callback :update, :after, :update
+  end
+
 
   def arguments_valid?(args)
     unless Installable::EXTENSION_TYPES.include?(args[:type])
@@ -62,6 +51,7 @@ namespace :extension do
     true
   end
 
+  # Helpers
   def spec_valid?(type, spec, meta)
     if type.to_sym.equal? :source
       if meta[:groups].empty?
@@ -70,5 +60,40 @@ namespace :extension do
       end
     end
     true
+  end
+
+  def load_spec(args)
+    Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
+  end
+
+  def parse_meta(spec)
+    JSON.parse(spec.metadata['json'], symbolize_names: true)
+  end
+
+  def construct_attributes(args, spec, meta)
+    type_specifics = if args[:type].to_sym.equal? :widget
+                       attrs = {
+                         icon: "http://backend-server.tld/icons/#{spec.name}.svg",
+                         languages: meta[:languages]
+                       }
+                       if meta[:group].nil?
+                         attrs
+                       else
+                         attrs.merge({group_id: Group.find_by(name: meta[:group])})
+                       end
+                     else
+                       {
+                         groups: meta[:groups].map {|g| Group.find_by(name: g)}
+                       }
+                     end
+    {
+            name: spec.name,
+            title: meta[:title],
+            description: meta[:description],
+            version: spec.version.to_s,
+            creator: spec.author,
+            homepage: spec.homepage,
+            download: 'http://my-gemserver.local',
+          }.merge(type_specifics)
   end
 end
