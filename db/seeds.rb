@@ -78,7 +78,7 @@ Group.create(
       name: 'reminder_list'
     },
     {
-      name: 'weather'
+      name: 'weather_owm'
     },
     {
       name: 'news'

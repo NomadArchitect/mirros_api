@@ -10,26 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_31_183445) do
-
-  create_table "calendar_events", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.integer "calendar_id"
-    t.datetime "dtstart"
-    t.datetime "dtend"
-    t.boolean "all_day"
-    t.string "summary"
-    t.string "description"
-    t.index ["calendar_id"], name: "index_calendar_events_on_calendar_id"
-    t.index ["uid"], name: "sqlite_autoindex_calendar_events_1", unique: true
-  end
-
-  create_table "calendars", force: :cascade do |t|
-    t.string "uid"
-    t.string "type"
-    t.string "name"
-    t.string "description"
-    t.string "color"
-  end
+ActiveRecord::Schema.define(version: 2018_11_06_133659) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -41,6 +22,49 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
+  end
+
+  create_table "group_schemas_calendar_events", primary_key: "uid", id: :string, force: :cascade do |t|
+    t.integer "calendar_id"
+    t.datetime "dtstart"
+    t.datetime "dtend"
+    t.boolean "all_day"
+    t.string "summary"
+    t.string "description"
+    t.index ["calendar_id"], name: "index_group_schemas_calendar_events_on_calendar_id"
+    t.index ["uid"], name: "sqlite_autoindex_group_schemas_calendar_events_1", unique: true
+  end
+
+  create_table "group_schemas_calendars", force: :cascade do |t|
+    t.string "uid"
+    t.string "type"
+    t.string "name"
+    t.string "description"
+    t.string "color"
+  end
+
+  create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
+    t.integer "reminder_list_id"
+    t.datetime "dtstart"
+    t.string "summary"
+    t.string "description"
+    t.index ["reminder_list_id"], name: "index_group_schemas_reminder_items_on_reminder_list_id"
+    t.index ["uid"], name: "sqlite_autoindex_group_schemas_reminder_items_1", unique: true
+  end
+
+  create_table "group_schemas_reminder_lists", force: :cascade do |t|
+    t.string "uid"
+    t.string "type"
+    t.string "name"
+    t.string "description"
+    t.string "color"
+  end
+
+  create_table "group_schemas_weather_owms", force: :cascade do |t|
+    t.string "type"
+    t.datetime "dt_txt"
+    t.json "forecast"
+    t.string "unit"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -69,6 +93,12 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.index ["widget_instance_id"], name: "index_instance_associations_on_widget_instance_id"
   end
 
+  create_table "openweathermap_cities", force: :cascade do |t|
+    t.string "name"
+    t.string "country"
+    t.index ["name"], name: "index_openweathermap_cities_on_name"
+  end
+
   create_table "record_links", force: :cascade do |t|
     t.string "recordable_type"
     t.integer "recordable_id"
@@ -77,23 +107,6 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
-  end
-
-  create_table "reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.integer "reminder_list_id"
-    t.datetime "dtstart"
-    t.string "summary"
-    t.string "description"
-    t.index ["reminder_list_id"], name: "index_reminder_items_on_reminder_list_id"
-    t.index ["uid"], name: "sqlite_autoindex_reminder_items_1", unique: true
-  end
-
-  create_table "reminder_lists", force: :cascade do |t|
-    t.string "uid"
-    t.string "type"
-    t.string "name"
-    t.string "description"
-    t.string "color"
   end
 
   create_table "services", force: :cascade do |t|
@@ -142,6 +155,8 @@ ActiveRecord::Schema.define(version: 2018_07_31_183445) do
 
   create_table "widget_instances", force: :cascade do |t|
     t.string "widget_id"
+    t.string "title"
+    t.boolean "showtitle", default: true
     t.json "configuration", default: {}
     t.json "position"
     t.datetime "created_at", null: false
