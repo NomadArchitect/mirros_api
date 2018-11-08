@@ -1,5 +1,5 @@
 class WidgetInstanceResource < JSONAPI::Resource
-  attributes :configuration, :position
+  attributes :title, :showtitle, :configuration, :position
   has_one :widget
   has_one :group, through: :widget, foreign_key_on: :widget
   has_many :instance_associations, always_include_linkage_data: true
