@@ -87,7 +87,7 @@ class System
 
     Resolv::DNS.new.getaddress(API_HOST)
     true
-  rescue Resolv::ResolvError
+  rescue Resolv::ResolvError, Errno::EHOSTDOWN
     false
   end
 
