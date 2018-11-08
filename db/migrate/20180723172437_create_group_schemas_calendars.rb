@@ -1,6 +1,6 @@
-class CreateReminderLists < ActiveRecord::Migration[5.2]
+class CreateCalendars < ActiveRecord::Migration[5.2]
   def change
-    create_table :reminder_lists do |t|
+    create_table :group_schemas_calendars do |t|
       t.string :uid
       t.string :type
       t.string :name
