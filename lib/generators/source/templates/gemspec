@@ -25,12 +25,11 @@ Gem::Specification.new do |s|
                     enGb: s.description
                     # Add description for other languages keyed by the snakeCased language tag.
                   },
-                  languages: [:enGb], # Add snake-cased language tags if your templates have the locales for it.
                   groups: [] # see https://gitlab.com/glancr/mirros_one/wikis/home for available groups
                 }.to_json
               }
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency "rails", "~> <%= Gem::Version.new(Rails.version).approximate_recommendation %>"
+  s.add_dependency "rails", "<%= Gem::Version.new(Rails.version).approximate_recommendation %>"
 end

@@ -61,8 +61,9 @@ namespace :extension do
 
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.skip_callback :destroy, :before, :uninstall
-    extension_class.create!(construct_attributes(args, spec, meta))
-    puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
+    record = extension_class.find_by(slug: args[:extension])
+    record.destroy!
+    puts "Removed #{args[:type]} #{args[:extension]} from the #{Rails.env} database"
     extension_class.set_callback :destroy, :before, :uninstall
 
     Bundler::Injector.remove([args[:extension]])

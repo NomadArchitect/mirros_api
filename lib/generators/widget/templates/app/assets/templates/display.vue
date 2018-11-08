@@ -12,10 +12,26 @@
 module.exports = {
   name: "<%= name.underscore %>",
   props: {
-    currentSettings: {
-      type: Object,
-      required: true
-    }
+      currentSettings: {
+          Type: Object,
+          required: false
+      },
+      records: {
+          type: Array,
+          required: false
+      },
+      language: {
+          type: String,
+          required: true
+      },
+      locale: {
+          type: String,
+          required: true
+      },
+      backendUrl: {
+          type: String,
+          required: true
+      }
   },
   data: function() {
     return {
@@ -33,12 +49,12 @@ module.exports = {
   },
   locales: {
     deDe: {
-      "<%= name %> title": "<%= name.camelcase %>",
-      "<%= name %> description": "<%= name.camelcase %> Beschreibung"<% if fields.to_a.any? %>,<% end %>
-      <%- fields.each do |key, type| -%>
-      "<%= name %> <%= key %>": "<%= name.camelcase %> <%= key %>"<% if fields.to_a.last.last != key %>,<%end %>
-      <%- end -%>
+        <% if fields.to_a.any? %>
+          <%- fields.each do |key, type| -%>
+            "<%= key %>": "<%= key %>"<% if fields.to_a.last.last != key %>,<%end %>
+          <%- end -%>
+        <% end %>
     }
   }
-};
+}
 </script>

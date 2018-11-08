@@ -68,7 +68,8 @@ class SourceGenerator < Rails::Generators::NamedBase
   end
 
   def show_dev_info
-    Thor::Shell::Color.new.say("You can now insert your widget by invoking rails extension:insert[widget, #{name.underscore}]", :yellow)
+    Thor::Shell::Color.new.say("You can now insert your source by invoking rails extension:insert[source, #{name.underscore}]", :yellow)
+    Thor::Shell::Color.new.say("To ensure that all files are loaded, please restart the mirros_api Rails app.", :yellow)
   end
 
 end
