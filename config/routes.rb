@@ -42,4 +42,10 @@ Rails.application.routes.draw do
   get 'system/control/:category/:command', to: 'system#setting_execution'
 
   post 'system/debugcmd', to: 'system#proxy_command' # TODO: Remove once stable
+
+  Source.all.each do |source|
+    mount "#{source.id.camelize}::Engine".safe_constantize, at: "/#{source.id}"
+  end
+
 end
+
