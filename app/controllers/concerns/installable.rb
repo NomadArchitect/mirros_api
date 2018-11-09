@@ -32,6 +32,15 @@ module Installable
     end
 
     # TODO: Service registration etc if not possible through Engine functionality.
+    # MirrOSApi::Application.load_tasks
+    # Rake::Task["#{@gem}:install:migrations"].invoke
+    # Rake::Task["db:migrate SCOPE=#{@gem}"].invoke
+    # engine = "#{@gem}::Engine".safe_constantize
+    # Thread.new do
+    # engine.load_seed
+    #   ActiveRecord::Base.connection.close
+    # end
+    #
   end
 
   # Update the extension to the passed version.
@@ -69,6 +78,8 @@ module Installable
     setup_instance
     remove_from_gemfile
     # TODO: implement service de-registration and other cleanup
+    # db:migrate SCOPE=gemname VERSION=0
+    # File.delete(db/migrate/???)
 
     fork do
       restart_successful = System.restart_application
