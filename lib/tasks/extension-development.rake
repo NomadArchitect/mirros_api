@@ -3,7 +3,7 @@ require_relative '../../app/controllers/concerns/installable'
 namespace :extension do
   desc "Add/update/remove an extension in the DB without running the model callbacks"
 
-  task :insert, %i[type extension] => [:environment] do |task, args|
+  task :insert, %i[type extension mode] => [:environment] do |task, args|
 
     next unless arguments_valid?(args)
 
@@ -35,22 +35,6 @@ namespace :extension do
     extension_class.set_callback :update, :after, :update
   end
 
-
-  def arguments_valid?(args)
-    unless Installable::EXTENSION_TYPES.include?(args[:type])
-      puts 'Type must be widget or source'
-      return false
-    end
-
-    spec_path = "#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec"
-    unless File.exist? spec_path
-      puts "Could not find gemspec file at #{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec\nCheck if you provided the correct extension name and if the gemspec file exists."
-      return false
-    end
-
-    true
-  end
-
   task :remove, %i[type extension] => [:environment] do |task, args|
     next unless arguments_valid?(args)
 
@@ -70,6 +54,25 @@ namespace :extension do
   end
 
   # Helpers
+  def arguments_valid?(args)
+    unless Installable::EXTENSION_TYPES.include?(args[:type])
+      puts 'Type must be widget or source'
+      return false
+    end
+
+    if args[:mode] == 'seed'
+      return false if Gem.loaded_specs[args[:extension]].nil?
+    else
+      spec_path = "#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec"
+      unless File.exist? spec_path
+        puts "Could not find gemspec file at #{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec\nCheck if you provided the correct extension name and if the gemspec file exists."
+        return false
+      end
+    end
+
+    true
+  end
+
   def spec_valid?(type, spec, meta)
     if type.to_sym.equal? :source
       if meta[:groups].empty?
@@ -81,7 +84,11 @@ namespace :extension do
   end
 
   def load_spec(args)
-    Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
+    if args[:mode] == 'seed'
+      Gem.loaded_specs[args[:extension]]
+    else
+      Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
+    end
   end
 
   def parse_meta(spec)
@@ -105,13 +112,13 @@ namespace :extension do
                        }
                      end
     {
-            name: spec.name,
-            title: meta[:title],
-            description: meta[:description],
-            version: spec.version.to_s,
-            creator: spec.author,
-            homepage: spec.homepage,
-            download: 'http://my-gemserver.local',
-          }.merge(type_specifics)
+      name: spec.name,
+      title: meta[:title],
+      description: meta[:description],
+      version: spec.version.to_s,
+      creator: spec.author,
+      homepage: spec.homepage,
+      download: 'http://my-gemserver.local',
+    }.merge(type_specifics)
   end
 end
