@@ -103,7 +103,53 @@ Group.create(
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
 end
 
+WidgetInstance.create([
+                        {
+                          widget: Widget.find_by_slug('clock'),
+                          title: '',
+                          showtitle: false,
+                          configuration: {},
+                          position: {"x": 0, "y": 0, "width": 2, "height": 1}
+                        },
+                        {
+                          widget: Widget.find_by_slug('current_date'),
+                          title: '',
+                          showtitle: false,
+                          configuration: {},
+                          position: {"x": 0, "y": 1, "width": 2, "height": 1}
+                        },
+                        {
+                          widget: Widget.find_by_slug('text_field'),
+                          title: '',
+                          showtitle: false,
+                          configuration: {"alignment": "center", "fontsize": "200", "content": ""},
+                          position: {"x": 4, "y": 12, "width": 4, "height": 4}
+                        }
+                      ])
+
+calendar_widget = WidgetInstance.create({
+                                          widget: Widget.find_by_slug('calendar_event_list'),
+                                          title: 'Feiertage',
+                                          showtitle: true,
+                                          configuration: {},
+                                          position: {"x": 8, "y": 0, "width": 4, "height": 4}
+                                        })
+
 %i[openweathermap ical].each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
 end
+
+calendar_source = SourceInstance.create(
+  source: Source.find_by_slug('ical'),
+  title: 'calendar',
+  configuration: {"url": "https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics"}
+)
+
+InstanceAssociation.create(
+  configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
+  group: Group.find_by_slug('calendar'),
+  widget_instance: calendar_widget,
+  source_instance: calendar_source
+
+)
