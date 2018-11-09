@@ -8,6 +8,7 @@ class SourceInstance < Instance
   validate :validate_configuration, if: :configuration_changed?
 
   def options
+    # TODO: Return error when offline
     if configuration.empty?
       []
     else
