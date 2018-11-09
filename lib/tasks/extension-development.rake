@@ -5,12 +5,16 @@ namespace :extension do
 
   task :insert, %i[type extension mode] => [:environment] do |task, args|
 
-    next unless arguments_valid?(args)
+    if args[:mode] != 'seed'
+      next unless arguments_valid?(args)
+    end
 
     spec = load_spec(args)
     meta = parse_meta(spec)
 
-    next unless spec_valid?(args[:type], spec, meta)
+    if args[:mode] != 'seed'
+      next unless spec_valid?(args[:type], spec, meta)
+    end
 
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.skip_callback :create, :after, :install
@@ -60,14 +64,10 @@ namespace :extension do
       return false
     end
 
-    if args[:mode] == 'seed'
-      return false if Gem.loaded_specs[args[:extension]].nil?
-    else
-      spec_path = "#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec"
-      unless File.exist? spec_path
-        puts "Could not find gemspec file at #{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec\nCheck if you provided the correct extension name and if the gemspec file exists."
-        return false
-      end
+    spec_path = "#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec"
+    unless File.exist? spec_path
+      puts "Could not find gemspec file at #{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec\nCheck if you provided the correct extension name and if the gemspec file exists."
+      return false
     end
 
     true
@@ -85,7 +85,10 @@ namespace :extension do
 
   def load_spec(args)
     if args[:mode] == 'seed'
-      Gem.loaded_specs[args[:extension]]
+      path = `bundle show #{args[:extension]}`
+      parts = path.split('/')
+      spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
+      Gem::Specification.load(spec_file)
     else
       Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
     end
