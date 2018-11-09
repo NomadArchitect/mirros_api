@@ -1,4 +1,4 @@
-class CreateReminderLists < ActiveRecord::Migration[5.2]
+class CreateGroupSchemasReminderLists < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_reminder_lists do |t|
       t.string :uid

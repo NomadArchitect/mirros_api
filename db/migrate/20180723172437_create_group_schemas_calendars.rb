@@ -1,4 +1,4 @@
-class CreateCalendars < ActiveRecord::Migration[5.2]
+class CreateGroupSchemasCalendars < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_calendars do |t|
       t.string :uid
