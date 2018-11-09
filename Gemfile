@@ -55,3 +55,14 @@ group :development do
 end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem "clock", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "current_date", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "calendar_event_list", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "owm_current_weather", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "owm_forecast", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "text_field", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "styling", :group => :widget, :source => "http://gems.marco-roth.ch/"
+gem "openweathermap", :group => :source, :source => "http://gems.marco-roth.ch/"
+gem "ical", :group => :source, :source => "http://gems.marco-roth.ch/"
+
