@@ -5,6 +5,7 @@ class WidgetGenerator < Rails::Generators::NamedBase
   argument :name
   argument :fields, optional: true, type: :hash, default: {}
   class_option :mailer, type: :boolean, default: false, desc: 'Generate a scoped ActionMailer'
+  class_option :model, type: :boolean, default: false, desc: 'Generate a scoped Model'
   class_option :job, type: :boolean, default: false, desc: 'Generate a scoped ActionJob'
   class_option :controller, type: :boolean, default: false, desc: 'Generate a scoped ApplicationController'
   class_option :tasks, type: :boolean, default: false, desc: 'Generate a rake tasks file'
@@ -35,7 +36,7 @@ class WidgetGenerator < Rails::Generators::NamedBase
     template 'app/controllers/name/application_controller.rb', "#{@path}/app/controllers/#{name.underscore}/application_controller.rb" if options[:controller]
     template 'app/jobs/name/application_job.rb', "#{@path}/app/jobs/#{name.underscore}/application_job.rb" if options[:job]
     template 'app/mailers/name/application_mailer.rb', "#{@path}/app/mailers/#{name.underscore}/application_mailer.rb" if options[:mailer]
-    template 'app/models/name/application_record.rb', "#{@path}/app/models/#{name.underscore}/application_record.rb"
+    template 'app/models/name/application_record.rb', "#{@path}/app/models/#{name.underscore}/application_record.rb" if options[:model]
   end
 
   def generate_bin_dir
@@ -50,7 +51,6 @@ class WidgetGenerator < Rails::Generators::NamedBase
     template 'lib/name.rb', "#{@path}/lib/#{name.underscore}.rb"
     template 'lib/name/version.rb', "#{@path}/lib/#{name.underscore}/version.rb"
     template 'lib/name/engine.rb', "#{@path}/lib/#{name.underscore}/engine.rb"
-    template 'lib/name/fetcher.rb', "#{@path}/lib/#{name.underscore}/fetcher.rb"
     template 'lib/tasks/name_tasks.rake', "#{@path}/lib/tasks/#{name.underscore}_tasks.rake" if options[:tasks]
   end
 
