@@ -97,3 +97,13 @@ Group.create(
     }
   ]
 )
+
+%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling].each do |extension|
+  Rake::Task['extension:insert'].reenable
+  Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
+end
+
+%i[openweathermap ical].each do |extension|
+  Rake::Task['extension:insert'].reenable
+  Rake::Task['extension:insert'].invoke('source', extension, 'seed')
+end
