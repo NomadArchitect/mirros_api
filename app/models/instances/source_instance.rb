@@ -23,7 +23,12 @@ class SourceInstance < Instance
   def validate_configuration
     return if configuration.empty?
 
-    errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
+    begin
+      errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
+    rescue RuntimeError => e
+      errors.add(:configuration, e.message)
+    end
+
   end
 
   def set_title
@@ -33,8 +38,9 @@ class SourceInstance < Instance
   private
 
   def hook_instance
-    hooks = "#{source_id.capitalize}::Hooks".safe_constantize
-    JSONAPI::Exceptions::InternalServerError.new(e) if hooks.nil?
+    hooks = "#{source_id.camelcase}::Hooks".safe_constantize
+    raise "could not initialize #{source_id.camelcase}::Hooks" if hooks.nil?
+
     hooks.new(id, configuration)
   end
 end
