@@ -43,6 +43,25 @@ ActiveRecord::Schema.define(version: 2018_11_06_133659) do
     t.string "color"
   end
 
+  create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, force: :cascade do |t|
+    t.integer "newsfeed_id"
+    t.string "title"
+    t.text "content"
+    t.string "url"
+    t.datetime "published"
+    t.index ["guid"], name: "index_group_schemas_newsfeed_items_on_guid"
+    t.index ["newsfeed_id"], name: "index_group_schemas_newsfeed_items_on_newsfeed_id"
+  end
+
+  create_table "group_schemas_newsfeeds", force: :cascade do |t|
+    t.string "type"
+    t.string "name"
+    t.string "url", null: false
+    t.string "icon_url"
+    t.datetime "latest_entry"
+    t.index ["url"], name: "index_group_schemas_newsfeeds_on_url"
+  end
+
   create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
     t.integer "reminder_list_id"
     t.datetime "dtstart"
