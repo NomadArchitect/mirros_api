@@ -81,7 +81,7 @@ Group.create(
       name: 'weather_owm'
     },
     {
-      name: 'news'
+      name: 'newsfeed'
     },
     {
       name: 'public_transport'
