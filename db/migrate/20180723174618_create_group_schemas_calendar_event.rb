@@ -9,5 +9,6 @@ class CreateGroupSchemasCalendarEvent < ActiveRecord::Migration[5.2]
       t.string :summary
       t.string :description
     end
+    add_index :group_schemas_calendar_events, :uid
   end
 end

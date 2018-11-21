@@ -7,5 +7,6 @@ class CreateGroupSchemasReminderItems < ActiveRecord::Migration[5.2]
       t.string :summary
       t.string :description
     end
+    add_index :group_schemas_reminder_items, :uid
   end
 end

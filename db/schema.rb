@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_06_133659) do
+ActiveRecord::Schema.define(version: 2018_11_18_233558) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(version: 2018_11_06_133659) do
     t.string "summary"
     t.string "description"
     t.index ["calendar_id"], name: "index_group_schemas_calendar_events_on_calendar_id"
-    t.index ["uid"], name: "sqlite_autoindex_group_schemas_calendar_events_1", unique: true
+    t.index ["uid"], name: "index_group_schemas_calendar_events_on_uid"
   end
 
   create_table "group_schemas_calendars", force: :cascade do |t|
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 2018_11_06_133659) do
     t.string "name"
     t.string "description"
     t.string "color"
+    t.index ["uid"], name: "index_group_schemas_calendars_on_uid"
   end
 
   create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, force: :cascade do |t|
@@ -68,7 +69,7 @@ ActiveRecord::Schema.define(version: 2018_11_06_133659) do
     t.string "summary"
     t.string "description"
     t.index ["reminder_list_id"], name: "index_group_schemas_reminder_items_on_reminder_list_id"
-    t.index ["uid"], name: "sqlite_autoindex_group_schemas_reminder_items_1", unique: true
+    t.index ["uid"], name: "index_group_schemas_reminder_items_on_uid"
   end
 
   create_table "group_schemas_reminder_lists", force: :cascade do |t|
@@ -77,6 +78,7 @@ ActiveRecord::Schema.define(version: 2018_11_06_133659) do
     t.string "name"
     t.string "description"
     t.string "color"
+    t.index ["uid"], name: "index_group_schemas_reminder_lists_on_uid"
   end
 
   create_table "group_schemas_weather_owms", force: :cascade do |t|
