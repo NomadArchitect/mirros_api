@@ -45,7 +45,11 @@ Rails.application.routes.draw do
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
-      mount "#{source.id.camelize}::Engine".safe_constantize, at: "/#{source.id}"
+      mount "#{source.id.camelcase}::Engine".safe_constantize, at: "/#{source.id}"
+    end
+
+    Widget.all.each do |widget|
+      mount "#{widget.id.camelcase}::Engine".safe_constantize, at: "/#{widget.id}"
     end
   end
 
