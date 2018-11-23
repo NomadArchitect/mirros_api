@@ -2,6 +2,7 @@ require_relative 'boot'
 
 require 'rails/all'
 require_relative '../app/controllers/concerns/installable'
+require_relative 'version'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -10,7 +11,7 @@ Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
 module MirrOSApi
   class Application < Rails::Application
 
-    VERSION = '0.1.0'.freeze
+    VERSION = SNAP_VERSION
 
     # Set custom log path for terrapin commands. TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
