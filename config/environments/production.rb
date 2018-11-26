@@ -87,7 +87,10 @@ Rails.application.configure do
   end
 
   # Keep only the latest log and never grow logs beyond 50MB.
-  config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 50 * 1024 * 1024)
+  logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 50 * 1024 * 1024)
+  logger.formatter = ::Logger::Formatter.new
+  config.logger = ActiveSupport::TaggedLogging.new(logger)
+
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
