@@ -17,7 +17,7 @@ module MirrOSApi
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
 
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
+    config.load_defaults 5.2
 
     # Load instances models
     config.autoload_paths += %W[#{config.root}/app/models/instances]
@@ -25,6 +25,7 @@ module MirrOSApi
     config.autoload_paths += %W[#{config.root}/app/resources/group_schemas]
 
     config.api_only = true
+    config.action_controller.default_protect_from_forgery = false
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -32,8 +33,6 @@ module MirrOSApi
 
     config.i18n.default_locale = :en
     config.i18n.enforce_available_locales = false
-
-    config.active_record.sqlite3.represent_boolean_as_integer = true
 
   end
 end
