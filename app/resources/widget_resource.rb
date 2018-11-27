@@ -4,7 +4,6 @@ class WidgetResource < JSONAPI::Resource
   key_type :string
 
   attributes :name, :title, :description, :icon, :version, :creator, :homepage, :download, :languages
-  has_many :services, always_include_linkage_data: true
   has_many :widget_instances, always_include_linkage_data: true
   has_one :group, optional: true
 end

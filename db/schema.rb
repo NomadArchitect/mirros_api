@@ -130,15 +130,6 @@ ActiveRecord::Schema.define(version: 2018_11_18_233558) do
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
   end
 
-  create_table "services", force: :cascade do |t|
-    t.string "status"
-    t.json "parameters"
-    t.string "widget_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["widget_id"], name: "index_services_on_widget_id"
-  end
-
   create_table "settings", force: :cascade do |t|
     t.string "slug", null: false
     t.string "category", null: false
