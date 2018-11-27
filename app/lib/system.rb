@@ -13,7 +13,7 @@ class System
   def self.info
     {
       version: MirrOSApi::Application::VERSION,
-      setup_completed: setup_completed?,
+      setup_completed: Rails.configuration.setup_complete,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
@@ -122,9 +122,6 @@ class System
     email_configured = Setting.find_by_slug('personal_email').value.present?
     network_configured && email_configured
   end
-
-  private_class_method :setup_completed?
-
 
   # @param [Symbol] operating_system
   # @@param [Symbol] interface The interface to query for the current IP.
