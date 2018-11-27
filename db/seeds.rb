@@ -140,11 +140,16 @@ calendar_widget = WidgetInstance.create({
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
 end
 
-calendar_source = SourceInstance.create(
+# Skip callbacks to avoid HTTP calls in meta generation
+SourceInstance.skip_callback :create, :before, :set_meta
+calendar_source = SourceInstance.new(
   source: Source.find_by_slug('ical'),
   title: 'calendar',
-  configuration: {"url": "https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics"}
+  configuration: {"url": 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'},
+  options: [{uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0', display: 'calendar'}]
 )
+calendar_source.save(validate: false)
+SourceInstance.set_callback :create, :before, :set_meta
 
 InstanceAssociation.create(
   configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
