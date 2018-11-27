@@ -127,13 +127,13 @@ WidgetInstance.create([
                         }
                       ])
 
-calendar_widget = WidgetInstance.create({
-                                          widget: Widget.find_by_slug('calendar_event_list'),
-                                          title: 'Feiertage',
-                                          showtitle: true,
-                                          configuration: {},
-                                          position: {"x": 8, "y": 0, "width": 4, "height": 4}
-                                        })
+calendar_widget = WidgetInstance.create(
+  widget: Widget.find_by_slug('calendar_event_list'),
+  title: 'Feiertage',
+  showtitle: true,
+  configuration: {},
+  position: {"x": 8, "y": 0, "width": 4, "height": 4}
+)
 
 %i[openweathermap ical].each do |extension|
   Rake::Task['extension:insert'].reenable
