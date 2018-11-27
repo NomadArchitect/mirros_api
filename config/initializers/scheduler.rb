@@ -10,6 +10,8 @@ if Rails.const_defined? 'Server'
 
   MirrOSApi::DataRefresher.schedule_all
 
+  Rails.configuration.setup_complete = System.setup_completed?
+
   # Store the current IP and schedule consecutive change checks.
   Rails.configuration.current_ip = System.current_ip_address
   Rufus::Scheduler.s.every '1m', tag: 'ip-change-check' do
