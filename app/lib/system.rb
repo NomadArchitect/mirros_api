@@ -123,9 +123,6 @@ class System
     network_configured && email_configured
   end
 
-  private_class_method :setup_completed?
-
-
   # @param [Symbol] operating_system
   # @@param [Symbol] interface The interface to query for the current IP.
   def self.map_interfaces(operating_system, interface)
