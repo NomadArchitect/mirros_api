@@ -13,7 +13,7 @@ class System
   def self.info
     {
       version: MirrOSApi::Application::VERSION,
-      setup_completed: setup_completed?,
+      setup_completed: Rails.configuration.setup_complete,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
