@@ -9,10 +9,6 @@ class SourceInstanceResource < JSONAPI::Resource
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
   has_many :record_links
 
-  def options
-    @model.options
-  end
-
   def add_to_scheduler
     DataRefresher.schedule(@model)
   end
