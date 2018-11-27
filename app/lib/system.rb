@@ -75,7 +75,10 @@ class System
 
     elsif OS.mac?
       # FIXME: This command returns only the IPv4.
-      line = Terrapin::CommandLine.new('ipconfig', 'getifaddr :interface')
+      line = Terrapin::CommandLine.new(
+        'ipconfig', 'getifaddr :interface',
+        expected_outcodes: [0, 1]
+      )
       line.run(interface: map_interfaces(:mac, conn_type)).chomp!
     else
       Rails.logger.error 'Unknown or unsupported OS in query for IP address'
