@@ -4,36 +4,30 @@ class SourceInstance < Instance
   has_many :widget_instances, through: :instance_associations
   has_many :record_links, dependent: :destroy
 
-  before_create :set_title
-  before_update :set_title, if: :configuration_changed?
+  before_create :set_meta
+  before_update :set_meta, if: :configuration_changed?
   validate :validate_configuration, if: :configuration_changed?
 
-  def options
-    # TODO: Return error when offline
-    if configuration.empty?
-      []
-    else
-      options = []
-      hook_instance.list_sub_resources.map do |option|
-        options << { uid: option[0], display: option[1] }
-      end
-      options
-    end
-  end
+  serialize :options, Array
 
-  def validate_configuration
-    return if configuration.empty?
-
+  def set_meta
+    options = []
+    hooks = hook_instance
     begin
-      errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
+      hooks.list_sub_resources.map do |option|
+        options << {uid: option[0], display: option[1]}
+      end
     rescue RuntimeError => e
       errors.add(:configuration, e.message)
     end
-
+    self.options = options
+    self.title = hooks.default_title
   end
 
-  def set_title
-    self.title = hook_instance.default_title
+  def validate_configuration
+    errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
+  rescue RuntimeError => e
+    errors.add(:configuration, e.message)
   end
 
   private
@@ -42,6 +36,10 @@ class SourceInstance < Instance
     hooks = "#{source_id.camelcase}::Hooks".safe_constantize
     raise "could not initialize #{source_id.camelcase}::Hooks" if hooks.nil?
 
-    hooks.new(id, configuration)
+    begin
+      hooks.new(id, configuration)
+    rescue Exception => e
+      raise e.message
+    end
   end
 end

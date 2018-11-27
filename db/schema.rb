@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_18_233558) do
+ActiveRecord::Schema.define(version: 2018_11_23_092212) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -143,6 +143,7 @@ ActiveRecord::Schema.define(version: 2018_11_18_233558) do
     t.string "source_id"
     t.string "title"
     t.json "configuration"
+    t.json "options"
     t.string "job_id"
     t.datetime "last_refresh"
     t.datetime "created_at", null: false

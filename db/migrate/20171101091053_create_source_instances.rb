@@ -4,6 +4,7 @@ class CreateSourceInstances < ActiveRecord::Migration[5.1]
       t.string :source_id
       t.string :title
       t.json :configuration
+      t.json :options
       t.string :job_id
       t.datetime :last_refresh
 
