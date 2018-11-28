@@ -14,6 +14,7 @@ class System
     {
       version: MirrOSApi::Application::VERSION,
       setup_completed: Rails.configuration.setup_complete,
+      connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,

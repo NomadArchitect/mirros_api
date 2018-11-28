@@ -10,6 +10,7 @@ if Rails.const_defined? 'Server'
 
   MirrOSApi::DataRefresher.schedule_all
 
+  Rails.configuration.connection_attempt = false
   Rails.configuration.setup_complete = System.setup_completed?
 
   # Store the current IP and schedule consecutive change checks.
