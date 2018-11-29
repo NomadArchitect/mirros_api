@@ -158,3 +158,6 @@ InstanceAssociation.create(
   source_instance: calendar_source
 
 )
+
+puts 'Seeding Openweathermap cities table, might take a while ...'
+Openweathermap::Engine.load_seed
