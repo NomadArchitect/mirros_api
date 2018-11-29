@@ -6,7 +6,7 @@ end
 # Bundle edge Rails instead: gem "rails", github: "rails/rails"
 gem "rails", "~> 5.2.0"
 # Use postgresql as the database for Active Record
-#gem "pg", "~> 1.1.2"
+# gem "pg", "~> 1.1.2"
 gem 'sqlite3'
 # Use Puma as the app server
 gem "puma", "~> 3.7"
@@ -18,23 +18,19 @@ gem "puma", "~> 3.7"
 # gem "capistrano-rails", group: :development
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
-# JavaScript / CSS
 # HTTP Client
 gem "httparty", "~> 0.16.0"
 # CLI
 gem "thor", "~> 0.20.0"
-gem "highline", "~> 1.7.10"
+gem "highline", "~> 2.0.0"
 gem "cli_spinnable", "~> 0.2"
 # JSON serialization and parsing
 gem "jsonapi-resources", "~> 0.9.0"
-gem "jbuilder", "~> 2.5"
-gem "json-schema", "~> 2.8.0"
-# gem "active_model_serializers", "~> 0.10.6"
 # Scheduling and task management
-gem "rufus-scheduler", "~> 3.4.2"
+gem "rufus-scheduler", "~> 3.5.2"
 # Misc
-gem "rubyzip", "~> 1.2.0"
-gem "friendly_id", "~> 5.1.0"
+gem "friendly_id", "~> 5.2.4"
+# OS info and commands
 gem "os", "~> 1.0.0"
 gem "terrapin", "~> 0.6.0"
 group :development, :test do
@@ -47,15 +43,14 @@ group :development do
   gem "spring"
   gem "spring-watcher-listen", "~> 2.0.0"
   gem "web-console"
-  gem "better_errors", "~> 2.4.0"
+  gem "better_errors", "~> 2.5.0"
   gem "binding_of_caller", "~> 0.8.0"
-  gem "git", "~> 1.3.0"
+  gem "git", "~> 1.5.0"
   # Data Visualization
   gem "rails-erd", "~> 1.5.0"
 end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
 gem "clock", :group => :widget, :source => "http://gems.marco-roth.ch/"
 gem "current_date", :group => :widget, :source => "http://gems.marco-roth.ch/"
 gem "calendar_event_list", :group => :widget, :source => "http://gems.marco-roth.ch/"
@@ -66,3 +61,4 @@ gem "styling", :group => :widget, :source => "http://gems.marco-roth.ch/"
 gem "openweathermap", :group => :source, :source => "http://gems.marco-roth.ch/"
 gem "ical", :group => :source, :source => "http://gems.marco-roth.ch/"
 
+gem "rss_feeds", "= 0.1.0", :group => :source, :source => "http://gems.marco-roth.ch/"
