@@ -60,5 +60,3 @@ gem "text_field", :group => :widget, :source => "http://gems.marco-roth.ch/"
 gem "styling", :group => :widget, :source => "http://gems.marco-roth.ch/"
 gem "openweathermap", :group => :source, :source => "http://gems.marco-roth.ch/"
 gem "ical", :group => :source, :source => "http://gems.marco-roth.ch/"
-
-gem "rss_feeds", "= 0.1.0", :group => :source, :source => "http://gems.marco-roth.ch/"
