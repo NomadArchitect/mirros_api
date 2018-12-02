@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_23_092212) do
+ActiveRecord::Schema.define(version: 2018_11_30_085016) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false

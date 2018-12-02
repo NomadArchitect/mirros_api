@@ -98,7 +98,7 @@ Group.create(
   ]
 )
 
-%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling].each do |extension|
+%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling headlines].each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
 end
@@ -135,13 +135,13 @@ calendar_widget = WidgetInstance.create(
   position: {"x": 8, "y": 0, "width": 4, "height": 4}
 )
 
-%i[openweathermap ical].each do |extension|
+%i[openweathermap ical rss_feeds].each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
 end
 
 # Skip callbacks to avoid HTTP calls in meta generation
-SourceInstance.skip_callback :create, :before, :set_meta
+SourceInstance.skip_callback :create, :after, :set_meta
 calendar_source = SourceInstance.new(
   source: Source.find_by_slug('ical'),
   title: 'calendar',
@@ -149,7 +149,7 @@ calendar_source = SourceInstance.new(
   options: [{uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0', display: 'calendar'}]
 )
 calendar_source.save(validate: false)
-SourceInstance.set_callback :create, :before, :set_meta
+SourceInstance.set_callback :create, :after, :set_meta
 
 InstanceAssociation.create(
   configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
@@ -157,6 +157,31 @@ InstanceAssociation.create(
   widget_instance: calendar_widget,
   source_instance: calendar_source
 
+)
+
+newsfeed_widget = WidgetInstance.create(
+  widget: Widget.find_by_slug('headlines'),
+  title: 'glancr News',
+  showtitle: true,
+  configuration: {"amount": "5", "showTimestamp": "false", "showFeedIcon": "true"},
+  position: {"x": 0, "y": 16, "width": 6, "height": 5}
+)
+
+SourceInstance.skip_callback :create, :after, :set_meta
+newsfeed_source = SourceInstance.new(
+  source: Source.find_by_slug('rss_feeds'),
+  title: 'glancr: Welcome Screen',
+  configuration: {"feedUrl": "https://glancr.de/mirros-welcome.xml"},
+  options: [{uid: 'https://glancr.de/mirros-welcome.xml', display: 'glancr: Welcome Screen'}]
+)
+newsfeed_source.save(validate: false)
+SourceInstance.set_callback :create, :after, :set_meta
+
+InstanceAssociation.create(
+  configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+  group: Group.find_by_slug('newsfeed'),
+  widget_instance: newsfeed_widget,
+  source_instance: newsfeed_source
 )
 
 puts 'Seeding Openweathermap cities table, might take a while ...'
