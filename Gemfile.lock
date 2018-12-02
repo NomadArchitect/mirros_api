@@ -78,6 +78,8 @@ GEM
     git (1.5.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
+    headlines (0.1.1)
+      rails (~> 5.2)
     highline (2.0.0)
     httparty (0.16.3)
       mime-types (~> 3.0)
@@ -169,6 +171,9 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
+    rss_feeds (0.1.1)
+      httparty (~> 0.16)
+      rails (~> 5.2)
     ruby-graphviz (1.2.4)
     ruby_dep (1.5.0)
     rufus-scheduler (3.5.2)
@@ -219,6 +224,7 @@ DEPENDENCIES
   current_date!
   friendly_id (~> 5.2.4)
   git (~> 1.5.0)
+  headlines!
   highline (~> 2.0.0)
   httparty (~> 0.16.0)
   ical!
@@ -232,6 +238,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 5.2.0)
   rails-erd (~> 1.5.0)
+  rss_feeds!
   rufus-scheduler (~> 3.5.2)
   spring
   spring-watcher-listen (~> 2.0.0)
