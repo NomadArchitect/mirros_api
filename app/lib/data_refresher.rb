@@ -39,6 +39,9 @@ class DataRefresher
     job_tag = tag_instance(source.name, source_instance.id)
     job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
 
+      # Skip refresh if the system is offline.
+      next unless System.online?
+
       associations = source_instance.instance_associations
       sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
                                   .flatten
