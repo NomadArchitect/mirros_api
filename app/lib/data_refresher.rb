@@ -54,7 +54,13 @@ class DataRefresher
         #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
         # engine.should_update(group.name, active_sub_resources)
 
-        recordables = source_hooks_instance.fetch_data(group, sub_resources)
+        begin
+          recordables = source_hooks_instance.fetch_data(group, sub_resources)
+        rescue => e
+          Rails.logger.error "Error during refresh of #{source} instance #{source_instance.id}: #{e.message}"
+          next
+        end
+
         recordables.each do |recordable|
           recordable.save
           next unless recordable.record_link.nil?
