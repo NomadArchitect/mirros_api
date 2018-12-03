@@ -11,6 +11,7 @@ class SourceInstance < Instance
   serialize :options, Array
 
   def set_meta
+    # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
     options = []
     hooks = hook_instance
     begin
