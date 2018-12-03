@@ -1,0 +1,38 @@
+Description:
+  Generate a skeleton for a mirrOS_api widget
+
+Example:
+  rails generate mirros_widget NAME
+  rails generate mirros_widget NAME field_1:type field_2:type
+
+  Available types:
+    string
+    integer
+    float
+
+This will create:
+  widgets/NAME
+  widgets/NAME/Gemfile
+  widgets/NAME/MIT-LICENSE
+  widgets/NAME/README.md
+  widgets/NAME/Rakefile
+  widgets/NAME/.gitignore
+  widgets/NAME/app/assets/icons/NAME.svg
+  widgets/NAME/app/assets/templates/display.vue
+  widgets/NAME/app/assets/templates/settings.vue
+  widgets/NAME/app/controllers/NAME/application_controller.rb
+  widgets/NAME/app/jobs/NAME/application_job.rb
+  widgets/NAME/app/mailers/NAME/application_mailer.rb
+  widgets/NAME/app/models/NAME/application_record.rb
+  widgets/NAME/app/models/NAME/NAME_data.rb
+  widgets/NAME/bin/rails
+  widgets/NAME/NAME.gemspec
+  widgets/NAME/config/routes.rb
+  widgets/NAME/lib/NAME.rb
+  widgets/NAME/lib/NAME/engine.rb
+  widgets/NAME/lib/NAME/fetcher.rb
+  widgets/NAME/lib/NAME/version.rb
+  widgets/NAME/lib/tasks/NAME_tasks.rake
+  widgets/NAME/test/NAME_test.rb
+  widgets/NAME/test/integration/navigation_test.rb
+  widgets/NAME/test/test_helper.rb

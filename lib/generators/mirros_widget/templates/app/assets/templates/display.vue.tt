@@ -1,0 +1,65 @@
+<template>
+  <div id="<%= name.underscore %>">
+    <!-- TODO -->
+    <p>Hello World</p>
+  </div>
+</template>
+
+<script>
+  module.exports = {
+    name: "<%= name.underscore %>",
+    props: {
+      currentSettings: {
+        Type: Object,
+        required: false
+      },
+      records: {
+        type: Array,
+        required: false
+      },
+      language: {
+        type: String,
+        required: true
+      },
+      locale: {
+        type: String,
+        required: true
+      },
+      backendUrl: {
+        type: String,
+        required: true
+      }
+    },
+    data: function() {
+      return {
+        defaults: {
+          <%- fields.each do |key, type| -%>
+          <%= key %>: ""<% if fields.to_a.last.first != key %>,<%end %>
+          <%- end -%>
+        },
+        <%- fields.each do |key, type| -%>
+        <%= key %>: ""<% if fields.to_a.last.first != key %>,<%end %>
+        <%- end -%>
+      };
+    },
+    computed: {
+      conf: function() {
+        return { ...this.defaults, ...this.configuration };
+      }
+    },
+    methods: {
+      // TODO
+    },
+    beforeMount: function() {
+      // TODO
+      this.$options.interval = setInterval(this.time, 1000);
+    },
+    beforeDestroy() {
+      clearInterval(this.$options.interval);
+    }
+  };
+</script>
+
+<style>
+  // TODO: define styles your widget
+</style>

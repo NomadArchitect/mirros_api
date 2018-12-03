@@ -1,0 +1,53 @@
+<%- mapping = { string: "text", int: "number", integer: "number", default: "string" } -%>
+<template>
+  <div id="<%= name.underscore %>">
+    <%- fields.each do |key, type| -%>
+    <%- field_name = "#{name.underscore}_#{key.underscore}" -%>
+    <label for="<%= field_name %>">{{ t("<%= name %> <%= key %>") }}</label>
+    <input type="<% unless mapping[type.to_sym].nil? %><%= mapping[type.to_sym] %><% else %><%= mapping[:default] %><% end %>" id="<%= field_name %>" name="<%= field_name %>" :value="conf.<%= key %>">
+    <%- end -%>
+  </div>
+</template>
+
+<script>
+  module.exports = {
+    name: "<%= name.underscore %>",
+    props: {
+      currentSettings: {
+        type: Object,
+        required: true
+      }
+    },
+    data: function() {
+      return {
+        defaults: {
+          <%- fields.each do |key, type| -%>
+          <%= key %>: ""<% if fields.to_a.last.first != key %>,<%end %>
+          <%- end -%>
+        },
+        urlRequiresAuth: false
+      };
+    },
+    computed: {
+      conf: function() {
+        return { ...this.defaults, ...this.currentSettings };
+      }
+    },
+    locales: {
+      deDe: {
+        "<%= name %> title": "<%= name.camelcase %>",
+        "<%= name %> description": "<%= name.camelcase %> Beschreibung"<% if fields.to_a.any? %>,<% end %>
+        <%- fields.each do |key, type| -%>
+        "<%= name %> <%= key %>": "<%= name.camelcase %> <%= key.camelcase %>"<% if fields.to_a.last.first != key %>,<%end %>
+        <%- end -%>
+      },
+      enGb: {
+        "<%= name %> title": "<%= name.camelcase %>",
+        "<%= name %> description": "<%= name.camelcase %> Description"<% if fields.to_a.any? %>,<% end %>
+        <%- fields.each do |key, type| -%>
+        "<%= name %> <%= key %>": "<%= name.camelcase %> <%= key.camelcase %>"<% if fields.to_a.last.first != key %>,<%end %>
+        <%- end -%>
+      }
+    }
+  };
+</script>
