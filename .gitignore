@@ -26,3 +26,4 @@
 /.rufus-scheduler.lock
 /sources
 /widgets
+/db/migrate/*_create_openweathermap_cities.openweathermap.rb
