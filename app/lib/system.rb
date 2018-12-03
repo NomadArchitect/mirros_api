@@ -7,6 +7,7 @@ require 'rake'
 # Provides OS-level operations and mirr.OS system information.
 class System
   API_HOST = 'api.glancr.de'
+  SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
   # TODO: Using stored values in Rails.configuration might have performance potential
   # if the frontend requests system status less frequently than the backend updates itself.
@@ -95,15 +96,13 @@ class System
     false
   end
 
-  # Sends out a notification if the IP address of the configured interface has
-  # changed, is not empty (i. e. we have no IP) and the system has connectivity.
+  # Check if the IP address has changed and send out a notification if required.
   def self.check_ip_change
     current_ip = current_ip_address
-    if Rails.configuration.current_ip != current_ip
-      # Do not attempt to send an email if the current IP is empty or we are offline
-      SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
-      Rails.configuration.current_ip = current_ip
-    end
+    return if current_ip.eql? Rails.configuration.current_ip
+
+    SettingExecution::Personal.send_change_email if current_ip != SETUP_IP && System.online?
+    Rails.configuration.current_ip = current_ip
   end
 
   # Determines if the internal access point needs to be opened because mirr.OS does
