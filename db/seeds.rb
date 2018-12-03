@@ -164,7 +164,7 @@ newsfeed_widget = WidgetInstance.create(
   title: 'glancr News',
   showtitle: true,
   configuration: {"amount": "5", "showTimestamp": "false", "showFeedIcon": "true"},
-  position: {"x": 0, "y": 16, "width": 6, "height": 5}
+  position: {"x": 0, "y": 16, "width": 6, "height": 4}
 )
 
 SourceInstance.skip_callback :create, :after, :set_meta
