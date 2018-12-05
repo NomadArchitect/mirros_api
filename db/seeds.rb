@@ -98,7 +98,7 @@ Group.create(
   ]
 )
 
-%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling headlines].each do |extension|
+%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling ticker].each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
 end
@@ -160,7 +160,7 @@ InstanceAssociation.create(
 )
 
 newsfeed_widget = WidgetInstance.create(
-  widget: Widget.find_by_slug('headlines'),
+  widget: Widget.find_by_slug('ticker'),
   title: 'glancr News',
   showtitle: true,
   configuration: {"amount": "5", "showTimestamp": "false", "showFeedIcon": "true"},
