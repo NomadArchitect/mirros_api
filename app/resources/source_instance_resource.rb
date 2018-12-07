@@ -7,7 +7,7 @@ class SourceInstanceResource < JSONAPI::Resource
 
   has_one :source
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
-  has_many :record_links
+  has_many :record_links, always_include_linkage_data: true
 
   def add_to_scheduler
     DataRefresher.schedule(@model)
