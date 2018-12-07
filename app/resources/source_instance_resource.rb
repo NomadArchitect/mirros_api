@@ -3,7 +3,7 @@ class SourceInstanceResource < JSONAPI::Resource
   after_update :update_scheduler
   after_remove :remove_from_scheduler
 
-  attributes :title, :configuration, :options
+  attributes :title, :configuration, :options, :last_refresh
 
   has_one :source
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
