@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/cerebris/jsonapi-resources.git
+  revision: 18cb4f637285cf87efee2e62b84f589d158e44fa
+  specs:
+    jsonapi-resources (0.10.0.pre)
+      activerecord (>= 4.1)
+      concurrent-ruby
+      railties (>= 4.1)
+
 GEM
   remote: https://rubygems.org/
   remote: http://gems.marco-roth.ch/
@@ -95,10 +104,6 @@ GEM
       icalendar (~> 2.0)
       ice_cube (~> 0.13)
     ice_cube (0.16.3)
-    jsonapi-resources (0.9.3)
-      activerecord (>= 4.1)
-      concurrent-ruby
-      railties (>= 4.1)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -227,7 +232,7 @@ DEPENDENCIES
   highline (~> 2.0.0)
   httparty (~> 0.16.0)
   ical!
-  jsonapi-resources (~> 0.9.0)
+  jsonapi-resources!
   listen (>= 3.0.5, < 3.2)
   openweathermap!
   os (~> 1.0.0)

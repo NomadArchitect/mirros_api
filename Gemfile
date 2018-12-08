@@ -27,7 +27,8 @@ gem "thor", "~> 0.20.0"
 gem "highline", "~> 2.0.0"
 gem "cli_spinnable", "~> 0.2"
 # JSON serialization and parsing
-gem "jsonapi-resources", "~> 0.9.0"
+#gem "jsonapi-resources", "~> 0.9.3"
+gem "jsonapi-resources", git: "https://github.com/cerebris/jsonapi-resources.git"
 # Scheduling and task management
 gem "rufus-scheduler", "~> 3.5.2"
 # Misc
