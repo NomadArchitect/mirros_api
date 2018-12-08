@@ -1,4 +1,7 @@
+module GroupSchemas
   class NewsfeedResource < JSONAPI::Resource
+    caching
+
     model_name 'GroupSchemas::Newsfeed'
     attributes :name, :url, :icon_url, :latest_entry, :items
 
@@ -6,3 +9,4 @@
       @model.items.sort_by(&:published).reverse.as_json(except: %i[newsfeed_id])
     end
   end
+end
