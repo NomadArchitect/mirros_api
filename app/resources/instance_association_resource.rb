@@ -1,4 +1,6 @@
 class InstanceAssociationResource < JSONAPI::Resource
+  caching
+
   attribute :configuration
   has_one :group
   has_one :widget_instance

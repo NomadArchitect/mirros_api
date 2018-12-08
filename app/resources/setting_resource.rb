@@ -1,4 +1,6 @@
 class SettingResource < JSONAPI::Resource
+  caching
+
   primary_key :slug
   key_type :string
 

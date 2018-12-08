@@ -1,5 +1,6 @@
 # JSON:API-compliant resource model for Sources.
 class SourceResource < JSONAPI::Resource
+  caching
 
   primary_key :slug
   key_type :string

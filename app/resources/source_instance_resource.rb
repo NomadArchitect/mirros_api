@@ -1,4 +1,6 @@
 class SourceInstanceResource < JSONAPI::Resource
+  caching
+
   after_create :add_to_scheduler
   after_update :update_scheduler
   after_remove :remove_from_scheduler
@@ -7,7 +9,7 @@ class SourceInstanceResource < JSONAPI::Resource
 
   has_one :source
   has_many :widget_instances, through: :instance_associations, always_include_linkage_data: true
-  has_many :record_links, always_include_linkage_data: true
+  has_many :record_links
 
   def add_to_scheduler
     DataRefresher.schedule(@model)

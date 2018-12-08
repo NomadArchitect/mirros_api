@@ -1,4 +1,6 @@
 class WidgetInstanceResource < JSONAPI::Resource
+  caching
+
   attributes :title, :showtitle, :configuration, :position
   has_one :widget
   has_one :group, through: :widget, foreign_key_on: :widget

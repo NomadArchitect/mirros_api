@@ -1,4 +1,5 @@
 class WidgetResource < JSONAPI::Resource
+  caching
 
   primary_key :slug
   key_type :string
