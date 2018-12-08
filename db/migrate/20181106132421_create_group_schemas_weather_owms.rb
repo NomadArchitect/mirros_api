@@ -5,6 +5,8 @@ class CreateGroupSchemasWeatherOwms < ActiveRecord::Migration[5.2]
       t.timestamp :dt_txt
       t.json :forecast
       t.string :unit
+
+      t.timestamps
     end
   end
 end

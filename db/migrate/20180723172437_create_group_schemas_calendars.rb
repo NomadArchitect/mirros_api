@@ -6,6 +6,8 @@ class CreateGroupSchemasCalendars < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :description
       t.string :color
+
+      t.timestamps
     end
     add_index :group_schemas_calendars, :uid
   end

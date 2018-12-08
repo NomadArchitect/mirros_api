@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(version: 2018_12_03_130809) do
     t.integer "recordable_id"
     t.integer "source_instance_id"
     t.string "group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
