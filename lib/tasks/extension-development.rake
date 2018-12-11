@@ -99,9 +99,11 @@ namespace :extension do
   end
 
   def construct_attributes(args, spec, meta)
+    # FIXME: Use proper values if pulled from gemserver for seeding
     type_specifics = if args[:type].to_sym.equal? :widget
                        attrs = {
                          icon: "http://backend-server.tld/icons/#{spec.name}.svg",
+                         sizes: meta[:sizes],
                          languages: meta[:languages]
                        }
                        if meta[:group].nil?

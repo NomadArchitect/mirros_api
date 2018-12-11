@@ -24,6 +24,12 @@ Gem::Specification.new do |s|
                       enGb: s.description
                       # Add description for other languages keyed by the snakeCased language tag.
                     },
+                    sizes: [
+                      {
+                        w: 2,
+                        h: 2
+                       }
+                    ],
                     languages: [:enGb], # Add snake-cased language tags if your templates have the locales for it.
                     group: nil # see https://gitlab.com/glancr/mirros_one/wikis/home for available groups
                   }.to_json

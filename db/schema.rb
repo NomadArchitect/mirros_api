@@ -181,6 +181,7 @@ ActiveRecord::Schema.define(version: 2018_12_03_130809) do
     t.string "name", null: false
     t.json "title", null: false
     t.json "description", null: false
+    t.json "sizes"
     t.string "version", null: false
     t.string "creator"
     t.string "homepage"
