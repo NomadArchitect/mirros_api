@@ -4,6 +4,7 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
       t.string :name, null: false
       t.json :title, null: false
       t.json :description, null: false
+      t.json :sizes # TODO: Disable nullable once dev docs are final
       t.string :version, null: false
       t.string :creator
       t.string :homepage
