@@ -34,6 +34,7 @@ class System
   end
 
   def self.reset
+    # FIXME: Uninstall Widgets as well, but keep the default widgets.
     Source.all.each(&:uninstall_without_restart)
     SettingExecution::Personal.send_reset_email
 
