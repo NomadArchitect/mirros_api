@@ -85,5 +85,11 @@ class SystemController < ApplicationController
     end
   end
 
+  def fetch_logfile
+    logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
+    return head :not_found unless Pathname.new(logfile).exist?
+
+    send_file(logfile)
+  end
 
 end
