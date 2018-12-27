@@ -92,4 +92,14 @@ class SystemController < ApplicationController
     send_file(logfile)
   end
 
+  def generate_system_report
+    render json: DebugReport.installed_extensions.merge(DebugReport.active_instances)
+  end
+
+  def send_debug_report
+    report = DebugReport.new(params[:title], params[:description], params[:email])
+    res = report.send
+    head res.code
+  end
+
 end
