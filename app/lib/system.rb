@@ -24,7 +24,15 @@ class System
   end
 
   def self.reboot
-    `sudo reboot` if OS.linux? || OS.mac?
+    # macOS requires sudoers file manipulation without tty/askpass, see
+    # https://www.sudo.ws/man/sudoers.man.html
+    raise NotImplementedError unless OS.linux?
+
+    line = Terrapin::CommandLine.new('sudo shutdown',
+                                     '-r now :message')
+    line.run(message: 'Manual reboot initiated through Settings UI')
+  rescue Terrapin::ExitStatusError => e
+    Rails.logger.error "Error during reboot attempt: #{e.message}"
   end
 
   # Restarts the Rails application.
