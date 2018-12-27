@@ -10,6 +10,13 @@ class SystemController < ApplicationController
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
+  def reboot
+    head :ok
+    Thread.new do
+      System.reboot
+    end
+  end
+
   def run_setup
     connection = Setting.find_by_slug('network_connectiontype').value
     SettingExecution::Network.close_ap
