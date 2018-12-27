@@ -85,5 +85,21 @@ class SystemController < ApplicationController
     end
   end
 
+  def fetch_logfile
+    logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
+    return head :not_found unless Pathname.new(logfile).exist?
+
+    send_file(logfile)
+  end
+
+  def generate_system_report
+    render json: DebugReport.installed_extensions.merge(DebugReport.active_instances)
+  end
+
+  def send_debug_report
+    report = DebugReport.new(params[:title], params[:description], params[:email])
+    res = report.send
+    head res.code
+  end
 
 end
