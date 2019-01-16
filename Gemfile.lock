@@ -216,7 +216,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors (~> 2.5.0)
   binding_of_caller (~> 0.8.0)
-  bundler (~> 1.17.1)
+  bundler (>= 1.17.1)
   byebug
   calendar_event_list!
   cli_spinnable (~> 0.2)
@@ -250,4 +250,4 @@ DEPENDENCIES
   web-console
 
 BUNDLED WITH
-   1.17.1
+   2.0.1
