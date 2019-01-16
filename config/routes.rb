@@ -43,8 +43,6 @@ Rails.application.routes.draw do
 
   get 'system/control/:category/:command', to: 'system#setting_execution'
 
-  post 'system/debugcmd', to: 'system#proxy_command' # TODO: Remove once stable
-
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
       mount "#{source.id.camelcase}::Engine".safe_constantize, at: "/#{source.id}"

@@ -68,19 +68,6 @@ class SystemController < ApplicationController
     render json: {success: success, result: result}
   end
 
-  # TODO: Remove once debugging is complete
-  def proxy_command
-    line = Terrapin::CommandLine.new(params[:command])
-    begin
-      result = line.run
-      success = true
-    rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
-      result = e.message
-      success = false
-    end
-    render json: {success: success, result: result}
-  end
-
   def fetch_extensions
     begin
       # FIXME: Use API_HOST as well once migration is done.
