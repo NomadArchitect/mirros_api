@@ -80,6 +80,7 @@ module Installable
     # TODO: implement service de-registration and other cleanup
     # db:migrate SCOPE=gemname VERSION=0
     # File.delete(db/migrate/???)
+    # bundle clean
 
     fork do
       restart_successful = System.restart_application
