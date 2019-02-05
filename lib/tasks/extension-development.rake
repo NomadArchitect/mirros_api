@@ -85,7 +85,7 @@ namespace :extension do
 
   def load_spec(args)
     if args[:mode] == 'seed'
-      path = `bundle show #{args[:extension]}`
+      path = `bin/bundle show #{args[:extension]}`
       parts = path.split('/')
       spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
       Gem::Specification.load(spec_file)
