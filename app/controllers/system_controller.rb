@@ -55,6 +55,7 @@ class SystemController < ApplicationController
       rescue ArgumentError,
              NotImplementedError,
              Terrapin::ExitStatusError,
+             SocketError,
              Net::HTTPBadResponse => e
         result = e.message
         success = false
