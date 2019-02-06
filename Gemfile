@@ -9,7 +9,7 @@ gem "bundler", ">= 1.17.1"
 gem "rails", "~> 5.2.0"
 # Use postgresql as the database for Active Record
 # gem "pg", "~> 1.1.2"
-gem 'sqlite3'
+gem 'sqlite3', "~> 1.3.6"
 # Use Puma as the app server
 gem "puma", "~> 3.7"
 # Use Redis adapter to run Action Cable in production
