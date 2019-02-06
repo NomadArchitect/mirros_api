@@ -2,9 +2,14 @@
 # config/initializers/scheduler.rb
 
 require 'rufus-scheduler'
+require 'yaml'
 
 # only schedule when not running from the Ruby on Rails console or from a rake task
 if Rails.const_defined? 'Server'
+  # Initialize session.yml file
+  # FIXME: Clean up
+  File.write('tmp/session.yml', { refresh_frontend: true }.to_yaml)
+
   s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
   s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
 

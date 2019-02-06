@@ -3,6 +3,7 @@
 require 'os'
 require 'resolv'
 require 'rake'
+require 'yaml'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
@@ -12,15 +13,22 @@ class System
   # TODO: Using stored values in Rails.configuration might have performance potential
   # if the frontend requests system status less frequently than the backend updates itself.
   def self.info
-    {
+    session_file = 'tmp/session.yml'
+    session = YAML.load_file(session_file)
+    info_hash = {
       version: MirrOSApi::Application::VERSION,
       setup_completed: Rails.configuration.setup_complete,
       connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
-      os: RUBY_PLATFORM
+      os: RUBY_PLATFORM,
+      refresh_frontend: session['refresh_frontend']
     }
+    session['refresh_frontend'] = false
+    File.write(session_file, session.to_yaml)
+
+    info_hash
   end
 
   def self.reboot
