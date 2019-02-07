@@ -34,7 +34,7 @@ module SettingExecution
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       result = dns_line.run
 
-      wifi_line = Terrapin::CommandLine.new('nmcli', 'c up glancrsetup')
+      wifi_line = Terrapin::CommandLine.new('snapctl', 'mirros-one.open-ap')
       result << "\n"
       result << wifi_line.run
       result
@@ -43,15 +43,14 @@ module SettingExecution
     #
     # @return [Boolean] True if the AP connection is among the active nmcli connections.
     def self.ap_active?
-      line = Terrapin::CommandLine.new('nmcli',
-                                       '-f NAME c show --active | grep glancrsetup',
+      line = Terrapin::CommandLine.new('snapctl', 'mirros-one.ap-status',
                                        expected_outcodes: [0, 1])
       line.run
       line.exit_status.zero?
     end
 
     def self.close_ap
-      wifi_line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
+      wifi_line = Terrapin::CommandLine.new('snapctl', 'mirros-one.close-ap')
       result = wifi_line.run
 
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
