@@ -15,6 +15,10 @@ module.exports = {
     currentSettings: {
       type: Object,
       required: true
+    },
+    locale: {
+      type: String,
+      required: true
     }
   },
   data: function() {
@@ -42,3 +46,6 @@ module.exports = {
   }
 };
 </script>
+<style scoped>
+  /* your styles here */
+</style>

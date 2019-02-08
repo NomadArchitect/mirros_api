@@ -13,24 +13,32 @@ module.exports = {
   name: "<%= name.underscore %>",
   props: {
       currentSettings: {
-          Type: Object,
-          required: false
+        type: Object,
+        required: false
+      },
+      sourcesConfigured: {
+        type: Boolean,
+        required: false
       },
       records: {
-          type: Array,
-          required: false
+        type: Array,
+        required: false
       },
       language: {
-          type: String,
-          required: true
+        type: String,
+        required: true
       },
       locale: {
-          type: String,
-          required: true
+        type: String,
+        required: true
       },
       backendUrl: {
-          type: String,
-          required: true
+        type: String,
+        required: true
+      },
+      fetchAsset: {
+        type: Function,
+        required: false
       }
   },
   data: function() {
@@ -58,3 +66,6 @@ module.exports = {
   }
 }
 </script>
+<style scoped>
+/* your styles here */
+</style>
