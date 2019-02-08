@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'generators/source/widget_generator'
+require 'generators/widget/widget_generator'
 
 class WidgetGeneratorTest < Rails::Generators::TestCase
   tests WidgetGenerator
