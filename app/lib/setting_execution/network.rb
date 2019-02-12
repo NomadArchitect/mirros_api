@@ -29,18 +29,32 @@ module SettingExecution
     end
 
     def self.open_ap
-      success = os_subclass.open_ap
-      Rails.logger.error 'Could not open GlancrAP' unless success
+      begin
+        success = os_subclass.open_ap
+      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
+        Rails.logger.error "Could not open access point, reason: #{e.message}"
+        success = false
+      end
       success
     end
 
     def self.ap_active?
-      os_subclass.ap_active?
+      begin
+        success = os_subclass.ap_active?
+      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
+        Rails.logger.error "Could not determin access point status, reason: #{e.message}"
+        success = false
+      end
+      success
     end
 
     def self.close_ap
-      success = os_subclass.close_ap
-      Rails.logger.error 'Could not close GlancrAP' unless success
+      begin
+        success = os_subclass.close_ap
+      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
+        Rails.logger.error "Could not close access point, reason: #{e.message}"
+        success = false
+      end
       success
     end
 
