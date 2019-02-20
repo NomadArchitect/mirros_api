@@ -4,9 +4,8 @@
 require 'rufus-scheduler'
 require 'yaml'
 
-# Initialize session.yml file
-# FIXME: Clean up
-File.write('tmp/session.yml', { refresh_frontend: true }.to_yaml)
+# Initialize session
+Rails.configuration.refresh_frontend = true
 
 # only schedule when not running from the Ruby on Rails console or from a rake task
 if Rails.const_defined? 'Server'
