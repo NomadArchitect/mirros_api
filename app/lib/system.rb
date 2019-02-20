@@ -13,8 +13,6 @@ class System
   # TODO: Using stored values in Rails.configuration might have performance potential
   # if the frontend requests system status less frequently than the backend updates itself.
   def self.info
-    session_file = 'tmp/session.yml'
-    session = YAML.load_file(session_file)
     info_hash = {
       version: MirrOSApi::Application::VERSION,
       setup_completed: Rails.configuration.setup_complete,
@@ -23,10 +21,9 @@ class System
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
-      refresh_frontend: session['refresh_frontend']
+      refresh_frontend: Rails.configuration.refresh_frontend
     }
-    session['refresh_frontend'] = false
-    File.write(session_file, session.to_yaml)
+    Rails.configuration.refresh_frontend = false
 
     info_hash
   end
@@ -36,7 +33,7 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     raise NotImplementedError unless OS.linux?
 
-    line = Terrapin::CommandLine.new('sudo shutdown',
+    line = Terrapin::CommandLine.new('shutdown',
                                      '-r now :message')
     line.run(message: 'Manual reboot initiated through Settings UI')
   rescue Terrapin::ExitStatusError => e

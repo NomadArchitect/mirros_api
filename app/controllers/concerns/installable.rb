@@ -17,9 +17,10 @@ module Installable
     begin
       inject_gem
       options = {'jobs' => 5, 'without' => 'development'}
-      installer = Bundler::Installer.new(Bundler.root, Bundler.definition)
+      installer = Bundler::Installer.new(Bundler.root, new_definition)
       installer.run(options)
-    rescue Bundler::BundlerError, Net::HTTPError => e
+    rescue Terrapin::CommandLineError, Bundler::BundlerError, Net::HTTPError => e
+      Rails.logger.error "Error during installation of #{@gem}: #{e.message}"
       remove_from_gemfile
       raise bundler_error(e)
     end
@@ -30,7 +31,6 @@ module Installable
       remove_from_gemfile
       raise bundler_error
     end
-
     # TODO: Service registration etc if not possible through Engine functionality.
     # MirrOSApi::Application.load_tasks
     # Rake::Task["#{@gem}:install:migrations"].invoke
@@ -84,10 +84,8 @@ module Installable
 
     fork do
       restart_successful = System.restart_application
-
       # Re-add the gem so that Gemfile and installation state are consistent.
       inject_gem unless restart_successful
-
     end
   end
 
@@ -111,23 +109,8 @@ module Installable
   end
 
   def inject_gem
-    # Injector uses a string-keyed option hash.
-    options = {'source' => download, 'group' => [@extension_type]}
-    # TODO: Validate @model against downloaded extension info (TBD)
-
-    begin
-      dep = Bundler::Dependency.new(@gem, @version, options)
-      injector = Bundler::Injector.new([dep])
-
-      # Injector._append_to expects Pathname objects instead of path strings.
-      gemfile = Pathname.new(File.absolute_path('Gemfile'))
-      lockfile = Pathname.new(File.absolute_path('Gemfile.lock'))
-
-      injector.inject(gemfile, lockfile)
-
-    rescue Bundler::Dsl::DSLError => e
-      bundler_error(e)
-    end
+    line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
+    line.run(gem: @gem, source: download, group: @extension_type)
   end
 
   # Removes this instance's @gem from Gemfile.
@@ -148,18 +131,17 @@ module Installable
     tmp.close!
   end
 
-  # Cleans up the bundle and raises an exception in case there is an error during Bundler operations.
+  # Cleans up the bundle and raises an exception in case there is an error
+  # during Bundler operations.
   # @param [Object] error An optional Error object that has the methods message and status_code.
   def bundler_error(error = nil)
     rt = new_runtime
     rt.lock
     rt.clean
-    msg = "Error while installing extension #{@gem}: "
-    msg += error.nil? ? "Gem not in loaded specs" : "#{error.message}, code: #{error.status_code}"
-    raise StandardError.new(msg)
   end
 
-  # Resets the Bundler runtime to ensure that the Gemfile specs are loaded. Unfortunately, this has no effect on Rubygems
+  # Resets the Bundler runtime to ensure that the Gemfile specs are loaded.
+  # Unfortunately, this has no effect on Rubygems
   # or $LOAD_PATH / $LOADED_FEATURES, but at least deals with Bundler inconsistencies.
   def refresh_runtime
     begin
