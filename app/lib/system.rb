@@ -36,7 +36,7 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     raise NotImplementedError unless OS.linux?
 
-    line = Terrapin::CommandLine.new('sudo shutdown',
+    line = Terrapin::CommandLine.new('shutdown',
                                      '-r now :message')
     line.run(message: 'Manual reboot initiated through Settings UI')
   rescue Terrapin::ExitStatusError => e
