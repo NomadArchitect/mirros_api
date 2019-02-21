@@ -33,9 +33,15 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     raise NotImplementedError unless OS.linux?
 
-    line = Terrapin::CommandLine.new('shutdown',
-                                     '-r now :message')
-    line.run(message: 'Manual reboot initiated through Settings UI')
+    line = Terrapin::CommandLine.new(
+      'dbus-send',
+      '--system \
+      --dest=org.freedesktop.login1 \
+      /org/freedesktop/login1 \
+      "org.freedesktop.login1.Manager.Reboot" \
+      boolean:true'
+    )
+    line.run
   rescue Terrapin::ExitStatusError => e
     Rails.logger.error "Error during reboot attempt: #{e.message}"
   end

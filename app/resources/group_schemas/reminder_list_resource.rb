@@ -3,6 +3,6 @@ class ReminderListResource < JSONAPI::Resource
   attributes :name, :description, :reminders
 
   def reminders
-    @model.reminders.as_json(except: %i[uid calendar_id])
+    @model.reminders.as_json
   end
 end
