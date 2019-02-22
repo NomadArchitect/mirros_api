@@ -16,7 +16,7 @@ class DebugReport
     widget_instances = WidgetInstance.all
     {
       wi_count: widget_instances.count,
-      wi_outside_grid_boundaries: widget_instances.select { |wi| wi.position['y'] + wi.position['height'] > 21 },
+      wi_outside_grid_boundaries: widget_instances.select {|wi| wi.position['y'] + wi.position['height'] > 21},
       si_count: SourceInstance.all.count
     }
   end
@@ -35,11 +35,7 @@ class DebugReport
   def send
     append_log_files
     host = "https://#{System::API_HOST}/reports/new-one.php"
-    begin
-      HTTParty.post(host, body: @body)
-    rescue HTTParty::BadRequest => e
-      e.message
-    end
+    HTTParty.post(host, body: @body)
   end
 
   private
