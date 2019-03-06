@@ -9,11 +9,31 @@ require_relative 'version'
 Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
 
 module MirrOSApi
+  # Application constants and configuration.
   class Application < Rails::Application
-
     VERSION = SNAP_VERSION
+    API_HOST = 'api.glancr.de'.freeze
+    SETUP_IP = '192.168.8.1'.freeze # Fixed IP of the internal setup WiFi AP.
 
-    # Set custom log path for terrapin commands. TODO: Enable if sensitive commands can be filtered.
+    DEFAULT_WIDGETS = %i[
+      clock
+      current_date
+      calendar_event_list
+      owm_current_weather
+      owm_forecast
+      text_field
+      styling
+      ticker
+    ].freeze
+
+    DEFAULT_SOURCES = %i[
+      openweathermap
+      ical
+      rss_feeds
+    ].freeze
+
+    # Set custom log path for terrapin commands.
+    # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
 
     # Initialize configuration defaults for originally generated Rails version.
@@ -33,6 +53,5 @@ module MirrOSApi
 
     config.i18n.default_locale = :en
     config.i18n.enforce_available_locales = false
-
   end
 end

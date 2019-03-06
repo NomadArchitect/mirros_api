@@ -39,7 +39,7 @@ class SourceInstance < Instance
 
     begin
       hooks.new(id, configuration)
-    rescue Exception => e
+    rescue StandardError => e
       raise e.message
     end
   end

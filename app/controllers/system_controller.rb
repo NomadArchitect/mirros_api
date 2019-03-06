@@ -1,20 +1,50 @@
 class SystemController < ApplicationController
 
   def status
-    render json: { meta: System.info }
+    render json: {meta: System.info}
   end
 
   def reset
     System.reset
-    head :no_content
+  rescue StandardError => e
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error during reset attempt',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
+    head :no_content
   end
 
   def reboot
-    head :ok
-    Thread.new do
-      System.reboot
-    end
+    System.reboot
+  rescue NotImplementedError => e
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Reboot not implemented',
+          detail: e.message,
+          code: 501,
+          status: :not_implemented
+        )
+      ]
+    }, status: 501
+  rescue StandardError => e
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error during reboot attempt',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
   end
 
   def run_setup
@@ -42,7 +72,7 @@ class SystemController < ApplicationController
       SettingExecution::Network.open_ap
     end
 
-    render json: { success: success, result: result }
+    render json: {success: success, result: result}
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -53,10 +83,10 @@ class SystemController < ApplicationController
         result = executor.send(params[:command])
         success = true
       rescue ArgumentError,
-             NotImplementedError,
-             Terrapin::ExitStatusError,
-             SocketError,
-             Net::HTTPBadResponse => e
+        NotImplementedError,
+        Terrapin::ExitStatusError,
+        SocketError,
+        Net::HTTPBadResponse => e
         result = e.message
         success = false
       end
@@ -75,7 +105,7 @@ class SystemController < ApplicationController
       "http://gems.marco-roth.ch/list/#{params[:type]}",
       timeout: 5
     )
-  rescue Net::OpenTimeout => e
+  rescue SocketError, Net::OpenTimeout => e
     head :gateway_timeout
     Rails.logger.error e.message
   end
@@ -95,6 +125,7 @@ class SystemController < ApplicationController
     report = DebugReport.new(params[:title], params[:description], params[:email])
     res = report.send
     head res.code
+  rescue StandardError => e
+    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
   end
-
 end

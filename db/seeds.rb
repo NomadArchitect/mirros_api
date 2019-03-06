@@ -98,7 +98,7 @@ Group.create(
   ]
 )
 
-%i[clock current_date calendar_event_list owm_current_weather owm_forecast text_field styling ticker].each do |extension|
+MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
 end
@@ -135,7 +135,7 @@ calendar_widget = WidgetInstance.create(
   position: {"x": 8, "y": 0, "width": 4, "height": 4}
 )
 
-%i[openweathermap ical rss_feeds].each do |extension|
+MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
 end

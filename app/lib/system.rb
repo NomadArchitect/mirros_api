@@ -31,7 +31,7 @@ class System
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
-    raise NotImplementedError unless OS.linux?
+    raise NotImplementedError, 'Currently only implemented for Linux hosts' unless OS.linux?
 
     line = Terrapin::CommandLine.new(
       'dbus-send',
@@ -54,7 +54,14 @@ class System
 
   def self.reset
     # FIXME: Uninstall Widgets as well, but keep the default widgets.
-    Source.all.each(&:uninstall_without_restart)
+    Widget.all.reject {
+      |w| MirrOSApi::Application::DEFAULT_WIDGETS.include?(w.id.to_sym)
+    }.each(&:uninstall_without_restart)
+    Source.all.reject {
+      |s| MirrOSApi::Application::DEFAULT_SOURCES.include?(s.id.to_sym)
+    }.each(&:uninstall_without_restart)
+    line = Terrapin::CommandLine.new('bundle', 'clean')
+    line.run
     SettingExecution::Personal.send_reset_email
 
     MirrOSApi::Application.load_tasks
