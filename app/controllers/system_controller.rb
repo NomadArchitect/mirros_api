@@ -6,21 +6,45 @@ class SystemController < ApplicationController
 
   def reset
     System.reset
-    head :no_content
   rescue StandardError => e
-    render json: JSONAPI::Error.new(
-      title: "Error during reset attempt",
-      detail: e.message,
-      code: 500
-    ), status: 500
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error during reset attempt',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
+    head :no_content
   end
 
   def reboot
-    head :ok
-    Thread.new do
-      System.reboot
-    end
+    System.reboot
+  rescue NotImplementedError => e
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Reboot not implemented',
+          detail: e.message,
+          code: 501,
+          status: :not_implemented
+        )
+      ]
+    }, status: 501
+  rescue StandardError => e
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error during reboot attempt',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
   end
 
   def run_setup
@@ -102,11 +126,6 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: JSONAPI::Error.new(
-      title: 'Error while sending debug report',
-      detail: e.message,
-      status: 500
-    ), status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
   end
-
 end
