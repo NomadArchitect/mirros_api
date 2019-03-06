@@ -30,12 +30,14 @@ class InstanceAssociation < ApplicationRecord
       Rails.logger.error "Error during initial data fetch of #{source} instance #{source_instance.id}: #{e.message}"
       return
     end
-    recordables.each do |recordable|
-      recordable.save
-      next unless recordable.record_link.nil?
+    ActiveRecord::Base.transaction do
+      recordables.each do |recordable|
+        recordable.save
+        next unless recordable.record_link.nil?
 
-      source_instance.record_links <<
-        RecordLink.create(recordable: recordable, group_id: group)
+        source_instance.record_links <<
+          RecordLink.create(recordable: recordable, group_id: group)
+      end
       source_instance.save
     end
     source_instance.update(last_refresh: Date.new)
