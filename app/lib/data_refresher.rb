@@ -67,8 +67,9 @@ class DataRefresher
 
           source_instance.record_links <<
             RecordLink.create(recordable: recordable, group_id: group)
-          source_instance.save
         end
+        source_instance.save
+
       rescue => e
         Rails.logger.error e.message
       end
