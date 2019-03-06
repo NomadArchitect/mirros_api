@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_03_130809) do
+ActiveRecord::Schema.define(version: 2019_02_23_202357) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -61,6 +61,18 @@ ActiveRecord::Schema.define(version: 2018_12_03_130809) do
     t.string "icon_url"
     t.datetime "latest_entry"
     t.index ["url"], name: "index_group_schemas_newsfeeds_on_url"
+  end
+
+  create_table "group_schemas_public_transports", force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "type"
+    t.datetime "departure", null: false
+    t.integer "delay_minutes"
+    t.string "line", null: false
+    t.string "direction", null: false
+    t.string "transit_type1"
+    t.string "platform"
+    t.index ["uuid"], name: "index_group_schemas_public_transports_on_uuid", unique: true
   end
 
   create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
