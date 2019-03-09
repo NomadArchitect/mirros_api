@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(version: 2019_02_23_202357) do
     t.integer "delay_minutes"
     t.string "line", null: false
     t.string "direction", null: false
-    t.string "transit_type1"
+    t.string "transit_type"
     t.string "platform"
     t.index ["uuid"], name: "index_group_schemas_public_transports_on_uuid", unique: true
   end
