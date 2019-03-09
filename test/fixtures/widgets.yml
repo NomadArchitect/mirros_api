@@ -1,15 +1,39 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  author: MyString
-  version: MyString
-  website: MyString
-  repository: MyString
+calendar_event_list:
+  name: calendar_event_list
+  title: {
+    enGb: Calendar,
+    deDe: Kalender
+  }
+  description: {
+    enGb: Your calendar events,
+    deDe: Deine Kalender-Einträge
+  }
+  sizes: [[2, 4]]
+  version: 0.1.0
+  creator: Tobias Grasse
+  homepage: https://glancr.de
+  download: http://gems.marco-roth.ch
+  icon: http://gems.marco-roth.ch/icons/public_transport_departures-0.1.0/icon.svg
+  languages: [enGb, deDe]
+  group: calendar
 
-two:
-  name: MyString
-  author: MyString
-  version: MyString
-  website: MyString
-  repository: MyString
+public_transport_departures:
+  name: public_transport_departures
+  title: {
+    enGb: Departures,
+    deDe: ÖPNV
+  }
+  description: {
+    enGb: Departures,
+    deDe: Abfahrten
+  }
+  sizes: [[2, 4]]
+  version: 0.1.0
+  creator: Tobias Grasse
+  homepage: https://glancr.de
+  download: http://gems.marco-roth.ch
+  icon: http://gems.marco-roth.ch/icons/public_transport_departures-0.1.0/icon.svg
+  languages: [enGb, deDe]
+  group: public_transport

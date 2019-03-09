@@ -1,15 +1,26 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+ical:
+  name: ical
+  title: {
+    enGb: iCal,
+    deDe: iCal
+  }
+  description: blubb
+  creator: Tobias Grasse
+  version: 0.1.0
+  homepage: https://glancr.de
+  icon: http://gems.marco-roth.ch/icons/sbb-0.1.0/icon.svg
+  download: http://gems.marco-roth.ch
 
-one:
-  name: MyString
-  author: MyString
-  version: MyString
-  website: MyString
-  repository: MyString
-
-two:
-  name: MyString
-  author: MyString
-  version: MyString
-  website: MyString
-  repository: MyString
+sbb:
+  name: sbb
+  title: {
+           enGb: SBB,
+           deDe: SBB
+  }
+  description: blubb
+  creator: Tobias Grasse
+  version: 0.1.0
+  homepage: https://glancr.de
+  icon: http://gems.marco-roth.ch/icons/sbb-0.1.0/icon.svg
+  download: http://gems.marco-roth.ch
