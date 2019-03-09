@@ -156,7 +156,6 @@ InstanceAssociation.create(
   group: Group.find_by_slug('calendar'),
   widget_instance: calendar_widget,
   source_instance: calendar_source
-
 )
 
 newsfeed_widget = WidgetInstance.create(
