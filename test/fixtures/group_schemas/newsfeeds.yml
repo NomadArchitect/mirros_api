@@ -4,8 +4,11 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
+rss_feeds_heise:
+  type: RssFeeds::Newsfeed
+  name: Heise.de Newsticker
+  url: https://heise.de/news.xml
+  icon_url:
+  latest_entry: <%= Time.now %>
 # column: value
 #
-two: {}
-# column: value

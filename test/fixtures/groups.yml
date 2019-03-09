@@ -1,13 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  source_id: 1
-  widget_id: 1
-  category_id: 1
+public_transport:
+  name: public_transport
 
-two:
-  name: MyString
-  source_id: 1
-  widget_id: 1
-  category_id: 1
+calendar:
+  name: calendar
