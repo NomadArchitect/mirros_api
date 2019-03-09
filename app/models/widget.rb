@@ -11,7 +11,11 @@ class Widget < ApplicationRecord
   has_many :widget_instances, dependent: :destroy
   belongs_to :group, optional: true
 
-  validates :name, uniqueness: true
+  validates :name, presence: true, uniqueness: true
+  validates :title, presence: true
+  validates :description, presence: true
+  validates :version, presence: true, format: /[0-9].[0-9].[0-9]/
+  validates :download, presence: true
 
   extend FriendlyId
   friendly_id :name, use: :slugged
