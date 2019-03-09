@@ -1,7 +1,8 @@
 require 'test_helper'
 
 class WidgetTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  test "should not save without name" do
+    widget = Widget.new
+    assert_not widget.save, 'Saved the widget without a name'
+  end
 end
