@@ -2,7 +2,8 @@ require 'test_helper'
 
 class SourcesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @source = sources(:one)
+    @source = sources(:ical)
+    @request.headers['Content-Type'] = 'application/vnd.api+json'
   end
 
   test "should get index" do
@@ -12,7 +13,7 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create source" do
     assert_difference('Source.count') do
-      post sources_url, params: { source: { author: @source.author, name: @source.name, repository: @source.repository, version: @source.version, homepage: @source.homepage } }, as: :json
+      post sources_url, params: {source: {creator: @source.creator, name: @source.name, download: @source.download, version: @source.version, homepage: @source.homepage}}, as: :json
     end
 
     assert_response 201
@@ -24,7 +25,15 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update source" do
-    patch source_url(@source), params: { source: { author: @source.author, name: @source.name, repository: @source.repository, version: @source.version, homepage: @source.homepage } }, as: :json
+    patch source_url(@source), params: {
+      source: {
+        creator: @source.creator,
+        name: @source.name,
+        download: @source.download,
+        version: @source.version,
+        homepage: @source.homepage
+      }
+    }, as: :json
     assert_response 200
   end
 
