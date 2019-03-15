@@ -151,12 +151,14 @@ calendar_source = SourceInstance.new(
 calendar_source.save(validate: false)
 SourceInstance.set_callback :create, :after, :set_meta
 
+=begin
 InstanceAssociation.create(
   configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
   group: Group.find_by_slug('calendar'),
   widget_instance: calendar_widget,
   source_instance: calendar_source
 )
+=end
 
 newsfeed_widget = WidgetInstance.create(
   widget: Widget.find_by_slug('ticker'),
@@ -176,12 +178,14 @@ newsfeed_source = SourceInstance.new(
 newsfeed_source.save(validate: false)
 SourceInstance.set_callback :create, :after, :set_meta
 
+=begin
 InstanceAssociation.create(
   configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
   group: Group.find_by_slug('newsfeed'),
   widget_instance: newsfeed_widget,
   source_instance: newsfeed_source
 )
+=end
 
 puts 'Seeding Openweathermap cities table, might take a while ...'
 Openweathermap::Engine.load_seed
