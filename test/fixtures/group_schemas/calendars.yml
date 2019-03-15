@@ -4,11 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-
+one: {}
 # column: value
 #
-one:
-  configuration: {chosen: ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]}
-  group: calendar
-  widget_instance: calendar_event_list_1,
-  source_instance: ical_source_instance_1
+two: {}
+# column: value

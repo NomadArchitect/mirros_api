@@ -2,7 +2,9 @@ require 'test_helper'
 
 class WidgetInstancesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @widget_instance = widget_instances(:one)
+    @widget_instance = widget_instances(:calendar_event_list_1)
+    @headers['Accept'] = 'application/vnd.api+json'
+    @headers['Content-Type'] = 'application/vnd.api+json'
   end
 
   test "should get index" do

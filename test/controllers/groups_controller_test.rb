@@ -2,7 +2,8 @@ require 'test_helper'
 
 class GroupsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @group = groups(:one)
+    @group = groups(:calendar)
+    @request.headers['Content-Type'] = 'application/vnd.api+json'
   end
 
   test "should get index" do

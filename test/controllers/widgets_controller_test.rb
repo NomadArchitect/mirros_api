@@ -2,7 +2,8 @@ require 'test_helper'
 
 class WidgetsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @widget = widgets(:one)
+    @widget = widgets(:calendar_event_list)
+    @request.headers['Content-Type'] = 'application/vnd.api+json'
   end
 
   test "should get index" do
@@ -12,7 +13,7 @@ class WidgetsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create widget" do
     assert_difference('Widget.count') do
-      post widgets_url, params: { widget: { author: @widget.author, name: @widget.name, repository: @widget.repository, version: @widget.version, homepage: @widget.homepage } }, as: :json
+      post widgets_url, params: { widget: { creator: @widget.creator, name: @widget.name, download: @widget.download, version: @widget.version, homepage: @widget.homepage } }, as: :json
     end
 
     assert_response 201

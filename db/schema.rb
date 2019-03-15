@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(version: 2019_02_23_202357) do
     t.integer "delay_minutes"
     t.string "line", null: false
     t.string "direction", null: false
-    t.string "transit_type1"
+    t.string "transit_type"
     t.string "platform"
     t.index ["uuid"], name: "index_group_schemas_public_transports_on_uuid", unique: true
   end
@@ -191,14 +191,14 @@ ActiveRecord::Schema.define(version: 2019_02_23_202357) do
 
   create_table "widgets", force: :cascade do |t|
     t.string "name", null: false
-    t.json "title", null: false
-    t.json "description", null: false
+    t.json "title"
+    t.json "description"
     t.json "sizes"
-    t.string "version", null: false
+    t.string "version"
     t.string "creator"
     t.string "homepage"
-    t.string "download", null: false
-    t.string "slug", null: false
+    t.string "download"
+    t.string "slug"
     t.string "icon"
     t.string "languages"
     t.string "group_id"
