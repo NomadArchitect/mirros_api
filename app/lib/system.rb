@@ -79,11 +79,14 @@ class System
     line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
+
+    # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
 
+    # Disconnect from Wifi networks if configured
+    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
-    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
 
     reboot
   end
