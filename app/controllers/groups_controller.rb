@@ -1,2 +1,3 @@
-class GroupsController < JSONAPI::ResourceController
+class GroupsController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

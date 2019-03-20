@@ -31,11 +31,13 @@ class System
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
-    raise NotImplementedError, 'Currently only implemented for Linux hosts' unless OS.linux?
+    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
 
+    # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(
       'dbus-send',
       '--system \
+      --print-reply \
       --dest=org.freedesktop.login1 \
       /org/freedesktop/login1 \
       "org.freedesktop.login1.Manager.Reboot" \
@@ -44,6 +46,7 @@ class System
     line.run
   rescue Terrapin::ExitStatusError => e
     Rails.logger.error "Error during reboot attempt: #{e.message}"
+    raise e
   end
 
   # Restarts the Rails application.
@@ -53,22 +56,39 @@ class System
   end
 
   def self.reset
-    # FIXME: Uninstall Widgets as well, but keep the default widgets.
+    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
+    DataRefresher.scheduler.shutdown(:kill)
+
     Widget.all.reject {
       |w| MirrOSApi::Application::DEFAULT_WIDGETS.include?(w.id.to_sym)
     }.each(&:uninstall_without_restart)
     Source.all.reject {
       |s| MirrOSApi::Application::DEFAULT_SOURCES.include?(s.id.to_sym)
     }.each(&:uninstall_without_restart)
+
+    # Re-install default widgets/gems if required. bundle add ignores gems that are already present.
+    MirrOSApi::Application::DEFAULT_WIDGETS.each do |w|
+      line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
+      line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'widget')
+    end
+    MirrOSApi::Application::DEFAULT_SOURCES.each do |w|
+      line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
+      line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'source')
+    end
+    line = Terrapin::CommandLine.new('bundle', 'install --jobs 5 :exclude')
+    line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
+
+    # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
 
+    # Disconnect from Wifi networks if configured
+    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
-    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value == 'lan'
 
-    restart_application
+    Rails.env.development? ? restart_application : reboot
   end
 
   def self.current_interface

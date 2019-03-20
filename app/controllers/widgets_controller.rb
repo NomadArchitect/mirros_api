@@ -1,3 +1,4 @@
 # Controller for Widget actions.
-class WidgetsController < JSONAPI::ResourceController
+class WidgetsController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

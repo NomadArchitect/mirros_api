@@ -65,7 +65,7 @@ module SettingExecution
         NetworkMac
       else
         Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
-        raise NotImplementedError
+        raise NotImplementedError, "Unsupported OS running on #{RUBY_PLATFORM}"
       end
     end
 
