@@ -1,5 +1,5 @@
 # frozen-string-literal: true
-require 'os'
+require 'dbus'
 
 module SettingExecution
 
