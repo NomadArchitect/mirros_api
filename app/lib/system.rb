@@ -88,7 +88,7 @@ class System
     MirrOSApi::Application.load_tasks
     Rake::Task['db:recycle'].invoke
 
-    reboot
+    Rails.env.development? ? restart_application : reboot
   end
 
   def self.current_interface
