@@ -29,6 +29,13 @@ class Setting < ApplicationRecord
   # Gets a hash of available options for a setting, if defined.
   # @return [ActiveSupport::HashWithIndifferentAccess] Hash of options for this setting.
   def get_options
+    # FIXME: Maybe cleaner to extract?
+    if slug.eql? 'system_timezone'
+      return ActiveSupport::TimeZone.all.map do |tz|
+        {id: tz.tzinfo.identifier, name: tz.to_s}
+      end
+    end
+
     options_file = File.read("#{Rails.root}/app/lib/setting_options.yml")
     # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
     o = YAML.load(options_file).with_indifferent_access[slug.to_sym]
