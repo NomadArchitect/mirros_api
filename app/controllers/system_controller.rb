@@ -23,17 +23,6 @@ class SystemController < ApplicationController
 
   def reboot
     System.reboot
-  rescue NotImplementedError => e
-    render json: {
-      errors: [
-        JSONAPI::Error.new(
-          title: 'Reboot not implemented',
-          detail: e.message,
-          code: 501,
-          status: :not_implemented
-        )
-      ]
-    }, status: 501
   rescue StandardError => e
     render json: {
       errors: [
@@ -101,7 +90,6 @@ class SystemController < ApplicationController
         result = executor.send(params[:command])
         success = true
       rescue ArgumentError,
-        NotImplementedError,
         Terrapin::ExitStatusError,
         SocketError,
         Net::HTTPBadResponse => e
