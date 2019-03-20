@@ -65,6 +65,18 @@ class System
     Source.all.reject {
       |s| MirrOSApi::Application::DEFAULT_SOURCES.include?(s.id.to_sym)
     }.each(&:uninstall_without_restart)
+
+    # Re-install default widgets/gems if required. bundle add ignores gems that are already present.
+    MirrOSApi::Application::DEFAULT_WIDGETS.each do |w|
+      line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
+      line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'widget')
+    end
+    MirrOSApi::Application::DEFAULT_SOURCES.each do |w|
+      line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
+      line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'source')
+    end
+    line = Terrapin::CommandLine.new('bundle', 'install --jobs 5 :exclude')
+    line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
     SettingExecution::Personal.send_reset_email
