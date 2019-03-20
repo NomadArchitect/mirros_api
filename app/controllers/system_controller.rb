@@ -58,23 +58,25 @@ class SystemController < ApplicationController
     if success && System.online?
       SettingExecution::Personal.send_setup_email
 
-      calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
-      calendar_source = SourceInstance.find_by_source_id('ical')
-      InstanceAssociation.create(
-        configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
-        group: Group.find_by_slug('calendar'),
-        widget_instance: calendar_widget,
-        source_instance: calendar_source
-      )
+      ActiveRecord::Base.transaction do
+        calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
+        calendar_source = SourceInstance.find_by_source_id('ical')
+        InstanceAssociation.create(
+          configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
+          group: Group.find_by_slug('calendar'),
+          widget_instance: calendar_widget,
+          source_instance: calendar_source
+        )
 
-      newsfeed_widget = WidgetInstance.find_by_widget_id('ticker')
-      newsfeed_source = SourceInstance.find_by_source_id('rss_feeds')
-      InstanceAssociation.create(
-        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
-        group: Group.find_by_slug('newsfeed'),
-        widget_instance: newsfeed_widget,
-        source_instance: newsfeed_source
-      )
+        newsfeed_widget = WidgetInstance.find_by_widget_id('ticker')
+        newsfeed_source = SourceInstance.find_by_source_id('rss_feeds')
+        InstanceAssociation.create(
+          configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+          group: Group.find_by_slug('newsfeed'),
+          widget_instance: newsfeed_widget,
+          source_instance: newsfeed_source
+        )
+      end
     else
       SettingExecution::Network.open_ap
     end
