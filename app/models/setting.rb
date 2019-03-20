@@ -21,6 +21,7 @@ class Setting < ApplicationRecord
   friendly_id :category_and_key, use: :slugged
 
   after_update :check_setup_status
+  before_update :apply_setting, if: :auto_applicable?
 
   def category_and_key
     "#{category}_#{key}"
@@ -45,6 +46,15 @@ class Setting < ApplicationRecord
 
   def check_setup_status
     Rails.configuration.setup_complete = System.setup_completed?
+  end
+
+  def auto_applicable?
+    [:system_timezone].include?(slug.to_sym)
+  end
+
+  def apply_setting
+    executor = "SettingExecution::#{category.capitalize}".safe_constantize
+    executor.send(key, value) if executor.respond_to?(key)
   end
 
 end
