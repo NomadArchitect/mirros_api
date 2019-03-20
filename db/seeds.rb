@@ -27,7 +27,7 @@ Setting.create!(
 =end
     {
       category: 'network',
-      key: 'connectionType',
+      key: 'connectiontype',
       value: 'wlan'
     },
     {
