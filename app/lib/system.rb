@@ -56,7 +56,9 @@ class System
   end
 
   def self.reset
-    # FIXME: Uninstall Widgets as well, but keep the default widgets.
+    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
+    DataRefresher.scheduler.shutdown(:kill)
+
     Widget.all.reject {
       |w| MirrOSApi::Application::DEFAULT_WIDGETS.include?(w.id.to_sym)
     }.each(&:uninstall_without_restart)
