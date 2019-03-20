@@ -31,7 +31,7 @@ class System
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
-    raise NotImplementedError, 'Currently only implemented for Linux hosts' unless OS.linux?
+    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
 
     # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(

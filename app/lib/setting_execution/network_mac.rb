@@ -19,34 +19,34 @@ module SettingExecution
     def self.list
       # TODO. Airport Utility at /System/Library/PrivateFrameworks/Apple80211.framework/
       # Versions/Current/Resources/airport has a legacy switch `-s`
-      raise NotImplementedError unless Rails.env.development?
+      raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' unless Rails.env.development?
 
       ['this is not a real wifi, just testing', 'this is neither']
     end
 
     def self.reset
-      raise NotImplementedError unless Rails.env.development?
+      raise NotImplementedError, 'Network reset only implemented for Linux hosts' unless Rails.env.development?
 
       # TODO: Use /usr/sbin/networksetup to remove a preferred network.
       true
     end
 
     def self.open_ap
-      raise NotImplementedError unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
 
       # TODO: Implement this if possible through CLI tools in macOS
       true
     end
 
     def self.ap_active?
-      raise NotImplementedError unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
 
       # TODO: Implement this if possible through /usr/sbin/networksetup
       false
     end
 
     def self.close_ap
-      raise NotImplementedError unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
 
       # TODO: Implement this if possible through CLI tools in macOS
       true
