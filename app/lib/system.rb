@@ -33,9 +33,11 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     raise NotImplementedError, 'Currently only implemented for Linux hosts' unless OS.linux?
 
+    # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(
       'dbus-send',
       '--system \
+      --print-reply \
       --dest=org.freedesktop.login1 \
       /org/freedesktop/login1 \
       "org.freedesktop.login1.Manager.Reboot" \
@@ -44,6 +46,7 @@ class System
     line.run
   rescue Terrapin::ExitStatusError => e
     Rails.logger.error "Error during reboot attempt: #{e.message}"
+    raise e
   end
 
   # Restarts the Rails application.
