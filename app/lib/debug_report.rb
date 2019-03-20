@@ -40,9 +40,21 @@ class DebugReport
 
   private
 
+  # Appends Rails and nginx log files to the @body instance variable.
+  # @return [nil]
   def append_log_files
-    log_files = %i[production scheduler]
-    log_files.each do |log_file|
+    # Log errors before the log is appended
+    if ENV['SNAP_COMMON'].nil?
+      Rails.logger.error '[DebugReport] $SNAP_COMMON not set, skipping nginx log files'
+    else
+      Dir.each_child(ENV['SNAP_COMMON']) do |log_file|
+        path = "#{ENV['SNAP_COMMON']}/nginx/log/#{log_file}"
+        @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
+      end
+    end
+
+    rails_logs = %i[production scheduler]
+    rails_logs.each do |log_file|
       path = "#{Rails.root}/log/#{log_file}.log"
       @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
     end
