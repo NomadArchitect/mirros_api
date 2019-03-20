@@ -1,7 +1,7 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 
-Setting.create(
+Setting.create!(
   [
 =begin
     {
@@ -27,7 +27,7 @@ Setting.create(
 =end
     {
       category: 'network',
-      key: 'connectionType',
+      key: 'connectiontype',
       value: 'wlan'
     },
     {
@@ -46,12 +46,6 @@ Setting.create(
       value: ''
     },
     {
-      category: 'system',
-      key: 'language',
-      value: '' # Settings SPA defaults to browser language until user chooses a language.
-
-    },
-    {
       category: 'personal',
       key: 'email',
       value: ''
@@ -68,6 +62,22 @@ Setting.create(
     }
   ]
 )
+
+# Bypasses validation to prevent setting a default language
+Setting.new(
+  slug: 'system_language', # new.save does not create the slug for some reason
+  category: 'system',
+  key: 'language',
+  value: ''
+).save(validate: false)
+
+Setting.new(
+  slug: 'system_timezone',
+  category: 'system',
+  key: 'timezone',
+  value: ''
+).save(validate: false)
+
 
 Group.create(
   [
