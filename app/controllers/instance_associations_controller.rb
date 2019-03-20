@@ -1,2 +1,3 @@
-class InstanceAssociationsController < JSONAPI::ResourceController
+class InstanceAssociationsController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

@@ -1,2 +1,3 @@
-class SourceInstancesController < JSONAPI::ResourceController
+class SourceInstancesController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

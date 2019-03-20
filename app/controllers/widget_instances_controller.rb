@@ -1,2 +1,3 @@
-class WidgetInstancesController < JSONAPI::ResourceController
+class WidgetInstancesController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

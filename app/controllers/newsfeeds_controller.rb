@@ -1,2 +1,3 @@
-class NewsfeedsController < JSONAPI::ResourceController
+class NewsfeedsController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end

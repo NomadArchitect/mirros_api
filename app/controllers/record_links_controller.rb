@@ -1,2 +1,3 @@
-class RecordLinksController < JSONAPI::ResourceController
+class RecordLinksController < ApplicationController
+  include JSONAPI::ActsAsResourceController
 end
