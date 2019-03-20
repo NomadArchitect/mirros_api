@@ -1,6 +1,21 @@
 class Setting < ApplicationRecord
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
+  validates_each :value do |record, attr, value|
+    # TODO: Can this be extracted to handle special cases for different entries in a more elegant way?
+    if record.slug.eql? 'system_timezone'
+      record.errors.add(
+        attr,
+        "#{value} is not a valid timezone!"
+      ) if ActiveSupport::TimeZone[value.to_s].nil?
+    else
+      opts = record.get_options
+      record.errors.add(
+        attr,
+        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
+      ) unless opts.has_key?(value) || opts.empty?
+    end
+  end
 
   extend FriendlyId
   friendly_id :category_and_key, use: :slugged
