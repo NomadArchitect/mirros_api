@@ -53,8 +53,13 @@ class SystemController < ApplicationController
       success = true
     end
 
-    # TODO: Evaluate: Since nmcli should not return before the connection is
-    # established, we should not need a retry loop here.
+    # Test online status
+    retries = 0
+    until retries > 5 || System.online?
+      sleep 5
+      retries += 1
+    end
+
     if success && System.online?
       SettingExecution::Personal.send_setup_email
 
