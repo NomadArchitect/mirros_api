@@ -70,6 +70,10 @@ class SystemController < ApplicationController
 
       create_default_instances
     else
+      message = "Setup failed!\n"
+      message << "Could not connect to WiFi, reason: #{result}\n" unless success
+      message << 'Could not connect to the internet'
+      Rails.logger.error message
       SettingExecution::Network.open_ap
     end
 
@@ -83,10 +87,7 @@ class SystemController < ApplicationController
       begin
         result = executor.send(params[:command])
         success = true
-      rescue ArgumentError,
-        Terrapin::ExitStatusError,
-        SocketError,
-        Net::HTTPBadResponse => e
+      rescue StandardError => e
         result = e.message
         success = false
       end
@@ -99,6 +100,7 @@ class SystemController < ApplicationController
     render json: {success: success, result: result}
   end
 
+  # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
   def fetch_extensions
     # FIXME: Use API_HOST as well once migration is done.
     render json: HTTParty.get(
@@ -110,6 +112,9 @@ class SystemController < ApplicationController
     Rails.logger.error e.message
   end
 
+  # Checks if a logfile with the given name exists in the Rails log directory
+  # and returns it.
+  # @return [FileBody] Content of the requested log file
   def fetch_logfile
     logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
     return head :not_found unless Pathname.new(logfile).exist?
