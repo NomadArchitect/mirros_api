@@ -68,25 +68,7 @@ class SystemController < ApplicationController
     if success && System.online?
       SettingExecution::Personal.send_setup_email
 
-      ActiveRecord::Base.transaction do
-        calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
-        calendar_source = SourceInstance.find_by_source_id('ical')
-        InstanceAssociation.create(
-          configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
-          group: Group.find_by_slug('calendar'),
-          widget_instance: calendar_widget,
-          source_instance: calendar_source
-        )
-
-        newsfeed_widget = WidgetInstance.find_by_widget_id('ticker')
-        newsfeed_source = SourceInstance.find_by_source_id('rss_feeds')
-        InstanceAssociation.create(
-          configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
-          group: Group.find_by_slug('newsfeed'),
-          widget_instance: newsfeed_widget,
-          source_instance: newsfeed_source
-        )
-      end
+      create_default_instances
     else
       SettingExecution::Network.open_ap
     end
@@ -145,5 +127,70 @@ class SystemController < ApplicationController
     head res.code
   rescue StandardError => e
     render json: jsonapi_error('Error while sending debug report', e.message), status: 500
+  private
+
+  def create_default_instances
+    locale = Setting.find_by_slug('system_language').value.to_sym
+    feed_settings = default_holiday_calendar(locale)
+
+    ActiveRecord::Base.transaction do
+      # Skip callbacks to avoid HTTP calls in meta generation
+      SourceInstance.skip_callback :create, :after, :set_meta
+      calendar_source = SourceInstance.create(
+        source: Source.find_by_slug('ical'),
+        configuration: {"url": feed_settings[:url]},
+        options: [{
+                    uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
+                    display: feed_settings[:title]
+                  }]
+      )
+      calendar_source.update(title: feed_settings[:title])
+      SourceInstance.set_callback :create, :after, :set_meta
+
+      InstanceAssociation.create(
+        configuration: {
+          "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
+        },
+        group: Group.find_by_slug('calendar'),
+        widget_instance: WidgetInstance.find_by_widget_id('calendar_event_list'),
+        source_instance: calendar_source
+      )
+
+      InstanceAssociation.create(
+        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+        group: Group.find_by_slug('newsfeed'),
+        widget_instance: WidgetInstance.find_by_widget_id('ticker'),
+        source_instance: SourceInstance.find_by_source_id('rss_feeds')
+      )
+    end
+  end
+
+  def default_holiday_calendar(locale)
+    {
+      enGb: {
+        url: 'https://calendar.google.com/calendar/ical/en.uk%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'UK Holidays (Google)'
+      },
+      deDe: {
+        url: 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Deutsche Feiertage (Google)'
+      },
+      frFr: {
+        url: 'https://calendar.google.com/calendar/ical/fr.french%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'vacances en France (Google)'
+      },
+      esEs: {
+        url: 'https://calendar.google.com/calendar/ical/es.spain%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Vacaciones en España (Google)'
+      },
+      plPl: {
+        url: 'https://calendar.google.com/calendar/ical/pl.polish%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Polskie święta (Google)'
+      },
+      koKr: {
+        url: 'https://calendar.google.com/calendar/ical/ko.south_korea%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: '한국의 휴일 (Google)'
+      }
+    }[locale]
   end
 end
