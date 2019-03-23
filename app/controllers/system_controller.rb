@@ -39,7 +39,12 @@ class SystemController < ApplicationController
   def run_setup
     connection = Setting.find_by_slug('network_connectiontype').value
     SettingExecution::Network.close_ap
+    Rails.configuration.configured_at_boot = true
+    # FIXME: This is a temporary workaround to differentiate between
+    # initial setup before first connection attempt and subsequent network problems.
+    # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
+    # TODO: clean this up
     if connection == 'wlan'
       begin
         result = SettingExecution::Network.connect
