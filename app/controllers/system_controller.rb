@@ -131,7 +131,18 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error while sending debug report',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
+  end
+
   private
 
   def create_default_instances
