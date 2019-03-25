@@ -16,6 +16,10 @@ if Rails.const_defined? 'Server'
 
   Rails.configuration.connection_attempt = false
   Rails.configuration.setup_complete = System.setup_completed?
+  # FIXME: configured_at_boot is a temporary workaround to differentiate between
+  # initial setup before first connection attempt and subsequent network problems.
+  # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
+  Rails.configuration.configured_at_boot = Rails.configuration.setup_complete
 
   # Store the current IP and schedule consecutive change checks.
   Rails.configuration.current_ip = System.current_ip_address

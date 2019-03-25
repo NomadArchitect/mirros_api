@@ -150,6 +150,7 @@ MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
 end
 
+=begin
 # Skip callbacks to avoid HTTP calls in meta generation
 SourceInstance.skip_callback :create, :after, :set_meta
 calendar_source = SourceInstance.new(
@@ -161,7 +162,6 @@ calendar_source = SourceInstance.new(
 calendar_source.save(validate: false)
 SourceInstance.set_callback :create, :after, :set_meta
 
-=begin
 InstanceAssociation.create(
   configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
   group: Group.find_by_slug('calendar'),

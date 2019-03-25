@@ -18,7 +18,7 @@ module SettingExecution
     end
 
     def self.send_email(type)
-      host = "https://#{System::API_HOST}/mailer/mail/"
+      host = "https://#{::System::API_HOST}/mailer/mail/"
       body = compose_body
       body[:type] = type
       res = HTTParty.post(
@@ -36,7 +36,7 @@ module SettingExecution
         name: Setting.find_by_slug('personal_name').value,
         email: Setting.find_by_slug('personal_email').value,
         language: convert_language_tag(Setting.find_by_slug('system_language').value),
-        localip: System.current_ip_address,
+        localip: ::System.current_ip_address,
         os_version: MirrOSApi::Application::VERSION
       }
     end

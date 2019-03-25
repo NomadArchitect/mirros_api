@@ -39,7 +39,12 @@ class SystemController < ApplicationController
   def run_setup
     connection = Setting.find_by_slug('network_connectiontype').value
     SettingExecution::Network.close_ap
+    Rails.configuration.configured_at_boot = true
+    # FIXME: This is a temporary workaround to differentiate between
+    # initial setup before first connection attempt and subsequent network problems.
+    # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
+    # TODO: clean this up
     if connection == 'wlan'
       begin
         result = SettingExecution::Network.connect
@@ -53,29 +58,22 @@ class SystemController < ApplicationController
       success = true
     end
 
-    # TODO: Evaluate: Since nmcli should not return before the connection is
-    # established, we should not need a retry loop here.
+    # Test online status
+    retries = 0
+    until retries > 5 || System.online?
+      sleep 5
+      retries += 1
+    end
+
     if success && System.online?
       SettingExecution::Personal.send_setup_email
 
-      calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
-      calendar_source = SourceInstance.find_by_source_id('ical')
-      InstanceAssociation.create(
-        configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
-        group: Group.find_by_slug('calendar'),
-        widget_instance: calendar_widget,
-        source_instance: calendar_source
-      )
-
-      newsfeed_widget = WidgetInstance.find_by_widget_id('ticker')
-      newsfeed_source = SourceInstance.find_by_source_id('rss_feeds')
-      InstanceAssociation.create(
-        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
-        group: Group.find_by_slug('newsfeed'),
-        widget_instance: newsfeed_widget,
-        source_instance: newsfeed_source
-      )
+      create_default_instances
     else
+      message = "Setup failed!\n"
+      message << "Could not connect to WiFi, reason: #{result}\n" unless success
+      message << 'Could not connect to the internet'
+      Rails.logger.error message
       SettingExecution::Network.open_ap
     end
 
@@ -89,10 +87,7 @@ class SystemController < ApplicationController
       begin
         result = executor.send(params[:command])
         success = true
-      rescue ArgumentError,
-        Terrapin::ExitStatusError,
-        SocketError,
-        Net::HTTPBadResponse => e
+      rescue StandardError => e
         result = e.message
         success = false
       end
@@ -105,6 +100,7 @@ class SystemController < ApplicationController
     render json: {success: success, result: result}
   end
 
+  # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
   def fetch_extensions
     # FIXME: Use API_HOST as well once migration is done.
     render json: HTTParty.get(
@@ -116,6 +112,9 @@ class SystemController < ApplicationController
     Rails.logger.error e.message
   end
 
+  # Checks if a logfile with the given name exists in the Rails log directory
+  # and returns it.
+  # @return [FileBody] Content of the requested log file
   def fetch_logfile
     logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
     return head :not_found unless Pathname.new(logfile).exist?
@@ -132,6 +131,82 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
+    render json: {
+      errors: [
+        JSONAPI::Error.new(
+          title: 'Error while sending debug report',
+          detail: e.message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }, status: 500
+  end
+
+  private
+
+  def create_default_instances
+    locale = Setting.find_by_slug('system_language').value.to_sym
+    feed_settings = default_holiday_calendar(locale)
+
+    ActiveRecord::Base.transaction do
+      # Skip callbacks to avoid HTTP calls in meta generation
+      SourceInstance.skip_callback :create, :after, :set_meta
+      calendar_source = SourceInstance.create(
+        source: Source.find_by_slug('ical'),
+        configuration: {"url": feed_settings[:url]},
+        options: [{
+                    uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
+                    display: feed_settings[:title]
+                  }]
+      )
+      calendar_source.update(title: feed_settings[:title])
+      SourceInstance.set_callback :create, :after, :set_meta
+
+      InstanceAssociation.create(
+        configuration: {
+          "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
+        },
+        group: Group.find_by_slug('calendar'),
+        widget_instance: WidgetInstance.find_by_widget_id('calendar_event_list'),
+        source_instance: calendar_source
+      )
+
+      InstanceAssociation.create(
+        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+        group: Group.find_by_slug('newsfeed'),
+        widget_instance: WidgetInstance.find_by_widget_id('ticker'),
+        source_instance: SourceInstance.find_by_source_id('rss_feeds')
+      )
+    end
+  end
+
+  def default_holiday_calendar(locale)
+    {
+      enGb: {
+        url: 'https://calendar.google.com/calendar/ical/en.uk%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'UK Holidays (Google)'
+      },
+      deDe: {
+        url: 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Deutsche Feiertage (Google)'
+      },
+      frFr: {
+        url: 'https://calendar.google.com/calendar/ical/fr.french%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'vacances en France (Google)'
+      },
+      esEs: {
+        url: 'https://calendar.google.com/calendar/ical/es.spain%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Vacaciones en España (Google)'
+      },
+      plPl: {
+        url: 'https://calendar.google.com/calendar/ical/pl.polish%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: 'Polskie święta (Google)'
+      },
+      koKr: {
+        url: 'https://calendar.google.com/calendar/ical/ko.south_korea%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        title: '한국의 휴일 (Google)'
+      }
+    }[locale]
   end
 end

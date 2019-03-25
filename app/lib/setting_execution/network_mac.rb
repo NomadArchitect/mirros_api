@@ -7,7 +7,7 @@ module SettingExecution
     def self.connect(ssid, password)
       line = Terrapin::CommandLine.new("networksetup", "-setairportnetwork :iface :ssid :password")
       begin
-        success = line.run(iface: System.current_interface,
+        success = line.run(iface: ::System.current_interface,
                            ssid: ssid,
                            password: password)
       rescue Terrapin::ExitStatusError => e

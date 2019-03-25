@@ -12,10 +12,15 @@ class System
 
   # TODO: Using stored values in Rails.configuration might have performance potential
   # if the frontend requests system status less frequently than the backend updates itself.
+  #
+  # FIXME: configured_at_boot is a temporary workaround to differentiate between
+  # initial setup before first connection attempt and subsequent network problems.
+  # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.info
     info_hash = {
       version: MirrOSApi::Application::VERSION,
       setup_completed: Rails.configuration.setup_complete,
+      configured_at_boot: Rails.configuration.configured_at_boot,
       connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,
