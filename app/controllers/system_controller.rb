@@ -67,6 +67,7 @@ class SystemController < ApplicationController
 
     if success && System.online?
       SettingExecution::Personal.send_setup_email
+      SettingExecution::System.restart_timesyncd
 
       create_default_instances
     else
