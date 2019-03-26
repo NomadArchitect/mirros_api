@@ -47,9 +47,12 @@ class DebugReport
     if ENV['SNAP_COMMON'].nil?
       Rails.logger.error '[DebugReport] $SNAP_COMMON not set, skipping nginx log files'
     else
-      Dir.each_child(ENV['SNAP_COMMON']) do |log_file|
-        path = "#{ENV['SNAP_COMMON']}/nginx/log/#{log_file}"
-        @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
+      nginx_log_path = Pathname("#{ENV['SNAP_COMMON']}/nginx/log")
+      if nginx_log_path.exist?
+        Dir.each_child(nginx_log_path) do |log_file|
+          path = "#{ENV['SNAP_COMMON']}/nginx/log/#{log_file}"
+          @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
+        end
       end
     end
 
