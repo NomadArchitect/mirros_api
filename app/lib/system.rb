@@ -117,25 +117,29 @@ class System
     conn_type = Setting.find_by_slug('network_connectiontype').value
     return '' if conn_type.blank?
 
-    if OS.linux?
-      # FIXME: When implementing a solution for dynamic interface names, use
-      # '-t -m tabular -f GENERAL.TYPE,IP4.ADDRESS d show | grep ":interface" -A 1 | cut -d "/" -f 1'
-      # and switch map_interfaces values for Linux to ethernet/wifi generic names.
-      line = Terrapin::CommandLine.new('nmcli',
-                                       '-t -m tabular -f IP4.ADDRESS \
-                                               d show :interface \
-                                               | cut -d "/" -f 1')
-      line.run(interface: map_interfaces(:linux, conn_type))
+    begin
+      if OS.linux?
+        # FIXME: When implementing a solution for dynamic interface names, use
+        # '-t -m tabular -f GENERAL.TYPE,IP4.ADDRESS d show | grep ":interface" -A 1 | cut -d "/" -f 1'
+        # and switch map_interfaces values for Linux to ethernet/wifi generic names.
+        line = Terrapin::CommandLine.new('nmcli',
+                                         '-t -m tabular -f IP4.ADDRESS \
+                                                 d show :interface \
+                                                 | cut -d "/" -f 1')
+        line.run(interface: map_interfaces(:linux, conn_type))
 
-    elsif OS.mac?
-      # FIXME: This command returns only the IPv4.
-      line = Terrapin::CommandLine.new(
-        'ipconfig', 'getifaddr :interface',
-        expected_outcodes: [0, 1]
-      )
-      line.run(interface: map_interfaces(:mac, conn_type)).chomp!
-    else
-      Rails.logger.error 'Unknown or unsupported OS in query for IP address'
+      elsif OS.mac?
+        # FIXME: This command returns only the IPv4.
+        line = Terrapin::CommandLine.new(
+          'ipconfig', 'getifaddr :interface',
+          expected_outcodes: [0, 1]
+        )
+        line.run(interface: map_interfaces(:mac, conn_type)).chomp!
+      else
+        Rails.logger.error 'Unknown or unsupported OS in query for IP address'
+      end
+    rescue Terrapin::ExitStatusError => e
+      Rails.logger.error "Could not determine current IP: #{e.message}"
     end
   end
 

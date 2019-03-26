@@ -67,6 +67,7 @@ class SystemController < ApplicationController
 
     if success && System.online?
       SettingExecution::Personal.send_setup_email
+      SettingExecution::System.restart_timesyncd
 
       create_default_instances
     else
@@ -163,17 +164,19 @@ class SystemController < ApplicationController
       calendar_source.update(title: feed_settings[:title])
       SourceInstance.set_callback :create, :after, :set_meta
 
+      calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
+      calendar_widget.update(title: feed_settings[:title])
       InstanceAssociation.create(
         configuration: {
           "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
         },
         group: Group.find_by_slug('calendar'),
-        widget_instance: WidgetInstance.find_by_widget_id('calendar_event_list'),
+        widget_instance: calendar_widget,
         source_instance: calendar_source
       )
 
       InstanceAssociation.create(
-        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+        configuration: { "chosen": ['https://glancr.de/mirros-welcome.xml'] },
         group: Group.find_by_slug('newsfeed'),
         widget_instance: WidgetInstance.find_by_widget_id('ticker'),
         source_instance: SourceInstance.find_by_source_id('rss_feeds')
@@ -182,31 +185,33 @@ class SystemController < ApplicationController
   end
 
   def default_holiday_calendar(locale)
+    fragments = {
+      url: {
+        enGb: 'en.uk',
+        deDe: 'de.german',
+        frFr: 'fr.french',
+        esEs: 'es.spain',
+        plPl: 'pl.polish',
+        koKr: 'ko.south_korea'
+      }[locale],
+      title: {
+        enGb: 'UK Holidays',
+        deDe: 'Deutsche Feiertage',
+        frFr: 'vacances en France',
+        esEs: 'Vacaciones en España',
+        plPl: 'Polskie święta',
+        koKr: '한국의 휴일'
+      }[locale]
+    }
+    # Set default in case an unknown locale was passed
+    fragments = { url: 'en.uk', title: 'UK Holidays' } if fragments.value? nil
+    holiday_calendar_hash(fragments)
+  end
+
+  def holiday_calendar_hash(fragments)
     {
-      enGb: {
-        url: 'https://calendar.google.com/calendar/ical/en.uk%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: 'UK Holidays (Google)'
-      },
-      deDe: {
-        url: 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: 'Deutsche Feiertage (Google)'
-      },
-      frFr: {
-        url: 'https://calendar.google.com/calendar/ical/fr.french%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: 'vacances en France (Google)'
-      },
-      esEs: {
-        url: 'https://calendar.google.com/calendar/ical/es.spain%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: 'Vacaciones en España (Google)'
-      },
-      plPl: {
-        url: 'https://calendar.google.com/calendar/ical/pl.polish%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: 'Polskie święta (Google)'
-      },
-      koKr: {
-        url: 'https://calendar.google.com/calendar/ical/ko.south_korea%23holiday%40group.v.calendar.google.com/public/basic.ics',
-        title: '한국의 휴일 (Google)'
-      }
-    }[locale]
+      url: "https://calendar.google.com/calendar/ical/#{fragments[:url]}%23holiday%40group.v.calendar.google.com/public/basic.ics",
+      title: "#{fragments[:title]} (Google)"
+    }
   end
 end
