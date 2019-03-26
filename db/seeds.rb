@@ -174,7 +174,7 @@ newsfeed_widget = WidgetInstance.create(
   widget: Widget.find_by_slug('ticker'),
   title: 'glancr News',
   showtitle: true,
-  configuration: {"amount": "5", "showTimestamp": "false", "showFeedIcon": "true"},
+  configuration: {"amount": "5", "showFeedIcon": "true"},
   position: {"x": 0, "y": 16, "width": 6, "height": 4}
 )
 
