@@ -163,12 +163,14 @@ class SystemController < ApplicationController
       calendar_source.update(title: feed_settings[:title])
       SourceInstance.set_callback :create, :after, :set_meta
 
+      calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
+      calendar_widget.update(title: feed_settings[:title])
       InstanceAssociation.create(
         configuration: {
           "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
         },
         group: Group.find_by_slug('calendar'),
-        widget_instance: WidgetInstance.find_by_widget_id('calendar_event_list'),
+        widget_instance: calendar_widget,
         source_instance: calendar_source
       )
 
