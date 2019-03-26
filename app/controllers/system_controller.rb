@@ -175,7 +175,7 @@ class SystemController < ApplicationController
       )
 
       InstanceAssociation.create(
-        configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
+        configuration: { "chosen": ['https://glancr.de/mirros-welcome.xml'] },
         group: Group.find_by_slug('newsfeed'),
         widget_instance: WidgetInstance.find_by_widget_id('ticker'),
         source_instance: SourceInstance.find_by_source_id('rss_feeds')
