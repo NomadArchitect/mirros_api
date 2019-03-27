@@ -18,7 +18,7 @@ module SettingExecution
       # tz needs to be a valid timezone from /usr/share/zoneinfo/zone.tab
       # bool: User interaction
       timedated_interface.SetTimezone(tz_identifier, false)
-      ::System.restart_timesyncd
+      ::System.toggle_timesyncd_ntp(true)
       # TODO: See if this needs additional error handling, either here or in controller
     end
   end

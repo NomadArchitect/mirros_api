@@ -175,15 +175,16 @@ class System
     network_configured && email_configured
   end
 
-  def self.restart_timesyncd
+  def self.toggle_timesyncd_ntp(bool)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+    raise ArgumentError, "not a valid boolean: #{bool}" unless [true, false].include? bool # Ruby has no Boolean superclass
 
     sysbus = DBus.system_bus
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
-    timedated_interface.SetNTP(true, false) # Restarts systemd-timesyncd
+    timedated_interface.SetNTP(bool, false) # Restarts systemd-timesyncd
   rescue DBus::Error => e
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end

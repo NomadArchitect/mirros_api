@@ -79,7 +79,7 @@ class SystemController < ApplicationController
 
     if success && System.online?
       SettingExecution::Personal.send_setup_email
-      System.restart_timesyncd
+      System.toggle_timesyncd_ntp(true)
 
       create_default_instances
     else
