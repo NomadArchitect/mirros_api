@@ -167,7 +167,9 @@ class System
   # activating an already-active connection.
   def self.check_network_status
     system_has_ip = Rails.configuration.current_ip.present?
-    SettingExecution::Network.open_ap unless system_has_ip || SettingExecution::Network.ap_active?
+    system_is_connecting = Rails.configuration.connection_attempt
+    SettingExecution::Network.open_ap unless SettingExecution::Network.ap_active? || system_has_ip || system_is_connecting
+
   end
 
   # Tests whether all required parts of the initial setup are present.
