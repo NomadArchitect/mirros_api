@@ -85,16 +85,6 @@ class System
     line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
-
-    # All good until here, send the reset email.
-    SettingExecution::Personal.send_reset_email
-
-    # Disconnect from Wifi networks if configured
-    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
-    MirrOSApi::Application.load_tasks
-    Rake::Task['db:recycle'].invoke
-
-    Rails.env.development? ? restart_application : reboot
   end
 
   def self.current_interface
@@ -185,27 +175,34 @@ class System
     network_configured && email_configured
   end
 
-  def self.restart_timesyncd
+  def self.toggle_timesyncd_ntp(bool)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+    raise ArgumentError, "not a valid boolean: #{bool}" unless [true, false].include? bool # Ruby has no Boolean superclass
 
     sysbus = DBus.system_bus
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
-    timedated_interface.SetNTP(true, false) # Restarts systemd-timesyncd
+    timedated_interface.SetNTP(bool, false) # Restarts systemd-timesyncd
+  rescue DBus::Error => e
+    Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end
 
   def self.change_system_time(epoch_timestamp)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
-    raise ArgumentError unless epoch_timestamp.class.eql? Integer
+    raise ArgumentError, "not an integer: #{epoch_timestamp}" unless epoch_timestamp.class.eql? Integer
 
     sysbus = DBus.system_bus
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
+    timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
     timedated_interface.SetTime(epoch_timestamp, false, false)
+    timedated_interface.SetNTP(true, false) # Re-enable NTP
+  rescue DBus::Error => e
+    Rails.logger.error "could not change system time via timesyncd: #{e.message}"
   end
 
   # @param [Symbol] operating_system
