@@ -19,6 +19,16 @@ class SystemController < ApplicationController
     }, status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
     head :no_content
+
+    # All good until here, send the reset email.
+    SettingExecution::Personal.send_reset_email
+
+    # Disconnect from Wifi networks if configured
+    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
+    MirrOSApi::Application.load_tasks
+    Rake::Task['db:recycle'].invoke
+
+    Rails.env.development? ? restart_application : reboot
   end
 
   def reboot
