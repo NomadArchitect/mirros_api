@@ -184,6 +184,8 @@ class System
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
     timedated_interface.SetNTP(true, false) # Restarts systemd-timesyncd
+  rescue DBus::Error => e
+    Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end
 
   def self.change_system_time(epoch_timestamp)
@@ -196,6 +198,8 @@ class System
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
     timedated_interface.SetTime(epoch_timestamp, false, false)
+  rescue DBus::Error => e
+    Rails.logger.error "could not change system time via timesyncd: #{e.message}"
   end
 
   # @param [Symbol] operating_system
