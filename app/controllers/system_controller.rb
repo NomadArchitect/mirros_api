@@ -37,6 +37,8 @@ class SystemController < ApplicationController
   end
 
   def run_setup
+    user_time = params[:reference_time]
+    System.change_system_time(user_time)
     connection = Setting.find_by_slug('network_connectiontype').value
     SettingExecution::Network.close_ap
     Rails.configuration.configured_at_boot = true
@@ -67,7 +69,7 @@ class SystemController < ApplicationController
 
     if success && System.online?
       SettingExecution::Personal.send_setup_email
-      SettingExecution::System.restart_timesyncd
+      System.restart_timesyncd
 
       create_default_instances
     else

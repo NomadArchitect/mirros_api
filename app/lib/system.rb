@@ -4,6 +4,7 @@ require 'os'
 require 'resolv'
 require 'rake'
 require 'yaml'
+require 'dbus'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
@@ -166,7 +167,9 @@ class System
   # activating an already-active connection.
   def self.check_network_status
     system_has_ip = Rails.configuration.current_ip.present?
-    SettingExecution::Network.open_ap unless system_has_ip || SettingExecution::Network.ap_active?
+    system_is_connecting = Rails.configuration.connection_attempt
+    SettingExecution::Network.open_ap unless SettingExecution::Network.ap_active? || system_has_ip || system_is_connecting
+
   end
 
   # Tests whether all required parts of the initial setup are present.
@@ -180,6 +183,29 @@ class System
                          end
     email_configured = Setting.find_by_slug('personal_email').value.present?
     network_configured && email_configured
+  end
+
+  def self.restart_timesyncd
+    return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
+    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+
+    sysbus = DBus.system_bus
+    timedated_service = sysbus['org.freedesktop.timedate1']
+    timedated_object = timedated_service['/org/freedesktop/timedate1']
+    timedated_interface = timedated_object['org.freedesktop.timedate1']
+    timedated_interface.SetNTP(true, false) # Restarts systemd-timesyncd
+  end
+
+  def self.change_system_time(epoch_timestamp)
+    return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
+    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+    raise ArgumentError unless epoch_timestamp.class.eql? Integer
+
+    sysbus = DBus.system_bus
+    timedated_service = sysbus['org.freedesktop.timedate1']
+    timedated_object = timedated_service['/org/freedesktop/timedate1']
+    timedated_interface = timedated_object['org.freedesktop.timedate1']
+    timedated_interface.SetTime(epoch_timestamp, false, false)
   end
 
   # @param [Symbol] operating_system
