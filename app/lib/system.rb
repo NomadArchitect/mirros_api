@@ -106,7 +106,7 @@ class System
   # TODO: Add support for IPv6.
   def self.current_ip_address
     conn_type = Setting.find_by_slug('network_connectiontype').value
-    return '' if conn_type.blank?
+    return nil if conn_type.blank?
 
     begin
       if OS.linux?
