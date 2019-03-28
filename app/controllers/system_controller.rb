@@ -6,6 +6,26 @@ class SystemController < ApplicationController
 
   def reset
     System.reset
+    Rails.logger.info "reset ok"
+
+    # All good until here, send the reset email.
+    SettingExecution::Personal.send_reset_email
+
+    Thread.new do
+      # Wait a bit to ensure 204 response from parent thread is properly sent.
+      sleep 2
+      # Disconnect from Wifi networks if configured
+      SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
+
+      MirrOSApi::Application.load_tasks
+      Rake::Task['db:recycle'].invoke
+
+      Rails.env.development? ? System.restart_application : System.reboot
+      Thread.exit
+    end
+
+    head :no_content
+
   rescue StandardError => e
     render json: {
       errors: [
@@ -18,17 +38,6 @@ class SystemController < ApplicationController
       ]
     }, status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
-    head :no_content
-
-    # All good until here, send the reset email.
-    SettingExecution::Personal.send_reset_email
-
-    # Disconnect from Wifi networks if configured
-    SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
-    MirrOSApi::Application.load_tasks
-    Rake::Task['db:recycle'].invoke
-
-    Rails.env.development? ? restart_application : reboot
   end
 
   def reboot
