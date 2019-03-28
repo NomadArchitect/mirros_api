@@ -106,7 +106,7 @@ class System
   # TODO: Add support for IPv6.
   def self.current_ip_address
     conn_type = Setting.find_by_slug('network_connectiontype').value
-    return '' if conn_type.blank?
+    return nil if conn_type.blank?
 
     begin
       if OS.linux?
@@ -117,7 +117,10 @@ class System
                                          '-t -m tabular -f IP4.ADDRESS \
                                                  d show :interface \
                                                  | cut -d "/" -f 1')
-        line.run(interface: map_interfaces(:linux, conn_type))
+        ip_address = line.run(
+          interface: map_interfaces(:linux, conn_type)
+        ).chomp!
+        ip_address.eql?(SETUP_IP) ? nil : ip_address
 
       elsif OS.mac?
         # FIXME: This command returns only the IPv4.
@@ -125,12 +128,14 @@ class System
           'ipconfig', 'getifaddr :interface',
           expected_outcodes: [0, 1]
         )
-        line.run(interface: map_interfaces(:mac, conn_type)).chomp!
+        ip_address = line.run(interface: map_interfaces(:mac, conn_type)).chomp!
+        ip_address.eql?(SETUP_IP) ? nil : ip_address
       else
         Rails.logger.error 'Unknown or unsupported OS in query for IP address'
       end
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not determine current IP: #{e.message}"
+      nil
     end
   end
 
@@ -139,7 +144,7 @@ class System
 
     Resolv::DNS.new.getaddress(API_HOST)
     true
-  rescue Resolv::ResolvError, Errno::EHOSTDOWN
+  rescue Resolv::ResolvError, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
     false
   end
 
@@ -148,7 +153,7 @@ class System
     current_ip = current_ip_address
     return if current_ip.eql? Rails.configuration.current_ip
 
-    SettingExecution::Personal.send_change_email if current_ip != SETUP_IP && System.online?
+    SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
     Rails.configuration.current_ip = current_ip
   end
 
