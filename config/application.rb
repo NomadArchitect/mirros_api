@@ -2,7 +2,6 @@ require_relative 'boot'
 
 require 'rails/all'
 require_relative '../app/controllers/concerns/installable'
-require_relative 'version'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -11,7 +10,20 @@ Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
 module MirrOSApi
   # Application constants and configuration.
   class Application < Rails::Application
-    VERSION = SNAP_VERSION
+    # If running in the snap, SNAP_VERSION should be set.
+    # Dev and test should have a git environment available.
+    VERSION = case Rails.env
+              when 'production'
+                ENV['SNAP_VERSION'] ||= '0.0.0'.freeze
+              when 'development', 'test'
+                Terrapin::CommandLine.new(
+                  'git',
+                  'describe --always',
+                  expected_outcodes: [0, 1]
+                ).run.chomp!.freeze ||= '0.0.0'.freeze
+              else
+                '0.0.0'.freeze
+              end
     API_HOST = 'api.glancr.de'.freeze
     SETUP_IP = '192.168.8.1'.freeze # Fixed IP of the internal setup WiFi AP.
 
