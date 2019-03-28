@@ -144,7 +144,7 @@ class System
 
     Resolv::DNS.new.getaddress(API_HOST)
     true
-  rescue Resolv::ResolvError, Errno::EHOSTDOWN
+  rescue Resolv::ResolvError, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
     false
   end
 
