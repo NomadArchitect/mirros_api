@@ -117,7 +117,9 @@ class System
                                          '-t -m tabular -f IP4.ADDRESS \
                                                  d show :interface \
                                                  | cut -d "/" -f 1')
-        line.run(interface: map_interfaces(:linux, conn_type))
+        ip_address = line.run(
+          interface: map_interfaces(:linux, conn_type)
+        ).chomp!
 
       elsif OS.mac?
         # FIXME: This command returns only the IPv4.
