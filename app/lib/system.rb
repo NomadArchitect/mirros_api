@@ -120,7 +120,7 @@ class System
         ip_address = line.run(
           interface: map_interfaces(:linux, conn_type)
         ).chomp!
-        ip_address.eql? SETUP_IP ? nil : ip_address
+        ip_address.eql?(SETUP_IP) ? nil : ip_address
 
       elsif OS.mac?
         # FIXME: This command returns only the IPv4.
@@ -129,12 +129,13 @@ class System
           expected_outcodes: [0, 1]
         )
         ip_address = line.run(interface: map_interfaces(:mac, conn_type)).chomp!
-        ip_address.eql? SETUP_IP ? nil : ip_address
+        ip_address.eql?(SETUP_IP) ? nil : ip_address
       else
         Rails.logger.error 'Unknown or unsupported OS in query for IP address'
       end
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not determine current IP: #{e.message}"
+      nil
     end
   end
 
