@@ -28,6 +28,7 @@ class System
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
+      rails_env: Rails.env,
       refresh_frontend: Rails.configuration.refresh_frontend
     }
     Rails.configuration.refresh_frontend = false
