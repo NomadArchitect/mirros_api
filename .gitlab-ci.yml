@@ -45,7 +45,6 @@ zipfile:
   - mkdir api             # put everything required in subdirectory
   - mv !(api|docs|test) api/
   - mv .ruby-version api/ # only dotfile required by Rails. Do not set dotglob, or mv will attempt to move parent directories
-  -
 
   artifacts:
     paths:
