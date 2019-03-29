@@ -6,7 +6,7 @@ image: "ruby:2.5"
 cache:
   paths:
     - vendor/cache
-    
+
 stages:
 - test
 - bundle
@@ -36,15 +36,17 @@ rails:
   - bin/rails db:seed
   # - rails test # disabled until we're actually using tests
   dependencies: [] # do not pass vendor/bundle to next job since it's x86-specific
-  
+
 zipfile:
   stage: bundle
   script:
   - shopt -s extglob      # enable globbing to simplify mv command
+  - git describe --always > build_version
   - mkdir api             # put everything required in subdirectory
   - mv !(api|docs|test) api/
   - mv .ruby-version api/ # only dotfile required by Rails. Do not set dotglob, or mv will attempt to move parent directories
-    
+  -
+
   artifacts:
     paths:
       - api

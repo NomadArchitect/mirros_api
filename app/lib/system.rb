@@ -19,7 +19,8 @@ class System
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.info
     info_hash = {
-      version: MirrOSApi::Application::VERSION,
+      snap_version: SNAP_VERSION,
+      api_version: API_VERSION,
       setup_completed: Rails.configuration.setup_complete,
       configured_at_boot: Rails.configuration.configured_at_boot,
       connecting: Rails.configuration.connection_attempt,
