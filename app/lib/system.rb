@@ -196,6 +196,8 @@ class System
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end
 
+  # @param [Integer] epoch_timestamp A valid Unix timestamp in *milliseconds*.
+  # @return [Array] Return messages from DBus call, if any
   def self.change_system_time(epoch_timestamp)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
@@ -206,7 +208,7 @@ class System
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
     timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
-    timedated_interface.SetTime(epoch_timestamp, false, false)
+    timedated_interface.SetTime(epoch_timestamp * 1000, false, false) # timedated requires microseconds
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
     Rails.logger.error "could not change system time via timesyncd: #{e.message}"
