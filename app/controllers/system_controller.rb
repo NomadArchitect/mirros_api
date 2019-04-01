@@ -59,7 +59,7 @@ class SystemController < ApplicationController
     user_time = params[:reference_time]
     System.change_system_time(user_time)
     connection = Setting.find_by_slug('network_connectiontype').value
-    SettingExecution::Network.close_ap
+
     Rails.configuration.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
@@ -96,7 +96,6 @@ class SystemController < ApplicationController
       message << "Could not connect to WiFi, reason: #{result}\n" unless success
       message << 'Could not connect to the internet'
       Rails.logger.error message
-      SettingExecution::Network.open_ap
     end
 
     render json: {success: success, result: result}
