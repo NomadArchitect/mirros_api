@@ -37,7 +37,7 @@ module SettingExecution
         email: Setting.find_by_slug('personal_email').value,
         language: convert_language_tag(Setting.find_by_slug('system_language').value),
         localip: ::System.current_ip_address,
-        os_version: MirrOSApi::Application::VERSION
+        os_version: API_VERSION
       }
     end
     private_class_method :compose_body
