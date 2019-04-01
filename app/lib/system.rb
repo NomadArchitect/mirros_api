@@ -23,6 +23,7 @@ class System
       api_version: API_VERSION,
       setup_completed: Rails.configuration.setup_complete,
       configured_at_boot: Rails.configuration.configured_at_boot,
+      resetting: Rails.configuration.resetting,
       connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,

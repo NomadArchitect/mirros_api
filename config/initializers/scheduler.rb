@@ -15,6 +15,8 @@ if Rails.const_defined? 'Server'
   MirrOSApi::DataRefresher.schedule_all
 
   Rails.configuration.connection_attempt = false
+  # FIXME: Temporary indicator, rework with https://gitlab.com/glancr/mirros_api/issues/87
+  Rails.configuration.resetting = false
   Rails.configuration.setup_complete = System.setup_completed?
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.

@@ -5,8 +5,9 @@ class SystemController < ApplicationController
   end
 
   def reset
+    # FIXME: Temporary workaround for Display app
+    Rails.configuration.resetting = true
     System.reset
-    Rails.logger.info "reset ok"
 
     # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
@@ -27,6 +28,7 @@ class SystemController < ApplicationController
     head :no_content
 
   rescue StandardError => e
+    Rails.configuration.resetting = false
     render json: {
       errors: [
         JSONAPI::Error.new(
