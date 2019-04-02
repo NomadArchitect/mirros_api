@@ -76,7 +76,7 @@ class System
       line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
       line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'source')
     end
-    line = Terrapin::CommandLine.new('bundle', 'install --jobs 5 :exclude')
+    line = Terrapin::CommandLine.new('bundle', 'install --local --jobs 5 :exclude')
     line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
