@@ -7,8 +7,8 @@ module SettingExecution
     def self.connect
       StateCache.s.connection_attempt = true
       SettingExecution::Network.close_ap
-      ssid = Setting.find_by_slug('network_ssid').value
-      password = Setting.find_by_slug('network_password').value
+      ssid = SettingsCache.s[:network_ssid]
+      password = SettingsCache.s[:network_password]
       raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
 
       success = os_subclass.connect(ssid, password)

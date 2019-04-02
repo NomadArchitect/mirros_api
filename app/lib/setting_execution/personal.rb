@@ -23,23 +23,26 @@ module SettingExecution
       body[:type] = type
       res = HTTParty.post(
         host,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: body.to_json
       )
       # TODO: Add error handling
       res.body unless res.code != 200
     end
+
     private_class_method :send_email
 
     def self.compose_body
+      language = SettingsCache.s[:system_language].blank? ? 'enGb' : SettingsCache.s[:system_language]
       {
-        name: Setting.find_by_slug('personal_name').value,
-        email: Setting.find_by_slug('personal_email').value,
-        language: convert_language_tag(Setting.find_by_slug('system_language').value),
+        name: SettingsCache.s[:personal_name],
+        email: SettingsCache.s[:personal_email],
+        language: convert_language_tag(language),
         localip: ::System.current_ip_address,
         os_version: API_VERSION
       }
     end
+
     private_class_method :compose_body
 
     # Convert camelcase language_territory tag to POSIX-style tag.
@@ -48,6 +51,7 @@ module SettingExecution
         "#{$LAST_MATCH_INFO[:lang]}_#{$LAST_MATCH_INFO[:locale].upcase}"
       end
     end
+
     private_class_method :convert_language_tag
   end
 end

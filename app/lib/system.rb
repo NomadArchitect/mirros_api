@@ -83,7 +83,7 @@ class System
   end
 
   def self.current_interface
-    conn_type = Setting.find_by_slug('network_connectiontype').value
+    conn_type = SettingsCache.s[:network_connectiontype]
 
     if OS.linux?
       map_interfaces(:linux, conn_type)
@@ -100,7 +100,7 @@ class System
 
   # TODO: Add support for IPv6.
   def self.current_ip_address
-    conn_type = Setting.find_by_slug('network_connectiontype').value
+    conn_type = SettingsCache.s[:network_connectiontype]
     return nil if conn_type.blank?
 
     begin
@@ -163,14 +163,14 @@ class System
 
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
-    network_configured = case Setting.find_by_slug('network_connectiontype').value
+    network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
-                           Setting.find_by_slug('network_ssid').value.present? &&
-                             Setting.find_by_slug('network_password').value.present?
+                           SettingsCache.s[:network_ssid].present? &&
+                           SettingsCache.s[:network_password].present?
                          else
                            true
                          end
-    email_configured = Setting.find_by_slug('personal_email').value.present?
+    email_configured = SettingsCache.s[:personal_email].present?
     network_configured && email_configured
   end
 

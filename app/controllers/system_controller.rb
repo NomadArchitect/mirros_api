@@ -16,7 +16,7 @@ class SystemController < ApplicationController
       # Wait a bit to ensure 204 response from parent thread is properly sent.
       sleep 2
       # Disconnect from Wifi networks if configured
-      SettingExecution::Network.reset unless Setting.find_by_slug('network_connectiontype').value.eql? 'lan'
+      SettingExecution::Network.reset unless SettingsCache.s[:network_connectiontype].eql? 'lan'
 
       MirrOSApi::Application.load_tasks
       Rake::Task['db:recycle'].invoke
@@ -60,7 +60,7 @@ class SystemController < ApplicationController
   def run_setup
     user_time = params[:reference_time]
     System.change_system_time(user_time)
-    connection = Setting.find_by_slug('network_connectiontype').value
+    connection = SettingsCache.s[:network_connectiontype]
 
     StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
@@ -169,7 +169,7 @@ class SystemController < ApplicationController
   private
 
   def create_default_instances
-    locale = Setting.find_by_slug('system_language').value.to_sym
+    locale = SettingsCache.s[:system_language]
     feed_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
