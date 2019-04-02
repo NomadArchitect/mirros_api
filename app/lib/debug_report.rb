@@ -28,7 +28,7 @@ class DebugReport
     @body = {
       title: title,
       description: description,
-      email: email.nil? ? Setting.find_by_slug('personal_email').value : email
+      email: email.nil? ? SettingsCache.s[:personal_email] : email
     }
   end
 
