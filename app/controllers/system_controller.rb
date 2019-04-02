@@ -196,14 +196,28 @@ class SystemController < ApplicationController
         widget_instance: calendar_widget,
         source_instance: calendar_source
       )
-
-      InstanceAssociation.create(
-        configuration: { "chosen": ['https://glancr.de/mirros-welcome.xml'] },
-        group: Group.find_by_slug('newsfeed'),
-        widget_instance: WidgetInstance.find_by_widget_id('ticker'),
-        source_instance: SourceInstance.find_by_source_id('rss_feeds')
-      )
     end
+  end
+
+  def create_default_feed_instances
+    locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
+
+    SourceInstance.skip_callback :create, :after, :set_meta
+    newsfeed_source = SourceInstance.new(
+      source: Source.find_by_slug('rss_feeds'),
+      title: 'glancr: Welcome Screen',
+      configuration: {"feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"},
+      options: [{uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml", display: 'glancr: Welcome Screen'}]
+    )
+    newsfeed_source.save(validate: false)
+    SourceInstance.set_callback :create, :after, :set_meta
+
+    InstanceAssociation.create(
+      configuration: {"chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"]},
+      group: Group.find_by_slug('newsfeed'),
+      widget_instance: WidgetInstance.find_by_widget_id('ticker'),
+      source_instance: SourceInstance.find_by_source_id('rss_feeds')
+    )
   end
 
   def default_holiday_calendar(locale)
