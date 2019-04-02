@@ -2,6 +2,8 @@ class SystemController < ApplicationController
 
   def status
     render json: {meta: System.info}
+  rescue StandardError => e
+    render json: jsonapi_error('Error during status fetch', e.message), status: 500
   end
 
   def reset
@@ -28,33 +30,15 @@ class SystemController < ApplicationController
     head :no_content
 
   rescue StandardError => e
-    render json: {
-      errors: [
-        JSONAPI::Error.new(
-          title: 'Error during reset attempt',
-          detail: e.message,
-          code: 500,
-          status: :internal_server_error
-        )
-      ]
-    }, status: 500
     StateCache.s.resetting = false
+    render json: jsonapi_error('Error during reset', e.message), status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
     System.reboot
   rescue StandardError => e
-    render json: {
-      errors: [
-        JSONAPI::Error.new(
-          title: 'Error during reboot attempt',
-          detail: e.message,
-          code: 500,
-          status: :internal_server_error
-        )
-      ]
-    }, status: 500
+    render json: jsonapi_error('Error during reboot attempt', e.message), status: 500
   end
 
   def run_setup
@@ -92,7 +76,8 @@ class SystemController < ApplicationController
       SettingExecution::Personal.send_setup_email
       System.toggle_timesyncd_ntp(true)
 
-      create_default_instances
+      create_default_cal_instances
+      create_default_feed_instances
     else
       message = "Setup failed!\n"
       message << "Could not connect to WiFi, reason: #{result}\n" unless success
@@ -154,21 +139,12 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: {
-      errors: [
-        JSONAPI::Error.new(
-          title: 'Error while sending debug report',
-          detail: e.message,
-          code: 500,
-          status: :internal_server_error
-        )
-      ]
-    }, status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
   end
 
   private
 
-  def create_default_instances
+  def create_default_cal_instances
     locale = SettingsCache.s[:system_language]
     feed_settings = default_holiday_calendar(locale)
 
@@ -240,7 +216,7 @@ class SystemController < ApplicationController
       }[locale]
     }
     # Set default in case an unknown locale was passed
-    fragments = { url: 'en.uk', title: 'UK Holidays' } if fragments.value? nil
+    fragments = {url: 'en.uk', title: 'UK Holidays'} if fragments.value? nil
     holiday_calendar_hash(fragments)
   end
 
@@ -250,4 +226,18 @@ class SystemController < ApplicationController
       title: "#{fragments[:title]} (Google)"
     }
   end
+
+  def jsonapi_error(title, message)
+    {
+      errors: [
+        JSONAPI::Error.new(
+          title: title,
+          detail: message,
+          code: 500,
+          status: :internal_server_error
+        )
+      ]
+    }
+  end
+
 end
