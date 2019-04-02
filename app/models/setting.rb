@@ -20,7 +20,7 @@ class Setting < ApplicationRecord
   extend FriendlyId
   friendly_id :category_and_key, use: :slugged
 
-  after_update :check_setup_status
+  after_update :check_setup_status, :update_cache
   before_update :apply_setting, if: :auto_applicable?
 
   def category_and_key
@@ -45,7 +45,11 @@ class Setting < ApplicationRecord
   end
 
   def check_setup_status
-    Rails.configuration.setup_complete = System.setup_completed?
+    StateCache.s.setup_complete = System.setup_completed?
+  end
+
+  def update_cache
+    SettingsCache.s[slug.to_sym] = value
   end
 
   def auto_applicable?
