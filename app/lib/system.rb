@@ -135,10 +135,8 @@ class System
   end
 
   def self.online?
-    return false if Rails.configuration.current_ip.eql? SETUP_IP # dnsmasq is active and prevents outgoing connections
-
-    Resolv::DNS.new.getaddress(API_HOST)
-    true
+    # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
+    Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? false : true
   rescue Resolv::ResolvError, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
     false
   end
