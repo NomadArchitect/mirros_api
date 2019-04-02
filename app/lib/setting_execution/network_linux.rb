@@ -26,7 +26,7 @@ module SettingExecution
     end
 
     def self.reset
-      ssid = Setting.find_by_slug('network_ssid').value
+      ssid = SettingsCache.s[:network_ssid]
       remove_connection(ssid) unless ssid.empty?
     end
 

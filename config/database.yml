@@ -81,3 +81,5 @@ test:
 production:
   <<: *default
   database: <%= ENV.fetch("RAILS_DATABASE_LOCATION") { 'db/mirrOS_api_production.sqlite3' } %>
+  pool: 10
+  timeout: 10000

@@ -28,38 +28,48 @@ class DebugReport
     @body = {
       title: title,
       description: description,
-      email: email.nil? ? Setting.find_by_slug('personal_email').value : email
+      email: email.nil? ? SettingsCache.s[:personal_email] : email
     }
   end
 
   def send
-    append_log_files
+    @file_handles = []
+    append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
+    append_rails_log_files
+
     host = "https://#{System::API_HOST}/reports/new-one.php"
-    HTTParty.post(host, body: @body)
+    res = HTTParty.post(host, body: @body)
+    @file_handles.each(&:close)
+
+    res
   end
 
   private
 
-  # Appends Rails and nginx log files to the @body instance variable.
+  # Appends nginx log files to the @body instance variable if available.
   # @return [nil]
-  def append_log_files
-    # Log errors before the log is appended
-    if ENV['SNAP_COMMON'].nil?
-      Rails.logger.error '[DebugReport] $SNAP_COMMON not set, skipping nginx log files'
-    else
-      nginx_log_path = Pathname("#{ENV['SNAP_COMMON']}/nginx/log")
-      if nginx_log_path.exist?
-        Dir.each_child(nginx_log_path) do |log_file|
-          path = "#{ENV['SNAP_COMMON']}/nginx/log/#{log_file}"
-          @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
-        end
-      end
-    end
+  def append_nginx_log_files
+    nginx_log_path = Pathname("#{ENV['SNAP_COMMON']}/nginx/log")
+    return unless nginx_log_path.exist?
 
-    rails_logs = %i[production scheduler]
-    rails_logs.each do |log_file|
-      path = "#{Rails.root}/log/#{log_file}.log"
-      @body[log_file] = File.open(path, 'rb') if Pathname.new(path).exist?
+    Dir.each_child(nginx_log_path) do |log_file|
+      log_path = Pathname("#{nginx_log_path}/#{log_file}")
+      next unless log_path.extname.eql?('.log')
+
+      file_ref = File.open(log_path)
+      @body[log_file.slice(0..-5)] = file_ref
+      @file_handles << file_ref
+    end
+  end
+
+  def append_rails_log_files
+    %w[production scheduler].each do |log_file|
+      log_path = Pathname("#{Rails.root}/log/#{log_file}.log")
+      next unless log_path.exist?
+
+      file_ref = File.open(log_path)
+      @body[log_file] = file_ref
+      @file_handles << file_ref
     end
   end
 

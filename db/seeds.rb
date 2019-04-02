@@ -170,7 +170,7 @@ InstanceAssociation.create(
 )
 =end
 
-newsfeed_widget = WidgetInstance.create(
+WidgetInstance.create(
   widget: Widget.find_by_slug('ticker'),
   title: 'glancr News',
   showtitle: true,
@@ -178,6 +178,7 @@ newsfeed_widget = WidgetInstance.create(
   position: {"x": 0, "y": 16, "width": 6, "height": 4}
 )
 
+=begin
 SourceInstance.skip_callback :create, :after, :set_meta
 newsfeed_source = SourceInstance.new(
   source: Source.find_by_slug('rss_feeds'),
@@ -187,6 +188,7 @@ newsfeed_source = SourceInstance.new(
 )
 newsfeed_source.save(validate: false)
 SourceInstance.set_callback :create, :after, :set_meta
+=end
 
 =begin
 InstanceAssociation.create(

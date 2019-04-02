@@ -11,9 +11,6 @@ class System
   API_HOST = 'api.glancr.de'
   SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
-  # TODO: Using stored values in Rails.configuration might have performance potential
-  # if the frontend requests system status less frequently than the backend updates itself.
-  #
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
@@ -21,17 +18,13 @@ class System
     info_hash = {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
-      setup_completed: Rails.configuration.setup_complete,
-      configured_at_boot: Rails.configuration.configured_at_boot,
-      connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
-      refresh_frontend: Rails.configuration.refresh_frontend
-    }
-    Rails.configuration.refresh_frontend = false
+    }.merge(StateCache.s.as_json)
+    StateCache.s.refresh_frontend = false
 
     info_hash
   end
@@ -83,14 +76,14 @@ class System
       line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
       line.run(gem: w, source: "http://gems.marco-roth.ch", group: 'source')
     end
-    line = Terrapin::CommandLine.new('bundle', 'install --jobs 5 :exclude')
+    line = Terrapin::CommandLine.new('bundle', 'install --local --jobs 5 :exclude')
     line.run(exclude: Rails.env.development? ? nil : '--without=development test')
     line = Terrapin::CommandLine.new('bundle', 'clean')
     line.run
   end
 
   def self.current_interface
-    conn_type = Setting.find_by_slug('network_connectiontype').value
+    conn_type = SettingsCache.s[:network_connectiontype]
 
     if OS.linux?
       map_interfaces(:linux, conn_type)
@@ -107,7 +100,7 @@ class System
 
   # TODO: Add support for IPv6.
   def self.current_ip_address
-    conn_type = Setting.find_by_slug('network_connectiontype').value
+    conn_type = SettingsCache.s[:network_connectiontype]
     return nil if conn_type.blank?
 
     begin
@@ -142,10 +135,8 @@ class System
   end
 
   def self.online?
-    return false if Rails.configuration.current_ip.eql? SETUP_IP # dnsmasq is active and prevents outgoing connections
-
-    Resolv::DNS.new.getaddress(API_HOST)
-    true
+    # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
+    Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? false : true
   rescue Resolv::ResolvError, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
     false
   end
@@ -153,32 +144,31 @@ class System
   # Check if the IP address has changed and send out a notification if required.
   def self.check_ip_change
     current_ip = current_ip_address
-    return if current_ip.eql? Rails.configuration.current_ip
+    return if current_ip.eql? StateCache.s.current_ip
 
-    SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
-    Rails.configuration.current_ip = current_ip
+    SettingExecution::Personal.send_change_email if current_ip.present? && System.online? && StateCache.s.configured_at_boot
+    StateCache.s.current_ip = current_ip
   end
 
   # Determines if the internal access point needs to be opened because mirr.OS does
   # not have an IP address. Also checks if the AP is already open to avoid
   # activating an already-active connection.
   def self.check_network_status
-    system_has_ip = Rails.configuration.current_ip.present?
-    system_is_connecting = Rails.configuration.connection_attempt
+    system_has_ip = StateCache.s.current_ip.present?
+    system_is_connecting = StateCache.s.connection_attempt
     SettingExecution::Network.open_ap unless SettingExecution::Network.ap_active? || system_has_ip || system_is_connecting
-
   end
 
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
-    network_configured = case Setting.find_by_slug('network_connectiontype').value
+    network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
-                           Setting.find_by_slug('network_ssid').value.present? &&
-                             Setting.find_by_slug('network_password').value.present?
+                           SettingsCache.s[:network_ssid].present? &&
+                           SettingsCache.s[:network_password].present?
                          else
                            true
                          end
-    email_configured = Setting.find_by_slug('personal_email').value.present?
+    email_configured = SettingsCache.s[:personal_email].present?
     network_configured && email_configured
   end
 
