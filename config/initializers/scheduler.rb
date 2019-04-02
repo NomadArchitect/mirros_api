@@ -4,16 +4,16 @@
 require 'rufus-scheduler'
 require 'yaml'
 
-# Initialize session
-state_cache = StateCache.singleton
-
-# FIXME: configured_at_boot is a temporary workaround to differentiate between
-# initial setup before first connection attempt and subsequent network problems.
-# Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-state_cache.configured_at_boot = state_cache.setup_complete
-
 # only schedule when not running from the Ruby on Rails console or from a rake task
 if Rails.const_defined? 'Server'
+  # Initialize session
+  state_cache = StateCache.singleton
+
+  # FIXME: configured_at_boot is a temporary workaround to differentiate between
+  # initial setup before first connection attempt and subsequent network problems.
+  # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
+  state_cache.configured_at_boot = state_cache.setup_complete
+
   s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
   s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
 
