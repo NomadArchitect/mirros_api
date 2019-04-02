@@ -4,6 +4,6 @@ class ApplicationRecord < ActiveRecord::Base
   after_destroy :set_refresh_flag
 
   def set_refresh_flag
-    Rails.configuration.refresh_frontend = true
+    StateCache.s.refresh_frontend = true
   end
 end

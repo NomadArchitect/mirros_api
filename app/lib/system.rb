@@ -11,9 +11,6 @@ class System
   API_HOST = 'api.glancr.de'
   SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
-  # TODO: Using stored values in Rails.configuration might have performance potential
-  # if the frontend requests system status less frequently than the backend updates itself.
-  #
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
@@ -21,18 +18,13 @@ class System
     info_hash = {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
-      setup_completed: Rails.configuration.setup_complete,
-      configured_at_boot: Rails.configuration.configured_at_boot,
-      resetting: Rails.configuration.resetting,
-      connecting: Rails.configuration.connection_attempt,
       online: online?,
       ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
-      refresh_frontend: Rails.configuration.refresh_frontend
-    }
-    Rails.configuration.refresh_frontend = false
+    }.merge(StateCache.s.as_json)
+    StateCache.s.refresh_frontend = false
 
     info_hash
   end
@@ -154,20 +146,19 @@ class System
   # Check if the IP address has changed and send out a notification if required.
   def self.check_ip_change
     current_ip = current_ip_address
-    return if current_ip.eql? Rails.configuration.current_ip
+    return if current_ip.eql? StateCache.s.current_ip
 
-    SettingExecution::Personal.send_change_email if current_ip.present? && System.online?
-    Rails.configuration.current_ip = current_ip
+    SettingExecution::Personal.send_change_email if current_ip.present? && System.online? && StateCache.s.configured_at_boot
+    StateCache.s.current_ip = current_ip
   end
 
   # Determines if the internal access point needs to be opened because mirr.OS does
   # not have an IP address. Also checks if the AP is already open to avoid
   # activating an already-active connection.
   def self.check_network_status
-    system_has_ip = Rails.configuration.current_ip.present?
-    system_is_connecting = Rails.configuration.connection_attempt
+    system_has_ip = StateCache.s.current_ip.present?
+    system_is_connecting = StateCache.s.connection_attempt
     SettingExecution::Network.open_ap unless SettingExecution::Network.ap_active? || system_has_ip || system_is_connecting
-
   end
 
   # Tests whether all required parts of the initial setup are present.

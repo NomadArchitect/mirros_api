@@ -6,7 +6,7 @@ class SystemController < ApplicationController
 
   def reset
     # FIXME: Temporary workaround for Display app
-    Rails.configuration.resetting = true
+    StateCache.s.resetting = true
     System.reset
 
     # All good until here, send the reset email.
@@ -28,7 +28,6 @@ class SystemController < ApplicationController
     head :no_content
 
   rescue StandardError => e
-    Rails.configuration.resetting = false
     render json: {
       errors: [
         JSONAPI::Error.new(
@@ -39,6 +38,7 @@ class SystemController < ApplicationController
         )
       ]
     }, status: 500
+    StateCache.s.resetting = false
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
@@ -62,7 +62,7 @@ class SystemController < ApplicationController
     System.change_system_time(user_time)
     connection = Setting.find_by_slug('network_connectiontype').value
 
-    Rails.configuration.configured_at_boot = true
+    StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
