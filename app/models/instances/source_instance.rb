@@ -34,8 +34,8 @@ class SourceInstance < Instance
   private
 
   def hook_instance
-    hooks = "#{source_id.camelcase}::Hooks".safe_constantize
-    raise "could not initialize #{source_id.camelcase}::Hooks" if hooks.nil?
+    hooks = "#{source_id.camelize}::Hooks".safe_constantize
+    raise "could not initialize #{source_id.camelize}::Hooks" if hooks.nil?
 
     begin
       hooks.new(id, configuration)
