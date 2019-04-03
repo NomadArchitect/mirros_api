@@ -20,7 +20,7 @@ class Setting < ApplicationRecord
   extend FriendlyId
   friendly_id :category_and_key, use: :slugged
 
-  after_update :check_setup_status, :update_cache
+  after_update :update_cache, :check_setup_status
   before_update :apply_setting, if: :auto_applicable?
 
   def category_and_key
