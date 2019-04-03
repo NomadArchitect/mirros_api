@@ -73,19 +73,23 @@ class SystemController < ApplicationController
     end
 
     if success && System.online?
-      SettingExecution::Personal.send_setup_email
-      System.toggle_timesyncd_ntp(true)
+      # TODO: Handle errors in thread and take action if required
+      Thread.new do
+        sleep 2
+        SettingExecution::Personal.send_setup_email
+        System.toggle_timesyncd_ntp(true)
 
-      create_default_cal_instances
-      create_default_feed_instances
+        create_default_cal_instances
+        create_default_feed_instances
+      end
+
     else
       message = "Setup failed!\n"
       message << "Could not connect to WiFi, reason: #{result}\n" unless success
       message << 'Could not connect to the internet'
       Rails.logger.error message
     end
-
-    render json: {success: success, result: result}
+    render json: { success: success, result: result }
   end
 
   # TODO: Respond with appropriate status codes in addition to success
