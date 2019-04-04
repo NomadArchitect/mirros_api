@@ -97,7 +97,11 @@ class SystemController < ApplicationController
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
     if executor.respond_to?(params[:command])
       begin
-        result = executor.send(params[:command])
+        result = if executor.method(params[:command]).arity.positive?
+                   executor.send(params[:command], *params)
+                 else
+                   executor.send(params[:command])
+                 end
         success = true
       rescue StandardError => e
         result = e.message
