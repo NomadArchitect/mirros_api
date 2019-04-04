@@ -66,8 +66,8 @@ class SystemController < ApplicationController
         success = false
       end
     when 'lan'
-      result = SettingExecution::Network.enable_lan
       SettingExecution::Network.close_ap
+      result = SettingExecution::Network.enable_lan
       success = true
     else
       conn_type = SettingsCache.s[:network_connectiontype]
