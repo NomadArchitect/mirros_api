@@ -89,7 +89,9 @@ class SystemController < ApplicationController
       message << 'Could not connect to the internet'
       Rails.logger.error message
     end
-    render json: { success: success, result: result }
+    render json: {success: success, result: result}
+  rescue StandardError => e
+    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -102,18 +104,23 @@ class SystemController < ApplicationController
                  else
                    executor.send(params[:command])
                  end
-        success = true
+        render json: {success: true, result: result}
       rescue StandardError => e
-        result = e.message
-        success = false
+        render json: jsonapi_error(
+          "error while executing #{params[:category]}/#{params[:command]}",
+          e.message,
+          500
+        ), status: 500
       end
     else
-      result = "#{params[:action]} is not a valid action for "\
+      render json: jsonapi_error(
+        "error while executing #{params[:category]}/#{params[:command]}",
+        "#{params[:action]} is not a valid action for "\
                "#{params[:category]} settings. Valid actions are: "\
-               "#{executor.methods}"
-      success = false
+               "#{executor.methods}",
+        500
+      ), status: 500
     end
-    render json: {success: success, result: result}
   end
 
   # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
@@ -124,8 +131,12 @@ class SystemController < ApplicationController
       timeout: 5
     )
   rescue SocketError, Net::OpenTimeout => e
-    head :gateway_timeout
-    Rails.logger.error e.message
+    Rails.logger.error "Error while fetching extension lists: #{e.message}"
+    render json: jsonapi_error(
+      'error while fetching extensions',
+      e.message,
+      504
+    ), status: 504
   end
 
   # Checks if a logfile with the given name exists in the Rails log directory
@@ -133,9 +144,16 @@ class SystemController < ApplicationController
   # @return [FileBody] Content of the requested log file
   def fetch_logfile
     logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
-    return head :not_found unless Pathname.new(logfile).exist?
 
-    send_file(logfile)
+    if Pathname.new(logfile).exist?
+      send_file(logfile)
+    else
+      render json: jsonapi_error(
+        'Logfile not found',
+        "Could not find #{params[:logfile]}",
+        404
+      )
+    end
   end
 
   def generate_system_report
