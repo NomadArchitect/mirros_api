@@ -182,7 +182,7 @@ class SystemController < ApplicationController
   private
 
   def create_default_cal_instances
-    locale = SettingsCache.s[:system_language]
+    locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
     feed_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
@@ -252,8 +252,6 @@ class SystemController < ApplicationController
         koKr: '한국의 휴일'
       }[locale]
     }
-    # Set default in case an unknown locale was passed
-    fragments = {url: 'en.uk', title: 'UK Holidays'} if fragments.value? nil
     holiday_calendar_hash(fragments)
   end
 
