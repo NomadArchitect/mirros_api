@@ -113,22 +113,17 @@ class System
     false
   end
 
-  # Check if the IP address has changed and send out a notification if required.
-  def self.check_ip_change
-    current_ip = current_ip_address
-    return if current_ip.eql? StateCache.s.current_ip
-
-    SettingExecution::Personal.send_change_email if current_ip.present? && System.online? && StateCache.s.configured_at_boot
-    StateCache.s.current_ip = current_ip
-  end
-
   # Determines if the internal access point needs to be opened because mirr.OS does
   # not have an IP address. Also checks if the AP is already open to avoid
   # activating an already-active connection.
   def self.check_network_status
-    system_has_ip = StateCache.s.current_ip.present?
-    system_is_connecting = StateCache.s.connection_attempt
-    SettingExecution::Network.open_ap unless SettingExecution::Network.ap_active? || system_has_ip || system_is_connecting
+    current_ip = current_ip_address
+    check_ip_change(current_ip)
+    StateCache.s.current_ip = current_ip
+    StateCache.s.online = online?
+    SettingExecution::Network.open_ap unless no_ap_required?
+
+
   end
 
   # Tests whether all required parts of the initial setup are present.
@@ -136,7 +131,7 @@ class System
     network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
                            SettingsCache.s[:network_ssid].present? &&
-                           SettingsCache.s[:network_password].present?
+                             SettingsCache.s[:network_password].present?
                          else
                            true
                          end
@@ -187,4 +182,41 @@ class System
   end
 
   private_class_method :map_interfaces
+
+  def self.check_ip_change(ip)
+    # Do nothing if we don't have an IP
+    return if ip.nil?
+    # The IP has not changed in between checks
+    return if ip.eql?(StateCache.s.current_ip)
+    # Check if the IP has changed after a period of disconnection
+    return unless last_known_ip_was_different(ip)
+
+    SettingExecution::Personal.send_change_email
+  end
+
+  private_class_method :check_ip_change
+
+  def self.last_known_ip_was_different(ip)
+    ip_file = Pathname("#{Rails.root}/tmp/last_ip")
+    return false unless ip_file.readable? # No dump available, e.g. on first boot
+
+    last_known_ip = File.read(ip_file).chomp
+    if last_known_ip.eql?(ip) || ip.nil?
+      false
+    else
+      File.write(ip_file, @current_ip)
+      true
+    end
+  end
+
+  private_class_method :last_known_ip_was_different
+
+  def self.no_ap_required?
+    StateCache.s.online ||
+      StateCache.s.current_ip.present? ||
+      StateCache.s.connection_attempt ||
+      SettingExecution::Network.ap_active?
+  end
+
+  private_class_method :no_ap_required?
 end

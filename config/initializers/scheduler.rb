@@ -19,14 +19,9 @@ if Rails.const_defined? 'Server'
 
   MirrOSApi::DataRefresher.schedule_all
 
-  # Store the current IP and schedule consecutive change checks.
-  Rufus::Scheduler.s.every '1m', tag: 'ip-change-check' do
-    System.check_ip_change
-  end
-
   # Perform initial network status check if required and schedule consecutive checking.
   System.check_network_status unless state_cache.current_ip.present?
-  Rufus::Scheduler.s.every '2m', tag: 'network-status-check' do
+  Rufus::Scheduler.s.every '30s', tag: 'network-status-check' do
     System.check_network_status
   end
 end
