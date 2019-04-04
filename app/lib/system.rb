@@ -18,8 +18,6 @@ class System
     info_hash = {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
-      online: online?,
-      ip: current_ip_address,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,

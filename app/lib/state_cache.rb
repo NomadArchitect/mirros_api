@@ -2,7 +2,7 @@ class StateCache
   include ActiveModel::Validations
 
   attr_accessor :refresh_frontend, :resetting, :connection_attempt,
-                :setup_complete, :configured_at_boot, :current_ip
+                :setup_complete, :configured_at_boot, :current_ip, :online
   validates :refresh_frontend, :resetting, :connection_attempt, inclusion: [true, false]
 
   def initialize
@@ -13,6 +13,7 @@ class StateCache
     @setup_complete = System.setup_completed?
     # configured_at_boot is set in the scheduler
     @current_ip = System.current_ip_address
+    @online = System.online?
   end
 
   def self.singleton
