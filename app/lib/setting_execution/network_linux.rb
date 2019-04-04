@@ -25,6 +25,15 @@ module SettingExecution
       line.run.split("\n")
     end
 
+    def self.toggle_lan(state)
+      cmd = {
+        on: :connect,
+        off: :disconnect
+      }[state]
+      line = Terrapin::CommandLine.new('nmcli', 'd :cmd eth0')
+      line.run(cmd: cmd)
+    end
+
     def self.reset
       ssid = SettingsCache.s[:network_ssid]
       remove_connection(ssid) unless ssid.empty?

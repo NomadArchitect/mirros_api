@@ -6,10 +6,12 @@ module SettingExecution
     # TODO: Support other authentication methods as well
     def self.connect
       StateCache.s.connection_attempt = true
-      SettingExecution::Network.close_ap
       ssid = SettingsCache.s[:network_ssid]
       password = SettingsCache.s[:network_password]
       raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
+
+      SettingExecution::Network.close_ap
+      disable_lan
 
       success = os_subclass.connect(ssid, password)
       # TODO: Errors should be raised for API clients
@@ -22,8 +24,17 @@ module SettingExecution
       success
     end
 
+    def self.enable_lan
+      toggle_lan('on')
+    end
+
+    def self.disable_lan
+      toggle_lan('off')
+    end
+
     def self.reset
       os_subclass.reset
+      disable_lan
     end
 
     def self.list
@@ -74,6 +85,20 @@ module SettingExecution
     end
 
     private_class_method :os_subclass
+
+    def self.toggle_lan(state)
+      raise ArgumentError, 'valid args are "on" or "off"' unless %w[on off].include? state
+
+      begin
+        success = os_subclass.toggle_lan(state)
+      rescue Terrapin::CommandLineError => e
+        Rails.logger.error "Could not toggle LAN connection to #{state}, reason: #{e.message}"
+        success = false
+      end
+      success
+    end
+
+    private_class_method :toggle_lan
 
   end
 end
