@@ -1,8 +1,7 @@
 require_relative '../../app/controllers/concerns/installable'
 
 namespace :extension do
-  desc "Add/update/remove an extension in the DB without running the model callbacks"
-
+  desc "insert an extension in the DB without running the model callbacks"
   task :insert, %i[type extension mode] => [:environment] do |task, args|
 
     if args[:mode] != 'seed'
@@ -23,6 +22,7 @@ namespace :extension do
     extension_class.set_callback :create, :after, :install
   end
 
+  desc "update an extension in the DB without running the model callbacks"
   task :update, %i[type extension] => [:environment] do |task, args|
     next unless arguments_valid?(args)
 
@@ -39,6 +39,7 @@ namespace :extension do
     extension_class.set_callback :update, :after, :update
   end
 
+  desc "remove an extension in the DB without running the model callbacks"
   task :remove, %i[type extension] => [:environment] do |task, args|
     next unless arguments_valid?(args)
 
