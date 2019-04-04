@@ -41,7 +41,8 @@ Rails.application.routes.draw do
   get 'system/report', to: 'system#generate_system_report'
   post 'system/report/send', to: 'system#send_debug_report'
 
-  get 'system/control/:category/:command', to: 'system#setting_execution'
+  match 'system/control/:category/:command', to: 'system#setting_execution', via: [:get, :patch]
+  # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|

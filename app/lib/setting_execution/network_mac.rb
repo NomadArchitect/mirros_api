@@ -12,6 +12,7 @@ module SettingExecution
                            password: password)
       rescue Terrapin::ExitStatusError => e
         Rails.logger.error "Error setting SSID to #{ssid}, cause: #{e.message}"
+        success = false
       end
       success
     end
@@ -22,6 +23,13 @@ module SettingExecution
       raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' unless Rails.env.development?
 
       ['this is not a real wifi, just testing', 'this is neither']
+    end
+
+    def self.toggle_lan(_state)
+      raise NotImplementedError, 'LAN toggle only implemented for Linux hosts' unless Rails.env.development?
+
+      # TODO: Use /usr/sbin/networksetup to remove a preferred network.
+      true
     end
 
     def self.reset

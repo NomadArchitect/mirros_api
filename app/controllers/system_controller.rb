@@ -3,13 +3,18 @@ class SystemController < ApplicationController
   def status
     render json: {meta: System.info}
   rescue StandardError => e
-    render json: jsonapi_error('Error during status fetch', e.message), status: 500
+    render json: jsonapi_error('Error during status fetch', e.message, 500), status: 500
   end
 
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.s.resetting = true
-    System.reset
+
+    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
+    DataRefresher.scheduler.shutdown(:kill)
+
+    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root}/reset.sh :env")
+    reset_line.run(env: Rails.env)
 
     # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
@@ -31,20 +36,19 @@ class SystemController < ApplicationController
 
   rescue StandardError => e
     StateCache.s.resetting = false
-    render json: jsonapi_error('Error during reset', e.message), status: 500
+    render json: jsonapi_error('Error during reset', e.message, 500), status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
     System.reboot
   rescue StandardError => e
-    render json: jsonapi_error('Error during reboot attempt', e.message), status: 500
+    render json: jsonapi_error('Error during reboot attempt', e.message, 500), status: 500
   end
 
   def run_setup
     user_time = params[:reference_time]
     System.change_system_time(user_time)
-    connection = SettingsCache.s[:network_connectiontype]
 
     StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
@@ -52,17 +56,24 @@ class SystemController < ApplicationController
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
     # TODO: clean this up
-    if connection == 'wlan'
+    case SettingsCache.s[:network_connectiontype]
+    when 'wlan'
       begin
         result = SettingExecution::Network.connect
         success = true
-      rescue ArgumentError => e
+      rescue ArgumentError, Terrapin::ExitStatusError => e
         result = e.message
         success = false
       end
-    else # Using LAN, no further setup required
-      result = 'Using LAN connection'
+    when 'lan'
+      result = SettingExecution::Network.enable_lan
+      SettingExecution::Network.close_ap
       success = true
+    else
+      conn_type = SettingsCache.s[:network_connectiontype]
+      # TODO: Can we use some sort of args variable here?
+      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
+      raise ArgumentError, "invalid connection type '#{conn_type}'"
     end
 
     # Test online status
@@ -73,19 +84,25 @@ class SystemController < ApplicationController
     end
 
     if success && System.online?
-      SettingExecution::Personal.send_setup_email
-      System.toggle_timesyncd_ntp(true)
+      # TODO: Handle errors in thread and take action if required
+      Thread.new do
+        sleep 2
+        SettingExecution::Personal.send_setup_email
+        System.toggle_timesyncd_ntp(true)
 
-      create_default_cal_instances
-      create_default_feed_instances
+        create_default_cal_instances
+        create_default_feed_instances
+      end
+
     else
       message = "Setup failed!\n"
       message << "Could not connect to WiFi, reason: #{result}\n" unless success
       message << 'Could not connect to the internet'
       Rails.logger.error message
     end
-
     render json: {success: success, result: result}
+  rescue StandardError => e
+    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -93,19 +110,28 @@ class SystemController < ApplicationController
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
     if executor.respond_to?(params[:command])
       begin
-        result = executor.send(params[:command])
-        success = true
+        result = if executor.method(params[:command]).arity.positive?
+                   executor.send(params[:command], *params)
+                 else
+                   executor.send(params[:command])
+                 end
+        render json: {success: true, result: result}
       rescue StandardError => e
-        result = e.message
-        success = false
+        render json: jsonapi_error(
+          "error while executing #{params[:category]}/#{params[:command]}",
+          e.message,
+          500
+        ), status: 500
       end
     else
-      result = "#{params[:action]} is not a valid action for "\
+      render json: jsonapi_error(
+        "error while executing #{params[:category]}/#{params[:command]}",
+        "#{params[:action]} is not a valid action for "\
                "#{params[:category]} settings. Valid actions are: "\
-               "#{executor.methods}"
-      success = false
+               "#{executor.methods}",
+        500
+      ), status: 500
     end
-    render json: {success: success, result: result}
   end
 
   # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
@@ -116,8 +142,12 @@ class SystemController < ApplicationController
       timeout: 5
     )
   rescue SocketError, Net::OpenTimeout => e
-    head :gateway_timeout
-    Rails.logger.error e.message
+    Rails.logger.error "Error while fetching extension lists: #{e.message}"
+    render json: jsonapi_error(
+      'error while fetching extensions',
+      e.message,
+      504
+    ), status: 504
   end
 
   # Checks if a logfile with the given name exists in the Rails log directory
@@ -125,9 +155,16 @@ class SystemController < ApplicationController
   # @return [FileBody] Content of the requested log file
   def fetch_logfile
     logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
-    return head :not_found unless Pathname.new(logfile).exist?
 
-    send_file(logfile)
+    if Pathname.new(logfile).exist?
+      send_file(logfile)
+    else
+      render json: jsonapi_error(
+        'Logfile not found',
+        "Could not find #{params[:logfile]}",
+        404
+      )
+    end
   end
 
   def generate_system_report
@@ -139,7 +176,7 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
   end
 
   private
@@ -227,15 +264,17 @@ class SystemController < ApplicationController
     }
   end
 
-  def jsonapi_error(title, message)
+  def jsonapi_error(title, msg, code)
+    # FIXME: Can we reuse something for this mapping?
+    status = {
+      400 => :bad_request,
+      404 => :not_found,
+      500 => :internal_server_error,
+      504 => :gateway_timeout
+    }[code]
     {
       errors: [
-        JSONAPI::Error.new(
-          title: title,
-          detail: message,
-          code: 500,
-          status: :internal_server_error
-        )
+        JSONAPI::Error.new(title: title, detail: msg, code: code, status: status)
       ]
     }
   end
