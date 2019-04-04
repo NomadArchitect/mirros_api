@@ -3,7 +3,7 @@ class SystemController < ApplicationController
   def status
     render json: {meta: System.info}
   rescue StandardError => e
-    render json: jsonapi_error('Error during status fetch', e.message), status: 500
+    render json: jsonapi_error('Error during status fetch', e.message, 500), status: 500
   end
 
   def reset
@@ -31,14 +31,14 @@ class SystemController < ApplicationController
 
   rescue StandardError => e
     StateCache.s.resetting = false
-    render json: jsonapi_error('Error during reset', e.message), status: 500
+    render json: jsonapi_error('Error during reset', e.message, 500), status: 500
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
     System.reboot
   rescue StandardError => e
-    render json: jsonapi_error('Error during reboot attempt', e.message), status: 500
+    render json: jsonapi_error('Error during reboot attempt', e.message, 500), status: 500
   end
 
   def run_setup
@@ -147,7 +147,7 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message), status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
   end
 
   private
@@ -235,15 +235,17 @@ class SystemController < ApplicationController
     }
   end
 
-  def jsonapi_error(title, message)
+  def jsonapi_error(title, msg, code)
+    # FIXME: Can we reuse something for this mapping?
+    status = {
+      400 => :bad_request,
+      404 => :not_found,
+      500 => :internal_server_error,
+      504 => :gateway_timeout
+    }[code]
     {
       errors: [
-        JSONAPI::Error.new(
-          title: title,
-          detail: message,
-          code: 500,
-          status: :internal_server_error
-        )
+        JSONAPI::Error.new(title: title, detail: msg, code: code, status: status)
       ]
     }
   end
