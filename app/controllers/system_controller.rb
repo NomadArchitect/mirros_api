@@ -49,7 +49,6 @@ class SystemController < ApplicationController
   def run_setup
     user_time = params[:reference_time]
     System.change_system_time(user_time)
-    connection = SettingsCache.s[:network_connectiontype]
 
     StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
@@ -57,17 +56,24 @@ class SystemController < ApplicationController
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
     # TODO: clean this up
-    if connection == 'wlan'
+    case SettingsCache.s[:network_connectiontype]
+    when 'wlan'
       begin
         result = SettingExecution::Network.connect
         success = true
-      rescue ArgumentError => e
+      rescue ArgumentError, Terrapin::ExitStatusError => e
         result = e.message
         success = false
       end
-    else # Using LAN, no further setup required
-      result = 'Using LAN connection'
+    when 'lan'
+      result = SettingExecution::Network.enable_lan
+      SettingExecution::Network.close_ap
       success = true
+    else
+      conn_type = SettingsCache.s[:network_connectiontype]
+      # TODO: Can we use some sort of args variable here?
+      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
+      raise ArgumentError, "invalid connection type '#{conn_type}'"
     end
 
     # Test online status
