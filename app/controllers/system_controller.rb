@@ -9,7 +9,12 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.s.resetting = true
-    System.reset
+
+    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
+    DataRefresher.scheduler.shutdown(:kill)
+
+    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root}/reset.sh :env")
+    reset_line.run(env: Rails.env)
 
     # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
