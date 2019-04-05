@@ -92,6 +92,8 @@ class SystemController < ApplicationController
 
         create_default_cal_instances
         create_default_feed_instances
+
+        ActiveRecord::Base.clear_active_connections!
       end
 
     else
