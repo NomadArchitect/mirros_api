@@ -244,7 +244,7 @@ class SystemController < ApplicationController
         esEs: 'es.spain',
         plPl: 'pl.polish',
         koKr: 'ko.south_korea'
-      }[locale],
+      }[locale.to_sym],
       title: {
         enGb: 'UK Holidays',
         deDe: 'Deutsche Feiertage',
@@ -252,7 +252,7 @@ class SystemController < ApplicationController
         esEs: 'Vacaciones en España',
         plPl: 'Polskie święta',
         koKr: '한국의 휴일'
-      }[locale]
+      }[locale.to_sym]
     }
     holiday_calendar_hash(fragments)
   end
