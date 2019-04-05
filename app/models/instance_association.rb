@@ -40,7 +40,7 @@ class InstanceAssociation < ApplicationRecord
           RecordLink.create(recordable: recordable, group_id: group)
       end
       source_instance.save
+      source_instance.update(last_refresh: Time.now.utc)
     end
-    source_instance.update(last_refresh: Date.new)
   end
 end
