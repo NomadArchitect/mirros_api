@@ -4,8 +4,10 @@ class SourceInstance < Instance
   has_many :widget_instances, through: :instance_associations
   has_many :record_links, dependent: :destroy
 
-  after_create :set_meta
-  after_update :set_meta, if: :configuration_changed?
+  after_create :set_meta, :add_to_scheduler
+  after_update :update_callbacks
+  after_destroy :remove_from_scheduler
+
   validate :validate_configuration, if: :configuration_changed?
 
   serialize :options, Array
@@ -25,6 +27,12 @@ class SourceInstance < Instance
     self.title = hooks.default_title
   end
 
+  def update_callbacks
+    config_changed = saved_change_to_attribute?('configuration')
+    set_meta if config_changed
+    update_scheduler if config_changed
+  end
+
   def validate_configuration
     errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
   rescue RuntimeError => e
@@ -42,5 +50,18 @@ class SourceInstance < Instance
     rescue StandardError => e
       raise e.message
     end
+  end
+
+  def add_to_scheduler
+    DataRefresher.schedule(self)
+  end
+
+  def update_scheduler
+    DataRefresher.unschedule(self)
+    DataRefresher.schedule(self)
+  end
+
+  def remove_from_scheduler
+    DataRefresher.unschedule(self)
   end
 end
