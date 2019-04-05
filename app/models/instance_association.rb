@@ -24,13 +24,14 @@ class InstanceAssociation < ApplicationRecord
     source_hooks_instance = source_hooks.new(source_instance.id,
                                              source_instance.configuration)
 
-    begin
-      recordables = source_hooks_instance.fetch_data(group_id, sub_resources)
-    rescue => e
-      Rails.logger.error "Error during initial data fetch of #{source} instance #{source_instance.id}: #{e.message}"
-      return
-    end
     ActiveRecord::Base.transaction do
+      begin
+        recordables = source_hooks_instance.fetch_data(group_id, sub_resources)
+      rescue StandardError => e
+        Rails.logger.error "Error during initial data fetch of #{source} instance #{source_instance.id}: #{e.message}"
+        return
+      end
+
       recordables.each do |recordable|
         recordable.save
         next unless recordable.record_link.nil?
@@ -39,7 +40,7 @@ class InstanceAssociation < ApplicationRecord
           RecordLink.create(recordable: recordable, group_id: group)
       end
       source_instance.save
+      source_instance.update(last_refresh: Time.now.utc)
     end
-    source_instance.update(last_refresh: Date.new)
   end
 end

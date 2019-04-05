@@ -20,7 +20,7 @@ class System
       api_version: API_VERSION,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
-      rails_env: Rails.env,
+      rails_env: Rails.env
     }.merge(StateCache.s.as_json)
     StateCache.s.refresh_frontend = false
 
@@ -176,8 +176,8 @@ class System
   def self.map_interfaces(operating_system, interface)
     # TODO: Maybe use nmcli -f DEVICE,TYPE d | grep -E "(wifi)|(ethernet)" | awk '{ print $1; }' to determine IF names.
     {
-      'mac': {lan: 'en0', wlan: 'en0'},
-      'linux': {lan: 'eth0', wlan: 'wlan0'}
+      mac: {lan: 'en0', wlan: 'en0'},
+      linux: {lan: 'eth0', wlan: 'wlan0'}
     }[operating_system][interface.to_sym]
   end
 

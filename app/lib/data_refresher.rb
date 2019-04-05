@@ -23,7 +23,7 @@ class DataRefresher
       return
     end
 
-    source_hooks = "#{source.name.camelcase}::Hooks".safe_constantize
+    source_hooks = "#{source.name.camelize}::Hooks".safe_constantize
     if source_hooks.nil?
       Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
       return
@@ -38,43 +38,10 @@ class DataRefresher
 
     job_tag = tag_instance(source.name, source_instance.id)
     job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
-
       # Skip refresh if the system is offline.
-      next unless System.online?
+      next unless StateCache.online?
 
-      associations = source_instance.instance_associations
-      sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
-                                  .flatten
-                                  .uniq
-      source_hooks_instance = source_hooks.new(source_instance.id,
-                                               source_instance.configuration)
-
-      associations.pluck('group_id').uniq.each do |group|
-        # TODO: Specify should_update hook to determine if a SourceInstance needs
-        #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-        # engine.should_update(group.name, active_sub_resources)
-
-        begin
-          recordables = source_hooks_instance.fetch_data(group, sub_resources)
-        rescue => e
-          Rails.logger.error "Error during refresh of #{source} instance #{source_instance.id}: #{e.message}"
-          next
-        end
-
-        recordables.each do |recordable|
-          recordable.save
-          next unless recordable.record_link.nil?
-
-          source_instance.record_links <<
-            RecordLink.create(recordable: recordable, group_id: group)
-        end
-        source_instance.save
-
-      rescue => e
-        Rails.logger.error e.message
-      end
-
-      source_instance.update(last_refresh: job.last_time.to_s)
+      job_block(source_instance, job, source_hooks)
     end
 
     source_instance.update(job_id: job_instance.job_id)
@@ -91,5 +58,50 @@ class DataRefresher
 
   def self.tag_instance(source_name, source_instance_id)
     "#{source_name}--#{source_instance_id}"
+  end
+
+  def self.job_block(source_instance, job, source_hooks)
+    unless ActiveRecord::Base.connected?
+      ActiveRecord::Base.connection.verify!(0)
+    end
+
+    associations = source_instance.instance_associations
+    sub_resources = associations.map {|assoc| assoc.configuration['chosen']}
+                                .flatten
+                                .uniq
+    source_hooks_instance = source_hooks.new(source_instance.id,
+                                             source_instance.configuration)
+
+    associations.pluck('group_id').uniq.each do |group|
+      # TODO: Specify should_update hook to determine if a SourceInstance needs
+      #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+      # engine.should_update(group.name, active_sub_resources)
+
+      ActiveRecord::Base.transaction do
+        begin
+          recordables = source_hooks_instance.fetch_data(group, sub_resources)
+        rescue StandardError => e
+          Rails.logger.error "Error during refresh of #{source} instance #{source_instance.id}: #{e.message}"
+          next
+        end
+
+        recordables.each do |recordable|
+          recordable.save
+          next unless recordable.record_link.nil?
+
+          source_instance.record_links <<
+            RecordLink.create(recordable: recordable, group_id: group)
+        end
+        source_instance.save
+
+      rescue StandardError => e
+        Rails.logger.error e.message
+      end
+    end
+    source_instance.update(last_refresh: job.last_time.to_s)
+  rescue => e
+    e.inspect
+  ensure
+    ActiveRecord::Base.connection_pool.release_connection
   end
 end

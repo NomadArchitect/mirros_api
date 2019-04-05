@@ -66,8 +66,8 @@ class SystemController < ApplicationController
         success = false
       end
     when 'lan'
-      result = SettingExecution::Network.enable_lan
       SettingExecution::Network.close_ap
+      result = SettingExecution::Network.enable_lan
       success = true
     else
       conn_type = SettingsCache.s[:network_connectiontype]
@@ -92,6 +92,8 @@ class SystemController < ApplicationController
 
         create_default_cal_instances
         create_default_feed_instances
+
+        ActiveRecord::Base.clear_active_connections!
       end
 
     else
@@ -182,7 +184,7 @@ class SystemController < ApplicationController
   private
 
   def create_default_cal_instances
-    locale = SettingsCache.s[:system_language]
+    locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
     feed_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
@@ -242,7 +244,7 @@ class SystemController < ApplicationController
         esEs: 'es.spain',
         plPl: 'pl.polish',
         koKr: 'ko.south_korea'
-      }[locale],
+      }[locale.to_sym],
       title: {
         enGb: 'UK Holidays',
         deDe: 'Deutsche Feiertage',
@@ -250,10 +252,8 @@ class SystemController < ApplicationController
         esEs: 'Vacaciones en España',
         plPl: 'Polskie święta',
         koKr: '한국의 휴일'
-      }[locale]
+      }[locale.to_sym]
     }
-    # Set default in case an unknown locale was passed
-    fragments = {url: 'en.uk', title: 'UK Holidays'} if fragments.value? nil
     holiday_calendar_hash(fragments)
   end
 
