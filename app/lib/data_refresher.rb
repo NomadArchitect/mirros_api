@@ -13,7 +13,8 @@ class DataRefresher
     end
   end
 
-  # FIXME: Refactor to smaller method, maybe convert class methods to instance
+  # FIXME: Refactor to smaller method, maybe convert class methods to instance.
+  # Maybe raise errors if preconditions fail and rescue once with log message
   def self.schedule(source_instance)
     s = scheduler
     source = source_instance.source
@@ -60,11 +61,12 @@ class DataRefresher
     "#{source_name}--#{source_instance_id}"
   end
 
+  # @param [SourceInstance] source_instance
+  # @param [Object] job
+  # @param [Object] source_hooks
   def self.job_block(source_instance, job, source_hooks)
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.connection.verify!(0)
-    end
-
+    # Ensure we're not working with a stale connection
+    ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
     associations = source_instance.instance_associations
     sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
                                 .flatten
@@ -72,10 +74,11 @@ class DataRefresher
     source_hooks_instance = source_hooks.new(source_instance.id,
                                              source_instance.configuration)
 
+
     associations.pluck('group_id').uniq.each do |group|
       # TODO: Specify should_update hook to determine if a SourceInstance needs
       #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-      # engine.should_update(group.name, active_sub_resources)
+      # source_hooks_instance.should_update(group, sub_resources)
 
       ActiveRecord::Base.transaction do
         begin
