@@ -27,8 +27,8 @@ module SettingExecution
 
     def self.toggle_lan(state)
       cmd = {
-        on: :connect,
-        off: :disconnect
+        on: 'connect',
+        off: 'disconnect'
       }[state.to_sym]
       line = Terrapin::CommandLine.new('nmcli', 'd :cmd eth0')
       line.run(cmd: cmd)

@@ -10,6 +10,7 @@ class DataRefresher
 
     instances.each do |source_instance|
       schedule(source_instance)
+      sleep 2 # Wait between schedules to avoid parallel refreshes
     end
   end
 
