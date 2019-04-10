@@ -12,6 +12,7 @@ module Installable
   EXTENSION_TYPES = %w[widget source].freeze
 
   def install
+    Rufus::Scheduler.s.pause
     setup_instance
 
     begin
@@ -24,6 +25,7 @@ module Installable
       remove_from_gemfile
       raise bundler_error(e)
     end
+    Rufus::Scheduler.s.resume
 
     refresh_runtime
 
@@ -45,6 +47,7 @@ module Installable
 
   # Update the extension to the passed version.
   def update
+    Rufus::Scheduler.s.pause
     setup_instance
 
     prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
@@ -59,6 +62,8 @@ module Installable
       change_gem_version(prev_version)
       raise bundler_error(e)
     end
+
+    Rufus::Scheduler.s.resume
 
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
@@ -75,6 +80,7 @@ module Installable
 
   # Uninstalls an extension gem.
   def uninstall
+    Rufus::Scheduler.s.pause
     setup_instance
     remove_from_gemfile
     # TODO: implement service de-registration and other cleanup
@@ -82,6 +88,7 @@ module Installable
     # File.delete(db/migrate/???)
     # bundle clean
 
+    Rufus::Scheduler.s.resume
     fork do
       restart_successful = System.restart_application
       # Re-add the gem so that Gemfile and installation state are consistent.
@@ -144,12 +151,10 @@ module Installable
   # Unfortunately, this has no effect on Rubygems
   # or $LOAD_PATH / $LOADED_FEATURES, but at least deals with Bundler inconsistencies.
   def refresh_runtime
-    begin
-      Bundler.reset!
-      Bundler.require(*Rails.groups, *EXTENSION_TYPES)
-    rescue Bundler::GemRequireError => e
-      bundler_error(e)
-    end
+    Bundler.reset!
+    Bundler.require(*Rails.groups, *EXTENSION_TYPES)
+  rescue Bundler::GemRequireError => e
+    bundler_error(e)
   end
 
   # Generates a new Bundler::Runtime whose definition is re-read from the Gemfile.
