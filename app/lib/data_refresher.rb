@@ -39,7 +39,7 @@ class DataRefresher
     job_tag = tag_instance(source.name, source_instance.id)
     job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
       # Skip refresh if the system is offline.
-      next unless StateCache.online?
+      next unless StateCache.s.online
 
       job_block(source_instance, job, source_hooks)
     end
