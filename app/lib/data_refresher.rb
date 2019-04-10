@@ -66,7 +66,7 @@ class DataRefresher
     end
 
     associations = source_instance.instance_associations
-    sub_resources = associations.map {|assoc| assoc.configuration['chosen']}
+    sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
                                 .flatten
                                 .uniq
     source_hooks_instance = source_hooks.new(source_instance.id,

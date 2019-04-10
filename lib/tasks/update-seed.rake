@@ -1,5 +1,5 @@
 namespace :db do
-  desc "Update seeds for mirr.OS system settings"
+  desc 'Update seeds for mirr.OS system settings'
 
   # Starting with version 0.4.0, new or changed seeds are added here to allow for seeding a running system.
   task :seed_diff => [:environment] do |task, args|
