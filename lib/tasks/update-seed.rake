@@ -19,4 +19,16 @@ namespace :db do
     Setting.set_callback :update, :after, :update_cache
     Setting.set_callback :update, :after, :check_setup_status
   end
+
+  desc 'Sync all default extension\'s gem specs to the database'
+  task update_default_gems: [:environment] do |task, args|
+    MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
+      Rake::Task['extension:update'].reenable
+      Rake::Task['extension:update'].invoke('widget', widget, 'seed')
+    end
+    MirrOSApi::Application::DEFAULT_SOURCES.each do |source|
+      Rake::Task['extension:update'].reenable
+      Rake::Task['extension:update'].invoke('source', source, 'seed')
+    end
+  end
 end

@@ -1,17 +1,16 @@
 require_relative '../../app/controllers/concerns/installable'
 
 namespace :extension do
-  desc "insert an extension in the DB without running the model callbacks"
+  desc 'insert an extension in the DB without running the model callbacks'
   task :insert, %i[type extension mode] => [:environment] do |task, args|
-
-    if args[:mode] != 'seed'
+    unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
     end
 
     spec = load_spec(args)
     meta = parse_meta(spec)
 
-    if args[:mode] != 'seed'
+    unless args[:mode].eql?('seed')
       next unless spec_valid?(args[:type], spec, meta)
     end
 
@@ -22,14 +21,19 @@ namespace :extension do
     extension_class.set_callback :create, :after, :install
   end
 
-  desc "update an extension in the DB without running the model callbacks"
-  task :update, %i[type extension] => [:environment] do |task, args|
-    next unless arguments_valid?(args)
+  desc 'update an extension in the DB without running the model callbacks'
+  task :update, %i[type extension mode] => [:environment] do |task, args|
+
+    unless args[:mode].eql?('seed')
+      next unless arguments_valid?(args)
+    end
 
     spec = load_spec(args)
     meta = parse_meta(spec)
 
-    next unless spec_valid?(args[:type], spec, meta)
+    unless args[:mode].eql?('seed')
+      next unless spec_valid?(args[:type], spec, meta)
+    end
 
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.skip_callback :update, :after, :update
@@ -39,7 +43,7 @@ namespace :extension do
     extension_class.set_callback :update, :after, :update
   end
 
-  desc "remove an extension in the DB without running the model callbacks"
+  desc 'remove an extension in the DB without running the model callbacks'
   task :remove, %i[type extension] => [:environment] do |task, args|
     next unless arguments_valid?(args)
 
