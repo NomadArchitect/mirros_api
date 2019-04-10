@@ -3,17 +3,21 @@ class Setting < ApplicationRecord
   validates :slug, uniqueness: true
   validates_each :value do |record, attr, value|
     # TODO: Can this be extracted to handle special cases for different entries in a more elegant way?
-    if record.slug.eql? 'system_timezone'
-      record.errors.add(
-        attr,
-        "#{value} is not a valid timezone!"
-      ) if ActiveSupport::TimeZone[value.to_s].nil?
+    if record.slug.eql?('system_timezone')
+      if ActiveSupport::TimeZone[value.to_s].nil?
+        record.errors.add(
+          attr,
+          "#{value} is not a valid timezone!"
+        )
+      end
     else
-      opts = record.get_options
-      record.errors.add(
-        attr,
-        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
-      ) unless opts.has_key?(value) || opts.empty?
+      opts = record.options
+      unless opts.key?(value) || opts.empty?
+        record.errors.add(
+          attr,
+          "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
+        )
+      end
     end
   end
 
@@ -29,19 +33,16 @@ class Setting < ApplicationRecord
 
   # Gets a hash of available options for a setting, if defined.
   # @return [ActiveSupport::HashWithIndifferentAccess] Hash of options for this setting.
-  def get_options
+  def options
     # FIXME: Maybe cleaner to extract?
     if slug.eql? 'system_timezone'
-      return ActiveSupport::TimeZone.all.map do |tz|
-        {id: tz.tzinfo.identifier, name: tz.to_s}
-      end
+      ActiveSupport::TimeZone.all.map { |tz| {id: tz.tzinfo.identifier, name: tz.to_s} }
+    else
+      options_file = File.read("#{Rails.root}/app/lib/setting_options.yml")
+      # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
+      o = YAML.safe_load(options_file).with_indifferent_access[slug.to_sym]
+      o.nil? ? {} : o
     end
-
-    options_file = File.read("#{Rails.root}/app/lib/setting_options.yml")
-    # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
-    o = YAML.load(options_file).with_indifferent_access[slug.to_sym]
-    o = {} if o.nil?
-    o
   end
 
   def check_setup_status

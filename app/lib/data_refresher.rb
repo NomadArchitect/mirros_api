@@ -13,7 +13,8 @@ class DataRefresher
     end
   end
 
-  # FIXME: Refactor to smaller method, maybe convert class methods to instance
+  # FIXME: Refactor to smaller method, maybe convert class methods to instance.
+  # Maybe raise errors if preconditions fail and rescue once with log message
   def self.schedule(source_instance)
     s = scheduler
     source = source_instance.source
@@ -39,7 +40,7 @@ class DataRefresher
     job_tag = tag_instance(source.name, source_instance.id)
     job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
       # Skip refresh if the system is offline.
-      next unless StateCache.online?
+      next unless StateCache.s.online
 
       job_block(source_instance, job, source_hooks)
     end
@@ -60,47 +61,47 @@ class DataRefresher
     "#{source_name}--#{source_instance_id}"
   end
 
+  # @param [SourceInstance] source_instance
+  # @param [Object] job
+  # @param [Object] source_hooks
   def self.job_block(source_instance, job, source_hooks)
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.connection.verify!(0)
-    end
-
+    # Ensure we're not working with a stale connection
+    ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
     associations = source_instance.instance_associations
-    sub_resources = associations.map {|assoc| assoc.configuration['chosen']}
+    sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
                                 .flatten
                                 .uniq
     source_hooks_instance = source_hooks.new(source_instance.id,
                                              source_instance.configuration)
 
+
     associations.pluck('group_id').uniq.each do |group|
       # TODO: Specify should_update hook to determine if a SourceInstance needs
       #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-      # engine.should_update(group.name, active_sub_resources)
+      # source_hooks_instance.should_update(group, sub_resources)
 
       ActiveRecord::Base.transaction do
         begin
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
-          Rails.logger.error "Error during refresh of #{source} instance #{source_instance.id}: #{e.message}"
+          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
           next
         end
+        begin
+          recordables.each do |recordable|
+            recordable.save
+            next unless recordable.record_link.nil?
 
-        recordables.each do |recordable|
-          recordable.save
-          next unless recordable.record_link.nil?
-
-          source_instance.record_links <<
-            RecordLink.create(recordable: recordable, group_id: group)
+            source_instance.record_links <<
+              RecordLink.create(recordable: recordable, group_id: group)
+          end
+          source_instance.last_refresh = job.last_time.to_s
+          source_instance.save
         end
-        source_instance.save
-
-      rescue StandardError => e
-        Rails.logger.error e.message
       end
     end
-    source_instance.update(last_refresh: job.last_time.to_s)
-  rescue => e
-    e.inspect
+  rescue StandardError => e
+    Rails.logger.error e.message
   ensure
     ActiveRecord::Base.connection_pool.release_connection
   end
