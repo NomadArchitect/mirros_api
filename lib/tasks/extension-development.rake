@@ -38,6 +38,12 @@ namespace :extension do
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.skip_callback :update, :after, :update
     record = extension_class.find_by(slug: args[:extension])
+
+    if record.nil?
+      extension_class.set_callback :update, :after, :update
+      raise ArgumentError, "#{args[:type]} #{args[:extension]} not present in the #{Rails.env} db"
+    end
+
     record.update!(construct_attributes(args, spec, meta))
     puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
     extension_class.set_callback :update, :after, :update

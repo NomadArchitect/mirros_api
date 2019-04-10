@@ -25,10 +25,16 @@ namespace :db do
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('widget', widget, 'seed')
+    rescue StandardError => e
+      puts e.message
+      next
     end
     MirrOSApi::Application::DEFAULT_SOURCES.each do |source|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('source', source, 'seed')
+    rescue StandardError => e
+      puts e.message
+      next
     end
   end
 end
