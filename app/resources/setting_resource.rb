@@ -9,7 +9,7 @@ class SettingResource < JSONAPI::Resource
 
   # Add predefined options for this setting if available.
   def options
-    @model.get_options
+    @model.options
   end
 
   def self.updatable_fields(context)

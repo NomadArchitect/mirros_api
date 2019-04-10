@@ -9,11 +9,11 @@ class Setting < ApplicationRecord
         "#{value} is not a valid timezone!"
       ) if ActiveSupport::TimeZone[value.to_s].nil?
     else
-      opts = record.get_options
       record.errors.add(
         attr,
         "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
       ) unless opts.has_key?(value) || opts.empty?
+      opts = record.options
     end
   end
 
@@ -29,7 +29,7 @@ class Setting < ApplicationRecord
 
   # Gets a hash of available options for a setting, if defined.
   # @return [ActiveSupport::HashWithIndifferentAccess] Hash of options for this setting.
-  def get_options
+  def options
     # FIXME: Maybe cleaner to extract?
     if slug.eql? 'system_timezone'
       return ActiveSupport::TimeZone.all.map do |tz|
