@@ -84,24 +84,23 @@ class DataRefresher
           Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
           next
         end
+        begin
+          recordables.each do |recordable|
+            recordable.save
+            next unless recordable.record_link.nil?
 
-        recordables.each do |recordable|
-          recordable.save
-          next unless recordable.record_link.nil?
+            source_instance.record_links <<
+              RecordLink.create(recordable: recordable, group_id: group)
+          end
+          source_instance.last_refresh = job.last_time.to_s
+          source_instance.save
 
-          source_instance.record_links <<
-            RecordLink.create(recordable: recordable, group_id: group)
+        rescue StandardError => e
+          Rails.logger.error e.message
+        ensure
+          ActiveRecord::Base.connection_pool.release_connection
         end
-        source_instance.save
-
-      rescue StandardError => e
-        Rails.logger.error e.message
       end
     end
-    source_instance.update(last_refresh: job.last_time.to_s)
-  rescue => e
-    e.inspect
-  ensure
-    ActiveRecord::Base.connection_pool.release_connection
   end
 end
