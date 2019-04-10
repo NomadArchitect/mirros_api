@@ -97,13 +97,12 @@ class DataRefresher
           end
           source_instance.last_refresh = job.last_time.to_s
           source_instance.save
-
-        rescue StandardError => e
-          Rails.logger.error e.message
-        ensure
-          ActiveRecord::Base.connection_pool.release_connection
         end
       end
     end
+  rescue StandardError => e
+    Rails.logger.error e.message
+  ensure
+    ActiveRecord::Base.connection_pool.release_connection
   end
 end
