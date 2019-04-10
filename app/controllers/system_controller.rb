@@ -55,26 +55,7 @@ class SystemController < ApplicationController
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
-    # TODO: clean this up
-    case SettingsCache.s[:network_connectiontype]
-    when 'wlan'
-      begin
-        result = SettingExecution::Network.connect
-        success = true
-      rescue ArgumentError, Terrapin::ExitStatusError => e
-        result = e.message
-        success = false
-      end
-    when 'lan'
-      SettingExecution::Network.close_ap
-      result = SettingExecution::Network.enable_lan
-      success = true
-    else
-      conn_type = SettingsCache.s[:network_connectiontype]
-      # TODO: Can we use some sort of args variable here?
-      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
-      raise ArgumentError, "invalid connection type '#{conn_type}'"
-    end
+    connect_to_network
 
     # Test online status
     retries = 0
@@ -82,29 +63,23 @@ class SystemController < ApplicationController
       sleep 5
       retries += 1
     end
+    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
 
-    if success && System.online?
-      # TODO: Handle errors in thread and take action if required
-      Thread.new do
-        sleep 2
-        SettingExecution::Personal.send_setup_email
-        System.toggle_timesyncd_ntp(true)
+    # System has internet connectivity, complete seed and send setup mail
+    # TODO: Handle errors in thread and take action if required
+    Thread.new do
+      sleep 2
+      SettingExecution::Personal.send_setup_email
 
-        create_default_cal_instances
-        create_default_feed_instances
+      create_default_cal_instances
+      create_default_feed_instances
 
-        ActiveRecord::Base.clear_active_connections!
-      end
-
-    else
-      message = "Setup failed!\n"
-      message << "Could not connect to WiFi, reason: #{result}\n" unless success
-      message << 'Could not connect to the internet'
-      Rails.logger.error message
+      ActiveRecord::Base.clear_active_connections!
     end
-    render json: {success: success, result: result}
+
+    render json: {meta: System.info}
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
+    render json: jsonapi_error('Error during setup', e.message, 500), status: 500
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -182,6 +157,22 @@ class SystemController < ApplicationController
   end
 
   private
+
+  def connect_to_network
+    # TODO: clean this up
+    case SettingsCache.s[:network_connectiontype]
+    when 'wlan'
+      SettingExecution::Network.connect
+    when 'lan'
+      SettingExecution::Network.close_ap
+      SettingExecution::Network.enable_lan
+    else
+      conn_type = SettingsCache.s[:network_connectiontype]
+      # TODO: Can we use some sort of args variable here?
+      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
+      raise ArgumentError, "invalid connection type '#{conn_type}'"
+    end
+  end
 
   def create_default_cal_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
