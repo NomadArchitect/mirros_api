@@ -81,7 +81,7 @@ class DataRefresher
         begin
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
-          Rails.logger.error "Error during refresh of #{source} instance #{source_instance.id}: #{e.message}"
+          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
           next
         end
 
