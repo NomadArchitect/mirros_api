@@ -34,7 +34,10 @@ class DataRefresher
     end
 
     job_tag = tag_instance(source.name, source_instance.id)
-    job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
+    job_instance = Rufus::Scheduler.singleton.schedule_interval source_hooks.refresh_interval,
+                                                                timeout: '5m',
+                                                                overlap: false,
+                                                                tag: job_tag do |job|
       # Skip refresh if the system is offline.
       next unless StateCache.s.online
 
