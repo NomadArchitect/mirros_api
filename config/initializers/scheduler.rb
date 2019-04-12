@@ -27,7 +27,7 @@ if Rails.const_defined? 'Server'
   # Perform initial network status check if required and schedule consecutive checking.
   System.check_network_status unless state_cache.current_ip.present?
 
-  Rufus::Scheduler.s.every '30s', tag: 'network-status-check' do
+  s.every '30s', tag: 'network-status-check', overlap: false do
     System.check_network_status
   end
 end
