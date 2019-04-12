@@ -187,9 +187,9 @@ class SystemController < ApplicationController
         options: [{
                     uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
                     display: feed_settings[:title]
-                  }]
+                  }],
+        title: feed_settings[:title]
       )
-      calendar_source.update(title: feed_settings[:title])
       SourceInstance.set_callback :create, :after, :set_meta
 
       calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
