@@ -10,7 +10,7 @@ class SourceInstance < Instance
 
   validate :validate_configuration, if: :configuration_changed?
 
-  serialize :options, Array
+  # serialize :options, Array if Rails.env.development?
 
   def set_meta
     # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
