@@ -80,5 +80,9 @@ test:
 #
 production:
   <<: *default
-  database: <%= ENV.fetch("RAILS_DATABASE_LOCATION") { 'db/mirrOS_api_production.sqlite3' } %>
-  timeout: 10000
+  adapter: mysql2
+  encoding: utf8
+  database: mirrOS_api_production
+  username: root
+  password: glancr
+  socket: <%= ENV.fetch("RAILS_DATABASE_SOCKET") { '/tmp/mysql.sock' } %>

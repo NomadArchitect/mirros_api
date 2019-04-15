@@ -4,7 +4,7 @@ class CreateWidgetInstances < ActiveRecord::Migration[5.1]
       t.string :widget_id
       t.string :title
       t.boolean :showtitle, default: false # JSONAPI resources seems to hiccup on underscored field names, see https://github.com/cerebris/jsonapi-resources/pull/158
-      t.json :configuration, default: {}
+      t.json :configuration
       t.json :position
       t.timestamps
     end

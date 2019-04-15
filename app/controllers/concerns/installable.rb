@@ -23,7 +23,8 @@ module Installable
     rescue Terrapin::CommandLineError, Bundler::BundlerError, Net::HTTPError => e
       Rails.logger.error "Error during installation of #{@gem}: #{e.message}"
       remove_from_gemfile
-      raise bundler_error(e)
+      bundler_rollback
+      raise e
     end
     Rufus::Scheduler.s.resume
 
@@ -31,7 +32,7 @@ module Installable
 
     unless installed?(@gem, @version)
       remove_from_gemfile
-      raise bundler_error
+      bundler_rollback
     end
     # TODO: Service registration etc if not possible through Engine functionality.
     # MirrOSApi::Application.load_tasks
@@ -59,8 +60,10 @@ module Installable
                                  new_definition(gems: [@gem]),
                                  options)
     rescue Bundler::BundlerError => e
+      Rails.logger.error "Error during update of #{@gem}: #{e.message}"
       change_gem_version(prev_version)
-      raise bundler_error(e)
+      bundler_rollback
+      raise e
     end
 
     Rufus::Scheduler.s.resume
@@ -131,17 +134,15 @@ module Installable
     search = /gem "#{@gem}", "= [0-9].[0-9].[0-9]"/
     replace = "gem \"#{@gem}\", \"= #{version}\""
 
-    tmp = Tempfile.new(['Gemfile', '.tmp'], Rails.root.to_s + '/tmp')
-    tmp.write(File.read(Rails.root.to_s + '/Gemfile').dup.gsub(search, replace))
+    tmp = Tempfile.new(['Gemfile', '.tmp'], "#{Rails.root}/tmp")
+    tmp.write(File.read("#{Rails.root}/Gemfile").dup.gsub(search, replace))
     tmp.rewind
-    FileUtils.copy(tmp, Rails.root.to_s + "/Gemfile")
+    FileUtils.copy(tmp, "#{Rails.root}/Gemfile")
     tmp.close!
   end
 
-  # Cleans up the bundle and raises an exception in case there is an error
-  # during Bundler operations.
-  # @param [Object] error An optional Error object that has the methods message and status_code.
-  def bundler_error(error = nil)
+  # Rolls all bundler operations back to the previous state.
+  def bundler_rollback
     rt = new_runtime
     rt.lock
     rt.clean
@@ -154,7 +155,8 @@ module Installable
     Bundler.reset!
     Bundler.require(*Rails.groups, *EXTENSION_TYPES)
   rescue Bundler::GemRequireError => e
-    bundler_error(e)
+    bundler_rollback
+    raise e
   end
 
   # Generates a new Bundler::Runtime whose definition is re-read from the Gemfile.

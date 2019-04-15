@@ -1,10 +1,6 @@
 class DataRefresher
 
   # TODO: Clean this up and document methods once we reach a stable API.
-  def self.scheduler
-    Rufus::Scheduler.singleton
-  end
-
   def self.schedule_all
     instances = SourceInstance.all
 
@@ -17,7 +13,6 @@ class DataRefresher
   # FIXME: Refactor to smaller method, maybe convert class methods to instance.
   # Maybe raise errors if preconditions fail and rescue once with log message
   def self.schedule(source_instance)
-    s = scheduler
     source = source_instance.source
 
     if source_instance.configuration.empty?
@@ -39,7 +34,10 @@ class DataRefresher
     end
 
     job_tag = tag_instance(source.name, source_instance.id)
-    job_instance = s.schedule_interval source_hooks.refresh_interval, tag: job_tag do |job|
+    job_instance = Rufus::Scheduler.singleton.schedule_interval source_hooks.refresh_interval,
+                                                                timeout: '5m',
+                                                                overlap: false,
+                                                                tag: job_tag do |job|
       # Skip refresh if the system is offline.
       next unless StateCache.s.online
 
@@ -52,9 +50,8 @@ class DataRefresher
 
   # Removes the refresh job for a given SourceInstance from the central schedule.
   def self.unschedule(source_instance)
-    s = scheduler
     tag = tag_instance(source_instance.source.name, source_instance.id)
-    s.jobs(tag: tag).each(&:unschedule)
+    Rufus::Scheduler.singleton.jobs(tag: tag).each(&:unschedule)
     Rails.logger.info "unscheduled job with tag #{tag}"
   end
 
@@ -86,6 +83,8 @@ class DataRefresher
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
           Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
+          # Delay the next run on failures
+          job.next_time = Time.now + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
           next
         end
         begin

@@ -30,7 +30,9 @@ module SettingExecution
         on: 'connect',
         off: 'disconnect'
       }[state.to_sym]
-      line = Terrapin::CommandLine.new('nmcli', 'd :cmd eth0')
+      line = Terrapin::CommandLine.new('nmcli',
+                                       'd :cmd eth0',
+                                       expected_outcodes: [0, 6])
       line.run(cmd: cmd)
     end
 

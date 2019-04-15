@@ -1,5 +1,5 @@
 class Widget < ApplicationRecord
-  serialize :languages, Array
+  # serialize :languages, Array if Rails.env.development?
 
   self.primary_key = 'slug'
 
