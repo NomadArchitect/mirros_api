@@ -126,6 +126,9 @@ module Installable
   # Removes this instance's @gem from Gemfile.
   def remove_from_gemfile
     Bundler::Injector.remove([@gem], 'install' => true)
+  rescue Bundler::GemfileError => e
+    Rails.logger.error e.message
+  ensure
     definition = Bundler::Definition.build(Bundler.default_gemfile, Bundler.default_lockfile, nil)
     definition.lock(Bundler.default_lockfile)
   end
