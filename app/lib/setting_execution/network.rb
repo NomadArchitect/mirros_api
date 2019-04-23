@@ -43,6 +43,12 @@ module SettingExecution
       available_networks
     end
 
+    def self.check_signal
+      return if SettingsCache.s[:network_ssid].empty?
+
+      os_subclass.check_signal(SettingsCache.s[:network_ssid])
+    end
+
     def self.open_ap
       begin
         success = os_subclass.open_ap

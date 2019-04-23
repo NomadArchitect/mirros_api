@@ -21,8 +21,25 @@ module SettingExecution
       # would be prettier, but we require two interfaces to scan while in AP mode.
       # FIXME: This also assumes that the WiFi interface is named wlan0 (nmcli would manage that for us)
       line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | grep ESSID | cut -d "\"" -f 2')
-      line.run.split("\n")
+                                       'wlan0 scan | egrep "Quality|ESSID"')
+      results = line.run.split("\n\n")
+      results.map do |result|
+        signal, ssid = result.split("\n")
+        relative_signal = Integer(signal.match(/\d{2}/).to_s)
+                          .fdiv(70)
+                          .floor(2) * 100
+        {
+          ssid: ssid.match(/".*"/).to_s.delete('"'),
+          signal: relative_signal
+        }
+      end
+    end
+
+    def self.check_signal(ssid)
+      line = Terrapin::CommandLine.new('iwlist',
+                                       'wlan0 scan | egrep -B 2 "\":ssid\""')
+      signal = line.run(ssid: ssid).split("\n").first
+      Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100
     end
 
     def self.toggle_lan(state)
