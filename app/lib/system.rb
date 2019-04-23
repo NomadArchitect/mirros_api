@@ -20,7 +20,8 @@ class System
       api_version: API_VERSION,
       ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
-      rails_env: Rails.env
+      rails_env: Rails.env,
+      connection_type: SettingsCache.s[:network_connectiontype]
     }.merge(StateCache.s.as_json)
     StateCache.s.refresh_frontend = false
 
@@ -122,8 +123,6 @@ class System
     StateCache.s.current_ip = current_ip
     StateCache.s.online = online?
     SettingExecution::Network.open_ap unless no_ap_required?
-
-
   end
 
   # Tests whether all required parts of the initial setup are present.
