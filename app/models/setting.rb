@@ -10,6 +10,13 @@ class Setting < ApplicationRecord
           "#{value} is not a valid timezone!"
         )
       end
+    elsif record.slug.match?(/system_backgroundcolor|system_fontcolor/)
+      unless value.match?(/^#[0-9A-F]{6}$/i)
+        record.errors.add(
+          attr,
+          "#{value} is not a valid CSS color!"
+        )
+      end
     else
       opts = record.options
       unless opts.key?(value) || opts.empty?
