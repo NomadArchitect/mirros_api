@@ -64,7 +64,7 @@ module SettingExecution
       begin
         success = os_subclass.ap_active?
       rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
-        Rails.logger.error "Could not determin access point status, reason: #{e.message}"
+        Rails.logger.error "Could not determine access point status, reason: #{e.message}"
         success = false
       end
       success
