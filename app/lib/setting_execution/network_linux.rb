@@ -39,7 +39,14 @@ module SettingExecution
       line = Terrapin::CommandLine.new('iwlist',
                                        'wlan0 scan | egrep -B 2 "\":ssid\""')
       signal = line.run(ssid: ssid).split("\n").first
-      Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100
+      # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent
+      relative_signal = Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100
+      {
+        ssid: ssid,
+        signal: relative_signal
+      }
+    rescue Terrapin::ExitStatusError => e
+      { ssid: ssid, signal: 0 }
     end
 
     def self.toggle_lan(state)
