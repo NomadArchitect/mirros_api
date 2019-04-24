@@ -18,6 +18,18 @@ namespace :db do
     Setting.set_callback :update, :before, :apply_setting
     Setting.set_callback :update, :after, :update_cache
     Setting.set_callback :update, :after, :check_setup_status
+
+    Setting.find_or_create_by(slug: 'system_backgroundcolor') do |entry|
+      entry.category = 'system'
+      entry.key = 'backgroundColor'
+      entry.value = '#000000'
+    end
+
+    Setting.find_or_create_by(slug: 'system_fontcolor') do |entry|
+      entry.category = 'system'
+      entry.key = 'fontColor'
+      entry.value = '#ffffff'
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

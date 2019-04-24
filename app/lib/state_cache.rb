@@ -2,7 +2,7 @@ class StateCache
   include ActiveModel::Validations
 
   attr_accessor :refresh_frontend, :resetting, :connection_attempt,
-                :setup_complete, :configured_at_boot, :current_ip, :online
+                :setup_complete, :configured_at_boot, :current_ip, :online, :network_status
   validates :refresh_frontend, :resetting, :connection_attempt, inclusion: [true, false]
 
   def initialize
@@ -14,6 +14,9 @@ class StateCache
     # configured_at_boot is set in the scheduler
     @current_ip = System.current_ip_address
     @online = System.online?
+    @network_status = if SettingsCache.s[:network_connectiontype].eql?('wlan')
+                        SettingExecution::Network.check_signal
+                      end
   end
 
   def self.singleton

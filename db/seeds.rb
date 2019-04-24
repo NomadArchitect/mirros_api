@@ -59,6 +59,16 @@ Setting.create!(
       category: 'personal',
       key: 'privacyConsent',
       value: 'no' # Requires frontend to specify checkbox values.
+    },
+    {
+      category: 'system',
+      key: 'backgroundColor',
+      value: '#000000'
+    },
+    {
+      category: 'system',
+      key: 'fontColor',
+      value: '#ffffff'
     }
   ]
 )

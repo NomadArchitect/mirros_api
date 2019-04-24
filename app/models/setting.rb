@@ -10,6 +10,13 @@ class Setting < ApplicationRecord
           "#{value} is not a valid timezone!"
         )
       end
+    elsif record.slug.match?(/system_backgroundcolor|system_fontcolor/)
+      unless value.match?(/^#[0-9A-F]{6}$/i)
+        record.errors.add(
+          attr,
+          "#{value} is not a valid CSS color!"
+        )
+      end
     else
       opts = record.options
       unless opts.key?(value) || opts.empty?
@@ -25,7 +32,7 @@ class Setting < ApplicationRecord
   friendly_id :category_and_key, use: :slugged
 
   before_update :apply_setting, if: :auto_applicable?
-  after_update :update_cache, :check_setup_status
+  after_update :update_cache, :check_setup_status, :schedule_jobs
 
   def category_and_key
     "#{category}_#{key}"
@@ -60,6 +67,21 @@ class Setting < ApplicationRecord
   def apply_setting
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
     executor.send(key, value) if executor.respond_to?(key)
+  end
+
+  def schedule_jobs
+    return unless slug.eql?('network_connectiontype') && saved_change_to_attribute?('value')
+
+    running_jobs = Rufus::Scheduler.s.jobs(tag: 'network-signal-check') # Returns an array of matching jobs
+    if value.eql?('wlan')
+      return unless running_jobs.empty?
+
+      Rufus::Scheduler.s.every '1m', tag: 'network-signal-check', overlap: false do
+        StateCache.s.network_status = SettingExecution::Network.check_signal
+      end
+    else
+      running_jobs.each(&:unschedule)
+    end
   end
 
 end

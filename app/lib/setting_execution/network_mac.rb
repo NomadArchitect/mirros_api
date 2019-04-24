@@ -22,7 +22,14 @@ module SettingExecution
       # Versions/Current/Resources/airport has a legacy switch `-s`
       raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' unless Rails.env.development?
 
-      ['this is not a real wifi, just testing', 'this is neither']
+      [
+        { ssid: 'this is not a real wifi, just testing', signal: 70 },
+        { ssid: 'this is neither', signal: 50 }
+      ]
+    end
+
+    def self.check_signal(ssid)
+      list.select { |wifi| wifi[:ssid].eql?(ssid) }.pop
     end
 
     def self.toggle_lan(_state)
