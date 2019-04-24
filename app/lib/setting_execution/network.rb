@@ -44,9 +44,10 @@ module SettingExecution
     end
 
     def self.check_signal
-      return if SettingsCache.s[:network_ssid].empty?
+      ssid = SettingsCache.s[:network_ssid]
+      return if ssid.nil? || ssid.empty?
 
-      os_subclass.check_signal(SettingsCache.s[:network_ssid])
+      os_subclass.check_signal(ssid)
     end
 
     def self.open_ap
