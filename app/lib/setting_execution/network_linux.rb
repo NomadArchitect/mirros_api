@@ -30,7 +30,7 @@ module SettingExecution
                           .floor(2) * 100
         {
           ssid: ssid.match(/".*"/).to_s.delete('"'),
-          signal: relative_signal
+          signal: relative_signal.to_i
         }
       end
     end
@@ -43,9 +43,10 @@ module SettingExecution
       relative_signal = Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100
       {
         ssid: ssid,
-        signal: relative_signal
+        signal: relative_signal.to_i
       }
     rescue Terrapin::ExitStatusError => e
+      Rails.logger.error "Could not check signal strength: #{e.message}"
       { ssid: ssid, signal: 0 }
     end
 
