@@ -12,6 +12,7 @@ class StateCache
     @connection_attempt = false
     @setup_complete = System.setup_completed?
     # configured_at_boot is set in the scheduler
+    @configured_at_boot = false
     @current_ip = System.current_ip_address
     @online = System.online?
     @network_status = if SettingsCache.s[:network_connectiontype].eql?('wlan')
