@@ -46,6 +46,7 @@ module SettingExecution
         signal: relative_signal
       }
     rescue Terrapin::ExitStatusError => e
+      Rails.logger.error "Could not check signal strength: #{e.message}"
       { ssid: ssid, signal: 0 }
     end
 
