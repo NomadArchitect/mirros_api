@@ -20,7 +20,8 @@ class SourceInstance < Instance
       hooks.list_sub_resources.map do |option|
         options << {uid: option[0], display: option[1]}
       end
-    rescue RuntimeError => e
+    rescue StandardError => e
+      Rails.logger.error "[set_meta] #{e.message}"
       errors.add(:configuration, e.message)
     end
     self.options = options

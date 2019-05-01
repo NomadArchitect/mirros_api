@@ -5,7 +5,7 @@ require 'terrapin'
 SNAP_VERSION = ENV['SNAP_VERSION'] ||= '0.0.0'
 API_VERSION = case File.exist? 'build_version'
               when true
-                File.read('build_version').chomp!
+                File.read('build_version').chomp
               when false
                 begin
                   Terrapin::CommandLine.new(

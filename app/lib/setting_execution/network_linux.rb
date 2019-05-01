@@ -8,6 +8,8 @@ module SettingExecution
   class NetworkLinux < Network
 
     # TODO: Support other authentication methods as well
+    # @param [String] ssid
+    # @param [String] password
     def self.connect(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
       remove_connection(ssid)
@@ -22,33 +24,36 @@ module SettingExecution
       # FIXME: This also assumes that the WiFi interface is named wlan0 (nmcli would manage that for us)
       line = Terrapin::CommandLine.new('iwlist',
                                        'wlan0 scan | egrep "Quality|ESSID"')
-      results = line.run.split("\n\n")
+      results = line.run.split("\"\n")
       results.map do |result|
         signal, ssid = result.split("\n")
-        relative_signal = Integer(signal.match(/\d{2}/).to_s)
-                          .fdiv(70)
-                          .floor(2) * 100
         {
-          ssid: ssid.match(/".*"/).to_s.delete('"'),
-          signal: relative_signal.to_i
+          ssid: ssid.match(/".*$/).to_s.delete('"'),
+          signal: normalize_signal_strength(signal)
         }
       end
     end
 
     def self.check_signal(ssid)
       line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | egrep -B 2 "\":ssid\""')
+                                       'wlan0 scan | egrep -B 2 ESSID:\":ssid')
+      # Search for the given SSID; previous line contains signal strength.
       signal = line.run(ssid: ssid).split("\n").first
-      # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent
-      relative_signal = Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100
-      {
-        ssid: ssid,
-        signal: relative_signal.to_i
-      }
+
+
+      { ssid: ssid, signal: normalize_signal_strength(signal) }
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not check signal strength: #{e.message}"
       { ssid: ssid, signal: 0 }
     end
+
+    # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
+    # @param [String] signal string containing the signal strength as a two-digit integer
+    def self.normalize_signal_strength(signal)
+      (Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100).to_i
+    end
+
+    private_class_method :normalize_signal_strength
 
     def self.toggle_lan(state)
       cmd = {
@@ -104,6 +109,7 @@ module SettingExecution
                                        expected_outcodes: [0, 10])
       line.run(connection: connection)
     end
+
     private_class_method :remove_connection
 
   end

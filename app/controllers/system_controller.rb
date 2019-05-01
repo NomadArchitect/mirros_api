@@ -11,7 +11,7 @@ class SystemController < ApplicationController
     StateCache.s.resetting = true
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
-    DataRefresher.scheduler.shutdown(:kill)
+    Rufus::Scheduler.s.shutdown(:kill)
 
     reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root}/reset.sh :env")
     reset_line.run(env: Rails.env)

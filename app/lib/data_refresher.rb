@@ -34,10 +34,10 @@ class DataRefresher
     end
 
     job_tag = tag_instance(source.name, source_instance.id)
-    job_instance = Rufus::Scheduler.singleton.schedule_interval source_hooks.refresh_interval,
-                                                                timeout: '5m',
-                                                                overlap: false,
-                                                                tag: job_tag do |job|
+    job_instance = Rufus::Scheduler.s.schedule_interval source_hooks.refresh_interval,
+                                                        timeout: '5m',
+                                                        overlap: false,
+                                                        tag: job_tag do |job|
       # Skip refresh if the system is offline.
       next unless StateCache.s.online
 
@@ -51,7 +51,7 @@ class DataRefresher
   # Removes the refresh job for a given SourceInstance from the central schedule.
   def self.unschedule(source_instance)
     tag = tag_instance(source_instance.source.name, source_instance.id)
-    Rufus::Scheduler.singleton.jobs(tag: tag).each(&:unschedule)
+    Rufus::Scheduler.s.jobs(tag: tag).each(&:unschedule)
     Rails.logger.info "unscheduled job with tag #{tag}"
   end
 
