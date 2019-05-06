@@ -22,8 +22,9 @@ class SystemController < ApplicationController
     Thread.new do
       # Wait a bit to ensure 204 response from parent thread is properly sent.
       sleep 2
-      # Disconnect from Wifi networks if configured
-      SettingExecution::Network.reset unless SettingsCache.s[:network_connectiontype].eql? 'lan'
+      # Disconnect from Wifi networks if configured, disable LAN to force setup through AP
+      SettingExecution::Network.reset
+      SettingExecution::Network.disable_lan
 
       MirrOSApi::Application.load_tasks
       Rake::Task['db:recycle'].invoke
