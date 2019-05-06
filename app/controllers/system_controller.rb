@@ -165,8 +165,9 @@ class SystemController < ApplicationController
     when 'wlan'
       SettingExecution::Network.connect
     when 'lan'
-      SettingExecution::Network.close_ap
+      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       SettingExecution::Network.enable_lan
+      SettingExecution::Network.reset
     else
       Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
       raise ArgumentError, "invalid connection type '#{conn_type}'"
