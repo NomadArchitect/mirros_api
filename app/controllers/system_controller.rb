@@ -160,15 +160,14 @@ class SystemController < ApplicationController
 
   def connect_to_network
     # TODO: clean this up
-    case SettingsCache.s[:network_connectiontype]
+    conn_type = SettingsCache.s[:network_connectiontype]
+    case conn_type
     when 'wlan'
       SettingExecution::Network.connect
     when 'lan'
       SettingExecution::Network.close_ap
       SettingExecution::Network.enable_lan
     else
-      conn_type = SettingsCache.s[:network_connectiontype]
-      # TODO: Can we use some sort of args variable here?
       Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
       raise ArgumentError, "invalid connection type '#{conn_type}'"
     end
