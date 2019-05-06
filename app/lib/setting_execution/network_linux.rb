@@ -85,10 +85,10 @@ module SettingExecution
     # @return [Boolean] True if the AP connection is among the active nmcli connections.
     def self.ap_active?
       line = Terrapin::CommandLine.new('nmcli',
-                                       '-f NAME c show --active | grep glancrsetup',
+                                       '-f GENERAL.NAME c show --active glancrsetup',
                                        expected_outcodes: [0, 1])
-      line.run
-      line.exit_status.zero?
+      result = line.run
+      line.exit_status.zero? && !result.empty?
     end
 
     def self.close_ap
