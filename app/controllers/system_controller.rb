@@ -114,9 +114,8 @@ class SystemController < ApplicationController
 
   # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
   def fetch_extensions
-    # FIXME: Use API_HOST as well once migration is done.
     render json: HTTParty.get(
-      "http://gems.marco-roth.ch/list/#{params[:type]}",
+      "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
       timeout: 5
     )
   rescue SocketError, Net::OpenTimeout => e
