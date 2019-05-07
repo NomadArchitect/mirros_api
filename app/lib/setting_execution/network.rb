@@ -26,6 +26,7 @@ module SettingExecution
 
     def self.enable_lan
       toggle_lan('on')
+      os_subclass.reset
     end
 
     def self.disable_lan
@@ -34,7 +35,6 @@ module SettingExecution
 
     def self.reset
       os_subclass.reset
-      disable_lan
     end
 
     def self.list
