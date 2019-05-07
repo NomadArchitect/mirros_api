@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_30_230138) do
+ActiveRecord::Schema.define(version: 2019_05_01_113204) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -63,6 +63,16 @@ ActiveRecord::Schema.define(version: 2019_04_30_230138) do
     t.string "description"
     t.string "color"
     t.index ["uid"], name: "index_group_schemas_calendars_on_uid"
+  end
+
+  create_table "group_schemas_idioms", force: :cascade do |t|
+    t.string "title"
+    t.text "message"
+    t.string "author"
+    t.string "language"
+    t.date "date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, force: :cascade do |t|
