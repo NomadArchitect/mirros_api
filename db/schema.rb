@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_01_113204) do
+ActiveRecord::Schema.define(version: 2019_05_11_080641) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -108,9 +108,12 @@ ActiveRecord::Schema.define(version: 2019_05_01_113204) do
 
   create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
     t.integer "reminder_list_id"
-    t.datetime "dtstart"
+    t.datetime "due_date"
     t.string "summary"
     t.string "description"
+    t.boolean "completed"
+    t.datetime "creation_date"
+    t.string "assignee"
     t.index ["reminder_list_id"], name: "index_group_schemas_reminder_items_on_reminder_list_id"
     t.index ["uid"], name: "index_group_schemas_reminder_items_on_uid"
   end
