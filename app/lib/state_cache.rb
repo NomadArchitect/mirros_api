@@ -11,8 +11,10 @@ class StateCache
     @resetting = false
     @connection_attempt = false
     @setup_complete = System.setup_completed?
-    # configured_at_boot is set in the scheduler
-    @configured_at_boot = false
+    # FIXME: configured_at_boot is a temporary workaround to differentiate between
+    # initial setup before first connection attempt and subsequent network problems.
+    # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
+    @configured_at_boot = @setup_complete
     @current_ip = System.current_ip_address
     @online = System.online?
     @network_status = if SettingsCache.s[:network_connectiontype].eql?('wlan')
