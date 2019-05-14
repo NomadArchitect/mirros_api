@@ -59,13 +59,7 @@ module Installable
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
     Thread.new do
-      restart_successful = System.restart_application
-
-      unless restart_successful
-        change_gem_version(prev_version)
-        # Restart a second time with the old gem version which should be installed.
-        System.restart_application
-      end
+      System.restart_application
       ActiveRecord::Base.connection.close
     end
   end
