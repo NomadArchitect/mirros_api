@@ -46,11 +46,13 @@ Rails.application.routes.draw do
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
-      mount "#{source.id.camelcase}::Engine".safe_constantize, at: "/#{source.id}"
+      engine = "#{source.id.camelize}::Engine".safe_constantize
+      mount engine, at: "/#{source.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
 
     Widget.all.each do |widget|
-      mount "#{widget.id.camelcase}::Engine".safe_constantize, at: "/#{widget.id}"
+      engine = "#{widget.id.camelize}::Engine".safe_constantize
+      mount engine, at: "/#{widget.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
   end
 

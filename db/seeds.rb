@@ -114,6 +114,9 @@ Group.create(
     },
     {
       name: 'music_player'
+    },
+    {
+      name: 'idiom'
     }
   ]
 )

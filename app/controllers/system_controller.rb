@@ -22,8 +22,9 @@ class SystemController < ApplicationController
     Thread.new do
       # Wait a bit to ensure 204 response from parent thread is properly sent.
       sleep 2
-      # Disconnect from Wifi networks if configured
-      SettingExecution::Network.reset unless SettingsCache.s[:network_connectiontype].eql? 'lan'
+      # Disconnect from Wifi networks if configured, disable LAN to force setup through AP
+      SettingExecution::Network.reset
+      SettingExecution::Network.disable_lan
 
       MirrOSApi::Application.load_tasks
       Rake::Task['db:recycle'].invoke
@@ -113,9 +114,8 @@ class SystemController < ApplicationController
 
   # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
   def fetch_extensions
-    # FIXME: Use API_HOST as well once migration is done.
     render json: HTTParty.get(
-      "http://gems.marco-roth.ch/list/#{params[:type]}",
+      "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
       timeout: 5
     )
   rescue SocketError, Net::OpenTimeout => e
@@ -160,15 +160,15 @@ class SystemController < ApplicationController
 
   def connect_to_network
     # TODO: clean this up
-    case SettingsCache.s[:network_connectiontype]
+    conn_type = SettingsCache.s[:network_connectiontype]
+    case conn_type
     when 'wlan'
       SettingExecution::Network.connect
     when 'lan'
-      SettingExecution::Network.close_ap
+      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       SettingExecution::Network.enable_lan
+      SettingExecution::Network.reset
     else
-      conn_type = SettingsCache.s[:network_connectiontype]
-      # TODO: Can we use some sort of args variable here?
       Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
       raise ArgumentError, "invalid connection type '#{conn_type}'"
     end

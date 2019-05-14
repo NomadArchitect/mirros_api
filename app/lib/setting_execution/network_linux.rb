@@ -41,10 +41,10 @@ module SettingExecution
       signal = line.run(ssid: ssid).split("\n").first
 
 
-      { ssid: ssid, signal: normalize_signal_strength(signal) }
+      {ssid: ssid, signal: normalize_signal_strength(signal)}
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not check signal strength: #{e.message}"
-      { ssid: ssid, signal: 0 }
+      {ssid: ssid, signal: 0}
     end
 
     # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
@@ -85,10 +85,10 @@ module SettingExecution
     # @return [Boolean] True if the AP connection is among the active nmcli connections.
     def self.ap_active?
       line = Terrapin::CommandLine.new('nmcli',
-                                       '-f NAME c show --active | grep glancrsetup',
+                                       '-f GENERAL.NAME c show --active glancrsetup',
                                        expected_outcodes: [0, 1])
-      line.run
-      line.exit_status.zero?
+      result = line.run
+      line.exit_status.zero? && !result.empty?
     end
 
     def self.close_ap

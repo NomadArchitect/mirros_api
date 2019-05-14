@@ -10,11 +10,6 @@ if Rails.const_defined? 'Server'
   settings_cache = SettingsCache.singleton
   state_cache = StateCache.singleton
 
-  # FIXME: configured_at_boot is a temporary workaround to differentiate between
-  # initial setup before first connection attempt and subsequent network problems.
-  # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-  state_cache.configured_at_boot = state_cache.setup_complete
-
   if OS.linux?
     SettingExecution::Network.disable_lan unless settings_cache[:network_connectiontype].eql? 'lan'
   end

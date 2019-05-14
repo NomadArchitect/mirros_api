@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_30_230138) do
+ActiveRecord::Schema.define(version: 2019_05_11_080641) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -65,6 +65,16 @@ ActiveRecord::Schema.define(version: 2019_04_30_230138) do
     t.index ["uid"], name: "index_group_schemas_calendars_on_uid"
   end
 
+  create_table "group_schemas_idioms", force: :cascade do |t|
+    t.string "title"
+    t.text "message"
+    t.string "author"
+    t.string "language"
+    t.date "date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, force: :cascade do |t|
     t.integer "newsfeed_id"
     t.string "title"
@@ -98,9 +108,12 @@ ActiveRecord::Schema.define(version: 2019_04_30_230138) do
 
   create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
     t.integer "reminder_list_id"
-    t.datetime "dtstart"
+    t.datetime "due_date"
     t.string "summary"
     t.string "description"
+    t.boolean "completed"
+    t.datetime "creation_date"
+    t.string "assignee"
     t.index ["reminder_list_id"], name: "index_group_schemas_reminder_items_on_reminder_list_id"
     t.index ["uid"], name: "index_group_schemas_reminder_items_on_uid"
   end

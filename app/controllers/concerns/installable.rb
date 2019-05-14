@@ -11,66 +11,54 @@ module Installable
 
   EXTENSION_TYPES = %w[widget source].freeze
 
-  def install
+  def install_gem
     Rufus::Scheduler.s.pause
     setup_instance
 
     begin
       inject_gem
-      options = {'jobs' => 5, 'without' => 'development'}
-      installer = Bundler::Installer.new(Bundler.root, new_definition)
-      installer.run(options)
+      Bundler::Installer.install(Bundler.root, new_definition, bundler_options)
     rescue Terrapin::CommandLineError, Bundler::BundlerError, Net::HTTPError => e
       Rails.logger.error "Error during installation of #{@gem}: #{e.message}"
       remove_from_gemfile
       bundler_rollback
       raise e
+    ensure
+      Rufus::Scheduler.s.resume
     end
-    Rufus::Scheduler.s.resume
 
     refresh_runtime
 
     unless installed?(@gem, @version)
       remove_from_gemfile
       bundler_rollback
+      raise StandardError, "Extension #{@gem} was not properly installed, reverting"
     end
-    # TODO: Service registration etc if not possible through Engine functionality.
-    # MirrOSApi::Application.load_tasks
-    # Rake::Task["#{@gem}:install:migrations"].invoke
-    # Rake::Task["db:migrate SCOPE=#{@gem}"].invoke
-    # engine = "#{@gem}::Engine".safe_constantize
-    # Thread.new do
-    # engine.load_seed
-    #   ActiveRecord::Base.connection.close
-    # end
-    #
   end
 
   # Update the extension to the passed version.
-  def update
+  def update_gem
     Rufus::Scheduler.s.pause
     setup_instance
-
     prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
     change_gem_version(@version)
 
     begin
-      options = {'without' => %w[development test], 'jobs' => 5}
       Bundler::Installer.install(Bundler.root,
                                  new_definition(gems: [@gem]),
-                                 options)
+                                 bundler_options)
     rescue Bundler::BundlerError => e
       Rails.logger.error "Error during update of #{@gem}: #{e.message}"
       change_gem_version(prev_version)
       bundler_rollback
       raise e
+    ensure
+      Rufus::Scheduler.s.resume
     end
-
-    Rufus::Scheduler.s.resume
 
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
-    fork do
+    Thread.new do
       restart_successful = System.restart_application
 
       unless restart_successful
@@ -78,31 +66,74 @@ module Installable
         # Restart a second time with the old gem version which should be installed.
         System.restart_application
       end
+      ActiveRecord::Base.connection.close
     end
   end
 
   # Uninstalls an extension gem.
-  def uninstall
+  def uninstall_gem
     Rufus::Scheduler.s.pause
     setup_instance
-    remove_from_gemfile
-    # TODO: implement service de-registration and other cleanup
-    # db:migrate SCOPE=gemname VERSION=0
-    # File.delete(db/migrate/???)
-    # bundle clean
 
-    Rufus::Scheduler.s.resume
-    fork do
+    begin
+      remove_from_gemfile
+      Terrapin::CommandLine.new('bundle', 'clean').run
+    rescue StandardError => e
+      Rails.logger.error "Error in post-uninstall of #{@gem}: #{e.message}"
+      inject_gem
+    ensure
+      Rufus::Scheduler.s.resume
+    end
+
+    # TODO: implement service de-registration
+
+    # FIXME: Do we need to restart if the gem constants are not called anymore?
+    Thread.new do
       restart_successful = System.restart_application
       # Re-add the gem so that Gemfile and installation state are consistent.
       inject_gem unless restart_successful
+      ActiveRecord::Base.connection.close
     end
   end
 
   def uninstall_without_restart
     setup_instance
     remove_from_gemfile
+    post_uninstall
     # TODO: implement service de-registration and other cleanup
+  end
+
+  def post_install
+    engine = "#{@gem.camelize}::Engine".safe_constantize
+    return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', "#{@gem}:install:migrations").run
+    Terrapin::CommandLine.new('bin/rails', "db:migrate SCOPE=#{@gem}").run
+    engine.load_seed
+  rescue RuntimeError, Terrapin::CommandLineError => e
+    Rails.logger.error "Error during #{@gem} post-install: #{e.message}"
+    raise e
+    # TODO: Service registration or additional hooks once implemented and/or required
+  end
+
+  def post_update
+    engine = "#{@gem.camelize}::Engine".safe_constantize
+    return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', "#{@gem}:install:migrations").run
+    Terrapin::CommandLine.new('bin/rails', "db:migrate SCOPE=#{@gem}").run
+  rescue RuntimeError, Terrapin::CommandLineError => e
+    Rails.logger.error "Error during #{@gem} post-update: #{e.message}"
+    raise e
+    # TODO: Service registration or additional hooks once implemented and/or required
+  end
+
+  def post_uninstall
+    #engine = "#{@gem.camelize}::Engine".safe_constantize
+    #return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', 'db:migrate SCOPE=:gem VERSION=0').run(gem: @gem)
+    Pathname.glob("db/migrate/*.#{@gem}.rb").each(&:delete)
   end
 
 
@@ -125,6 +156,7 @@ module Installable
 
   # Removes this instance's @gem from Gemfile.
   def remove_from_gemfile
+    # TODO: Can we check if the gem was added at all, so that we don't get an error if its not there?
     Bundler::Injector.remove([@gem], 'install' => true)
   rescue Bundler::GemfileError => e
     Rails.logger.error e.message
@@ -180,10 +212,15 @@ module Installable
   def installed?(gem, version)
     gem_present = Gem.loaded_specs.keys.any?(gem)
     if gem_present
-      Gem.loaded_specs[gem].version === Gem::Version.new(version)
+      Gem.loaded_specs[gem].version == Gem::Version.new(version)
     else
       gem_present
     end
   end
+
+  def bundler_options
+    { without: Rails.env.production? ? %w[development test] : ['production'], jobs: 5 }
+  end
+
 
 end

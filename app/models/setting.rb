@@ -74,6 +74,7 @@ class Setting < ApplicationRecord
 
     running_jobs = Rufus::Scheduler.s.jobs(tag: 'network-signal-check') # Returns an array of matching jobs
     if value.eql?('wlan')
+      StateCache.s.network_status = SettingExecution::Network.check_signal
       return unless running_jobs.empty?
 
       Rufus::Scheduler.s.every '1m', tag: 'network-signal-check', overlap: false do

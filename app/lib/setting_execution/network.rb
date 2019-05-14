@@ -10,7 +10,7 @@ module SettingExecution
       password = SettingsCache.s[:network_password]
       raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
 
-      SettingExecution::Network.close_ap
+      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       disable_lan
 
       success = os_subclass.connect(ssid, password)
@@ -26,6 +26,7 @@ module SettingExecution
 
     def self.enable_lan
       toggle_lan('on')
+      os_subclass.reset
     end
 
     def self.disable_lan
@@ -34,7 +35,6 @@ module SettingExecution
 
     def self.reset
       os_subclass.reset
-      disable_lan
     end
 
     def self.list

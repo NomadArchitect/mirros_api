@@ -3,6 +3,6 @@ class ReminderListResource < JSONAPI::Resource
   attributes :name, :description, :reminders
 
   def reminders
-    @model.reminders.as_json
+    @model.reminders.sort_by(&:creation_date).as_json
   end
 end
