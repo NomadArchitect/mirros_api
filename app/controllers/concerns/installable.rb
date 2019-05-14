@@ -66,6 +66,7 @@ module Installable
         # Restart a second time with the old gem version which should be installed.
         System.restart_application
       end
+      ActiveRecord::Base.connection.close
     end
   end
 
