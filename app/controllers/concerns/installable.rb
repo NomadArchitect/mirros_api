@@ -29,11 +29,18 @@ module Installable
 
     refresh_runtime
 
-    unless installed?(@gem, @version)
+    case installed?(@gem, @version)
+    when true
+      Thread.new { System.restart_application }
+    when false
       remove_from_gemfile
       bundler_rollback
       raise StandardError, "Extension #{@gem} was not properly installed, reverting"
+    else
+      Rails.logger.error "Could not determine install state of #{@gem}"
     end
+
+
   end
 
   # Update the extension to the passed version.
