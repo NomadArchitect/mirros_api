@@ -42,8 +42,8 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-
 ### mirr.OS gems ###
+gem 'mysql2', '~> 0.5.2'
 gem 'bundler', '>= 1.17.1' # extension management
 gem 'httparty', '~> 0.16.4' # TODO: Upgrade, but also upgrade extension dependencies
 gem 'jsonapi-resources', '~> 0.9.6'
@@ -60,10 +60,6 @@ group :development do
   gem 'git', '~> 1.5.0'
   # Data Visualization
   gem 'rails-erd', '~> 1.5.0'
-end
-
-group :production do
-  gem 'mysql2', '~> 0.5.2'
 end
 
 ### mirr.OS default extensions ###
