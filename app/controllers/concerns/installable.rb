@@ -11,7 +11,7 @@ module Installable
 
   EXTENSION_TYPES = %w[widget source].freeze
 
-  def install
+  def install_gem
     Rufus::Scheduler.s.pause
     setup_instance
 
@@ -34,20 +34,10 @@ module Installable
       bundler_rollback
       raise StandardError, "Extension #{@gem} was not properly installed, reverting"
     end
-    # TODO: Service registration etc if not possible through Engine functionality.
-    # MirrOSApi::Application.load_tasks
-    # Rake::Task["#{@gem}:install:migrations"].invoke
-    # Rake::Task["db:migrate SCOPE=#{@gem}"].invoke
-    # engine = "#{@gem}::Engine".safe_constantize
-    # Thread.new do
-    # engine.load_seed
-    #   ActiveRecord::Base.connection.close
-    # end
-    #
   end
 
   # Update the extension to the passed version.
-  def update
+  def update_gem
     Rufus::Scheduler.s.pause
     setup_instance
     prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
@@ -80,7 +70,7 @@ module Installable
   end
 
   # Uninstalls an extension gem.
-  def uninstall
+  def uninstall_gem
     Rufus::Scheduler.s.pause
     setup_instance
 
@@ -108,7 +98,41 @@ module Installable
   def uninstall_without_restart
     setup_instance
     remove_from_gemfile
+    post_uninstall
     # TODO: implement service de-registration and other cleanup
+  end
+
+  def post_install
+    engine = "#{@gem.camelize}::Engine".safe_constantize
+    return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', "#{@gem}:install:migrations").run
+    Terrapin::CommandLine.new('bin/rails', "db:migrate SCOPE=#{@gem}").run
+    engine.load_seed
+  rescue RuntimeError, Terrapin::CommandLineError => e
+    Rails.logger.error "Error during #{@gem} post-install: #{e.message}"
+    raise e
+    # TODO: Service registration or additional hooks once implemented and/or required
+  end
+
+  def post_update
+    engine = "#{@gem.camelize}::Engine".safe_constantize
+    return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', "#{@gem}:install:migrations").run
+    Terrapin::CommandLine.new('bin/rails', "db:migrate SCOPE=#{@gem}").run
+  rescue RuntimeError, Terrapin::CommandLineError => e
+    Rails.logger.error "Error during #{@gem} post-update: #{e.message}"
+    raise e
+    # TODO: Service registration or additional hooks once implemented and/or required
+  end
+
+  def post_uninstall
+    #engine = "#{@gem.camelize}::Engine".safe_constantize
+    #return if engine.config.paths['db/migrate'].existent.empty?
+
+    Terrapin::CommandLine.new('bin/rails', 'db:migrate SCOPE=:gem VERSION=0').run(gem: @gem)
+    Pathname.glob("db/migrate/*.#{@gem}.rb").each(&:delete)
   end
 
 
