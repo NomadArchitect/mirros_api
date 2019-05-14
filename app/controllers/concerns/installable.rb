@@ -104,6 +104,7 @@ module Installable
   end
 
   def post_install
+    setup_instance
     engine = "#{@gem.camelize}::Engine".safe_constantize
     return if engine.config.paths['db/migrate'].existent.empty?
 
@@ -117,6 +118,7 @@ module Installable
   end
 
   def post_update
+    setup_instance
     engine = "#{@gem.camelize}::Engine".safe_constantize
     return if engine.config.paths['db/migrate'].existent.empty?
 
@@ -129,13 +131,10 @@ module Installable
   end
 
   def post_uninstall
-    #engine = "#{@gem.camelize}::Engine".safe_constantize
-    #return if engine.config.paths['db/migrate'].existent.empty?
-
+    setup_instance
     Terrapin::CommandLine.new('bin/rails', 'db:migrate SCOPE=:gem VERSION=0').run(gem: @gem)
     Pathname.glob("db/migrate/*.#{@gem}.rb").each(&:delete)
   end
-
 
   private
 
