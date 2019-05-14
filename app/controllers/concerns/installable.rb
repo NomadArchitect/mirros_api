@@ -29,11 +29,18 @@ module Installable
 
     refresh_runtime
 
-    unless installed?(@gem, @version)
+    case installed?(@gem, @version)
+    when true
+      Thread.new { System.restart_application }
+    when false
       remove_from_gemfile
       bundler_rollback
       raise StandardError, "Extension #{@gem} was not properly installed, reverting"
+    else
+      Rails.logger.error "Could not determine install state of #{@gem}"
     end
+
+
   end
 
   # Update the extension to the passed version.
@@ -59,13 +66,7 @@ module Installable
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
     # otherwise wait for a response while still ensuring that the Rails app is restarted before validating the result.
     Thread.new do
-      restart_successful = System.restart_application
-
-      unless restart_successful
-        change_gem_version(prev_version)
-        # Restart a second time with the old gem version which should be installed.
-        System.restart_application
-      end
+      System.restart_application
       ActiveRecord::Base.connection.close
     end
   end
@@ -104,6 +105,7 @@ module Installable
   end
 
   def post_install
+    setup_instance
     engine = "#{@gem.camelize}::Engine".safe_constantize
     return if engine.config.paths['db/migrate'].existent.empty?
 
@@ -117,6 +119,7 @@ module Installable
   end
 
   def post_update
+    setup_instance
     engine = "#{@gem.camelize}::Engine".safe_constantize
     return if engine.config.paths['db/migrate'].existent.empty?
 
@@ -129,13 +132,10 @@ module Installable
   end
 
   def post_uninstall
-    #engine = "#{@gem.camelize}::Engine".safe_constantize
-    #return if engine.config.paths['db/migrate'].existent.empty?
-
+    setup_instance
     Terrapin::CommandLine.new('bin/rails', 'db:migrate SCOPE=:gem VERSION=0').run(gem: @gem)
     Pathname.glob("db/migrate/*.#{@gem}.rb").each(&:delete)
   end
-
 
   private
 

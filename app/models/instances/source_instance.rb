@@ -6,7 +6,7 @@ class SourceInstance < Instance
 
   after_create :set_meta, :add_to_scheduler
   after_update :update_callbacks
-  after_destroy :remove_from_scheduler
+  before_destroy :remove_from_scheduler
 
   validate :validate_configuration, if: :configuration_changed?
 
