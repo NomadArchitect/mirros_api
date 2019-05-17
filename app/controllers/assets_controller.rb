@@ -12,6 +12,7 @@ class AssetsController < ApplicationController
     if request.head?
       head :ok
     else
+      expires_in 1.month, public: true
       send_file(file_path)
     end
   end
