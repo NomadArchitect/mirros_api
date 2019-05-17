@@ -118,10 +118,10 @@ class SystemController < ApplicationController
       "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
       timeout: 5
     )
-  rescue SocketError, Net::OpenTimeout => e
-    Rails.logger.error "Error while fetching extension lists: #{e.message}"
+  rescue StandardError => e
+    Rails.logger.error "Could not fetch #{params[:type]} list from #{MirrOSApi::Application::GEM_SERVER}: #{e.message}"
     render json: jsonapi_error(
-      'error while fetching extensions',
+      "Could not fetch #{params[:type]} list",
       e.message,
       504
     ), status: 504
