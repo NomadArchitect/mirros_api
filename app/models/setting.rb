@@ -77,7 +77,7 @@ class Setting < ApplicationRecord
       StateCache.s.network_status = SettingExecution::Network.check_signal
       return unless running_jobs.empty?
 
-      Rufus::Scheduler.s.every '1m', tag: 'network-signal-check', overlap: false do
+      Rufus::Scheduler.s.every '2m', tag: 'network-signal-check', overlap: false do
         StateCache.s.network_status = SettingExecution::Network.check_signal
       end
     else
