@@ -27,7 +27,7 @@ if Rails.const_defined? 'Server'
   end
 
   if SettingsCache.s[:network_connectiontype].eql?('wlan')
-    s.every '1m', tag: 'network-signal-check', overlap: false do
+    s.every '2m', tag: 'network-signal-check', overlap: false do
       StateCache.s.network_status = SettingExecution::Network.check_signal
     end
   end

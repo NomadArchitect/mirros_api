@@ -16,6 +16,10 @@ module.exports = {
         type: Object,
         required: false
       },
+      currentPosition: {
+        type: Object,
+        required: true
+      },
       sourcesConfigured: {
         type: Boolean,
         required: false

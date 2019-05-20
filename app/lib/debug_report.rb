@@ -16,7 +16,7 @@ class DebugReport
     widget_instances = WidgetInstance.all
     {
       wi_count: widget_instances.count,
-      wi_outside_grid_boundaries: widget_instances.select {|wi| wi.position['y'] + wi.position['height'] > 21},
+      wi_outside_grid_boundaries: widget_instances.select { |wi| wi.position['y'] + wi.position['height'] > 21 },
       si_count: SourceInstance.all.count
     }
   end
@@ -36,6 +36,7 @@ class DebugReport
     @file_handles = []
     append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
     append_rails_log_files
+    append_debugging_info
 
     host = "https://#{System::API_HOST}/reports/new-one.php"
     res = HTTParty.post(host, body: @body)
@@ -71,6 +72,13 @@ class DebugReport
       @body[log_file] = file_ref
       @file_handles << file_ref
     end
+  end
+
+  def append_debugging_info
+    @body['debugging_info'] = JSON.pretty_generate(
+      extensions: DebugReport.installed_extensions,
+      instances: DebugReport.active_instances
+    )
   end
 
 end
