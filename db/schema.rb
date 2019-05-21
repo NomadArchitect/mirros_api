@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_11_080641) do
+ActiveRecord::Schema.define(version: 2019_05_21_075218) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -209,6 +209,7 @@ ActiveRecord::Schema.define(version: 2019_05_11_080641) do
     t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "compatibility"
     t.index ["slug"], name: "index_sources_on_slug", unique: true
   end
 
@@ -238,6 +239,7 @@ ActiveRecord::Schema.define(version: 2019_05_11_080641) do
     t.string "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "compatibility"
     t.index ["group_id"], name: "index_widgets_on_group_id"
     t.index ["slug"], name: "index_widgets_on_slug", unique: true
   end
