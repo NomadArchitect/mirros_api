@@ -69,7 +69,7 @@ GEM
     erubi (1.8.0)
     et-orbi (1.2.1)
       tzinfo
-    ffi (1.11.0)
+    ffi (1.11.1)
     friendly_id (5.2.5)
       activerecord (>= 4.0.0)
     fugit (1.2.1)

@@ -3,7 +3,7 @@ class InstanceAssociation < ApplicationRecord
   belongs_to :widget_instance
   belongs_to :source_instance
 
-  after_create :fetch_data
+  after_save :fetch_data
 
   def fetch_data
     source_instance = self.source_instance

@@ -5,7 +5,9 @@
 Rails.application.routes.draw do
   jsonapi_resources :widgets do
     jsonapi_related_resources :widget_instances
+    jsonapi_links :widget_instances
     jsonapi_related_resource :group
+    jsonapi_links :group
   end
 
   jsonapi_resources :sources do
@@ -16,13 +18,19 @@ Rails.application.routes.draw do
   jsonapi_resources :widget_instances do
     jsonapi_related_resources :source_instances
     jsonapi_related_resources :instance_associations
+    jsonapi_related_resource :widget
+    jsonapi_related_resource :group
   end
 
   jsonapi_resources :source_instances do
     jsonapi_related_resources :record_links
+    jsonapi_related_resource :source
+    jsonapi_related_resources :widget_instances
   end
 
   jsonapi_resources :instance_associations
+  jsonapi_resources :record_links
+
   jsonapi_resources :groups do
     jsonapi_related_resources :sources
     jsonapi_related_resources :widgets

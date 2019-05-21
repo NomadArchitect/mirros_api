@@ -1,4 +1,4 @@
-class ReminderListResource < JSONAPI::Resource
+class ReminderListResource < RecordableResource
   model_name 'GroupSchemas::ReminderList'
   attributes :name, :description, :reminders
 

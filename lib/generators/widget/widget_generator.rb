@@ -27,6 +27,7 @@ class WidgetGenerator < Rails::Generators::NamedBase
    template 'MIT-LICENSE', "#{@path}/MIT-LICENSE"
    template 'gemspec', "#{@path}/#{name.underscore}.gemspec"
    template 'Gemfile', "#{@path}/Gemfile"
+   template '.gitignore', "#{@path}/.gitignore"
   end
 
   def generate_app_dir
@@ -44,7 +45,7 @@ class WidgetGenerator < Rails::Generators::NamedBase
   end
 
   def generate_config_dir
-    template 'config/routes.rb', "#{@path}/config/routes.rb"
+    template 'config/routes.rb', "#{@path}/config/routes.rb" if options[:routes]
   end
 
   def generate_lib_dir

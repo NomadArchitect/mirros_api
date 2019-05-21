@@ -1,4 +1,4 @@
-  class NewsfeedResource < JSONAPI::Resource
+  class NewsfeedResource < RecordableResource
     model_name 'GroupSchemas::Newsfeed'
     attributes :name, :url, :icon_url, :latest_entry, :items
 

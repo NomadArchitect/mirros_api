@@ -146,7 +146,8 @@ module Installable
 
     @gem = name
     @version = version
-    # TODO: Verify that version conforms to SemVer, gem name conforms to gem naming conventions (lowercase letters + underscore)
+    raise JSONAPI::Exceptions::InvalidResource unless Gem::Version.correct?(@version)
+    # TODO: Verify that gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 
   def inject_gem
