@@ -8,12 +8,12 @@ require "<%= name.underscore %>/version"
 Gem::Specification.new do |s|
   s.name        = "<%= name.underscore %>"
   s.version     = <%= name.camelcase %>::VERSION
-  s.authors     = ["<%= @author_name %>"]
-  s.email       = ["<%= @author_email %>"]
-  s.homepage    = "https://glancr.de/modules/<%= name.underscore %>"
-  s.summary     = "Summary of <%= name.camelcase %>."
-  s.description = "Description of <%= name.camelcase %>."
-  s.license     = "MIT"
+  s.authors     = ['<%= @author_name %>']
+  s.email       = ['<%= @author_email %>']
+  s.homepage    = 'https://glancr.de/modules/<%= name.underscore %>'
+  s.summary     = 'Summary of <%= name.camelcase %>.'
+  s.description = 'Description of <%= name.camelcase %>.'
+  s.license     = 'MIT'
   s.metadata    = { 'json' =>
                   {
                     type: 'widgets',

@@ -27,6 +27,7 @@ class WidgetGenerator < Rails::Generators::NamedBase
    template 'MIT-LICENSE', "#{@path}/MIT-LICENSE"
    template 'gemspec', "#{@path}/#{name.underscore}.gemspec"
    template 'Gemfile', "#{@path}/Gemfile"
+   template '.gitignore', "#{@path}/.gitignore"
   end
 
   def generate_app_dir
