@@ -36,4 +36,7 @@ Gem::Specification.new do |s|
                 }
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+
+  s.add_development_dependency "rails", "<%= Gem::Version.new(Rails.version).approximate_recommendation %>"
+  s.add_development_dependency "sqlite3"
 end
