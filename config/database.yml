@@ -81,7 +81,7 @@ test:
 production:
   <<: *default
   adapter: mysql2
-  encoding: utf8
+  encoding: utf8mb4
   database: mirrOS_api_production
   username: root
   password: glancr
