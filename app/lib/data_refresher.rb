@@ -82,7 +82,8 @@ class DataRefresher
         begin
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
-          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
+          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}:
+            #{e.message}\n#{e.backtrace.join("\n")}"
           # Delay the next run on failures
           job.next_time = Time.now + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
           next
