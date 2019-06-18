@@ -17,18 +17,25 @@ if Rails.const_defined? 'Server'
   s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
   s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
 
-  MirrOSApi::DataRefresher.schedule_all
-
   # Perform initial network status check if required and schedule consecutive checking.
   System.check_network_status unless state_cache.current_ip.present?
 
   s.every '30s', tag: 'network-status-check', overlap: false do
     System.check_network_status
+    ActionCable.server.broadcast 'status', payload: System.info
   end
 
   if SettingsCache.s[:network_connectiontype].eql?('wlan')
     s.every '2m', tag: 'network-signal-check', overlap: false do
       StateCache.s.network_status = SettingExecution::Network.check_signal
+      ActionCable.server.broadcast 'status', payload: System.info
     end
+  end
+
+  # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
+  Thread.new do
+    sleep 15
+    MirrOSApi::DataRefresher.schedule_all
+    ActiveRecord::Base.connection.close
   end
 end
