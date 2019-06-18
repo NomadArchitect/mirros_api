@@ -88,17 +88,15 @@ class DataRefresher
           job.next_time = Time.now + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
           next
         end
-        begin
-          recordables.each do |recordable|
-            recordable.save
-            next unless recordable.record_link.nil?
+        recordables.each do |recordable|
+          recordable.save
+          next unless recordable.record_link.nil?
 
-            source_instance.record_links <<
-              RecordLink.create(recordable: recordable, group_id: group)
-          end
-          source_instance.last_refresh = job.last_time.to_s
-          source_instance.save
+          source_instance.record_links <<
+            RecordLink.create(recordable: recordable, group_id: group)
         end
+        source_instance.last_refresh = job.last_time.to_s
+        source_instance.save
       end
     end
   rescue StandardError => e
