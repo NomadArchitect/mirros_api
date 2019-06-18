@@ -12,17 +12,17 @@
 
 ActiveRecord::Schema.define(version: 2019_05_21_075218) do
 
-  create_table "active_storage_attachments", force: :cascade do |t|
+  create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "active_storage_blobs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "friendly_id_slugs", force: :cascade do |t|
+  create_table "friendly_id_slugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
@@ -45,8 +45,8 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
-  create_table "group_schemas_calendar_events", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.integer "calendar_id"
+  create_table "group_schemas_calendar_events", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
     t.boolean "all_day"
@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["uid"], name: "index_group_schemas_calendar_events_on_uid"
   end
 
-  create_table "group_schemas_calendars", force: :cascade do |t|
+  create_table "group_schemas_calendars", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "uid"
     t.string "type"
     t.string "name"
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["uid"], name: "index_group_schemas_calendars_on_uid"
   end
 
-  create_table "group_schemas_idioms", force: :cascade do |t|
+  create_table "group_schemas_idioms", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "title"
     t.text "message"
     t.string "author"
@@ -75,8 +75,8 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, force: :cascade do |t|
-    t.integer "newsfeed_id"
+  create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "newsfeed_id"
     t.string "title"
     t.text "content"
     t.string "url"
@@ -85,7 +85,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["newsfeed_id"], name: "index_group_schemas_newsfeed_items_on_newsfeed_id"
   end
 
-  create_table "group_schemas_newsfeeds", force: :cascade do |t|
+  create_table "group_schemas_newsfeeds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "type"
     t.string "name"
     t.string "url", null: false
@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["url"], name: "index_group_schemas_newsfeeds_on_url"
   end
 
-  create_table "group_schemas_public_transports", force: :cascade do |t|
+  create_table "group_schemas_public_transports", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "type"
     t.datetime "departure", null: false
@@ -106,8 +106,8 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["uuid"], name: "index_group_schemas_public_transports_on_uuid", unique: true
   end
 
-  create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, force: :cascade do |t|
-    t.integer "reminder_list_id"
+  create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "reminder_list_id"
     t.datetime "due_date"
     t.string "summary"
     t.string "description"
@@ -118,7 +118,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["uid"], name: "index_group_schemas_reminder_items_on_uid"
   end
 
-  create_table "group_schemas_reminder_lists", force: :cascade do |t|
+  create_table "group_schemas_reminder_lists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "uid"
     t.string "type"
     t.string "name"
@@ -127,32 +127,32 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["uid"], name: "index_group_schemas_reminder_lists_on_uid"
   end
 
-  create_table "group_schemas_weather_owms", force: :cascade do |t|
+  create_table "group_schemas_weather_owms", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "type"
-    t.datetime "dt_txt"
+    t.timestamp "dt_txt"
     t.json "forecast"
     t.string "unit"
   end
 
-  create_table "groups", force: :cascade do |t|
+  create_table "groups", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "groups_sources", id: false, force: :cascade do |t|
+  create_table "groups_sources", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "group_id"
     t.string "source_id"
     t.index ["group_id"], name: "index_groups_sources_on_group_id"
     t.index ["source_id"], name: "index_groups_sources_on_source_id"
   end
 
-  create_table "instance_associations", force: :cascade do |t|
+  create_table "instance_associations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.json "configuration"
     t.string "group_id", null: false
-    t.integer "widget_instance_id", null: false
-    t.integer "source_instance_id", null: false
+    t.bigint "widget_instance_id", null: false
+    t.bigint "source_instance_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_instance_associations_on_group_id"
@@ -160,23 +160,23 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["widget_instance_id"], name: "index_instance_associations_on_widget_instance_id"
   end
 
-  create_table "openweathermap_cities", force: :cascade do |t|
+  create_table "openweathermap_cities", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name"
     t.string "country"
     t.index ["name"], name: "index_openweathermap_cities_on_name"
   end
 
-  create_table "record_links", force: :cascade do |t|
+  create_table "record_links", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "recordable_type"
-    t.integer "recordable_id"
-    t.integer "source_instance_id"
+    t.bigint "recordable_id"
+    t.bigint "source_instance_id"
     t.string "group_id"
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
   end
 
-  create_table "settings", force: :cascade do |t|
+  create_table "settings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "slug", null: false
     t.string "category", null: false
     t.string "key", null: false
@@ -185,7 +185,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "source_instances", force: :cascade do |t|
+  create_table "source_instances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "source_id"
     t.string "title"
     t.json "configuration"
@@ -197,7 +197,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["source_id"], name: "index_source_instances_on_source_id"
   end
 
-  create_table "sources", force: :cascade do |t|
+  create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.json "title", null: false
     t.json "description", null: false
@@ -213,7 +213,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["slug"], name: "index_sources_on_slug", unique: true
   end
 
-  create_table "widget_instances", force: :cascade do |t|
+  create_table "widget_instances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "widget_id"
     t.string "title"
     t.boolean "showtitle", default: false
@@ -224,7 +224,7 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["widget_id"], name: "index_widget_instances_on_widget_id"
   end
 
-  create_table "widgets", force: :cascade do |t|
+  create_table "widgets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.json "title"
     t.json "description"
@@ -244,4 +244,8 @@ ActiveRecord::Schema.define(version: 2019_05_21_075218) do
     t.index ["slug"], name: "index_widgets_on_slug", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "instance_associations", "source_instances"
+  add_foreign_key "instance_associations", "widget_instances"
+  add_foreign_key "record_links", "source_instances"
 end
