@@ -1,7 +1,0 @@
-require 'test_helper'
-
-class <%= name.camelcase %>::Test < ActiveSupport::TestCase
-  test "truth" do
-    assert_kind_of Module, <%= name.camelcase %>
-  end
-end
