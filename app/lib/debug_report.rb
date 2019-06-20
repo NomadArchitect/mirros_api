@@ -75,10 +75,28 @@ class DebugReport
   end
 
   def append_debugging_info
-    @body['debugging_info'] = JSON.pretty_generate(
-      extensions: DebugReport.installed_extensions,
-      instances: DebugReport.active_instances
-    )
+    @body['debugging_info'] = "
+      snap_version: #{SNAP_VERSION}
+      extensions:
+      #{extensions_hash_to_string}
+
+
+      instances:
+      #{DebugReport.active_instances}"
+  end
+
+  def extensions_hash_to_string
+    # Use String.new since string literals are frozen in this file.
+    final = String.new('')
+    DebugReport.installed_extensions.each_pair do |type, value|
+      formatted_list = String.new('')
+      value.each do |ext|
+        formatted_list << "\t\t#{ext.first}: #{ext.last}\n"
+      end
+      final << "\t#{type}:\n#{formatted_list}"
+    end
+    final
+
   end
 
 end

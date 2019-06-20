@@ -15,7 +15,7 @@ class System
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.info
-    info_hash = {
+    {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
       ap_active: SettingExecution::Network.ap_active?,
@@ -23,9 +23,6 @@ class System
       rails_env: Rails.env,
       connection_type: SettingsCache.s[:network_connectiontype]
     }.merge(StateCache.s.as_json)
-    StateCache.s.refresh_frontend = false
-
-    info_hash
   end
 
   def self.reboot

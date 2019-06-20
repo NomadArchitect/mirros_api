@@ -1,0 +1,37 @@
+Description:
+  Generate a skeleton for a mirrOS_api data source
+
+Example:
+  rails generate mirros_source NAME
+  rails generate mirros_source NAME field_1:type field_2:type
+
+  Available types:
+    string
+    integer
+    float
+
+This will create:
+  sources/NAME
+  sources/NAME/Gemfile
+  sources/NAME/MIT-LICENSE
+  sources/NAME/README.md
+  sources/NAME/Rakefile
+  sources/NAME/.gitignore
+  sources/NAME/app/assets/icons/NAME.svg
+  sources/NAME/app/assets/templates/settings.vue
+  sources/NAME/app/controllers/NAME/application_controller.rb
+  sources/NAME/app/jobs/NAME/application_job.rb
+  sources/NAME/app/mailers/NAME/application_mailer.rb
+  sources/NAME/app/models/NAME/application_record.rb
+  sources/NAME/app/models/NAME/NAME_data.rb
+  sources/NAME/bin/rails
+  sources/NAME/NAME.gemspec
+  sources/NAME/config/routes.rb
+  sources/NAME/lib/NAME.rb
+  sources/NAME/lib/NAME/engine.rb
+  sources/NAME/lib/NAME/fetcher.rb
+  sources/NAME/lib/NAME/version.rb
+  sources/NAME/lib/tasks/NAME_tasks.rake
+  sources/NAME/test/NAME_test.rb
+  sources/NAME/test/integration/navigation_test.rb
+  sources/NAME/test/test_helper.rb

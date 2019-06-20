@@ -6,7 +6,7 @@ class DataRefresher
 
     instances.each do |source_instance|
       schedule(source_instance)
-      sleep 2 # Wait between schedules to avoid parallel refreshes
+      sleep 5 # Wait between schedules to avoid parallel refreshes
     end
   end
 
@@ -82,22 +82,21 @@ class DataRefresher
         begin
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
-          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}: #{e.message}"
+          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}:
+            #{e.message}\n#{e.backtrace.join("\n")}"
           # Delay the next run on failures
           job.next_time = Time.now + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
           next
         end
-        begin
-          recordables.each do |recordable|
-            recordable.save
-            next unless recordable.record_link.nil?
+        recordables.each do |recordable|
+          recordable.save
+          next unless recordable.record_link.nil?
 
-            source_instance.record_links <<
-              RecordLink.create(recordable: recordable, group_id: group)
-          end
-          source_instance.last_refresh = job.last_time.to_s
-          source_instance.save
+          source_instance.record_links <<
+            RecordLink.create(recordable: recordable, group_id: group)
         end
+        source_instance.last_refresh = job.last_time.to_s
+        source_instance.save
       end
     end
   rescue StandardError => e

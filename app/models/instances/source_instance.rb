@@ -12,6 +12,10 @@ class SourceInstance < Instance
 
   # serialize :options, Array if Rails.env.development?
 
+  def refresh_interval
+    "#{source_id.camelize}::Hooks".safe_constantize.refresh_interval
+  end
+
   def set_meta
     # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
     options = []

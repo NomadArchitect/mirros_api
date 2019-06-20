@@ -39,8 +39,6 @@ module Installable
     else
       Rails.logger.error "Could not determine install state of #{@gem}"
     end
-
-
   end
 
   # Update the extension to the passed version.
@@ -222,6 +220,5 @@ module Installable
   def bundler_options
     { without: Rails.env.production? ? %w[development test] : ['production'], jobs: 5 }
   end
-
 
 end

@@ -3,6 +3,8 @@
 # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 Rails.application.routes.draw do
+  mount ActionCable.server => '/cable'
+
   jsonapi_resources :widgets do
     jsonapi_related_resources :widget_instances
     jsonapi_links :widget_instances

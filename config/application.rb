@@ -68,6 +68,12 @@ module MirrOSApi
       rss_feeds
     ].freeze
 
+    config.action_cable.allowed_request_origins = [
+      /localhost:\d{2,4}/,
+      /\d{3}.\d{3}.\d{1,3}.\d{1,3}:\d{2,4}/, # local network access
+      /[\w-]+.local:\d{2,4}/ # local network via bonjour / zeroconf
+    ]
+
     # Set custom log path for terrapin commands.
     # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")

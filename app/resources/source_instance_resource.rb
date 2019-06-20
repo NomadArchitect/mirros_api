@@ -1,5 +1,5 @@
 class SourceInstanceResource < JSONAPI::Resource
-  attributes :title, :configuration, :options, :last_refresh
+  attributes :title, :configuration, :options, :last_refresh, :refresh_interval
 
   has_one :source, exclude_links: [:self]
   has_many :widget_instances,
