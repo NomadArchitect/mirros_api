@@ -121,7 +121,8 @@ namespace :extension do
                        attrs = {
                          icon: "http://backend-server.tld/icons/#{spec.name}.svg",
                          sizes: meta[:sizes],
-                         languages: meta[:languages]
+                         languages: meta[:languages],
+                         single_source: meta[:single_source]
                        }
                        if meta[:group].nil?
                          attrs
