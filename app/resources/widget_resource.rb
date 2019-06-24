@@ -10,6 +10,7 @@ class WidgetResource < JSONAPI::Resource
              :icon,
              :version,
              :compatibility,
+             :single_source,
              :creator,
              :homepage,
              :download,
