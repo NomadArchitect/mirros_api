@@ -83,7 +83,8 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
         deDe: 'TODO: Description of #{name.camelcase}'
       },
       group: nil, # TODO
-      compatibility: '0.0.0'
+      compatibility: '0.0.0',
+      single_source: false # Change to true if your widget doesn't aggregate data from multiple sources.
     }.to_json
   }
       RUBY
