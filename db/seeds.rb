@@ -139,7 +139,7 @@ WidgetInstance.create([
                           title: '',
                           showtitle: false,
                           configuration: {},
-                          position: {"x": 0, "y": 1, "width": 2, "height": 1}
+                          position: {"x": 0, "y": 1, "width": 3, "height": 1}
                         },
                         {
                           widget: Widget.find_by_slug('text_field'),
