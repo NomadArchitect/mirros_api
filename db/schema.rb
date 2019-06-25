@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_24_095158) do
+ActiveRecord::Schema.define(version: 2019_06_25_151727) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 2019_06_24_095158) do
     t.boolean "all_day"
     t.string "summary"
     t.text "description"
+    t.string "location"
     t.index ["calendar_id"], name: "index_group_schemas_calendar_events_on_calendar_id"
     t.index ["uid"], name: "index_group_schemas_calendar_events_on_uid"
   end
