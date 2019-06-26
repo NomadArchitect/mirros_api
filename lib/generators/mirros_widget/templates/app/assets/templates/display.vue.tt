@@ -10,7 +10,7 @@
 
 <script>
 module.exports = {
-  name: "<%= name.underscore %>",
+  name: "<%= name.underscore.dasherize %>",
   props: {
       currentSettings: {
         type: Object,
