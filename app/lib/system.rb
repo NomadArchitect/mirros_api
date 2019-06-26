@@ -51,6 +51,10 @@ class System
     raise e
   end
 
+  def self.reload_browser
+    Terrapin::CommandLine.new('cogctl', 'reload').run
+  end
+
   # Restarts the Rails application.
   def self.restart_application
     line = Terrapin::CommandLine.new('bin/rails', 'restart')
