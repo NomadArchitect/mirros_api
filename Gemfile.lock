@@ -94,7 +94,7 @@ GEM
       icalendar (~> 2.0)
       ice_cube (~> 0.13)
     ice_cube (0.16.3)
-    jsonapi-resources (0.9.8)
+    jsonapi-resources (0.9.9)
       activerecord (>= 4.1)
       concurrent-ruby
       railties (>= 4.1)
@@ -127,7 +127,7 @@ GEM
       httparty (~> 0.16)
       rails (~> 5.2)
     os (1.0.1)
-    owm_current_weather (0.2.4)
+    owm_current_weather (0.2.5)
       rails (~> 5.2)
     owm_forecast (0.2.1)
       rails (~> 5.2)
