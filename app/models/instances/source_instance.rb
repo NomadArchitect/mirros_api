@@ -18,18 +18,12 @@ class SourceInstance < Instance
 
   def set_meta
     # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
-    options = []
     hooks = hook_instance
-    begin
-      hooks.list_sub_resources.map do |option|
-        options << {uid: option[0], display: option[1]}
-      end
-    rescue StandardError => e
-      Rails.logger.error "[set_meta] #{e.message}"
-      errors.add(:configuration, e.message)
-    end
-    self.options = options
+    self.options = hooks.list_sub_resources.map { |option| { uid: option[0], display: option[1] } }
     self.title = hooks.default_title
+  rescue StandardError => e
+    Rails.logger.error "[set_meta] #{e.message}"
+    errors.add(:configuration, e.message)
   end
 
   def update_callbacks
@@ -69,4 +63,5 @@ class SourceInstance < Instance
   def remove_from_scheduler
     DataRefresher.unschedule(self)
   end
+
 end

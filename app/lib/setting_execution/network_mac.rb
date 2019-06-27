@@ -57,7 +57,7 @@ module SettingExecution
       raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
 
       # TODO: Implement this if possible through /usr/sbin/networksetup
-      false
+      !StateCache.s.setup_complete
     end
 
     def self.close_ap
