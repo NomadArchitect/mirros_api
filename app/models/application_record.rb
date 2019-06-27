@@ -6,7 +6,6 @@ class ApplicationRecord < ActiveRecord::Base
   def broadcast
     res_class = "#{self.class}Resource".safe_constantize
     return if res_class.nil?
-    return unless [SourceInstanceResource, WidgetInstanceResource, InstanceAssociationResource].include? res_class
 
     res = res_class.new(self, nil)
     includes = case res
