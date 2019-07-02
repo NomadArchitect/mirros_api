@@ -14,7 +14,10 @@ module SettingExecution
       # Clear existing connections so that we only have one connection with that name.
       remove_stale_connections
 
-      line = Terrapin::CommandLine.new('nmcli', 'd wifi connect :ssid password :password')
+      line = Terrapin::CommandLine.new(
+        'nmcli',
+        'd wifi connect :ssid password :password'
+      )
       line.run(ssid: ssid, password: password)
     end
 
@@ -41,10 +44,10 @@ module SettingExecution
       signal = line.run(ssid: ssid).split("\n").first
 
 
-      {ssid: ssid, signal: normalize_signal_strength(signal)}
+      { ssid: ssid, signal: normalize_signal_strength(signal) }
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not check signal strength: #{e.message}"
-      {ssid: ssid, signal: 0}
+      { ssid: ssid, signal: 0 }
     end
 
     # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
