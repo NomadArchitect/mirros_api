@@ -53,12 +53,12 @@ module MirrOSApi
 
     DEFAULT_WIDGETS = %i[
       clock
+      countdown
       current_date
       calendar_event_list
       owm_current_weather
       owm_forecast
       text_field
-      styling
       ticker
     ].freeze
 
