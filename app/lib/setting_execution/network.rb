@@ -80,6 +80,12 @@ module SettingExecution
       success
     end
 
+    def self.remove_stale_connections
+      os_subclass.remove_stale_connections
+    rescue Terrapin::CommandLineError => e
+      Rails.logger.error "Could not delete stale connections: #{e.message}"
+    end
+
     def self.os_subclass
       if OS.linux?
         NetworkLinux
