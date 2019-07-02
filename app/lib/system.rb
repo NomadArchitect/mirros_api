@@ -28,6 +28,7 @@ class System
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
+    return if Rails.env.development? # Don't reboot a running dev system
     raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
 
     # TODO: Refactor with ruby-dbus for consistency
@@ -119,7 +120,7 @@ class System
     check_ip_change(current_ip)
     StateCache.s.current_ip = current_ip
     StateCache.s.online = online?
-    SettingExecution::Network.open_ap unless no_ap_required?
+    start_offline_mode unless no_offline_mode_required?
   end
 
   # Tests whether all required parts of the initial setup are present.
@@ -172,8 +173,8 @@ class System
   def self.map_interfaces(operating_system, interface)
     # TODO: Maybe use nmcli -f DEVICE,TYPE d | grep -E "(wifi)|(ethernet)" | awk '{ print $1; }' to determine IF names.
     {
-      mac: {lan: 'en0', wlan: 'en0'},
-      linux: {lan: 'eth0', wlan: 'wlan0'}
+      mac: { lan: 'en0', wlan: 'en0' },
+      linux: { lan: 'eth0', wlan: 'wlan0' }
     }[operating_system][interface.to_sym]
   end
 
@@ -207,12 +208,49 @@ class System
 
   private_class_method :last_known_ip_was_different
 
-  def self.no_ap_required?
+  def self.no_offline_mode_required?
     StateCache.s.online ||
       StateCache.s.current_ip.present? ||
       StateCache.s.connection_attempt ||
       SettingExecution::Network.ap_active?
   end
 
-  private_class_method :no_ap_required?
+  private_class_method :no_offline_mode_required?
+
+  def self.start_offline_mode
+    pause_background_jobs
+    Rufus::Scheduler.s.interval '3m',
+                                tag: 'network-reconnect-attempt',
+                                overlap: false,
+                                times: 3 do |job|
+      SettingExecution::Network.connect if SettingsCache.s.using_wifi?
+      sleep 5
+      if current_ip_address.present?
+        job.unschedule
+        resume_background_jobs
+      elsif job.count.eql? 3
+        SettingExecution::Network.open_ap
+        resume_background_jobs
+      end
+    rescue Rufus::Scheduler::TimeoutError => e
+      Rails.logger.error e.message
+    end
+  end
+
+  private_class_method :start_offline_mode
+
+  def self.pause_background_jobs
+    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:pause)
+  end
+
+  private_class_method :pause_background_jobs
+
+  def self.resume_background_jobs
+    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
+  end
+
+  private_class_method :resume_background_jobs
+
 end
