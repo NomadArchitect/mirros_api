@@ -13,15 +13,16 @@ module SettingExecution
       SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       disable_lan
 
-      success = os_subclass.connect(ssid, password)
-      # TODO: Errors should be raised for API clients
-      #
-      unless success
-        Rails.logger.error "Error joining WiFi with SSID #{ssid}, reopening AP"
-        SettingExecution::Network.open_ap
-      end
+      os_subclass.connect(ssid, password)
+      true
+    rescue Terrapin::CommandLineError => e
+      Rails.logger.error "Error joining WiFi: #{e.message}"
+      SettingExecution::Network.open_ap
+      false
+    ensure
       StateCache.s.connection_attempt = false
-      success
+      System.check_network_status
+      ActionCable.server.broadcast 'status', payload: System.info
     end
 
     def self.enable_lan
@@ -78,6 +79,12 @@ module SettingExecution
         success = false
       end
       success
+    end
+
+    def self.remove_stale_connections
+      os_subclass.remove_stale_connections
+    rescue Terrapin::CommandLineError => e
+      Rails.logger.error "Could not delete stale connections: #{e.message}"
     end
 
     def self.os_subclass
