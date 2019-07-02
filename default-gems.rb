@@ -62,15 +62,22 @@ group :development do
   gem 'rails-erd', '~> 1.5.0'
 end
 
-### mirr.OS default extensions ###
-gem 'clock', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'current_date', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'calendar_event_list', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'owm_current_weather', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'owm_forecast', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'text_field', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'styling', :group => :widget, :source => 'http://gems.marco-roth.ch/'
-gem 'openweathermap', :group => :source, :source => 'http://gems.marco-roth.ch/'
-gem 'ical', :group => :source, :source => 'http://gems.marco-roth.ch/'
-gem 'rss_feeds', :group => :source, :source => 'http://gems.marco-roth.ch/'
-gem 'ticker', :group => :widget, :source => 'http://gems.marco-roth.ch/'
+### mirr.OS bundled extensions ###
+source 'http://gems.marco-roth.ch/'
+
+group :widget do
+  gem 'clock'
+  gem 'countdown'
+  gem 'current_date'
+  gem 'calendar_event_list'
+  gem 'owm_current_weather'
+  gem 'owm_forecast'
+  gem 'text_field'
+  gem 'ticker'
+end
+
+group :source do
+  gem 'openweathermap'
+  gem 'ical'
+  gem 'rss_feeds'
+end
