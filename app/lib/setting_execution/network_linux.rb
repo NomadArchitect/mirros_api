@@ -12,7 +12,7 @@ module SettingExecution
     # @param [String] password
     def self.connect(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      remove_connection(ssid)
+      remove_stale_connections
 
       line = Terrapin::CommandLine.new('nmcli', 'd wifi connect :ssid password :password')
       line.run(ssid: ssid, password: password)
@@ -101,16 +101,26 @@ module SettingExecution
       result
     end
 
-    # Removes a named nmcli connection. Catch exit code 10 ("cannot delete unknown connection(s)").
-    # @param [String] connection The connection name to remove.
-    def self.remove_connection(connection)
+    # Removes all nmcli WiFi connections. Catch exit code 10 ("cannot delete unknown connection(s)").
+    def self.remove_stale_connections
+      connections = nmcli_wifi_connections
+      return if connections.empty?
+
       line = Terrapin::CommandLine.new('nmcli',
-                                       'c delete :connection',
+                                       'c delete :connections',
                                        expected_outcodes: [0, 10])
-      line.run(connection: connection)
+      line.run(connections: connections.join(' '))
     end
 
-    private_class_method :remove_connection
-
+    def self.nmcli_wifi_connections
+      Terrapin::CommandLine
+        .new('nmcli', '-t -f NAME,TYPE c')
+        .run
+        .split("\n")
+        .select { |con| con.include? '802-11-wireless' }
+        .reject { |con| con.include? 'glancrsetup' }
+        .map { |wifi| wifi.split(':').first }
+    end
+    private_class_method :nmcli_wifi_connections
   end
 end
