@@ -1,7 +1,7 @@
 class SystemController < ApplicationController
 
   def status
-    render json: {meta: System.info}
+    render json: { meta: System.info }
   rescue StandardError => e
     render json: jsonapi_error('Error during status fetch', e.message, 500), status: 500
   end
@@ -78,7 +78,7 @@ class SystemController < ApplicationController
       ActiveRecord::Base.clear_active_connections!
     end
 
-    render json: {meta: System.info}
+    render json: { meta: System.info }
   rescue StandardError => e
     render json: jsonapi_error('Error during setup', e.message, 500), status: 500
   end
@@ -93,7 +93,7 @@ class SystemController < ApplicationController
                  else
                    executor.send(params[:command])
                  end
-        render json: {success: true, result: result}
+        render json: { success: true, result: result }
       rescue StandardError => e
         render json: jsonapi_error(
           "error while executing #{params[:category]}/#{params[:command]}",
@@ -183,7 +183,7 @@ class SystemController < ApplicationController
       SourceInstance.skip_callback :create, :after, :set_meta
       calendar_source = SourceInstance.create(
         source: Source.find_by_slug('ical'),
-        configuration: {"url": feed_settings[:url]},
+        configuration: { "url": feed_settings[:url] },
         options: [{
                     uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
                     display: feed_settings[:title]
@@ -212,14 +212,19 @@ class SystemController < ApplicationController
     newsfeed_source = SourceInstance.new(
       source: Source.find_by_slug('rss_feeds'),
       title: 'glancr: Welcome Screen',
-      configuration: {"feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"},
-      options: [{uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml", display: 'glancr: Welcome Screen'}]
+      configuration: {
+        "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
+      },
+      options: [
+        { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
+          display: 'glancr: Welcome Screen' }
+      ]
     )
     newsfeed_source.save(validate: false)
     SourceInstance.set_callback :create, :after, :set_meta
 
     InstanceAssociation.create(
-      configuration: {"chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"]},
+      configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
       group: Group.find_by_slug('newsfeed'),
       widget_instance: WidgetInstance.find_by_widget_id('ticker'),
       source_instance: SourceInstance.find_by_source_id('rss_feeds')
