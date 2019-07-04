@@ -69,6 +69,11 @@ Setting.create!(
       category: 'system',
       key: 'fontColor',
       value: '#ffffff'
+    },
+    {
+      category: 'system',
+      key: 'backgroundImage',
+      value: ''
     }
   ]
 )

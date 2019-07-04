@@ -30,6 +30,12 @@ namespace :db do
       entry.key = 'fontColor'
       entry.value = '#ffffff'
     end
+
+    Setting.find_or_create_by(slug: 'system_backgroundimage') do |entry|
+      entry.category = 'system'
+      entry.key = 'backgroundImage'
+      entry.value = ''
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
