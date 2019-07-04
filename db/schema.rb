@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_25_151727) do
+ActiveRecord::Schema.define(version: 2019_07_03_071333) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -212,6 +212,11 @@ ActiveRecord::Schema.define(version: 2019_06_25_151727) do
     t.datetime "updated_at", null: false
     t.string "compatibility"
     t.index ["slug"], name: "index_sources_on_slug", unique: true
+  end
+
+  create_table "uploads", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "widget_instances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
