@@ -39,6 +39,9 @@ Rails.application.routes.draw do
   end
   jsonapi_resources :settings, only: %i[index show update]
 
+  # File uploads
+  resources :uploads
+
   # Non-resourceful routes for controlling the system
   get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
   get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'

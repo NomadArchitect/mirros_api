@@ -21,4 +21,8 @@ class SettingsCache
   def []=(key, value)
     @cache[key] = value
   end
+
+  def using_wifi?
+    @cache[:network_connectiontype].eql? 'wlan'
+  end
 end
