@@ -189,6 +189,8 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.3.13)
+    styling (0.1.0)
+      rails (~> 5.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
     text_field (0.3.1)
@@ -237,6 +239,7 @@ DEPENDENCIES
   spring!
   spring-watcher-listen (~> 2.0.0)!
   sqlite3 (~> 1.3.6)!
+  styling!
   terrapin (~> 0.6.0)!
   text_field!
   ticker!

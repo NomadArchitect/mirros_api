@@ -48,6 +48,7 @@ source 'http://gems.marco-roth.ch/' do
     gem 'calendar_event_list'
     gem 'owm_current_weather'
     gem 'owm_forecast'
+    gem 'styling'
     gem 'ticker'
     gem 'text_field'
   end

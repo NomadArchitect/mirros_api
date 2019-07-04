@@ -58,6 +58,7 @@ module MirrOSApi
       calendar_event_list
       owm_current_weather
       owm_forecast
+      styling
       text_field
       ticker
     ].freeze
