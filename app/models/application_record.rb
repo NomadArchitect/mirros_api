@@ -1,7 +1,11 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
-  after_save :broadcast
-  after_destroy :broadcast
+  after_save :broadcast, unless: :broadcast_not_required?
+  after_destroy :broadcast, unless: :broadcast_not_required?
+
+  def broadcast_not_required?
+    self.class.eql? Upload
+  end
 
   def broadcast
     res_class = "#{self.class}Resource".safe_constantize
