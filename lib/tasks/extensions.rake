@@ -1,5 +1,18 @@
 require_relative '../../app/models/concerns/installable'
 
+namespace :extensions do
+  desc 'installs all available migrations for the bundled extensions'
+  task install_migrations: [:environment] do
+    defaults = Bundler.load.current_dependencies.select { |dep| dep.groups.any?(/widget|source/) }
+    defaults.each do |ext|
+      if Pathname.new("#{ext.to_spec.full_gem_path}/db/migrate").exist?
+        command = ENV['SNAP'].nil? ? 'rails' : '"$SNAP/wrapper" "$SNAP/api/bin/rails"'
+        `#{command} #{ext.name}:install:migrations`
+      end
+    end
+  end
+end
+
 namespace :extension do
   desc 'insert an extension into the DB'
   task :insert, %i[type extension mode] => [:environment] do |task, args|
