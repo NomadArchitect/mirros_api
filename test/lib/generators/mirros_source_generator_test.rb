@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'generators/mirros_source/source_generator'
+require 'generators/mirros_source/mirros_source_generator'
 
 class MirrosSourceGeneratorTest < Rails::Generators::TestCase
   tests MirrosSourceGenerator
