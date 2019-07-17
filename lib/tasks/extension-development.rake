@@ -1,7 +1,7 @@
-require_relative '../../app/controllers/concerns/installable'
+require_relative '../../app/models/concerns/installable'
 
 namespace :extension do
-  desc 'insert an extension in the DB without running the model callbacks'
+  desc 'insert an extension into the DB'
   task :insert, %i[type extension mode] => [:environment] do |task, args|
     unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
@@ -15,15 +15,11 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    extension_class.skip_callback :create, :after, :install_gem
-    extension_class.skip_callback :commit, :after, :post_install
     extension_class.create!(construct_attributes(args, spec, meta))
     puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
-    extension_class.set_callback :create, :after, :install_gem
-    extension_class.set_callback :commit, :after, :post_install
   end
 
-  desc 'update an extension in the DB without running the model callbacks'
+  desc 'update an extension in the DB'
   task :update, %i[type extension mode] => [:environment] do |task, args|
 
     unless args[:mode].eql?('seed')
@@ -38,22 +34,17 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    extension_class.skip_callback :update, :after, :update_gem
-    extension_class.skip_callback :commit, :after, :post_update
     record = extension_class.find_by(slug: args[:extension])
 
     if record.nil?
-      extension_class.set_callback :update, :after, :update_gem
       raise ArgumentError, "#{args[:type]} #{args[:extension]} not present in the #{Rails.env} db"
     end
 
     record.update!(construct_attributes(args, spec, meta))
     puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
-    extension_class.set_callback :update, :after, :update_gem
-    extension_class.set_callback :commit, :after, :post_update
   end
 
-  desc 'remove an extension in the DB without running the model callbacks'
+  desc 'remove an extension from the DB'
   task :remove, %i[type extension] => [:environment] do |task, args|
     next unless arguments_valid?(args)
 
@@ -63,13 +54,9 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    extension_class.skip_callback :destroy, :before, :uninstall_gem
-    extension_class.skip_callback :commit, :after, :post_uninstall
     record = extension_class.find_by(slug: args[:extension])
     record.destroy!
     puts "Removed #{args[:type]} #{args[:extension]} from the #{Rails.env} database"
-    extension_class.set_callback :destroy, :before, :uninstall_gem
-    extension_class.set_callback :commit, :after, :post_uninstall
 
     Bundler::Injector.remove([args[:extension]])
   end

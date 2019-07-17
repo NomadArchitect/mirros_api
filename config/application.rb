@@ -13,7 +13,7 @@ require "action_cable/engine"
 # require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
-require_relative '../app/controllers/concerns/installable'
+require_relative '../app/models/concerns/installable'
 require_relative 'versions.rb'
 
 # Require the gems listed in Gemfile, including any gems
@@ -51,23 +51,13 @@ module MirrOSApi
     GEM_SERVER = 'gems.marco-roth.ch'.freeze # localhost:9292 for geminabox
     SETUP_IP = '192.168.8.1'.freeze # Fixed IP of the internal setup WiFi AP.
 
-    DEFAULT_WIDGETS = %i[
-      clock
-      countdown
-      current_date
-      calendar_event_list
-      owm_current_weather
-      owm_forecast
-      styling
-      text_field
-      ticker
-    ].freeze
+    DEFAULT_WIDGETS = Bundler.load
+                        .current_dependencies
+                        .select { |dep| dep.groups.include?(:widget) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
-    DEFAULT_SOURCES = %i[
-      openweathermap
-      ical
-      rss_feeds
-    ].freeze
+    DEFAULT_SOURCES = Bundler.load
+                        .current_dependencies
+                        .select { |dep| dep.groups.include?(:source) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
     config.action_cable.allowed_request_origins = [
       /localhost:\d{2,4}/,

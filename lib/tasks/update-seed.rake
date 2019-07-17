@@ -40,19 +40,32 @@ namespace :db do
 
   desc 'Sync all default extension\'s gem specs to the database'
   task update_default_gems: [:environment] do |task, args|
+
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('widget', widget, 'seed')
     rescue StandardError => e
-      puts e.message
-      next
+      puts "#{e.message}, trying insert task"
+      begin
+        Rake::Task['extension:insert'].reenable
+        Rake::Task['extension:insert'].invoke('widget', widget, 'seed')
+      rescue StandardError => e
+        puts e.message
+        next
+      end
     end
     MirrOSApi::Application::DEFAULT_SOURCES.each do |source|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('source', source, 'seed')
     rescue StandardError => e
-      puts e.message
-      next
+      puts "#{e.message}, trying insert task"
+      begin
+        Rake::Task['extension:insert'].reenable
+        Rake::Task['extension:insert'].invoke('source', source, 'seed')
+      rescue StandardError => e
+        puts e.message
+        next
+      end
     end
   end
 end

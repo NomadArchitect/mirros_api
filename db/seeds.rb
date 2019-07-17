@@ -129,6 +129,9 @@ Group.create(
 MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
+
+  has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
+  puts "Successfully ran #{extension} seed" if has_seed
 end
 
 WidgetInstance.create([
@@ -166,6 +169,9 @@ calendar_widget = WidgetInstance.create(
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('source', extension, 'seed')
+
+  has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
+  puts "Successfully ran #{extension} seed" if has_seed
 end
 
 =begin
@@ -217,5 +223,3 @@ InstanceAssociation.create(
 )
 =end
 
-puts 'Seeding Openweathermap cities table, might take a while ...'
-Openweathermap::Engine.load_seed

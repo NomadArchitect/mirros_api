@@ -4,12 +4,12 @@ class Widget < ApplicationRecord
   self.primary_key = 'slug'
 
   include Installable
-  after_create :install_gem
-  after_create_commit :post_install
-  after_update :update_gem
-  after_update_commit :post_update
-  before_destroy :uninstall_gem
-  after_destroy_commit :post_uninstall
+  after_create :install_gem, unless: :pre_installed?
+  after_create_commit :post_install, unless: :pre_installed?
+  after_update :update_gem, unless: :pre_installed?
+  after_update_commit :post_update, unless: :pre_installed?
+  before_destroy :uninstall_gem, unless: :pre_installed?
+  after_destroy_commit :post_uninstall, unless: :pre_installed?
 
   has_many :widget_instances, dependent: :destroy
   belongs_to :group, optional: true
@@ -25,5 +25,9 @@ class Widget < ApplicationRecord
 
   def to_s
     name
+  end
+
+  def pre_installed?
+    MirrOSApi::Application::DEFAULT_WIDGETS.include?(slug)
   end
 end
