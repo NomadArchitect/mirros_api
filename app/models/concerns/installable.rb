@@ -150,7 +150,7 @@ module Installable
 
   def inject_gem
     line = Terrapin::CommandLine.new('bundle', 'add :gem --source=:source --group=:group --skip-install')
-    line.run(gem: @gem, source: download, group: @extension_type)
+    line.run(gem: @gem, source: download, group: "#{@extension_type},manual")
   end
 
   # Removes this instance's @gem from Gemfile.

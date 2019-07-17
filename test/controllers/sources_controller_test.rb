@@ -1,30 +1,40 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class SourcesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @source = sources(:ical)
-    @request.headers['Content-Type'] = 'application/vnd.api+json'
   end
 
-  test "should get index" do
-    get sources_url, as: :json
+  test 'should get index' do
+    get sources_url, as: :json, headers: jsonapi_headers
     assert_response :success
   end
 
-  test "should create source" do
+  test 'should create source' do
     assert_difference('Source.count') do
-      post sources_url, params: {source: {creator: @source.creator, name: @source.name, download: @source.download, version: @source.version, homepage: @source.homepage}}, as: :json
+      post sources_url,
+           params: {
+             source: {
+               creator: @source.creator,
+               name: @source.name,
+               download: @source.download,
+               version: @source.version,
+               homepage: @source.homepage
+             }
+           }, as: :json, headers: jsonapi_headers
     end
 
     assert_response 201
   end
 
-  test "should show source" do
-    get source_url(@source), as: :json
+  test 'should show source' do
+    get source_url(@source), as: :json, headers: jsonapi_headers
     assert_response :success
   end
 
-  test "should update source" do
+  test 'should update source' do
     patch source_url(@source), params: {
       source: {
         creator: @source.creator,
@@ -33,13 +43,13 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
         version: @source.version,
         homepage: @source.homepage
       }
-    }, as: :json
+    }, as: :json, headers: jsonapi_headers
     assert_response 200
   end
 
-  test "should destroy source" do
+  test 'should destroy source' do
     assert_difference('Source.count', -1) do
-      delete source_url(@source), as: :json
+      delete source_url(@source), as: :json, headers: jsonapi_headers
     end
 
     assert_response 204

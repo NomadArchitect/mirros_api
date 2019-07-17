@@ -1,8 +1,8 @@
 require 'test_helper'
-require 'generators/source/source_generator'
+require 'generators/mirros_source/mirros_source_generator'
 
-class SourceGeneratorTest < Rails::Generators::TestCase
-  tests SourceGenerator
+class MirrosSourceGeneratorTest < Rails::Generators::TestCase
+  tests MirrosSourceGenerator
   destination Rails.root.join('tmp/generators')
   setup :prepare_destination
 

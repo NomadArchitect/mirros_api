@@ -6,7 +6,7 @@
 #
 tram:
   uuid: <%= Digest::UUID.uuid_v4 %>
-  type: 'SBB::PublicTransport'
+  type: 'Sbb::PublicTransport'
   departure: <%= DateTime.now %>
   delay_minutes: 5
   line: 'N20'
@@ -16,7 +16,7 @@ tram:
 
 bus:
   uuid: <%= Digest::UUID.uuid_v4 %>
-  type: 'SBB::PublicTransport'
+  type: 'Sbb::PublicTransport'
   departure: <%= DateTime.now %>
   delay_minutes: 2
   line: 'N19'

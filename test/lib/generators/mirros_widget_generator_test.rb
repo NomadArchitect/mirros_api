@@ -1,8 +1,8 @@
 require 'test_helper'
-require 'generators/widget/widget_generator'
+require 'generators/mirros_widget/mirros_widget_generator'
 
-class WidgetGeneratorTest < Rails::Generators::TestCase
-  tests WidgetGenerator
+class MirrosWidgetGeneratorTest < Rails::Generators::TestCase
+  tests MirrosWidgetGenerator
   destination Rails.root.join('tmp/generators')
   setup :prepare_destination
 
