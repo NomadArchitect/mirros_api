@@ -40,7 +40,6 @@ namespace :db do
 
   desc 'Sync all default extension\'s gem specs to the database'
   task update_default_gems: [:environment] do |task, args|
-
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('widget', widget, 'seed')
