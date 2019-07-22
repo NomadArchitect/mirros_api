@@ -3,8 +3,10 @@ class CreateWidgets < ActiveRecord::Migration[5.1]
     create_table :widgets do |t|
       t.string :name, null: false
       t.json :title
+      t.string :compatibility
       t.json :description
       t.json :sizes # TODO: Disable nullable once dev docs are final
+      t.boolean :single_source, default: false
       t.string :version
       t.string :creator
       t.string :homepage

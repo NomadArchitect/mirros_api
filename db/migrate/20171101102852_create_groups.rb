@@ -1,7 +1,7 @@
 class CreateGroups < ActiveRecord::Migration[5.1]
   def change
-    create_table :groups do |t|
-      t.string :name, null: false
+    create_table :groups, id: false do |t|
+      t.string :name, primary_key: true
       t.string :slug
 
       t.timestamps
