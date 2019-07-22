@@ -14,7 +14,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create group' do
     assert_difference('Group.count') do
-      post groups_url, params: { group: { category_id: @group.category_id, widget_id: @group.widget_id, name: @group.name, source_id: @group.source_id } }, as: :json, headers: jsonapi_headers
+      post groups_url, params: { group: { category_id: @group.category_id, widget_id: @group.widget_id, id: @group.id, source_id: @group.source_id } }, as: :json, headers: jsonapi_headers
     end
 
     assert_response 201
@@ -26,7 +26,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should update group' do
-    patch group_url(@group), params: { group: { category_id: @group.category_id, widget_id: @group.widget_id, name: @group.name, source_id: @group.source_id } }, as: :json, headers: jsonapi_headers
+    patch group_url(@group), params: { group: { category_id: @group.category_id, widget_id: @group.widget_id, id: @group.id, source_id: @group.source_id } }, as: :json, headers: jsonapi_headers
     assert_response 200
   end
 

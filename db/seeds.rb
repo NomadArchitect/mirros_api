@@ -121,7 +121,7 @@ Group.create(
       name: 'music_player'
     },
     {
-      name: 'idiom'
+      name: 'idiom_collection'
     }
   ]
 )
@@ -140,30 +140,42 @@ WidgetInstance.create([
                           title: '',
                           showtitle: false,
                           configuration: {},
-                          position: {"x": 0, "y": 0, "width": 3, "height": 1}
+                          position: { "x": 0, "y": 0, "width": 3, "height": 1 }
                         },
                         {
                           widget: Widget.find_by_slug('current_date'),
                           title: '',
                           showtitle: false,
                           configuration: {},
-                          position: {"x": 0, "y": 1, "width": 3, "height": 1}
+                          position: { "x": 0, "y": 1, "width": 3, "height": 1 }
                         },
                         {
                           widget: Widget.find_by_slug('text_field'),
                           title: '',
                           showtitle: false,
-                          configuration: {"alignment": "center", "fontsize": "200", "content": ""},
-                          position: {"x": 4, "y": 12, "width": 4, "height": 4}
+                          configuration: {
+                            "alignment": 'center',
+                            "fontsize": '200',
+                            "content": ''
+                          },
+                          position: { "x": 4, "y": 12, "width": 4, "height": 4 }
                         }
                       ])
 
-calendar_widget = WidgetInstance.create(
+WidgetInstance.create(
   widget: Widget.find_by_slug('calendar_event_list'),
   title: 'Holidays',
   showtitle: true,
   configuration: {},
-  position: {"x": 8, "y": 0, "width": 4, "height": 4}
+  position: { "x": 8, "y": 0, "width": 4, "height": 4 }
+)
+
+WidgetInstance.create(
+  widget: Widget.find_by_slug('ticker'),
+  title: 'glancr News',
+  showtitle: true,
+  configuration: { "amount": 5, "showFeedIcon": true },
+  position: { "x": 0, "y": 16, "width": 6, "height": 4 }
 )
 
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
@@ -173,53 +185,4 @@ MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
   puts "Successfully ran #{extension} seed" if has_seed
 end
-
-=begin
-# Skip callbacks to avoid HTTP calls in meta generation
-SourceInstance.skip_callback :create, :after, :set_meta
-calendar_source = SourceInstance.new(
-  source: Source.find_by_slug('ical'),
-  title: 'calendar',
-  configuration: {"url": 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'},
-  options: [{uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0', display: 'calendar'}]
-)
-calendar_source.save(validate: false)
-SourceInstance.set_callback :create, :after, :set_meta
-
-InstanceAssociation.create(
-  configuration: {"chosen": ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]},
-  group: Group.find_by_slug('calendar'),
-  widget_instance: calendar_widget,
-  source_instance: calendar_source
-)
-=end
-
-WidgetInstance.create(
-  widget: Widget.find_by_slug('ticker'),
-  title: 'glancr News',
-  showtitle: true,
-  configuration: {"amount": "5", "showFeedIcon": "true"},
-  position: {"x": 0, "y": 16, "width": 6, "height": 4}
-)
-
-=begin
-SourceInstance.skip_callback :create, :after, :set_meta
-newsfeed_source = SourceInstance.new(
-  source: Source.find_by_slug('rss_feeds'),
-  title: 'glancr: Welcome Screen',
-  configuration: {"feedUrl": "https://glancr.de/mirros-welcome.xml"},
-  options: [{uid: 'https://glancr.de/mirros-welcome.xml', display: 'glancr: Welcome Screen'}]
-)
-newsfeed_source.save(validate: false)
-SourceInstance.set_callback :create, :after, :set_meta
-=end
-
-=begin
-InstanceAssociation.create(
-  configuration: {"chosen": ["https://glancr.de/mirros-welcome.xml"]},
-  group: Group.find_by_slug('newsfeed'),
-  widget_instance: newsfeed_widget,
-  source_instance: newsfeed_source
-)
-=end
 

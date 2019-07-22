@@ -28,5 +28,7 @@ namespace :dev do
     SystemController.new.send(:create_default_cal_instances)
     SystemController.new.send(:create_default_feed_instances)
 
+    puts 'Setup complete'
+
   end
 end

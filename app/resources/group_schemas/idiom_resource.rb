@@ -1,4 +1,9 @@
-class IdiomResource < RecordableResource
-  model_name 'GroupSchemas::Idiom'
-  attributes :message, :title, :author, :language, :date
+class IdiomCollectionResource < RecordableResource
+  model_name 'GroupSchemas::IdiomCollection'
+  attributes :id, :collection_name, :items
+  key_type :string
+
+  def items
+    @model.items.as_json
+  end
 end
