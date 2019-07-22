@@ -14,11 +14,11 @@ class ApplicationRecord < ActiveRecord::Base
     res = res_class.new(self, nil)
     includes = case res
                when SourceInstanceResource
-                 %w[source widget_instances instance_associations record_links record_links.recordable]
+                 %w[source widget_instances instance_associations]
                when WidgetInstanceResource
                  %w[widget source_instances instance_associations]
                when InstanceAssociationResource
-                 %w[source_instance widget_instance source_instance.record_links source_instance.record_links.recordable]
+                 %w[source_instance widget_instance]
                else
                  []
                end
@@ -26,6 +26,7 @@ class ApplicationRecord < ActiveRecord::Base
     serialized_res = JSONAPI::ResourceSerializer.new(res_class, include: includes).serialize_to_hash(res)
     ActionCable.server.broadcast 'updates',
                                  payload: serialized_res,
-                                 type: destroyed? ? 'deletion' : 'update'
+                                 type: destroyed? ? 'deletion' : 'update',
+                                 coder: nil
   end
 end

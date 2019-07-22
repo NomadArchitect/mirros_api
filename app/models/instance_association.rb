@@ -33,11 +33,11 @@ class InstanceAssociation < ApplicationRecord
       end
 
       recordables.each do |recordable|
-        recordable.save
+        recordable.save!
         next unless recordable.record_link.nil?
 
         source_instance.record_links <<
-          RecordLink.create(recordable: recordable, group_id: group)
+          RecordLink.create(recordable: recordable, group: Group.find(group_id))
       end
       source_instance.save
       source_instance.update(last_refresh: Time.now.utc)

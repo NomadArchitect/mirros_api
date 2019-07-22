@@ -1,5 +1,5 @@
 class Group < ApplicationRecord
-  self.primary_key = 'slug'
+  self.primary_key = :name
 
   has_many :widgets
   has_and_belongs_to_many :sources
