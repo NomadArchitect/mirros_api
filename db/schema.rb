@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_03_071333) do
+ActiveRecord::Schema.define(version: 2019_07_22_123521) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
   end
 
   create_table "group_schemas_calendar_events", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.bigint "calendar_id"
+    t.string "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
     t.boolean "all_day"
@@ -54,39 +54,40 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
     t.text "description"
     t.string "location"
     t.index ["calendar_id"], name: "index_group_schemas_calendar_events_on_calendar_id"
-    t.index ["uid"], name: "index_group_schemas_calendar_events_on_uid"
   end
 
-  create_table "group_schemas_calendars", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "uid"
+  create_table "group_schemas_calendars", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "type"
     t.string "name"
     t.string "description"
     t.string "color"
-    t.index ["uid"], name: "index_group_schemas_calendars_on_uid"
   end
 
-  create_table "group_schemas_idioms", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_idiom_collection_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "idiom_collection_id"
     t.string "title"
     t.text "message"
     t.string "author"
     t.string "language"
     t.date "date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.index ["idiom_collection_id"], name: "items_on_idiom_collection_id"
   end
 
-  create_table "group_schemas_newsfeed_items", primary_key: "guid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.bigint "newsfeed_id"
+  create_table "group_schemas_idiom_collections", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "type"
+    t.string "collection_name"
+  end
+
+  create_table "group_schemas_newsfeed_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "newsfeed_id"
     t.string "title"
     t.text "content"
     t.string "url"
     t.datetime "published"
-    t.index ["guid"], name: "index_group_schemas_newsfeed_items_on_guid"
     t.index ["newsfeed_id"], name: "index_group_schemas_newsfeed_items_on_newsfeed_id"
   end
 
-  create_table "group_schemas_newsfeeds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_newsfeeds", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "type"
     t.string "name"
     t.string "url", null: false
@@ -95,48 +96,55 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
     t.index ["url"], name: "index_group_schemas_newsfeeds_on_url"
   end
 
-  create_table "group_schemas_public_transports", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "uuid", null: false
-    t.string "type"
+  create_table "group_schemas_public_transport_departures", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "public_transport_id"
     t.datetime "departure", null: false
     t.integer "delay_minutes"
     t.string "line", null: false
     t.string "direction", null: false
     t.string "transit_type"
     t.string "platform"
-    t.index ["uuid"], name: "index_group_schemas_public_transports_on_uuid", unique: true
+    t.index ["public_transport_id"], name: "departures_on_public_transport_id"
+  end
+
+  create_table "group_schemas_public_transports", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "type"
+    t.string "station_name"
   end
 
   create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.bigint "reminder_list_id"
+    t.string "reminder_list_id"
     t.datetime "due_date"
+    t.datetime "creation_date"
+    t.boolean "completed"
     t.string "summary"
     t.string "description"
-    t.boolean "completed"
-    t.datetime "creation_date"
     t.string "assignee"
     t.index ["reminder_list_id"], name: "index_group_schemas_reminder_items_on_reminder_list_id"
-    t.index ["uid"], name: "index_group_schemas_reminder_items_on_uid"
   end
 
-  create_table "group_schemas_reminder_lists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "uid"
+  create_table "group_schemas_reminder_lists", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "type"
     t.string "name"
     t.string "description"
     t.string "color"
-    t.index ["uid"], name: "index_group_schemas_reminder_lists_on_uid"
+    t.index ["id"], name: "index_group_schemas_reminder_lists_on_id"
   end
 
-  create_table "group_schemas_weather_owms", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "type"
+  create_table "group_schemas_weather_owm_entries", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "weather_owm_id"
     t.timestamp "dt_txt"
     t.json "forecast"
     t.string "unit"
+    t.index ["weather_owm_id"], name: "index_group_schemas_weather_owm_entries_on_weather_owm_id"
   end
 
-  create_table "groups", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "name", null: false
+  create_table "group_schemas_weather_owms", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "type"
+    t.string "location_name"
+  end
+
+  create_table "groups", primary_key: "name", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -168,10 +176,10 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
   end
 
   create_table "record_links", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "recordable_type"
-    t.bigint "recordable_id"
     t.bigint "source_instance_id"
     t.string "group_id"
+    t.string "recordable_type"
+    t.string "recordable_id"
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
@@ -201,6 +209,7 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
   create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.json "title", null: false
+    t.string "compatibility"
     t.json "description", null: false
     t.string "creator"
     t.string "version", null: false
@@ -210,7 +219,6 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
     t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "compatibility"
     t.index ["slug"], name: "index_sources_on_slug", unique: true
   end
 
@@ -233,8 +241,10 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
   create_table "widgets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.json "title"
+    t.string "compatibility"
     t.json "description"
     t.json "sizes"
+    t.boolean "single_source", default: false
     t.string "version"
     t.string "creator"
     t.string "homepage"
@@ -245,14 +255,12 @@ ActiveRecord::Schema.define(version: 2019_07_03_071333) do
     t.string "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "compatibility"
-    t.boolean "single_source", default: false
     t.index ["group_id"], name: "index_widgets_on_group_id"
     t.index ["slug"], name: "index_widgets_on_slug", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "instance_associations", "groups", primary_key: "name"
   add_foreign_key "instance_associations", "source_instances"
   add_foreign_key "instance_associations", "widget_instances"
-  add_foreign_key "record_links", "source_instances"
 end
