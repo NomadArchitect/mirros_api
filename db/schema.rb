@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
     t.index ["id"], name: "index_group_schemas_reminder_lists_on_id"
   end
 
-  create_table "group_schemas_weather_owm_entries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_weather_owm_entries", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "weather_owm_id"
     t.timestamp "dt_txt"
     t.json "forecast"
