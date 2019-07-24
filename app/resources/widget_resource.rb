@@ -1,9 +1,10 @@
 class WidgetResource < JSONAPI::Resource
-
   primary_key :slug
   key_type :string
+  exclude_links [:self]
 
   attributes :name,
+             :active,
              :title,
              :description,
              :sizes,

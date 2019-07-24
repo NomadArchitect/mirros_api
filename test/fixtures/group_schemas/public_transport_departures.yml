@@ -4,8 +4,20 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+tram:
+  public_transport_id: 980190962
+  departure: <%= DateTime.now %>
+  delay_minutes: 5
+  line: 'N20'
+  direction: 'Some destination'
+  transit_type: 'tram'
+  platform: 'T1'
+
+bus:
+  public_transport_id: 980190962
+  departure: <%= DateTime.now %>
+  delay_minutes: 2
+  line: 'N19'
+  direction: 'Some other destination'
+  transit_type: 'bus'
+  platform: 'B2'
