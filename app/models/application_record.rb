@@ -1,10 +1,9 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
-  after_save :broadcast, unless: :broadcast_not_required?
-  after_destroy :broadcast, unless: :broadcast_not_required?
+  after_commit :broadcast, if: :broadcastable?
 
-  def broadcast_not_required?
-    self.class.eql? Upload
+  def broadcastable?
+    [Widget, WidgetInstance, Source, SourceInstance, InstanceAssociation, Setting].include? self.class
   end
 
   def broadcast
