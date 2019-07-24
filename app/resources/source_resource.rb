@@ -1,10 +1,11 @@
 # JSON:API-compliant resource model for Sources.
 class SourceResource < JSONAPI::Resource
-
   primary_key :slug
   key_type :string
+  exclude_links [:self]
 
   attributes :name,
+             :active,
              :title,
              :description,
              :creator,

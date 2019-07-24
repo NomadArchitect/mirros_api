@@ -2,6 +2,7 @@ class CreateSources < ActiveRecord::Migration[5.1]
   def change
     create_table :sources do |t|
       t.string :name, null: false
+      t.boolean :active, default: true
       t.json :title, null: false
       t.string :compatibility
       t.json :description, null: false

@@ -208,6 +208,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
 
   create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
+    t.boolean "active"
     t.json "title", null: false
     t.string "compatibility"
     t.json "description", null: false
@@ -240,6 +241,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
 
   create_table "widgets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
+    t.boolean "active"
     t.json "title"
     t.string "compatibility"
     t.json "description"
