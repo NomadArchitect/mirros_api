@@ -148,6 +148,7 @@ namespace :extension do
       creator: spec.author,
       homepage: spec.homepage,
       download: 'http://my-gemserver.local',
+      active: true
     }.merge(type_specifics)
   end
 end
