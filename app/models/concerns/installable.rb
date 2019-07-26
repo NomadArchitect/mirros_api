@@ -5,9 +5,20 @@ require 'bundler/injector'
 require 'bundler/installer'
 require 'bundler/lockfile_generator'
 require 'pathname'
+require 'active_support/concern'
 
 # Provides methods to install, update and uninstall widgets and sources.
 module Installable
+  extend ActiveSupport::Concern
+
+  included do
+    after_create :install_gem, unless: :pre_installed?
+    after_create_commit :post_install, unless: :pre_installed?
+    after_update :update_gem, unless: :pre_installed?
+    after_update_commit :post_update, unless: :pre_installed?
+    before_destroy :uninstall_gem, unless: :pre_installed?
+    after_destroy_commit :post_uninstall, unless: :pre_installed?
+  end
 
   EXTENSION_TYPES = %w[widget source].freeze
 

@@ -44,6 +44,7 @@ module MirrOSApi
 
     # Load instances models
     config.autoload_paths += %W[#{config.root}/app/models/instances]
+    config.autoload_paths += %W[#{config.root}/app/models/concerns]
     config.autoload_paths += %W[#{config.root}/app/models/group_schemas]
     config.autoload_paths += %W[#{config.root}/app/resources/group_schemas]
 
