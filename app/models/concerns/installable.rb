@@ -21,6 +21,24 @@ module Installable
   end
 
   EXTENSION_TYPES = %w[widget source].freeze
+  ACTION_MAP = {
+    create: 'install',
+    update: 'update',
+    destroy: 'uninstall'
+  }.freeze
+
+  class_methods do
+    def without_callbacks(action, &block)
+      post_cb = ACTION_MAP[action.to_sym]
+      callbacks = [
+        [action.to_sym, :after, "#{post_cb}_gem".to_sym],
+        [:commit, :after, "post_#{post_cb}".to_sym]
+      ]
+      callbacks.each { |cb| skip_callback(*cb) }
+      yield
+      callbacks.each { |cb| set_callback(*cb) }
+    end
+  end
 
   def install_gem
     Rufus::Scheduler.s.pause
