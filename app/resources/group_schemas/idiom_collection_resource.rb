@@ -4,6 +4,6 @@ class IdiomCollectionResource < RecordableResource
   key_type :string
 
   def items
-    @model.items.as_json
+    @model.items.as_json(except: %i[idiom_collection_id uid])
   end
 end
