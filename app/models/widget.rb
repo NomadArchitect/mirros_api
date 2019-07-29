@@ -1,15 +1,7 @@
 class Widget < ApplicationRecord
-  # serialize :languages, Array if Rails.env.development?
-
   self.primary_key = 'slug'
 
   include Installable
-  after_create :install_gem, unless: :pre_installed?
-  after_create_commit :post_install, unless: :pre_installed?
-  after_update :update_gem, unless: :pre_installed?
-  after_update_commit :post_update, unless: :pre_installed?
-  before_destroy :uninstall_gem, unless: :pre_installed?
-  after_destroy_commit :post_uninstall, unless: :pre_installed?
 
   has_many :widget_instances, dependent: :destroy
   belongs_to :group, optional: true

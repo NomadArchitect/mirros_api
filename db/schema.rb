@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
     t.string "idiom_collection_id"
     t.string "title"
     t.text "message"
-    t.string "author"
+    t.text "author"
     t.string "language"
     t.date "date"
     t.index ["idiom_collection_id"], name: "items_on_idiom_collection_id"
@@ -208,7 +208,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
 
   create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
-    t.boolean "active"
+    t.boolean "active", default: true
     t.json "title", null: false
     t.string "compatibility"
     t.json "description", null: false
@@ -224,6 +224,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
   end
 
   create_table "uploads", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "type", default: "Upload"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -241,7 +242,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
 
   create_table "widgets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
-    t.boolean "active"
+    t.boolean "active", default: true
     t.json "title"
     t.string "compatibility"
     t.json "description"

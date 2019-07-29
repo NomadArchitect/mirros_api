@@ -28,7 +28,10 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    extension_class.create!(construct_attributes(args, spec, meta))
+    extension_class.without_callbacks('create') do |_|
+      extension_class.create!(construct_attributes(args, spec, meta))
+    end
+
     puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
   end
 
@@ -47,13 +50,14 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    record = extension_class.find_by(slug: args[:extension])
 
-    if record.nil?
-      raise ArgumentError, "#{args[:type]} #{args[:extension]} not present in the #{Rails.env} db"
+    extension_class.without_callbacks('update') do |_|
+      record = extension_class.find_by(slug: args[:extension])
+      raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db" if record.nil?
+
+      record.update!(construct_attributes(args, spec, meta))
     end
 
-    record.update!(construct_attributes(args, spec, meta))
     puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
   end
 
@@ -67,8 +71,10 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    record = extension_class.find_by(slug: args[:extension])
-    record.destroy!
+    extension_class.without_callbacks('destroy') do |_|
+      record = extension_class.find_by(slug: args[:extension])
+      record.destroy!
+    end
     puts "Removed #{args[:type]} #{args[:extension]} from the #{Rails.env} database"
 
     Bundler::Injector.remove([args[:extension]])
@@ -142,6 +148,7 @@ namespace :extension do
       creator: spec.author,
       homepage: spec.homepage,
       download: 'http://my-gemserver.local',
+      active: true
     }.merge(type_specifics)
   end
 end
