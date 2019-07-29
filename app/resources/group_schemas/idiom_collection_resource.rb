@@ -1,6 +1,6 @@
 class IdiomCollectionResource < RecordableResource
   model_name 'GroupSchemas::IdiomCollection'
-  attributes :id, :collection_name, :items
+  attributes :collection_name, :items
   key_type :string
 
   def items
