@@ -224,7 +224,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
   end
 
   create_table "uploads", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "type"
+    t.string "type", default: "Upload"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
