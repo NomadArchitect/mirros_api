@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
     t.string "idiom_collection_id"
     t.string "title"
     t.text "message"
-    t.string "author"
+    t.text "author"
     t.string "language"
     t.date "date"
     t.index ["idiom_collection_id"], name: "items_on_idiom_collection_id"

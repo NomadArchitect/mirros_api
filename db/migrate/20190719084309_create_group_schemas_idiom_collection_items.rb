@@ -5,7 +5,7 @@ class CreateGroupSchemasIdiomCollectionItems < ActiveRecord::Migration[5.2]
       t.references :idiom_collection, type: :string, index: { name: 'items_on_idiom_collection_id' }
       t.string :title
       t.text :message
-      t.string :author
+      t.text :author
       t.string :language
       t.date :date
     end
