@@ -218,26 +218,36 @@ class System
   private_class_method :no_offline_mode_required?
 
   def self.start_offline_mode
-    pause_background_jobs
+    if setup_completed?
+      pause_background_jobs
+      start_reconnection_attempts
+    else
+      SettingExecution::Network.open_ap
+    end
+  rescue StandardError => e
+    Rails.logger.error e.message
+  end
+
+  private_class_method :start_offline_mode
+
+  def self.start_reconnection_attempts
     Rufus::Scheduler.s.interval '3m',
                                 tag: 'network-reconnect-attempt',
                                 overlap: false,
                                 times: 3 do |job|
       SettingExecution::Network.connect if SettingsCache.s.using_wifi?
       sleep 5
-      if current_ip_address.present?
+      if current_ip_address&.present?
         job.unschedule
         resume_background_jobs
       elsif job.count.eql? 3
         SettingExecution::Network.open_ap
         resume_background_jobs
       end
-    rescue Rufus::Scheduler::TimeoutError => e
+    rescue StandardError => e
       Rails.logger.error e.message
     end
   end
-
-  private_class_method :start_offline_mode
 
   def self.pause_background_jobs
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
