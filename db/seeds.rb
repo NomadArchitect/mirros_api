@@ -93,7 +93,6 @@ Setting.new(
   value: ''
 ).save(validate: false)
 
-
 Group.create(
   [
     {
@@ -136,21 +135,21 @@ end
 
 WidgetInstance.create([
                         {
-                          widget: Widget.find_by_slug('clock'),
+                          widget: Widget.find_by(slug: 'clock'),
                           title: '',
                           showtitle: false,
                           configuration: {},
                           position: { "x": 0, "y": 0, "width": 3, "height": 1 }
                         },
                         {
-                          widget: Widget.find_by_slug('current_date'),
+                          widget: Widget.find_by(slug: 'current_date'),
                           title: '',
                           showtitle: false,
                           configuration: {},
                           position: { "x": 0, "y": 1, "width": 3, "height": 1 }
                         },
                         {
-                          widget: Widget.find_by_slug('text_field'),
+                          widget: Widget.find_by(slug: 'text_field'),
                           title: '',
                           showtitle: false,
                           configuration: {
@@ -163,7 +162,7 @@ WidgetInstance.create([
                       ])
 
 WidgetInstance.create(
-  widget: Widget.find_by_slug('calendar_event_list'),
+  widget: Widget.find_by(slug: 'calendar_event_list'),
   title: 'Holidays',
   showtitle: true,
   configuration: {},
@@ -171,7 +170,7 @@ WidgetInstance.create(
 )
 
 WidgetInstance.create(
-  widget: Widget.find_by_slug('ticker'),
+  widget: Widget.find_by(slug: 'ticker'),
   title: 'glancr News',
   showtitle: true,
   configuration: { "amount": 5, "showFeedIcon": true },
@@ -185,4 +184,3 @@ MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
   puts "Successfully ran #{extension} seed" if has_seed
 end
-
