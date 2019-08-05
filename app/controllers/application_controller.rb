@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
     render json: {
       errors: [
         JSONAPI::Error.new(
-          title: "Functionality not implemented",
+          title: 'Functionality not implemented',
           detail: e.message,
           code: 501,
           status: :not_implemented

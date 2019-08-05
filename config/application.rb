@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails'
@@ -48,17 +50,17 @@ module MirrOSApi
     config.autoload_paths += %W[#{config.root}/app/models/group_schemas]
     config.autoload_paths += %W[#{config.root}/app/resources/group_schemas]
 
-    API_HOST = 'api.glancr.de'.freeze
-    GEM_SERVER = 'gems.marco-roth.ch'.freeze # localhost:9292 for geminabox
-    SETUP_IP = '192.168.8.1'.freeze # Fixed IP of the internal setup WiFi AP.
+    API_HOST = 'api.glancr.de'
+    GEM_SERVER = 'gems.marco-roth.ch' # localhost:9292 for geminabox
+    SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
     DEFAULT_WIDGETS = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:widget) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+                             .current_dependencies
+                             .select { |dep| dep.groups.include?(:widget) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
     DEFAULT_SOURCES = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:source) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+                             .current_dependencies
+                             .select { |dep| dep.groups.include?(:source) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
     config.action_cable.allowed_request_origins = [
       /localhost:\d{2,4}/,
