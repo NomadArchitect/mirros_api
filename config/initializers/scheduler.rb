@@ -1,5 +1,3 @@
-#
-# config/initializers/scheduler.rb
 
 require 'rufus-scheduler'
 require 'yaml'

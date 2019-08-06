@@ -133,7 +133,7 @@ namespace :extension do
                        if meta[:group].nil?
                          attrs
                        else
-                         attrs.merge({ group_id: Group.find_by(name: meta[:group]) })
+                         attrs.merge(group_id: Group.find_by(name: meta[:group]))
                        end
                      else
                        {
