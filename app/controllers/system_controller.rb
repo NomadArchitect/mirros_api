@@ -183,7 +183,7 @@ class SystemController < ApplicationController
       # Skip callbacks to avoid HTTP calls in meta generation
       SourceInstance.skip_callback :create, :after, :set_meta
       calendar_source = SourceInstance.create(
-        source: Source.find_by_slug('ical'),
+        source: Source.find_by(slug: 'ical'),
         configuration: { "url": feed_settings[:url] },
         options: [{
                     uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
@@ -193,13 +193,13 @@ class SystemController < ApplicationController
       )
       SourceInstance.set_callback :create, :after, :set_meta
 
-      calendar_widget = WidgetInstance.find_by_widget_id('calendar_event_list')
+      calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
       calendar_widget.update(title: feed_settings[:title])
       InstanceAssociation.create(
         configuration: {
           "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
         },
-        group: Group.find_by_slug('calendar'),
+        group: Group.find_by(slug: 'calendar'),
         widget_instance: calendar_widget,
         source_instance: calendar_source
       )
@@ -211,7 +211,7 @@ class SystemController < ApplicationController
 
     SourceInstance.skip_callback :create, :after, :set_meta
     newsfeed_source = SourceInstance.new(
-      source: Source.find_by_slug('rss_feeds'),
+      source: Source.find_by(slug: 'rss_feeds'),
       title: 'glancr: Welcome Screen',
       configuration: {
         "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
@@ -226,9 +226,9 @@ class SystemController < ApplicationController
 
     InstanceAssociation.create(
       configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
-      group: Group.find_by_slug('newsfeed'),
-      widget_instance: WidgetInstance.find_by_widget_id('ticker'),
-      source_instance: SourceInstance.find_by_source_id('rss_feeds')
+      group: Group.find_by(slug: 'newsfeed'),
+      widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
+      source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
     )
   end
 
