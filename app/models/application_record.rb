@@ -3,7 +3,14 @@ class ApplicationRecord < ActiveRecord::Base
   after_commit :broadcast, if: :broadcastable?
 
   def broadcastable?
-    [Widget, WidgetInstance, Source, SourceInstance, InstanceAssociation, Setting].include? self.class
+    [
+      Widget,
+      WidgetInstance,
+      Source,
+      SourceInstance,
+      InstanceAssociation,
+      Setting
+    ].include? self.class
   end
 
   def broadcast
