@@ -1,9 +1,18 @@
+#encoding: utf-8
+
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
   after_commit :broadcast, if: :broadcastable?
 
   def broadcastable?
-    [Widget, WidgetInstance, Source, SourceInstance, InstanceAssociation, Setting].include? self.class
+    [
+      Widget,
+      WidgetInstance,
+      Source,
+      SourceInstance,
+      InstanceAssociation,
+      Setting
+    ].include? self.class
   end
 
   def broadcast
@@ -21,10 +30,9 @@ class ApplicationRecord < ActiveRecord::Base
                else
                  []
                end
-
     serialized_res = JSONAPI::ResourceSerializer.new(res_class, include: includes).serialize_to_hash(res)
     ActionCable.server.broadcast 'updates',
-                                 payload: serialized_res,
+                                 payload: serialized_res.freeze,
                                  type: destroyed? ? 'deletion' : 'update',
                                  coder: nil
   end
