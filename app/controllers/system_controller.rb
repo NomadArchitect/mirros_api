@@ -71,11 +71,14 @@ class SystemController < ApplicationController
     Thread.new do
       sleep 2
       SettingExecution::Personal.send_setup_email
-
-      create_default_cal_instances
-      create_default_feed_instances
-
-      ActiveRecord::Base.clear_active_connections!
+      begin
+        create_default_cal_instances
+        create_default_feed_instances
+      rescue StandardError => e
+        Rails.logger.error "Error during default instance creation: #{e.message}"
+      ensure
+        ActiveRecord::Base.clear_active_connections!
+      end
     end
 
     render json: { meta: System.info }
@@ -182,7 +185,7 @@ class SystemController < ApplicationController
     ActiveRecord::Base.transaction do
       # Skip callbacks to avoid HTTP calls in meta generation
       SourceInstance.skip_callback :create, :after, :set_meta
-      calendar_source = SourceInstance.create(
+      calendar_source = SourceInstance.create!(
         source: Source.find_by(slug: 'ical'),
         configuration: { "url": feed_settings[:url] },
         options: [{
@@ -195,7 +198,7 @@ class SystemController < ApplicationController
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
       calendar_widget.update(title: feed_settings[:title])
-      InstanceAssociation.create(
+      InstanceAssociation.create!(
         configuration: {
           "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
         },
@@ -221,10 +224,10 @@ class SystemController < ApplicationController
           display: 'glancr: Welcome Screen' }
       ]
     )
-    newsfeed_source.save(validate: false)
+    newsfeed_source.save!(validate: false)
     SourceInstance.set_callback :create, :after, :set_meta
 
-    InstanceAssociation.create(
+    InstanceAssociation.create!(
       configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
       group: Group.find_by(slug: 'newsfeed'),
       widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
