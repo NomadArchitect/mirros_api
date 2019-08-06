@@ -87,9 +87,9 @@ namespace :extension do
       return false
     end
 
-    spec_path = "#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec"
+    spec_path = Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec")
     unless File.exist? spec_path
-      puts "Could not find gemspec file at #{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec\nCheck if you provided the correct extension name and if the gemspec file exists."
+      puts "Could not find gemspec file at #{spec_path}\nCheck if you provided the correct extension name and if the gemspec file exists."
       return false
     end
 
@@ -113,7 +113,7 @@ namespace :extension do
       spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
       Gem::Specification.load(spec_file)
     else
-      Gem::Specification.load("#{Rails.root}/#{args[:type]}s/#{args[:extension]}/#{args[:extension]}.gemspec")
+      Gem::Specification.load(Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec"))
     end
   end
 

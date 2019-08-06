@@ -13,11 +13,11 @@ if Rails.const_defined? 'Server'
     SettingExecution::Network.disable_lan unless settings_cache[:network_connectiontype].eql? 'lan'
   end
 
-  s = Rufus::Scheduler.singleton(lockfile: "#{Rails.root}/tmp/.rufus-scheduler.lock")
-  s.stderr = File.open("#{Rails.root}/log/scheduler.log", 'wb')
+  s = Rufus::Scheduler.singleton(lockfile: Rails.root.join('tmp', '.rufus-scheduler.lock'))
+  s.stderr = File.open(Rails.root.join('log', 'scheduler.log'), 'wb')
 
   # Perform initial network status check if required and schedule consecutive checking.
-  System.check_network_status unless state_cache.current_ip.present?
+  System.check_network_status if state_cache.current_ip.blank?
 
   s.every '30s', tag: 'network-status-check', overlap: false do
     System.check_network_status
