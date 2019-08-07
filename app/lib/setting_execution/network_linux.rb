@@ -70,8 +70,7 @@ module SettingExecution
     end
 
     def self.reset
-      ssid = SettingsCache.s[:network_ssid]
-      remove_connection(ssid) unless ssid.empty?
+      remove_stale_connections
     end
 
     def self.open_ap
