@@ -185,15 +185,18 @@ class SystemController < ApplicationController
     ActiveRecord::Base.transaction do
       # Skip callbacks to avoid HTTP calls in meta generation
       SourceInstance.skip_callback :create, :after, :set_meta
-      calendar_source = SourceInstance.create!(
+      calendar_source = SourceInstance.new(
         source: Source.find_by(slug: 'ical'),
         configuration: { "url": feed_settings[:url] },
-        options: [{
-                    uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
-                    display: feed_settings[:title]
-                  }],
+        options: [
+          {
+            uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
+            display: feed_settings[:title]
+          }
+        ],
         title: feed_settings[:title]
       )
+      calendar_source.save!(validate: false)
       SourceInstance.set_callback :create, :after, :set_meta
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
