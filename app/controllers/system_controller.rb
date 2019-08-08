@@ -37,14 +37,16 @@ class SystemController < ApplicationController
 
   rescue StandardError => e
     StateCache.s.resetting = false
-    render json: jsonapi_error('Error during reset', e.message, 500), status: 500
+    render json: jsonapi_error('Error during reset', e.message, 500),
+           status: :internal_server_error
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
     System.reboot
   rescue StandardError => e
-    render json: jsonapi_error('Error during reboot attempt', e.message, 500), status: 500
+    render json: jsonapi_error('Error during reboot attempt', e.message, 500),
+           status: :internal_server_error
   end
 
   def run_setup
@@ -83,7 +85,8 @@ class SystemController < ApplicationController
 
     render json: { meta: System.info }
   rescue StandardError => e
-    render json: jsonapi_error('Error during setup', e.message, 500), status: 500
+    render json: jsonapi_error('Error during setup', e.message, 500),
+           status: :internal_server_error
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -102,7 +105,7 @@ class SystemController < ApplicationController
           "error while executing #{params[:category]}/#{params[:command]}",
           e.message,
           500
-        ), status: 500
+        ), status: :internal_server_error
       end
     else
       render json: jsonapi_error(
@@ -111,7 +114,7 @@ class SystemController < ApplicationController
                "#{params[:category]} settings. Valid actions are: "\
                "#{executor.methods}",
         500
-      ), status: 500
+      ), status: :internal_server_error
     end
   end
 
@@ -128,7 +131,7 @@ class SystemController < ApplicationController
       "Could not fetch #{params[:type]} list",
       e.message,
       504
-    ), status: 504
+    ), status: :gateway_timeout
   end
 
   # Checks if a logfile with the given name exists in the Rails log directory
@@ -157,7 +160,8 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message, 500),
+           status: :internal_server_error
   end
 
   private
