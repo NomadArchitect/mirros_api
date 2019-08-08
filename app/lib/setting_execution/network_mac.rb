@@ -20,7 +20,7 @@ module SettingExecution
     def self.list
       # TODO. Airport Utility at /System/Library/PrivateFrameworks/Apple80211.framework/
       # Versions/Current/Resources/airport has a legacy switch `-s`
-      raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' if prod_server
 
       [
         { ssid: 'this is not a real wifi, just testing', signal: 70 },
@@ -33,38 +33,42 @@ module SettingExecution
     end
 
     def self.toggle_lan(_state)
-      raise NotImplementedError, 'LAN toggle only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'LAN toggle only implemented for Linux hosts' if prod_server
 
       # TODO: Use /usr/sbin/networksetup to remove a preferred network.
       true
     end
 
     def self.reset
-      raise NotImplementedError, 'Network reset only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'Network reset only implemented for Linux hosts' if prod_server
 
       # TODO: Use /usr/sbin/networksetup to remove a preferred network.
       true
     end
 
     def self.open_ap
-      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' if prod_server
 
       # TODO: Implement this if possible through CLI tools in macOS
       true
     end
 
     def self.ap_active?
-      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' if prod_server
 
       # TODO: Implement this if possible through /usr/sbin/networksetup
       !StateCache.s.setup_complete
     end
 
     def self.close_ap
-      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' unless Rails.env.development?
+      raise NotImplementedError, 'AP functionality only implemented for Linux hosts' if prod_server
 
       # TODO: Implement this if possible through CLI tools in macOS
       true
+    end
+
+    def self.prod_server
+      Rails.env.production? && Rails.const_defined?('Server')
     end
   end
 end
