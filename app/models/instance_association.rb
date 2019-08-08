@@ -37,7 +37,7 @@ class InstanceAssociation < ApplicationRecord
         next unless recordable.record_link.nil?
 
         source_instance.record_links <<
-          RecordLink.create(recordable: recordable, group: Group.find(group_id))
+          RecordLink.new(recordable: recordable, group: Group.find(group_id))
       end
       source_instance.save
       source_instance.update(last_refresh: Time.now.utc)

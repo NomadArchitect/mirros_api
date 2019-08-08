@@ -7,8 +7,12 @@ module SettingExecution
   # Provides methods to apply settings in the system namespace.
   class System
     def self.timezone(tz_identifier)
-      return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-      raise NotImplementedError, 'Timezone control only implemented for Linux hosts' unless OS.linux?
+      if OS.mac?
+        # Bail in macOS dev env or if invoked during rake task
+        return if Rails.env.development? || Rails.const_defined?('Server')
+
+        raise NotImplementedError, 'Timezone control only implemented for Linux hosts'
+      end
 
       sysbus = DBus.system_bus
       timedated_service = sysbus['org.freedesktop.timedate1']

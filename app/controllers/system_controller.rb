@@ -37,14 +37,16 @@ class SystemController < ApplicationController
 
   rescue StandardError => e
     StateCache.s.resetting = false
-    render json: jsonapi_error('Error during reset', e.message, 500), status: 500
+    render json: jsonapi_error('Error during reset', e.message, 500),
+           status: :internal_server_error
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
     System.reboot
   rescue StandardError => e
-    render json: jsonapi_error('Error during reboot attempt', e.message, 500), status: 500
+    render json: jsonapi_error('Error during reboot attempt', e.message, 500),
+           status: :internal_server_error
   end
 
   def run_setup
@@ -57,33 +59,22 @@ class SystemController < ApplicationController
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
     connect_to_network
-
-    # Test online status
-    retries = 0
-    until retries > 5 || System.online?
-      sleep 5
-      retries += 1
-    end
-    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
+    online_or_raise
 
     # System has internet connectivity, complete seed and send setup mail
     # TODO: Handle errors in thread and take action if required
     Thread.new do
       sleep 2
       SettingExecution::Personal.send_setup_email
-      begin
-        create_default_cal_instances
-        create_default_feed_instances
-      rescue StandardError => e
-        Rails.logger.error "Error during default instance creation: #{e.message}"
-      ensure
-        ActiveRecord::Base.clear_active_connections!
-      end
+      create_default_cal_instances
+      create_default_feed_instances
+      ActiveRecord::Base.clear_active_connections!
     end
 
     render json: { meta: System.info }
   rescue StandardError => e
-    render json: jsonapi_error('Error during setup', e.message, 500), status: 500
+    render json: jsonapi_error('Error during setup', e.message, 500),
+           status: :internal_server_error
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -102,7 +93,7 @@ class SystemController < ApplicationController
           "error while executing #{params[:category]}/#{params[:command]}",
           e.message,
           500
-        ), status: 500
+        ), status: :internal_server_error
       end
     else
       render json: jsonapi_error(
@@ -111,7 +102,7 @@ class SystemController < ApplicationController
                "#{params[:category]} settings. Valid actions are: "\
                "#{executor.methods}",
         500
-      ), status: 500
+      ), status: :internal_server_error
     end
   end
 
@@ -128,7 +119,7 @@ class SystemController < ApplicationController
       "Could not fetch #{params[:type]} list",
       e.message,
       504
-    ), status: 504
+    ), status: :gateway_timeout
   end
 
   # Checks if a logfile with the given name exists in the Rails log directory
@@ -157,13 +148,13 @@ class SystemController < ApplicationController
     res = report.send
     head res.code
   rescue StandardError => e
-    render json: jsonapi_error('Error while sending debug report', e.message, 500), status: 500
+    render json: jsonapi_error('Error while sending debug report', e.message, 500),
+           status: :internal_server_error
   end
 
   private
 
   def connect_to_network
-    # TODO: clean this up
     conn_type = SettingsCache.s[:network_connectiontype]
     case conn_type
     when 'wlan'
@@ -173,9 +164,18 @@ class SystemController < ApplicationController
       SettingExecution::Network.enable_lan
       SettingExecution::Network.reset
     else
-      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
-      raise ArgumentError, "invalid connection type '#{conn_type}'"
+      Rails.logger.error "Setup encountered invalid connection type #{conn_type}"
+      raise ArgumentError, "invalid connection type #{conn_type}"
     end
+  end
+
+  def online_or_raise
+    retries = 0
+    until retries > 5 || System.online?
+      sleep 5
+      retries += 1
+    end
+    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
   end
 
   def create_default_cal_instances
@@ -185,15 +185,18 @@ class SystemController < ApplicationController
     ActiveRecord::Base.transaction do
       # Skip callbacks to avoid HTTP calls in meta generation
       SourceInstance.skip_callback :create, :after, :set_meta
-      calendar_source = SourceInstance.create!(
+      calendar_source = SourceInstance.new(
         source: Source.find_by(slug: 'ical'),
         configuration: { "url": feed_settings[:url] },
-        options: [{
-                    uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
-                    display: feed_settings[:title]
-                  }],
+        options: [
+          {
+            uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
+            display: feed_settings[:title]
+          }
+        ],
         title: feed_settings[:title]
       )
+      calendar_source.save!(validate: false)
       SourceInstance.set_callback :create, :after, :set_meta
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
@@ -207,32 +210,37 @@ class SystemController < ApplicationController
         source_instance: calendar_source
       )
     end
+  rescue StandardError => e
+    Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
   def create_default_feed_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
+    ActiveRecord::Base.transaction do
+      SourceInstance.skip_callback :create, :after, :set_meta
+      newsfeed_source = SourceInstance.new(
+        source: Source.find_by(slug: 'rss_feeds'),
+        title: 'glancr: Welcome Screen',
+        configuration: {
+          "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
+        },
+        options: [
+          { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
+            display: 'glancr: Welcome Screen' }
+        ]
+      )
+      newsfeed_source.save!(validate: false)
+      SourceInstance.set_callback :create, :after, :set_meta
 
-    SourceInstance.skip_callback :create, :after, :set_meta
-    newsfeed_source = SourceInstance.new(
-      source: Source.find_by(slug: 'rss_feeds'),
-      title: 'glancr: Welcome Screen',
-      configuration: {
-        "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
-      },
-      options: [
-        { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
-          display: 'glancr: Welcome Screen' }
-      ]
-    )
-    newsfeed_source.save!(validate: false)
-    SourceInstance.set_callback :create, :after, :set_meta
-
-    InstanceAssociation.create!(
-      configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
-      group: Group.find_by(slug: 'newsfeed'),
-      widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
-      source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
-    )
+      InstanceAssociation.create!(
+        configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
+        group: Group.find_by(slug: 'newsfeed'),
+        widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
+        source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
+      )
+    end
+  rescue StandardError => e
+    Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
   def default_holiday_calendar(locale)
