@@ -21,8 +21,8 @@ module SettingExecution
       false
     ensure
       StateCache.s.connection_attempt = false
-      System.check_network_status
-      ActionCable.server.broadcast 'status', payload: System.info
+      ::System.check_network_status
+      ActionCable.server.broadcast 'status', payload: ::System.info
     end
 
     def self.enable_lan

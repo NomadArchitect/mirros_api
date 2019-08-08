@@ -34,7 +34,7 @@ if Rails.const_defined? 'Server'
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
     sleep 15
-    MirrOSApi::DataRefresher.schedule_all
+    DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
   end
 end
