@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :dev do
   desc 'Perform an automated setup routine with pre-set settings'
   task run_setup: :environment do
@@ -15,20 +17,15 @@ namespace :dev do
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
     # Test online status
-    retries = 0
-    until retries > 5 || System.online?
-      sleep 5
-      retries += 1
-    end
-    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
+    ctrl = SystemController.new
+    ctrl.send(:online_or_raise)
 
     # System has internet connectivity, complete seed and send setup mail
     SettingExecution::Personal.send_setup_email
 
-    SystemController.new.send(:create_default_cal_instances)
-    SystemController.new.send(:create_default_feed_instances)
+    ctrl.send(:create_default_cal_instances)
+    ctrl.send(:create_default_feed_instances)
 
     puts 'Setup complete'
-
   end
 end
