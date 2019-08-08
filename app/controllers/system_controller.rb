@@ -59,14 +59,7 @@ class SystemController < ApplicationController
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
     connect_to_network
-
-    # Test online status
-    retries = 0
-    until retries > 5 || System.online?
-      sleep 5
-      retries += 1
-    end
-    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
+    online_or_raise
 
     # System has internet connectivity, complete seed and send setup mail
     # TODO: Handle errors in thread and take action if required
@@ -179,7 +172,13 @@ class SystemController < ApplicationController
     else
       Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
       raise ArgumentError, "invalid connection type '#{conn_type}'"
+  def online_or_raise
+    retries = 0
+    until retries > 5 || System.online?
+      sleep 5
+      retries += 1
     end
+    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
   end
 
   def create_default_cal_instances
