@@ -66,14 +66,9 @@ class SystemController < ApplicationController
     Thread.new do
       sleep 2
       SettingExecution::Personal.send_setup_email
-      begin
-        create_default_cal_instances
-        create_default_feed_instances
-      rescue StandardError => e
-        Rails.logger.error "Error during default instance creation: #{e.message}"
-      ensure
-        ActiveRecord::Base.clear_active_connections!
-      end
+      create_default_cal_instances
+      create_default_feed_instances
+      ActiveRecord::Base.clear_active_connections!
     end
 
     render json: { meta: System.info }
@@ -213,32 +208,37 @@ class SystemController < ApplicationController
         source_instance: calendar_source
       )
     end
+  rescue StandardError => e
+    Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
   def create_default_feed_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
+    ActiveRecord::Base.transaction do
+      SourceInstance.skip_callback :create, :after, :set_meta
+      newsfeed_source = SourceInstance.new(
+        source: Source.find_by(slug: 'rss_feeds'),
+        title: 'glancr: Welcome Screen',
+        configuration: {
+          "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
+        },
+        options: [
+          { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
+            display: 'glancr: Welcome Screen' }
+        ]
+      )
+      newsfeed_source.save!(validate: false)
+      SourceInstance.set_callback :create, :after, :set_meta
 
-    SourceInstance.skip_callback :create, :after, :set_meta
-    newsfeed_source = SourceInstance.new(
-      source: Source.find_by(slug: 'rss_feeds'),
-      title: 'glancr: Welcome Screen',
-      configuration: {
-        "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
-      },
-      options: [
-        { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
-          display: 'glancr: Welcome Screen' }
-      ]
-    )
-    newsfeed_source.save!(validate: false)
-    SourceInstance.set_callback :create, :after, :set_meta
-
-    InstanceAssociation.create!(
-      configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
-      group: Group.find_by(slug: 'newsfeed'),
-      widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
-      source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
-    )
+      InstanceAssociation.create!(
+        configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
+        group: Group.find_by(slug: 'newsfeed'),
+        widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
+        source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
+      )
+    end
+  rescue StandardError => e
+    Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
   def default_holiday_calendar(locale)
