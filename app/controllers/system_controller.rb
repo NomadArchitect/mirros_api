@@ -155,7 +155,6 @@ class SystemController < ApplicationController
   private
 
   def connect_to_network
-    # TODO: clean this up
     conn_type = SettingsCache.s[:network_connectiontype]
     case conn_type
     when 'wlan'
@@ -165,8 +164,11 @@ class SystemController < ApplicationController
       SettingExecution::Network.enable_lan
       SettingExecution::Network.reset
     else
-      Rails.logger.error "Setup encountered invalid connection type '#{conn_type}'"
-      raise ArgumentError, "invalid connection type '#{conn_type}'"
+      Rails.logger.error "Setup encountered invalid connection type #{conn_type}"
+      raise ArgumentError, "invalid connection type #{conn_type}"
+    end
+  end
+
   def online_or_raise
     retries = 0
     until retries > 5 || System.online?
