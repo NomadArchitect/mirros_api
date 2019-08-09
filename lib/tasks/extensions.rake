@@ -113,7 +113,9 @@ namespace :extension do
       spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
       Gem::Specification.load(spec_file)
     else
-      Gem::Specification.load(Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec"))
+      Gem::Specification.load(
+        Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec").to_s
+      )
     end
   end
 
