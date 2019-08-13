@@ -206,6 +206,8 @@ GEM
     thread_safe (0.3.6)
     ticker (0.1.6)
       rails (~> 5.2)
+    todoist (0.1.0)
+      httparty (~> 0.17)
     todos (0.1.5)
       rails (~> 5.2)
     tzinfo (1.2.5)
@@ -265,6 +267,7 @@ DEPENDENCIES
   terrapin (~> 0.6.0)!
   text_field!
   ticker!
+  todoist!
   todos!
   video_player!
   wunderlist!

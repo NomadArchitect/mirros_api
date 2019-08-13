@@ -71,5 +71,6 @@ source 'http://gems.marco-roth.ch/' do
     # gem 'urban_dictionary'
     gem 'sbb'
     gem 'wunderlist'
+    gem 'todoist'
   end
 end
