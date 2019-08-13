@@ -65,7 +65,7 @@ class DebugReport
 
   def append_rails_log_files
     %w[production scheduler].each do |log_file|
-      log_path = Pathname("#{Rails.root}/log/#{log_file}.log")
+      log_path = Pathname(Rails.root.join('log', "#{log_file}.log"))
       next unless log_path.exist?
 
       file_ref = File.open(log_path)
@@ -96,7 +96,5 @@ class DebugReport
       final << "\t#{type}:\n#{formatted_list}"
     end
     final
-
   end
-
 end

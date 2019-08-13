@@ -3,11 +3,10 @@
 require 'os'
 
 module SettingExecution
-
   # Provides methods to apply settings in the display namespace.
   class Display
     def self.orientation(degrees)
-      config_file = "#{Rails.root}/public/config.txt"
+      config_file = Rails.root.join('public', 'config.txt')
       begin
         configuration = File.read(config_file)
         File.write(config_file,
@@ -19,10 +18,5 @@ module SettingExecution
         false
       end
     end
-
-    def self.offinterval
-
-    end
-
   end
 end

@@ -5,9 +5,9 @@ class Upload < ApplicationRecord
     return unless file.attached?
 
     Rails.application
-      .routes
-      .url_helpers
-      .rails_blob_path(file, only_path: true)
+         .routes
+         .url_helpers
+         .rails_blob_path(file, only_path: true)
   end
 
   def purge_and_destroy

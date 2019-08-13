@@ -1,7 +1,7 @@
 namespace :db do
   # Starting with version 0.4.0, new or changed seeds are added here to allow for seeding a running system.
   desc 'Update seeds for mirr.OS system settings'
-  task seed_diff: [:environment] do |task, args|
+  task seed_diff: [:environment] do |_task, _args|
     Setting.skip_callback :update, :before, :apply_setting
     Setting.skip_callback :update, :after, :update_cache
     Setting.skip_callback :update, :after, :check_setup_status
@@ -39,7 +39,7 @@ namespace :db do
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
-  task update_default_gems: [:environment] do |task, args|
+  task update_default_gems: [:environment] do |_task, _args|
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke('widget', widget, 'seed')

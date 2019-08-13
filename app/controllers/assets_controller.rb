@@ -1,5 +1,6 @@
-class AssetsController < ApplicationController
+# frozen_string_literal: true
 
+class AssetsController < ApplicationController
   def show
     gem = Gem.loaded_specs[params[:extension]]
     return head :not_found if gem.nil?

@@ -15,7 +15,7 @@ end
 
 namespace :extension do
   desc 'insert an extension into the DB'
-  task :insert, %i[type extension mode] => [:environment] do |task, args|
+  task :insert, %i[type extension mode] => [:environment] do |_task, args|
     unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
     end
@@ -36,7 +36,7 @@ namespace :extension do
   end
 
   desc 'update an extension in the DB'
-  task :update, %i[type extension mode] => [:environment] do |task, args|
+  task :update, %i[type extension mode] => [:environment] do |_task, args|
 
     unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
@@ -62,7 +62,7 @@ namespace :extension do
   end
 
   desc 'remove an extension from the DB'
-  task :remove, %i[type extension] => [:environment] do |task, args|
+  task :remove, %i[type extension] => [:environment] do |_task, args|
     next unless arguments_valid?(args)
 
     unless Gem.loaded_specs['bundler'].version >= Gem::Version.new('1.17.0')
@@ -96,7 +96,7 @@ namespace :extension do
     true
   end
 
-  def spec_valid?(type, spec, meta)
+  def spec_valid?(type, _spec, meta)
     if type.to_sym.equal? :source
       if meta[:groups].empty?
         puts 'Sources must specify at least one group for which they provide data.'
@@ -127,7 +127,7 @@ namespace :extension do
     # FIXME: Use proper values if pulled from gemserver for seeding
     type_specifics = if args[:type].to_sym.equal? :widget
                        attrs = {
-                         icon: "http://backend-server.tld/icons/#{spec.name}.svg",
+                         icon: "http://server.tld/icons/#{spec.name}.svg",
                          sizes: meta[:sizes],
                          languages: meta[:languages],
                          single_source: meta[:single_source]

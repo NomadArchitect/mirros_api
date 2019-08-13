@@ -7,7 +7,7 @@ class UploadsController < ApplicationController
   end
 
   def create
-    render json: @type.create!(upload_params), methods: :file_url, status: 201
+    render json: @type.create!(upload_params), methods: :file_url, status: :created
   end
 
   def show
