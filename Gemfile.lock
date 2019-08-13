@@ -206,7 +206,7 @@ GEM
     thread_safe (0.3.6)
     ticker (0.1.6)
       rails (~> 5.2)
-    todoist (0.1.0)
+    todoist (0.1.1)
       httparty (~> 0.17)
     todos (0.1.5)
       rails (~> 5.2)
