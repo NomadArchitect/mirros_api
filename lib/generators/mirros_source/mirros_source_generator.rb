@@ -85,7 +85,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
       },
       groups: [], # TODO
       compatibility: '0.0.0'
-    }.to_s
+    }.to_json
   }
       RUBY
     end
