@@ -70,7 +70,8 @@ source 'http://gems.marco-roth.ch/' do
     gem 'idioms_source'
     # gem 'urban_dictionary'
     gem 'sbb'
-    gem 'wunderlist'
     gem 'todoist'
+    gem 'vbb'
+    gem 'wunderlist'
   end
 end
