@@ -196,11 +196,12 @@ module Installable
   def change_gem_version(version)
     search = /gem "#{@gem}", "= [0-9].[0-9].[0-9]"/
     replace = "gem \"#{@gem}\", \"= #{version}\""
+    gemfile_path = Rails.root.join('Gemfile')
 
-    tmp = Tempfile.new(['Gemfile', '.tmp'], "#{Rails.root}/tmp")
-    tmp.write(File.read("#{Rails.root}/Gemfile").dup.gsub(search, replace))
+    tmp = Tempfile.new(%w[Gemfile .tmp], Rails.root.join('tmp'))
+    tmp.write(File.read(gemfile_path).dup.gsub(search, replace))
     tmp.rewind
-    FileUtils.copy(tmp, "#{Rails.root}/Gemfile")
+    FileUtils.copy(tmp, gemfile_path)
     tmp.close!
   end
 

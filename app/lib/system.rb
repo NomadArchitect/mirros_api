@@ -85,7 +85,7 @@ class System
                                                  | cut -d "/" -f 1')
         ip_address = line.run(
           interface: map_interfaces(:linux, conn_type)
-        ).chomp!
+        )&.chomp!
         ip_address.eql?(SETUP_IP) ? nil : ip_address
 
       elsif OS.mac?
@@ -94,7 +94,7 @@ class System
           'ipconfig', 'getifaddr :interface',
           expected_outcodes: [0, 1]
         )
-        ip_address = line.run(interface: map_interfaces(:mac, conn_type)).chomp!
+        ip_address = line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
         ip_address.eql?(SETUP_IP) ? nil : ip_address
       else
         Rails.logger.error 'Unknown or unsupported OS in query for IP address'

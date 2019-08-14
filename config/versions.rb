@@ -12,7 +12,7 @@ API_VERSION = case File.exist? 'build_version'
                     'git',
                     'describe --always',
                     expected_outcodes: [0, 1]
-                  ).run.chomp!.freeze
+                  ).run&.chomp!.freeze
                 rescue Terrapin::CommandLineError
                   # git not installed
                   '0.0.0'

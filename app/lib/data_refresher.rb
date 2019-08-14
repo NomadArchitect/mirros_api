@@ -1,5 +1,4 @@
 class DataRefresher
-
   # TODO: Clean this up and document methods once we reach a stable API.
   def self.schedule_all
     instances = SourceInstance.all
@@ -72,7 +71,6 @@ class DataRefresher
     source_hooks_instance = source_hooks.new(source_instance.id,
                                              source_instance.configuration)
 
-
     associations.pluck('group_id').uniq.each do |group|
       # TODO: Specify should_update hook to determine if a SourceInstance needs
       #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
@@ -85,7 +83,7 @@ class DataRefresher
           Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}:
             #{e.message}\n#{e.backtrace.join("\n")}"
           # Delay the next run on failures
-          job.next_time = Time.now + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
+          job.next_time = Time.now.utc + Rufus::Scheduler.parse(source_hooks.refresh_interval) * 2
           next
         end
         recordables.each do |recordable|

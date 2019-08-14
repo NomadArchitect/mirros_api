@@ -3,7 +3,6 @@
 namespace :dev do
   desc 'Perform an automated setup routine with pre-set settings'
   task run_setup: :environment do
-
     Setting.find_by(slug: 'system_language').update!(value: 'enGb')
     Setting.find_by(slug: 'system_timezone').update!(value: 'Europe/Berlin')
     Setting.find_by(slug: 'personal_privacyConsent').update!(value: 'yes')
