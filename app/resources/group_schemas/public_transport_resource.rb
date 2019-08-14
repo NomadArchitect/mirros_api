@@ -7,6 +7,6 @@ class PublicTransportResource < RecordableResource
     @model
       .departures
       .sort_by(&:departure)
-      .reverse.as_json
+      .as_json
   end
 end
