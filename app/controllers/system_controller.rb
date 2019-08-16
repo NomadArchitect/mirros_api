@@ -52,6 +52,7 @@ class SystemController < ApplicationController
   def run_setup
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
+    raise ArgumentError, 'Missing required setting.' unless System.setup_completed?
 
     StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
