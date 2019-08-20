@@ -31,6 +31,15 @@ if Rails.const_defined? 'Server'
     end
   end
 
+  # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the
+  # proper timezone is set at all times.
+  if ENV['SNAP_VERSION']
+    s.every '3m', tag: 'system-fix-system-timezone', overlap: false do
+      tz = SettingsCache.s[:system_timezone]
+      SettingExecution::System.timezone(tz) unless tz.empty?
+    end
+  end
+
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
     sleep 15
