@@ -11,6 +11,7 @@ class CreateGroupSchemasPublicTransportDepartures < ActiveRecord::Migration[5.2]
       t.string :direction, null: false
       t.string :transit_type
       t.string :platform
+      t.timestamps
     end
   end
 end

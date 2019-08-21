@@ -8,6 +8,7 @@ class CreateGroupSchemasIdiomCollectionItems < ActiveRecord::Migration[5.2]
       t.text :author
       t.string :language
       t.date :date
+      t.timestamps
     end
   end
 end
