@@ -9,6 +9,7 @@ class CreateGroupSchemasCalendarEvent < ActiveRecord::Migration[5.2]
       t.string :summary
       t.text :description
       t.string :location
+      t.timestamps
     end
   end
 end

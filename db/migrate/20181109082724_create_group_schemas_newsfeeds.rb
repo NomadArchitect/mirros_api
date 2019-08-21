@@ -7,6 +7,7 @@ class CreateGroupSchemasNewsfeeds < ActiveRecord::Migration[5.2]
       t.string :url, null: false
       t.string :icon_url
       t.datetime :latest_entry
+      t.timestamps
     end
     add_index :group_schemas_newsfeeds, :url
   end

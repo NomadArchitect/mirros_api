@@ -87,7 +87,7 @@ class DataRefresher
           next
         end
         recordables.each do |recordable|
-          recordable.save
+          recordable.save!
           next unless recordable.record_link.nil?
 
           source_instance.record_links <<

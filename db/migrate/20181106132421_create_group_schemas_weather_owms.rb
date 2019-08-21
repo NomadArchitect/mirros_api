@@ -4,6 +4,7 @@ class CreateGroupSchemasWeatherOwms < ActiveRecord::Migration[5.2]
       t.string :id, primary_key: true
       t.string :type
       t.string :location_name
+      t.timestamps
     end
   end
 end

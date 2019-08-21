@@ -7,6 +7,7 @@ class CreateGroupSchemasNewsfeedItems < ActiveRecord::Migration[5.2]
       t.text :content
       t.string :url
       t.datetime :published
+      t.timestamps
     end
   end
 end
