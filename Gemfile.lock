@@ -212,7 +212,7 @@ GEM
       rails (~> 5.2)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    vbb (0.1.7)
+    vbb (0.1.8)
       httparty (~> 0.17)
     video_player (0.1.2)
       rails (~> 5.2)
