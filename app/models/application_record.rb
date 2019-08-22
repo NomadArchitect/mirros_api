@@ -17,7 +17,7 @@ class ApplicationRecord < ActiveRecord::Base
     res_class = "#{self.class}Resource".safe_constantize
     return if res_class.nil?
 
-    res = res_class.new(self, nil)
+    res = res_class.new(reload, nil) # Reload from DB to ensure we're not pushing stale data
     includes = case res
                when SourceInstanceResource
                  %w[source widget_instances instance_associations]
