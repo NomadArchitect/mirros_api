@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Base class for all mirr.OS AR models.
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
   after_commit :broadcast, if: :broadcastable?
@@ -14,11 +17,20 @@ class ApplicationRecord < ActiveRecord::Base
   end
 
   def broadcast
-    res_class = "#{self.class}Resource".safe_constantize
-    return if res_class.nil?
+    ActionCable.server.broadcast 'updates',
+                                 payload: serialize_resource,
+                                 type: destroyed? ? 'deletion' : 'update'
+  rescue StandardError => e
+    Rails.logger.error "Failed to broadcast #{self.class} #{id} update: #{e.message}"
+  end
 
-    res = res_class.new(self, nil)
-    includes = case res
+  def serialize_resource
+    res_class = "#{self.class}Resource".safe_constantize
+    raise ArgumentError, "Could not constantize #{self.class}Resource" if res_class.nil?
+
+    # Reload from DB to ensure we're not pushing stale data, see https://github.com/rails/rails/issues/27342
+    res = res_class.new(reload, nil)
+    includes = case res # Use instance here since case evaluates the class
                when SourceInstanceResource
                  %w[source widget_instances instance_associations]
                when WidgetInstanceResource
@@ -28,11 +40,6 @@ class ApplicationRecord < ActiveRecord::Base
                else
                  []
                end
-    serialized_res = JSONAPI::ResourceSerializer.new(res_class, include: includes).serialize_to_hash(res)
-    ActionCable.server.broadcast 'updates',
-                                 payload: serialized_res,
-                                 type: destroyed? ? 'deletion' : 'update'
-  rescue StandardError => e
-    Rails.logger.error "Failed to broadcast #{self.class} #{id} update: #{e.message}"
+    JSONAPI::ResourceSerializer.new(res_class, include: includes).serialize_to_hash(res)
   end
 end
