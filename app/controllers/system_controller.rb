@@ -13,7 +13,7 @@ class SystemController < ApplicationController
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
     Rufus::Scheduler.s.shutdown(:kill)
 
-    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root}/reset.sh :env")
+    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
     reset_line.run(env: Rails.env)
 
     # All good until here, send the reset email.
@@ -127,7 +127,7 @@ class SystemController < ApplicationController
   # and returns it.
   # @return [FileBody] Content of the requested log file
   def fetch_logfile
-    logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
+    logfile = Rails.root.join('log', "#{params[:logfile]}.log")
 
     if Pathname.new(logfile).exist?
       send_file(logfile)
