@@ -25,6 +25,10 @@ class System
     }.merge(StateCache.s.as_json)
   end
 
+  def self.push_status_update
+    ActionCable.server.broadcast 'status', payload: info
+  end
+
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
