@@ -157,6 +157,53 @@ class SystemController < ApplicationController
            status: :internal_server_error
   end
 
+  def backup_settings
+    Rufus::Scheduler.s.pause
+
+    if ENV['SNAP_DATA'].nil?
+      head :no_content
+    else
+      # create-backup script is included in mirros-one-snap repository
+      line = Terrapin::CommandLine.new('create-backup')
+      backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
+      send_file(backup_location) if backup_location.exist?
+    end
+
+    Rufus::Scheduler.s.resume
+  end
+
+  def restore_settings
+    return if ENV['SNAP_DATA'].nil?
+
+    Rufus::Scheduler.s.stop
+    StateCache.s.resetting = true
+    ::System.push_status_update
+    SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
+
+    # TODO: Create backup of current state to roll back if necessary
+    Thread.new(params[:backup_file]) do |backup_file|
+      FileUtils.mv backup_file.tempfile, "#{ENV['SNAP_DATA']}/#{backup_file.original_filename}"
+      # restore-backup script is included in mirros-one-snap repository
+      # FIXME: Ignore return code 1 until proper rollbacks are implemented.
+      # In installations where the initial snap version was <= 0.13.2,
+      # my.cnf didn't contain a password. Calling mysql with -p triggers a warning
+      # which Terrapin interprets as a fatal error.
+      line = Terrapin::CommandLine.new(
+        'restore-backup',
+        ':backup_file', expected_outcodes: [0, 1]
+      )
+      line.run(backup_file: backup_file.original_filename)
+      Setting.find_by(slug: 'system_timezone').save # Apply timezone setting
+      run_setup(
+        create_defaults: false,
+        params: { reference_time: Time.current }
+      )
+      System.reboot
+    end
+
+    head :no_content
+  end
+
   private
 
   def connect_to_network
