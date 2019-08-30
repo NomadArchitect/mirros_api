@@ -9,11 +9,12 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.s.resetting = true
+    ActionCable.server.broadcast 'status', payload: ::System.info
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
     Rufus::Scheduler.s.shutdown(:kill)
 
-    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root}/reset.sh :env")
+    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
     reset_line.run(env: Rails.env)
 
     # All good until here, send the reset email.
@@ -49,7 +50,8 @@ class SystemController < ApplicationController
            status: :internal_server_error
   end
 
-  def run_setup
+  # @param [Hash] options
+  def run_setup(options = { create_defaults: true })
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
     raise ArgumentError, 'Missing required setting.' unless System.setup_completed?
@@ -64,11 +66,13 @@ class SystemController < ApplicationController
 
     # System has internet connectivity, complete seed and send setup mail
     # TODO: Handle errors in thread and take action if required
-    Thread.new do
+    Thread.new(options) do |opts|
       sleep 2
       SettingExecution::Personal.send_setup_email
-      create_default_cal_instances
-      create_default_feed_instances
+      if opts[:create_defaults]
+        create_default_cal_instances
+        create_default_feed_instances
+      end
       ActiveRecord::Base.clear_active_connections!
     end
 
@@ -127,7 +131,7 @@ class SystemController < ApplicationController
   # and returns it.
   # @return [FileBody] Content of the requested log file
   def fetch_logfile
-    logfile = "#{Rails.root}/log/#{params[:logfile]}.log"
+    logfile = Rails.root.join('log', "#{params[:logfile]}.log")
 
     if Pathname.new(logfile).exist?
       send_file(logfile)
@@ -151,6 +155,53 @@ class SystemController < ApplicationController
   rescue StandardError => e
     render json: jsonapi_error('Error while sending debug report', e.message, 500),
            status: :internal_server_error
+  end
+
+  def backup_settings
+    Rufus::Scheduler.s.pause
+
+    if ENV['SNAP_DATA'].nil?
+      head :no_content
+    else
+      # create-backup script is included in mirros-one-snap repository
+      line = Terrapin::CommandLine.new('create-backup')
+      backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
+      send_file(backup_location) if backup_location.exist?
+    end
+
+    Rufus::Scheduler.s.resume
+  end
+
+  def restore_settings
+    return if ENV['SNAP_DATA'].nil?
+
+    Rufus::Scheduler.s.stop
+    StateCache.s.resetting = true
+    ::System.push_status_update
+    SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
+
+    # TODO: Create backup of current state to roll back if necessary
+    Thread.new(params[:backup_file]) do |backup_file|
+      FileUtils.mv backup_file.tempfile, "#{ENV['SNAP_DATA']}/#{backup_file.original_filename}"
+      # restore-backup script is included in mirros-one-snap repository
+      # FIXME: Ignore return code 1 until proper rollbacks are implemented.
+      # In installations where the initial snap version was <= 0.13.2,
+      # my.cnf didn't contain a password. Calling mysql with -p triggers a warning
+      # which Terrapin interprets as a fatal error.
+      line = Terrapin::CommandLine.new(
+        'restore-backup',
+        ':backup_file', expected_outcodes: [0, 1]
+      )
+      line.run(backup_file: backup_file.original_filename)
+      Setting.find_by(slug: 'system_timezone').save # Apply timezone setting
+      run_setup(
+        create_defaults: false,
+        params: { reference_time: Time.current }
+      )
+      System.reboot
+    end
+
+    head :no_content
   end
 
   private

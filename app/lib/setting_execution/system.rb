@@ -31,6 +31,4 @@ module SettingExecution
       # TODO: See if this needs additional error handling, either here or in controller
     end
   end
-
-
 end

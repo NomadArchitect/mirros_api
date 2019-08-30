@@ -48,6 +48,8 @@ Rails.application.routes.draw do
   post 'system/run_setup', to: 'system#run_setup' # TODO: maybe clean those up
   get 'system/reset', to: 'system#reset'
   get 'system/reboot', to: 'system#reboot'
+  get 'system/backup', to: 'system#backup_settings'
+  post 'system/restore_backup', to: 'system#restore_settings'
   get 'system/logs/:logfile', to: 'system#fetch_logfile'
   get 'system/report', to: 'system#generate_system_report'
   post 'system/report/send', to: 'system#send_debug_report'
