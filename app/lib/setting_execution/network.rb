@@ -47,7 +47,7 @@ module SettingExecution
 
     def self.check_signal
       ssid = SettingsCache.s[:network_ssid]
-      return if ssid.nil? || ssid.empty?
+      return if ssid.blank?
 
       os_subclass.check_signal(ssid)
     end
