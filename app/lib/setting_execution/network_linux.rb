@@ -26,12 +26,13 @@ module SettingExecution
       # would be prettier, but we require two interfaces to scan while in AP mode.
       # FIXME: This also assumes that the WiFi interface is named wlan0 (nmcli would manage that for us)
       line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | egrep "Quality|ESSID"')
+                                       'wlan0 scan | egrep "Quality|Encryption key|ESSID"')
       results = line.run.split("\"\n")
       results.map do |result|
-        signal, ssid = result.split("\n")
+        signal, encryption, ssid = result.split("\n")
         {
           ssid: ssid.match(/".*$/).to_s.delete('"'),
+          encryption: encryption.include?('on'),
           signal: normalize_signal_strength(signal)
         }
       end

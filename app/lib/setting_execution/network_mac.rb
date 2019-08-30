@@ -23,8 +23,8 @@ module SettingExecution
       raise NotImplementedError, 'WiFi listing only implemented for Linux hosts' if prod_server
 
       [
-        { ssid: 'this is not a real wifi, just testing', signal: 70 },
-        { ssid: 'this is neither', signal: 50 }
+        { ssid: 'this is not a real wifi', encryption: true, signal: 70 },
+        { ssid: 'this is neither', encryption: false, signal: 50 }
       ]
     end
 
