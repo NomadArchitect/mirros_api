@@ -6,6 +6,7 @@ module SettingExecution
     # TODO: Support other authentication methods as well
     def self.connect
       StateCache.s.connection_attempt = true
+      ::System.push_status_update
       ssid = SettingsCache.s[:network_ssid]
       password = SettingsCache.s[:network_password]
       raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
