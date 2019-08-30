@@ -50,7 +50,8 @@ class SystemController < ApplicationController
            status: :internal_server_error
   end
 
-  def run_setup
+  # @param [Hash] options
+  def run_setup(options = { create_defaults: true })
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
     raise ArgumentError, 'Missing required setting.' unless System.setup_completed?
@@ -65,11 +66,13 @@ class SystemController < ApplicationController
 
     # System has internet connectivity, complete seed and send setup mail
     # TODO: Handle errors in thread and take action if required
-    Thread.new do
+    Thread.new(options) do |opts|
       sleep 2
       SettingExecution::Personal.send_setup_email
-      create_default_cal_instances
-      create_default_feed_instances
+      if opts[:create_defaults]
+        create_default_cal_instances
+        create_default_feed_instances
+      end
       ActiveRecord::Base.clear_active_connections!
     end
 
