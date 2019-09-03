@@ -60,6 +60,7 @@ source 'http://gems.marco-roth.ch/' do
     gem 'text_field'
     gem 'ticker'
     gem 'todos'
+    gem 'qrcode'
     gem 'video_player'
   end
 

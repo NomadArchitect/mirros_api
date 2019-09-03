@@ -138,6 +138,7 @@ GEM
     public_transport_departures (0.2.3)
     puma (4.0.1)
       nio4r (~> 2.0)
+    qrcode (0.1.0)
     raabro (1.1.6)
     rack (2.0.7)
     rack-cors (1.0.3)
@@ -255,6 +256,7 @@ DEPENDENCIES
   pictures!
   public_transport_departures!
   puma (~> 4.0.1)!
+  qrcode!
   rack-cors!
   rails (~> 5.2.3)!
   rails-erd (~> 1.6.0)!
