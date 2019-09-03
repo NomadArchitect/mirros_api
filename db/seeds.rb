@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 
@@ -175,6 +177,22 @@ WidgetInstance.create(
   showtitle: true,
   configuration: { "amount": 5, "showFeedIcon": true },
   position: { "x": 0, "y": 16, "width": 6, "height": 4 }
+)
+
+WidgetInstance.create(
+  widget: Widget.find_by(slug: 'network'),
+  title: '',
+  showtitle: false,
+  configuration: {},
+  position: { "x": 8, "y": 16, "width": 4, "height": 2 }
+)
+
+WidgetInstance.create(
+  widget: Widget.find_by(slug: 'qrcode'),
+  title: '',
+  showtitle: false,
+  configuration: { },
+  position: { "x": 8, "y": 18, "width": 2, "height": 3 }
 )
 
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
