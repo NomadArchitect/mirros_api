@@ -96,6 +96,9 @@ GEM
     idioms (0.1.2)
       rails (~> 5.2)
     idioms_source (0.1.1)
+    image_processing (1.9.3)
+      mini_magick (>= 4.9.5, < 5)
+      ruby-vips (>= 2.0.13, < 3)
     ip_cam (0.1.1)
     jsonapi-resources (0.9.10)
       activerecord (>= 4.1)
@@ -117,6 +120,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.0331)
     mimemagic (0.3.3)
+    mini_magick (4.9.5)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.11.3)
@@ -181,6 +185,8 @@ GEM
       httparty (~> 0.17.0)
     ruby-dbus (0.15.0)
     ruby-graphviz (1.2.4)
+    ruby-vips (2.0.14)
+      ffi (~> 1.9)
     ruby_dep (1.5.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
@@ -244,6 +250,7 @@ DEPENDENCIES
   ical!
   idioms!
   idioms_source!
+  image_processing (~> 1.9)!
   ip_cam!
   jsonapi-resources (~> 0.9.10)!
   listen (>= 3.0.5, < 3.2)!
