@@ -50,6 +50,9 @@ module MirrOSApi
     config.autoload_paths += %W[#{config.root}/app/models/group_schemas]
     config.autoload_paths += %W[#{config.root}/app/resources/group_schemas]
 
+    # Load overrides
+    config.autoload_paths += %W[#{config.root}/app/overrides/controllers]
+
     API_HOST = 'api.glancr.de'
     GEM_SERVER = 'gems.marco-roth.ch' # localhost:9292 for geminabox
     SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.

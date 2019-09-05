@@ -39,6 +39,7 @@ source 'https://rubygems.org' do
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
   gem 'ruby-dbus', '~> 0.15.0'
+  gem 'image_processing', '~> 1.9'
 end
 
 ### mirr.OS bundled extensions ###
@@ -60,6 +61,7 @@ source 'http://gems.marco-roth.ch/' do
     gem 'text_field'
     gem 'ticker'
     gem 'todos'
+    gem 'qrcode'
     gem 'video_player'
   end
 

@@ -28,8 +28,9 @@ class ApplicationRecord < ActiveRecord::Base
     res_class = "#{self.class}Resource".safe_constantize
     raise ArgumentError, "Could not constantize #{self.class}Resource" if res_class.nil?
 
+    # Unless we're broadcasting a destroyed model:
     # Reload from DB to ensure we're not pushing stale data, see https://github.com/rails/rails/issues/27342
-    res = res_class.new(reload, nil)
+    res = res_class.new(destroyed? ? self : reload, nil)
     includes = case res # Use instance here since case evaluates the class
                when SourceInstanceResource
                  %w[source widget_instances instance_associations]
