@@ -5,28 +5,6 @@
 
 Setting.create!(
   [
-=begin
-    {
-      category: 'display',
-      key: 'orientation',
-      value: '1'
-    },
-    {
-      category: 'display',
-      key: 'offInterval',
-      value: 'off'
-    },
-    {
-      category: 'display',
-      key: 'offIntervalStart',
-      value: ''
-    },
-    {
-      category: 'display',
-      key: 'offIntervalEnd',
-      value: ''
-    },
-=end
     {
       category: 'network',
       key: 'connectiontype',
