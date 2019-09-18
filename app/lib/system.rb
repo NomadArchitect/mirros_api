@@ -52,7 +52,12 @@ class System
   end
 
   def self.reload_browser
-    Terrapin::CommandLine.new('cogctl', 'reload').run
+    sysbus = DBus.system_bus
+    nm_s = sysbus['com.igalia.Cog']
+    nm_o = nm_s['/com/igalia/Cog']
+    nm_i = nm_o['org.gtk.Actions']
+
+    nm_i.Activate('reload', [], {})
   end
 
   # Restarts the Rails application.
