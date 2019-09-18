@@ -53,7 +53,13 @@ class SystemController < ApplicationController
   def reload_browser
     System.reload_browser
   rescue StandardError => e
-    render json: jsonapi_error('Error while reloading browser', e.message, 500), status: 500
+    message = if e.message.include?('AppArmor policy prevents')
+                'snap interface not connected. Please connect to your glancr via SSH and run `snap connect mirros-one:dbus-cogctl wpe-webkit-mir-kiosk:dbus-cogctl`'
+              else
+                e.message
+              end
+    render json: jsonapi_error('Error while reloading browser', message, 500),
+           status: :internal_server_error
   end
 
   # @param [Hash] options
