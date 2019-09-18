@@ -54,6 +54,11 @@ Setting.create!(
       category: 'system',
       key: 'backgroundImage',
       value: ''
+    },
+    {
+      category: 'system',
+      key: 'stacktrace',
+      value: 'false'
     }
   ]
 )
