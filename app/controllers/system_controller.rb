@@ -3,7 +3,8 @@ class SystemController < ApplicationController
   def status
     render json: { meta: System.info }
   rescue StandardError => e
-    render json: jsonapi_error('Error during status fetch', e.message, 500), status: 500
+    render json: jsonapi_error('Error during status fetch', e.message, 500),
+           status: :internal_server_error
   end
 
   def reset
