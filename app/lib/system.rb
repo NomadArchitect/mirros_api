@@ -51,6 +51,15 @@ class System
     raise e
   end
 
+  def self.reload_browser
+    sysbus = DBus.system_bus
+    cog_s = sysbus['com.igalia.Cog']
+    cog_o = cog_s['/com/igalia/Cog']
+    cog_i = cog_o['org.gtk.Actions']
+
+    cog_i.Activate('reload', [], {})
+  end
+
   # Restarts the Rails application.
   def self.restart_application
     line = Terrapin::CommandLine.new('bin/rails', 'restart')

@@ -14,6 +14,7 @@ module SettingExecution
         raise NotImplementedError, 'Timezone control only implemented for Linux hosts'
       end
 
+      # FIXME: Use CLI until https://bugs.launchpad.net/snappy/+bug/1650688 is fixed
       # sysbus = DBus.system_bus
       # timedated_service = sysbus['org.freedesktop.timedate1']
       # timedated_object = timedated_service['/org/freedesktop/timedate1']

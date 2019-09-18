@@ -3,7 +3,8 @@ class SystemController < ApplicationController
   def status
     render json: { meta: System.info }
   rescue StandardError => e
-    render json: jsonapi_error('Error during status fetch', e.message, 500), status: 500
+    render json: jsonapi_error('Error during status fetch', e.message, 500),
+           status: :internal_server_error
   end
 
   def reset
@@ -47,6 +48,18 @@ class SystemController < ApplicationController
     System.reboot
   rescue StandardError => e
     render json: jsonapi_error('Error during reboot attempt', e.message, 500),
+           status: :internal_server_error
+  end
+
+  def reload_browser
+    System.reload_browser
+  rescue StandardError => e
+    message = if e.message.include?('AppArmor policy prevents')
+                'snap interface not connected. Please connect to your glancr via SSH and run `snap connect mirros-one:dbus-cogctl wpe-webkit-mir-kiosk:dbus-cogctl`'
+              else
+                e.message
+              end
+    render json: jsonapi_error('Error while reloading browser', message, 500),
            status: :internal_server_error
   end
 
@@ -140,7 +153,7 @@ class SystemController < ApplicationController
         'Logfile not found',
         "Could not find #{params[:logfile]}",
         404
-      )
+      ), status: :not_found
     end
   end
 

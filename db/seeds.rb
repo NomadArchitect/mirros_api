@@ -191,8 +191,8 @@ WidgetInstance.create(
   widget: Widget.find_by(slug: 'qrcode'),
   title: '',
   showtitle: false,
-  configuration: { },
-  position: { "x": 8, "y": 18, "width": 2, "height": 3 }
+  configuration: {},
+  position: { "x": 8, "y": 18, "width": 2, "height": 2 }
 )
 
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
