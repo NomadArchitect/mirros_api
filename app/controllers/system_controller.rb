@@ -152,7 +152,7 @@ class SystemController < ApplicationController
         'Logfile not found',
         "Could not find #{params[:logfile]}",
         404
-      )
+      ), status: :not_found
     end
   end
 
