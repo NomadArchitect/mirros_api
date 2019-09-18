@@ -50,6 +50,12 @@ class SystemController < ApplicationController
            status: :internal_server_error
   end
 
+  def reload_browser
+    System.reload_browser
+  rescue StandardError => e
+    render json: jsonapi_error('Error while reloading browser', e.message, 500), status: 500
+  end
+
   # @param [Hash] options
   def run_setup(options = { create_defaults: true })
     user_time = Integer(params[:reference_time])
