@@ -53,11 +53,11 @@ class System
 
   def self.reload_browser
     sysbus = DBus.system_bus
-    nm_s = sysbus['com.igalia.Cog']
-    nm_o = nm_s['/com/igalia/Cog']
-    nm_i = nm_o['org.gtk.Actions']
+    cog_s = sysbus['com.igalia.Cog']
+    cog_o = cog_s['/com/igalia/Cog']
+    cog_i = cog_o['org.gtk.Actions']
 
-    nm_i.Activate('reload', [], {})
+    cog_i.Activate('reload', [], {})
   end
 
   # Restarts the Rails application.
