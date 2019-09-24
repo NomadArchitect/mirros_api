@@ -113,15 +113,6 @@ Group.create(
       name: 'public_transport'
     },
     {
-      name: 'fuel'
-    },
-    {
-      name: 'traffic'
-    },
-    {
-      name: 'music_player'
-    },
-    {
       name: 'idiom_collection'
     }
   ]
