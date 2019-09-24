@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_22_123521) do
+ActiveRecord::Schema.define(version: 2019_09_24_085134) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -151,7 +151,7 @@ ActiveRecord::Schema.define(version: 2019_07_22_123521) do
     t.index ["id"], name: "index_group_schemas_reminder_lists_on_id"
   end
 
-  create_table "group_schemas_weather_owm_entries", primary_key: "dt_txt", id: :timestamp, default: -> { "CURRENT_TIMESTAMP" }, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_weather_owm_entries", primary_key: "dt_txt", id: :datetime, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "weather_owm_id"
     t.json "forecast"
     t.string "unit"
