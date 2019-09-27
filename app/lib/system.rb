@@ -121,7 +121,7 @@ class System
   def self.online?
     # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
     Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? false : true
-  rescue Resolv::ResolvError, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
+  rescue Resolv::ResolvError, Errno::ENETDOWN, Errno::EHOSTDOWN, Errno::EHOSTUNREACH
     false
   end
 
