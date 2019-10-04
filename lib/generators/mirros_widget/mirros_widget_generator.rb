@@ -85,7 +85,7 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
       group: nil, # TODO
       compatibility: '0.0.0',
       sizes: [
-        # { w: 4, h: 4 }
+        { w: 4, h: 4 }
         # TODO: Default size is 4x4, add additional sizes if your widget supports them.
       ],
       single_source: false # Change to true if your widget doesn't aggregate data from multiple sources.
