@@ -55,6 +55,7 @@ GEM
     builder (3.2.3)
     byebug (11.0.1)
     calendar_event_list (0.1.15)
+    calendar_week_overview (0.1.0)
     choice (0.2.0)
     climate_control (0.2.0)
     clock (0.3.0)
@@ -240,6 +241,7 @@ DEPENDENCIES
   bundler (>= 1.17.1)!
   byebug!
   calendar_event_list!
+  calendar_week_overview!
   clock!
   countdown!
   current_date!
