@@ -46,6 +46,7 @@ end
 source 'http://gems.marco-roth.ch/' do
   group :widget do
     gem 'calendar_event_list'
+    gem 'calendar_week_overview'
     gem 'clock'
     gem 'countdown'
     gem 'current_date'

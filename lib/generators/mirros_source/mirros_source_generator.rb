@@ -64,7 +64,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
 
   def show_dev_info
     Thor::Shell::Color.new.say("You can now insert your source by invoking rails extension:insert[source, #{name.underscore}]", :yellow)
-    Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :yellow)
+    Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :red)
   end
 
   def modify_gemspec
@@ -91,8 +91,11 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
     end
 
     gsub_file gemspec,
-              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |match|
+              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |_|
       "spec.add_development_dependency 'rails', '#{Gem::Version.new(Rails.version).approximate_recommendation}'"
+    end
+    gsub_file gemspec, /"TODO(: )?/ do |_|
+      '"'
     end
   end
 end

@@ -61,8 +61,8 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
   end
 
   def show_dev_info
-    Thor::Shell::Color.new.say("You can now insert your widget by invoking rails extension:insert[widget, #{name.underscore}]", :yellow)
-    Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :yellow)
+    Thor::Shell::Color.new.say("Afterwards, insert your widget by invoking rails extension:insert[widget, #{name.underscore}]", :yellow)
+    Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :red)
   end
 
   def modify_gemspec
@@ -84,6 +84,10 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
       },
       group: nil, # TODO
       compatibility: '0.0.0',
+      sizes: [
+        { w: 4, h: 4 }
+        # TODO: Default size is 4x4, add additional sizes if your widget supports them.
+      ],
       single_source: false # Change to true if your widget doesn't aggregate data from multiple sources.
     }.to_json
   }
@@ -91,8 +95,11 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
     end
 
     gsub_file gemspec,
-              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |match|
+              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |_|
       "spec.add_development_dependency 'rails', '#{Gem::Version.new(Rails.version).approximate_recommendation}'"
+    end
+    gsub_file gemspec, /"TODO(: )?/ do |_|
+      '"'
     end
   end
 end
