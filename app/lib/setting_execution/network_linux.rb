@@ -1,5 +1,6 @@
-module SettingExecution
+# frozen_string_literal: true
 
+module SettingExecution
   # Apply network-related settings in Linux environments.
   #
   # Requires the packages network-manager (provides nmcli) and wireless-tools
@@ -43,7 +44,6 @@ module SettingExecution
                                        'wlan0 scan | egrep -B 2 ESSID:\":ssid')
       # Search for the given SSID; previous line contains signal strength.
       signal = line.run(ssid: ssid).split("\n").first
-
 
       { ssid: ssid, signal: normalize_signal_strength(signal) }
     rescue Terrapin::ExitStatusError => e
