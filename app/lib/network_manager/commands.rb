@@ -1,7 +1,8 @@
 require 'singleton'
 
 module NetworkManager
-  # High-level commands
+  # High-level commands. Proxied NetworkManager D-Bus methods are excluded from
+  # RubyResolve inspections to prevent RuboCop error messages.
   class Commands
     include Singleton
     include Constants
@@ -21,10 +22,13 @@ module NetworkManager
     end
 
     def activate_new_wifi_connection(ssid, password)
+      # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
+      # noinspection RubyStringKeysInHashInspection
       conn = { '802-11-wireless-security' => { 'psk' => password} }
       ap = ap_object_path_for_ssid(ssid)
       raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
 
+      # noinspection RubyResolve
       _settings, active_connection = @nm_i.AddAndActivateConnection(
         conn, @wifi_device, ap
       )
@@ -41,15 +45,18 @@ module NetworkManager
     def list_access_point_paths
       nm_wifi_s = @nm_s[@wifi_device]
       nm_wifi_i = nm_wifi_s['org.freedesktop.NetworkManager.Device.Wireless']
-      nm_wifi_i.GetAllAccessPoints()
+      # noinspection RubyResolve
+      nm_wifi_i.GetAllAccessPoints
     end
 
     def activate_connection(connection_id)
       # TODO: Check if we can always pass base paths
+      # noinspection RubyResolve
       @nm_i.ActivateConnection(connection_object_path(connection_id), '/', '/')
     end
 
     def deactivate_connection(connection_id)
+      # noinspection RubyResolve
       @nm_i.DeactivateConnection(connection_object_path(connection_id))
     end
 
@@ -58,7 +65,7 @@ module NetworkManager
       conn_o = @nm_s[connection_path]
       conn_i = conn_o['org.freedesktop.NetworkManager.Settings.Connection']
 
-      conn_i.Delete()
+      conn_i.Delete
     rescue DBus::Error => e
       Rails.logger.error e.dbus_message.params
       Rails.logger.error e.dbus_message
@@ -66,7 +73,7 @@ module NetworkManager
 
     def delete_all_wifi_connections
       wifi_connection_paths.each { |wifi_conn| delete_connection(connection_path: wifi_conn) }
-      # NmNetwork excludes setup connection by default
+      # Use Model scopes to exclude system-defined and LAN connections
       NmNetwork.user_defined.wifi.destroy_all
     end
 
@@ -75,6 +82,7 @@ module NetworkManager
         wifi: [],
         ethernet: []
       }
+      # noinspection RubyResolve
       @nm_i.GetDevices.each do |dev|
         nm_dev_o = @nm_s[dev]
         nm_dev_i = nm_dev_o['org.freedesktop.NetworkManager.Device']
@@ -122,7 +130,7 @@ module NetworkManager
       stored_connection = NmNetwork.find_by(connection_id: connection_id)
       nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
       nm_settings_i = nm_settings_o['org.freedesktop.NetworkManager.Settings']
-
+      # noinspection RubyResolve
       nm_settings_i.GetConnectionByUuid(stored_connection.uuid)
     end
 
@@ -135,6 +143,7 @@ module NetworkManager
     end
 
     def device_path(interface)
+      # noinspection RubyResolve
       @nm_i.GetDeviceByIpIface(interface)
     end
 

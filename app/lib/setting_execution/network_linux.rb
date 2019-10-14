@@ -22,8 +22,8 @@ module SettingExecution
     end
 
     def self.list
-      # TODO: Terrapin::CommandLine.new('nmcli -t --fields SSID d wifi list')
-      # would be prettier, but we require two interfaces to scan while in AP mode.
+      # TODO: Obtaining visible Access Points via NetworkManager Wifi device interface
+      # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
       results = line.run(iface: Commands.instance.wifi_interface).split("\"\n")
