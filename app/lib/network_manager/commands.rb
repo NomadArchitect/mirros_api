@@ -175,10 +175,12 @@ module NetworkManager
     end
 
     def wifi_connection_paths
-      nm_wifi_o = @nm_s[@wifi_device]
-      nm_dev_i = nm_wifi_o['org.freedesktop.NetworkManager.Device']
-      setup_wifi_path = connection_object_path('glancrsetup')
-      nm_dev_i['AvailableConnections'].reject { |con| con.eql? setup_wifi_path }
+      NmNetwork.user_defined.wifi.to_a.map do |wifi_conn|
+        nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
+        nm_settings_i = nm_settings_o['org.freedesktop.NetworkManager.Settings']
+        # noinspection RubyResolve
+        nm_settings_i.GetConnectionByUuid(wifi_conn.uuid)
+      end
     end
   end
 end
