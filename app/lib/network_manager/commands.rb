@@ -5,6 +5,7 @@ module NetworkManager
   class Commands
     include Singleton
     include Constants
+    attr_reader :wifi_interface
 
     IP_PROTOCOL_VERSIONS = [4, 6].freeze
     IP4_PROTOCOL = 4
@@ -14,7 +15,9 @@ module NetworkManager
       @nm_s = DBus.system_bus['org.freedesktop.NetworkManager']
       @nm_o = @nm_s['/org/freedesktop/NetworkManager']
       @nm_i = @nm_o['org.freedesktop.NetworkManager']
-      @wifi_device = device_path('wlp3s0') # FIXME: Hardcoded for Ubuntu Core
+      @wifi_interface = list_devices[:wifi]&.first&.fetch(:interface)
+      # FIXME: This just picks the first listed wifi interface
+      @wifi_device = device_path(@wifi_interface)
     end
 
     def activate_new_wifi_connection(ssid, password)
@@ -50,15 +53,21 @@ module NetworkManager
       @nm_i.DeactivateConnection(connection_object_path(connection_id))
     end
 
-    def delete_connection(connection_id)
-      conn_path = connection_object_path(connection_id)
-      conn_o = @nm_s[conn_path]
+    def delete_connection(connection_id: nil, connection_path: nil)
+      connection_path ||= connection_object_path(connection_id)
+      conn_o = @nm_s[connection_path]
       conn_i = conn_o['org.freedesktop.NetworkManager.Settings.Connection']
 
       conn_i.Delete()
     rescue DBus::Error => e
       Rails.logger.error e.dbus_message.params
       Rails.logger.error e.dbus_message
+    end
+
+    def delete_all_wifi_connections
+      wifi_connection_paths.each { |wifi_conn| delete_connection(connection_path: wifi_conn) }
+      # NmNetwork excludes setup connection by default
+      NmNetwork.user_defined.wifi.destroy_all
     end
 
     def list_devices
@@ -110,7 +119,7 @@ module NetworkManager
     private
 
     def connection_object_path(connection_id)
-      stored_connection = NmNetwork.find_by(id: connection_id)
+      stored_connection = NmNetwork.find_by(connection_id: connection_id)
       nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
       nm_settings_i = nm_settings_o['org.freedesktop.NetworkManager.Settings']
 
@@ -125,19 +134,20 @@ module NetworkManager
       end.shift
     end
 
-    def device_path(device)
-      @nm_i.GetDeviceByIpIface(device)
+    def device_path(interface)
+      @nm_i.GetDeviceByIpIface(interface)
     end
 
     # @param [Integer] protocol_version
-    def ip_addresses(protocol_version, config_path)
+    def ip_address(protocol_version, config_path)
       unless IP_PROTOCOL_VERSIONS.include? protocol_version
         raise ArgumentError, "Protocol version must be one of #{IP_PROTOCOL_VERSIONS}"
       end
 
       nm_ip_o = @nm_s[config_path]
       nm_ip_i = nm_ip_o["org.freedesktop.NetworkManager.IP#{protocol_version}Config"]
-      nm_ip_i['AddressData']
+      # TODO: This only returns the first address without the prefix, maybe extend it to handle the whole array
+      nm_ip_i['AddressData'].first&.dig('address')
     end
 
     # @param [DBus::ProxyObjectInterface] conn_if a valid NetworkManager.Connection.Active proxy
@@ -146,13 +156,20 @@ module NetworkManager
     def save_network(conn_if:, active: true)
       NmNetwork.create(
         uuid: conn_if['Uuid'],
-        id: conn_if['Id'],
+        connection_id: conn_if['Id'],
         interface_type: conn_if['Type'],
         devices: conn_if['Devices'],
         active: active,
-        ip4_addresses: ip_addresses(IP4_PROTOCOL, conn_if['Ip4Config']),
-        ip6_addresses: ip_addresses(IP6_PROTOCOL, conn_if['Ip6Config'])
+        ip4_address: ip_address(IP4_PROTOCOL, conn_if['Ip4Config']),
+        ip6_address: ip_address(IP6_PROTOCOL, conn_if['Ip6Config'])
       )
+    end
+
+    def wifi_connection_paths
+      nm_wifi_o = @nm_s[@wifi_device]
+      nm_dev_i = nm_wifi_o['org.freedesktop.NetworkManager.Device']
+      setup_wifi_path = connection_object_path('glancrsetup')
+      nm_dev_i['AvailableConnections'].reject { |con| con.eql? setup_wifi_path }
     end
   end
 end
