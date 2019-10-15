@@ -14,6 +14,47 @@ module NetworkManager
     IP4_PROTOCOL = 4
     IP6_PROTOCOL = 6
 
+    # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
+    # D-Bus proxy calls String.bytesize, so we require string keys.
+    # noinspection RubyStringKeysInHashInspection
+    GLANCRSETUP_CONNECTION = {
+      'connection' => {
+        'id' => 'glancrsetup',
+        'type' => '802-11-wireless',
+        'autoconnect' => false
+      },
+      '802-11-wireless' => {
+        'ssid' => DBus.variant('ay', 'glancr setup'.bytes),
+        'mode' => 'ap'
+      },
+      'ipv4' => {
+        'address-data' => DBus.variant('aa{sv}', [{ 'address' => '192.168.8.1', 'prefix' => DBus.variant('u', 32) }]),
+        'method' => 'manual',
+        # dns: Array of IP addresses of DNS servers (as network-byte-order integers)
+        # see https://developer.gnome.org/NetworkManager/stable/nm-settings.html#id-1.2.7.4.18
+        # we want 192.168.8.1 (= localhost) as our static DNS server
+        # -> reverse for network byte order: 1.8.168.192
+        # -> binary form: 00000001.00001000.10101000.11000000
+        # -> decimal representation (without octet dots): 17344704
+        # -> Ruby style guide: underscore separators
+        'dns' => DBus.variant('au', [17_344_704]),
+        'gateway' => '192.168.8.1'
+      }
+    }.freeze
+    # noinspection RubyStringKeysInHashInspection
+    GLANCRLAN_CONNECTION = {
+      'connection' => {
+        'id' => 'glancrlan',
+        'type' => '802-3-ethernet',
+        'interface-name' => '*',
+        'autoconnect' => true
+      }
+    }.freeze
+
+
+    # TODO: Refactor to less lines if object is just needed for a single interface
+    # see https://www.rubydoc.info/github/mvidner/ruby-dbus/file/doc/Reference.md#Errors
+
     def initialize
       @nm_s = DBus.system_bus['org.freedesktop.NetworkManager']
       @nm_o = @nm_s['/org/freedesktop/NetworkManager']
@@ -21,6 +62,11 @@ module NetworkManager
       @wifi_interface = list_devices[:wifi]&.first&.fetch(:interface)
       # FIXME: This just picks the first listed wifi interface
       @wifi_device = device_path(@wifi_interface)
+    end
+
+    def add_predefined_connections
+      add_connection(GLANCRSETUP_CONNECTION)
+      add_connection(GLANCRLAN_CONNECTION)
     end
 
     def activate_new_wifi_connection(ssid, password)
@@ -183,6 +229,25 @@ module NetworkManager
         # noinspection RubyResolve
         nm_settings_i.GetConnectionByUuid(wifi_conn.uuid)
       end
+    end
+
+    def add_connection(connection_settings)
+      nm_settings_i = @nm_s['/org/freedesktop/NetworkManager/Settings']['org.freedesktop.NetworkManager.Settings']
+      # noinspection RubyResolve
+      settings_path = nm_settings_i.AddConnection(connection_settings)
+      nm_conn_i = @nm_s[settings_path]['org.freedesktop.NetworkManager.Settings.Connection']
+      # noinspection RubyResolve
+      settings = nm_conn_i.GetSettings
+
+      NmNetwork.create(
+        uuid: settings.dig('connection', 'uuid'),
+        connection_id: settings.dig('connection', 'id'),
+        interface_type: settings.dig('connection', 'type'),
+        devices: nil,
+        active: false,
+        ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
+        ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
+      )
     end
   end
 end
