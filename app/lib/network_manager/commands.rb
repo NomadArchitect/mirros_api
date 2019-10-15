@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'singleton'
+require 'dbus'
 
 module NetworkManager
   # High-level commands. Proxied NetworkManager D-Bus methods are excluded from
