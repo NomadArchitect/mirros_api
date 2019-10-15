@@ -87,7 +87,7 @@ module NetworkManager
       sleep 0.25 until active_conn_i['State'].eql? NmActiveConnectionState::ACTIVATED
       # FIXME: Break if connection is never activated
 
-      save_network(conn_if: active_conn_i, active: true)
+      persist_active_connection(active_connection_if: active_conn_i)
     end
 
     def list_access_point_paths
@@ -100,12 +100,27 @@ module NetworkManager
     def activate_connection(connection_id)
       # TODO: Check if we can always pass base paths
       # noinspection RubyResolve
-      @nm_i.ActivateConnection(connection_object_path(connection_id), '/', '/')
+      connection_path = @nm_i.ActivateConnection(
+        connection_object_path(connection_id), '/', '/'
+      )
+      persist_active_connection(
+        active_connection_if: @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
+      )
     end
 
     def deactivate_connection(connection_id)
+      # TODO: Maybe cleaner to get the connection from active connections?
+      network = NmNetwork.find_by(connection_id: connection_id)
+      if network.devices.blank?
+        return
+      else
+        device = JSON.parse(network.devices).first
+      end
+
+      active_connection_path = @nm_s[device]['org.freedesktop.NetworkManager.Device']['ActiveConnection']
       # noinspection RubyResolve
-      @nm_i.DeactivateConnection(connection_object_path(connection_id))
+      @nm_i.DeactivateConnection(active_connection_path)
+      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
     end
 
     def delete_connection(connection_id: nil, connection_path: nil)
@@ -114,6 +129,7 @@ module NetworkManager
       conn_i = conn_o['org.freedesktop.NetworkManager.Settings.Connection']
 
       conn_i.Delete
+      NmNetwork.find_by(connection_id: connection_id).destroy
     rescue DBus::Error => e
       Rails.logger.error e.dbus_message.params
       Rails.logger.error e.dbus_message
@@ -132,12 +148,13 @@ module NetworkManager
       }
       # noinspection RubyResolve
       @nm_i.GetDevices.each do |dev|
-        nm_dev_o = @nm_s[dev]
-        nm_dev_i = nm_dev_o['org.freedesktop.NetworkManager.Device']
+        nm_dev_i = @nm_s[dev]['org.freedesktop.NetworkManager.Device']
         device_state = nm_dev_i['State']
-        next unless device_state.between? NMDeviceState::DISCONNECTED, NMDeviceState::ACTIVATED
+        unless device_state.between? NMDeviceState::DISCONNECTED, NMDeviceState::ACTIVATED
+          next
+        end
 
-        dev_info = { interface: nm_dev_i['Interface'], state: device_state }
+        dev_info = {interface: nm_dev_i['Interface'], state: device_state}
         case nm_dev_i['DeviceType']
         when NmDeviceType::ETHERNET
           devices[:ethernet] << dev_info
@@ -207,21 +224,6 @@ module NetworkManager
       nm_ip_i['AddressData'].first&.dig('address')
     end
 
-    # @param [DBus::ProxyObjectInterface] conn_if a valid NetworkManager.Connection.Active proxy
-    # @param [Boolean] active If the connection is currently active
-    # @return [NmNetwork] the created network connection
-    def save_network(conn_if:, active: true)
-      NmNetwork.create(
-        uuid: conn_if['Uuid'],
-        connection_id: conn_if['Id'],
-        interface_type: conn_if['Type'],
-        devices: conn_if['Devices'],
-        active: active,
-        ip4_address: ip_address(IP4_PROTOCOL, conn_if['Ip4Config']),
-        ip6_address: ip_address(IP6_PROTOCOL, conn_if['Ip6Config'])
-      )
-    end
-
     def wifi_connection_paths
       NmNetwork.user_defined.wifi.to_a.map do |wifi_conn|
         nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
@@ -247,6 +249,24 @@ module NetworkManager
         active: false,
         ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
         ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
+      )
+    end
+
+    # @param [DBus::ProxyObjectInterface] active_connection_if a valid NetworkManager.Connection.Active proxy
+    # @return [NmNetwork] the created network connection
+    def persist_active_connection(active_connection_if:)
+      sleep 0.25 until active_connection_if['State'].eql? NmActiveConnectionState::ACTIVATED
+      nm_network = NmNetwork.find_or_initialize_by(
+        uuid: active_connection_if['Uuid']
+      ) do |network|
+        network.connection_id = active_connection_if['Id']
+        network.interface_type = active_connection_if['Type']
+      end
+      nm_network.update(
+        devices: active_connection_if['Devices'],
+        active: true,
+        ip4_address: ip_address(IP4_PROTOCOL, active_connection_if['Ip4Config']),
+        ip6_address: ip_address(IP6_PROTOCOL, active_connection_if['Ip6Config'])
       )
     end
   end
