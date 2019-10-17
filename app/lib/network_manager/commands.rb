@@ -60,9 +60,10 @@ module NetworkManager
       @nm_s = DBus.system_bus['org.freedesktop.NetworkManager']
       @nm_o = @nm_s['/org/freedesktop/NetworkManager']
       @nm_i = @nm_o['org.freedesktop.NetworkManager']
-      @wifi_interface = list_devices[:wifi]&.first&.fetch(:interface)
-      # FIXME: This just picks the first listed wifi interface
-      @wifi_device = device_path(@wifi_interface)
+
+      wifi_device_list = list_devices[:wifi]&.first # FIXME: This just picks the first listed wifi interface
+      @wifi_interface = wifi_device_list&.fetch(:interface)
+      @wifi_device = wifi_device_list&.fetch(:path)
     end
 
     def add_predefined_connections
