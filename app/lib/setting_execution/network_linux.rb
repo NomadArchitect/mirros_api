@@ -1,11 +1,13 @@
-module SettingExecution
+# frozen_string_literal: true
 
+module SettingExecution
   # Apply network-related settings in Linux environments.
   #
-  # Requires the packages network-manager (provides nmcli) and wireless-tools
-  # (provides iwlist) to be installed and executable. The AP-related methods
-  # assume that there is a valid nmcli connection named `glancrsetup`.
+  # Requires the package wireless-tools to run iwlist in `check_signal`.
+  # The AP-related methods assume that there is a valid NetworkManager connection
+  # named `glancrsetup`.
   class NetworkLinux < Network
+    include NetworkManager
 
     # TODO: Support other authentication methods as well
     # @param [String] ssid
@@ -13,21 +15,18 @@ module SettingExecution
     def self.connect(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
       remove_stale_connections
-
-      line = Terrapin::CommandLine.new(
-        'nmcli',
-        'd wifi connect :ssid password :password'
+      Commands.instance.activate_new_wifi_connection(
+        ssid,
+        password
       )
-      line.run(ssid: ssid, password: password)
     end
 
     def self.list
-      # TODO: Terrapin::CommandLine.new('nmcli -t --fields SSID d wifi list')
-      # would be prettier, but we require two interfaces to scan while in AP mode.
-      # FIXME: This also assumes that the WiFi interface is named wlan0 (nmcli would manage that for us)
+      # TODO: Obtaining visible Access Points via NetworkManager Wifi device interface
+      # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run.split("\"\n")
+                                       ':iface scan | egrep "Quality|Encryption key|ESSID"')
+      results = line.run(iface: Commands.instance.wifi_interface).split("\"\n")
       results.map do |result|
         signal, encryption, ssid = result.split("\n")
         {
@@ -44,7 +43,6 @@ module SettingExecution
       # Search for the given SSID; previous line contains signal strength.
       signal = line.run(ssid: ssid).split("\n").first
 
-
       { ssid: ssid, signal: normalize_signal_strength(signal) }
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not check signal strength: #{e.message}"
@@ -60,70 +58,45 @@ module SettingExecution
     private_class_method :normalize_signal_strength
 
     def self.toggle_lan(state)
-      cmd = {
-        on: 'connect',
-        off: 'disconnect'
-      }[state.to_sym]
-      line = Terrapin::CommandLine.new('nmcli',
-                                       'd :cmd eth0',
-                                       expected_outcodes: [0, 6])
-      line.run(cmd: cmd)
+      case state
+      when 'on'
+        Commands.instance.activate_connection('glancrlan')
+      when 'off'
+        Commands.instance.deactivate_connection('glancrlan')
+      else
+        raise ArgumentError,
+              "Could not toggle glancrlan to invalid state: #{state}"
+      end
     end
 
     def self.reset
       remove_stale_connections
     end
 
+    # @return [NmNetwork] the updated glancrsetup network model.
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
-      result = dns_line.run
-
-      wifi_line = Terrapin::CommandLine.new('nmcli', 'c up glancrsetup')
-      result << "\n"
-      result << wifi_line.run
-      result
+      dns_line.run # throws on error
+      Commands.instance.activate_connection('glancrsetup')
     end
 
     #
-    # @return [Boolean] True if the AP connection is among the active nmcli connections.
+    # @return [Boolean] True if the AP connection is present in NetworkManager's active connection list.
     def self.ap_active?
-      line = Terrapin::CommandLine.new('nmcli',
-                                       '-f GENERAL.NAME c show --active glancrsetup',
-                                       expected_outcodes: [0, 1])
-      result = line.run
-      line.exit_status.zero? && !result.empty?
+      # TODO: This should also check whether the DNS service is running
+      Commands.instance.connection_active? 'glancrsetup'
     end
 
+    # @return [NmNetwork] the updated glancrsetup network model.
     def self.close_ap
-      wifi_line = Terrapin::CommandLine.new('nmcli', 'c down glancrsetup')
-      result = wifi_line.run
-
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
-      result << "\n"
-      result << dns_line.run
-      result
+      dns_line.run
+      Commands.instance.deactivate_connection('glancrsetup')
     end
 
-    # Removes all nmcli WiFi connections. Catch exit code 10 ("cannot delete unknown connection(s)").
+    # Removes all NetworkManager WiFi connections.
     def self.remove_stale_connections
-      connections = nmcli_wifi_connections
-      return if connections.empty?
-
-      line = Terrapin::CommandLine.new('nmcli',
-                                       'c delete :connections',
-                                       expected_outcodes: [0, 10])
-      line.run(connections: connections.join(' '))
+      Commands.instance.delete_all_wifi_connections
     end
-
-    def self.nmcli_wifi_connections
-      Terrapin::CommandLine
-        .new('nmcli', '-t -f NAME,TYPE c')
-        .run
-        .split("\n")
-        .select { |con| con.include? '802-11-wireless' }
-        .reject { |con| con.include? 'glancrsetup' }
-        .map { |wifi| wifi.split(':').first }
-    end
-    private_class_method :nmcli_wifi_connections
   end
 end
