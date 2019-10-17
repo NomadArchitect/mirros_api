@@ -70,5 +70,9 @@ module SettingExecution
     def self.prod_server
       Rails.env.production? && Rails.const_defined?('Server')
     end
+
+    def self.remove_predefined_connections
+      true
+    end
   end
 end

@@ -53,33 +53,32 @@ module SettingExecution
     end
 
     def self.open_ap
-      begin
-        success = os_subclass.open_ap
-      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
-        Rails.logger.error "Could not open access point, reason: #{e.message}"
-        success = false
-      end
-      success
+      os_subclass.open_ap
+      true
+    rescue StandardError => e
+      Rails.logger.error "Could not open access point, reason: #{e.message}"
+      false
     end
 
     def self.ap_active?
-      begin
-        success = os_subclass.ap_active?
-      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
-        Rails.logger.error "Could not determine access point status, reason: #{e.message}"
-        success = false
-      end
-      success
+      os_subclass.ap_active?
+    rescue StandardError => e
+      Rails.logger.error "Could not determine access point status, reason: #{e.message}"
+      false
     end
 
     def self.close_ap
-      begin
-        success = os_subclass.close_ap
-      rescue Terrapin::ExitStatusError, Terrapin::CommandNotFoundError => e
-        Rails.logger.error "Could not close access point, reason: #{e.message}"
-        success = false
-      end
-      success
+      os_subclass.close_ap
+      true
+    rescue StandardError => e
+      Rails.logger.error "Could not close access point, reason: #{e.message}"
+      false
+    end
+
+    def self.remove_predefined_connections
+      os_subclass.remove_predefined_connections
+    rescue StandardError => e
+      Rails.logger.error "Could not delete predefined connections: #{e.message}"
     end
 
     def self.remove_stale_connections
