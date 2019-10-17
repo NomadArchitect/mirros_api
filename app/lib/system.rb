@@ -56,7 +56,7 @@ class System
     cog_s = sysbus['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
-
+    # noinspection RubyResolve
     cog_i.Activate('reload', [], {})
   end
 
