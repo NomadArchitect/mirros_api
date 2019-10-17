@@ -23,6 +23,8 @@ source 'https://rubygems.org' do
     gem 'git', '~> 1.5.0'
     # Data Visualization
     gem 'rails-erd', '~> 1.6.0'
+    gem 'rubocop'
+    gem 'rubocop-rails'
   end
 
   group :test do
