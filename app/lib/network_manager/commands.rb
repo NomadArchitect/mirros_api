@@ -47,7 +47,6 @@ module NetworkManager
       'connection' => {
         'id' => 'glancrlan',
         'type' => '802-3-ethernet',
-        'interface-name' => '*',
         'autoconnect' => true
       }
     }.freeze
