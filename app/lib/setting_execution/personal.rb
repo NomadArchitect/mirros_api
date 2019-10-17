@@ -33,7 +33,7 @@ module SettingExecution
     private_class_method :send_email
 
     def self.compose_body
-      language = SettingsCache.s[:system_language].blank? ? 'enGb' : SettingsCache.s[:system_language]
+      language = SettingsCache.s[:system_language].presence || 'enGb'
       {
         name: SettingsCache.s[:personal_name],
         email: SettingsCache.s[:personal_email],
