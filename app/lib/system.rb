@@ -56,7 +56,7 @@ class System
     cog_s = sysbus['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
-
+    # noinspection RubyResolve
     cog_i.Activate('reload', [], {})
   end
 
@@ -88,30 +88,22 @@ class System
     return nil if conn_type.blank?
 
     begin
-      if OS.linux?
-        # FIXME: When implementing a solution for dynamic interface names, use
-        # '-t -m tabular -f GENERAL.TYPE,IP4.ADDRESS d show | grep ":interface" -A 1 | cut -d "/" -f 1'
-        # and switch map_interfaces values for Linux to ethernet/wifi generic names.
-        line = Terrapin::CommandLine.new('nmcli',
-                                         '-t -m tabular -f IP4.ADDRESS \
-                                                 d show :interface \
-                                                 | cut -d "/" -f 1')
-        ip_address = line.run(
-          interface: map_interfaces(:linux, conn_type)
-        )&.chomp!
-        ip_address.eql?(SETUP_IP) ? nil : ip_address
-
+      ip_address = if OS.linux?
+        NetworkManager::Commands.instance.ip_for_device(
+          map_interfaces(:linux, conn_type)
+        )
       elsif OS.mac?
         # FIXME: This command returns only the IPv4.
         line = Terrapin::CommandLine.new(
           'ipconfig', 'getifaddr :interface',
           expected_outcodes: [0, 1]
         )
-        ip_address = line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
-        ip_address.eql?(SETUP_IP) ? nil : ip_address
+        line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
       else
         Rails.logger.error 'Unknown or unsupported OS in query for IP address'
       end
+      ip_address.eql?(SETUP_IP) ? nil : ip_address
+
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not determine current IP: #{e.message}"
       nil
@@ -184,10 +176,13 @@ class System
   # @param [Symbol] operating_system
   # @@param [Symbol] interface The interface to query for the current IP.
   def self.map_interfaces(operating_system, interface)
-    # TODO: Maybe use nmcli -f DEVICE,TYPE d | grep -E "(wifi)|(ethernet)" | awk '{ print $1; }' to determine IF names.
+    devices = OS.linux? ? NetworkManager::Commands.instance.list_devices : {}
     {
       mac: { lan: 'en0', wlan: 'en0' },
-      linux: { lan: 'eth0', wlan: 'wlan0' }
+      linux: {
+        lan: devices[:ethernet]&.first&.fetch(:interface),
+        wlan: devices[:wifi]&.first&.fetch(:interface)
+      }
     }[operating_system][interface.to_sym]
   end
 

@@ -33,7 +33,9 @@ class SourceInstance < Instance
   end
 
   def validate_configuration
-    errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
+    unless hook_instance.configuration_valid?
+      errors.add(:configuration, 'invalid parameters')
+    end
   rescue RuntimeError => e
     errors.add(:configuration, e.message)
   end

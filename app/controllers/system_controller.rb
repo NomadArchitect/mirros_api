@@ -27,9 +27,11 @@ class SystemController < ApplicationController
       # Disconnect from Wifi networks if configured, disable LAN to force setup through AP
       SettingExecution::Network.reset
       SettingExecution::Network.disable_lan
+      SettingExecution::Network.remove_predefined_connections
 
       MirrOSApi::Application.load_tasks
       Rake::Task['db:recycle'].invoke
+      Rake::Task['mirros:setup:network_connections'].invoke
 
       Rails.env.development? ? System.restart_application : System.reboot
       Thread.exit

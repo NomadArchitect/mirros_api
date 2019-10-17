@@ -23,6 +23,8 @@ source 'https://rubygems.org' do
     gem 'git', '~> 1.5.0'
     # Data Visualization
     gem 'rails-erd', '~> 1.6.0'
+    gem 'rubocop'
+    gem 'rubocop-rails'
   end
 
   group :test do
@@ -55,6 +57,7 @@ source 'http://gems.marco-roth.ch/' do
     gem 'ip_cam'
     gem 'network'
     gem 'owm_current_weather'
+    gem 'owm_daily_values'
     gem 'owm_forecast'
     gem 'pictures'
     gem 'public_transport_departures'
