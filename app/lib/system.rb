@@ -88,24 +88,22 @@ class System
     return nil if conn_type.blank?
 
     begin
-      if OS.linux?
-        ip_address = NetworkManager::Commands.instance.ip_for_device(
+      ip_address = if OS.linux?
+        NetworkManager::Commands.instance.ip_for_device(
           map_interfaces(:linux, conn_type)
         )
-
-        ip_address.eql?(SETUP_IP) ? nil : ip_address
-
       elsif OS.mac?
         # FIXME: This command returns only the IPv4.
         line = Terrapin::CommandLine.new(
           'ipconfig', 'getifaddr :interface',
           expected_outcodes: [0, 1]
         )
-        ip_address = line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
-        ip_address.eql?(SETUP_IP) ? nil : ip_address
+        line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
       else
         Rails.logger.error 'Unknown or unsupported OS in query for IP address'
       end
+      ip_address.eql?(SETUP_IP) ? nil : ip_address
+
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not determine current IP: #{e.message}"
       nil
