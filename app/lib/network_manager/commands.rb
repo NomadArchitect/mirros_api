@@ -129,16 +129,18 @@ module NetworkManager
       conn_i = conn_o['org.freedesktop.NetworkManager.Settings.Connection']
 
       conn_i.Delete
-      NmNetwork.find_by(connection_id: connection_id).destroy
     rescue DBus::Error => e
       Rails.logger.error e.dbus_message.params
       Rails.logger.error e.dbus_message
     end
 
     def delete_all_wifi_connections
-      wifi_connection_paths.each { |wifi_conn| delete_connection(connection_path: wifi_conn) }
       # Use Model scopes to exclude system-defined and LAN connections
-      NmNetwork.user_defined.wifi.destroy_all
+      NmNetwork.user_defined.wifi.each do |network|
+        wifi_conn = wifi_connection_path(network.id)
+        delete_connection(connection_path: wifi_conn) unless wifi_conn.nil?
+        network.destroy
+      end
     end
 
     def list_devices
@@ -224,13 +226,17 @@ module NetworkManager
       nm_ip_i['AddressData'].first&.dig('address')
     end
 
-    def wifi_connection_paths
-      NmNetwork.user_defined.wifi.to_a.map do |wifi_conn|
-        nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
-        nm_settings_i = nm_settings_o['org.freedesktop.NetworkManager.Settings']
-        # noinspection RubyResolve
-        nm_settings_i.GetConnectionByUuid(wifi_conn.uuid)
-      end
+    # Retrieves the connection object path of a given connection UUID.
+    # @param [String] connection_uuid UUID of an existing NetworkManager connection
+    # @return [String, nil] The connection's DBus object path or nil if the connection does not exist.
+    def wifi_connection_path(connection_uuid)
+      nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
+      nm_settings_i = nm_settings_o['org.freedesktop.NetworkManager.Settings']
+      # noinspection RubyResolve
+      nm_settings_i.GetConnectionByUuid(connection_uuid)
+    rescue DBus::Error => e
+      Rails.logger.error "[network-manager] Attempted to get non-existent connection #{connection_uuid}. Message: #{e.dbus_message.params}"
+      nil
     end
 
     def add_connection(connection_settings)
