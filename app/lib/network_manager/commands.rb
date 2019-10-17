@@ -41,6 +41,7 @@ module NetworkManager
         'dns' => DBus.variant('au', [17_344_704]),
         'gateway' => '192.168.8.1'
       }
+      # TODO: IPv6 address settings for AP connection
     }.freeze
     # noinspection RubyStringKeysInHashInspection
     GLANCRLAN_CONNECTION = {
