@@ -73,13 +73,11 @@ module SettingExecution
       remove_stale_connections
     end
 
+    # @return [NmNetwork] the updated glancrsetup network model.
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
-      result = dns_line.run
-
-      result << "\n"
-      result << Commands.instance.activate_connection('glancrsetup')
-      result
+      dns_line.run # throws on error
+      Commands.instance.activate_connection('glancrsetup')
     end
 
     #
@@ -89,13 +87,11 @@ module SettingExecution
       Commands.instance.connection_active? 'glancrsetup'
     end
 
+    # @return [NmNetwork] the updated glancrsetup network model.
     def self.close_ap
-      result = Commands.instance.deactivate_connection('glancrsetup')
-
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
-      result << "\n"
-      result << dns_line.run
-      result
+      dns_line.run
+      Commands.instance.deactivate_connection('glancrsetup')
     end
 
     # Removes all NetworkManager WiFi connections.
