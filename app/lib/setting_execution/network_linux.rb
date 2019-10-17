@@ -98,5 +98,10 @@ module SettingExecution
     def self.remove_stale_connections
       Commands.instance.delete_all_wifi_connections
     end
+
+    def self.remove_predefined_connections
+      Commands.instance.delete_connection(connection_id: 'glancrsetup')
+      Commands.instance.delete_connection(connection_id: 'glancrlan')
+    end
   end
 end

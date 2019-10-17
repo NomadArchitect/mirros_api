@@ -75,6 +75,12 @@ module SettingExecution
       false
     end
 
+    def self.remove_predefined_connections
+      os_subclass.remove_predefined_connections
+    rescue StandardError => e
+      Rails.logger.error "Could not delete predefined connections: #{e.message}"
+    end
+
     def self.remove_stale_connections
       os_subclass.remove_stale_connections
     rescue Terrapin::CommandLineError => e
