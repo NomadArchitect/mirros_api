@@ -156,7 +156,7 @@ module NetworkManager
           next
         end
 
-        dev_info = {interface: nm_dev_i['Interface'], state: device_state}
+        dev_info = { interface: nm_dev_i['Interface'], state: device_state, path: dev }
         case nm_dev_i['DeviceType']
         when NmDeviceType::ETHERNET
           devices[:ethernet] << dev_info
