@@ -57,6 +57,7 @@ source 'http://gems.marco-roth.ch/' do
     gem 'ip_cam'
     gem 'network'
     gem 'owm_current_weather'
+    gem 'owm_daily_values'
     gem 'owm_forecast'
     gem 'pictures'
     gem 'public_transport_departures'

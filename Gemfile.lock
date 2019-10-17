@@ -139,6 +139,7 @@ GEM
       httparty (~> 0.17.0)
     os (1.0.1)
     owm_current_weather (0.3.1)
+    owm_daily_values (0.1.0)
     owm_forecast (0.3.0)
       rails (~> 5.2)
     parallel (1.18.0)
@@ -279,6 +280,7 @@ DEPENDENCIES
   openweathermap!
   os (~> 1.0.0)!
   owm_current_weather!
+  owm_daily_values!
   owm_forecast!
   pictures!
   public_transport_departures!
