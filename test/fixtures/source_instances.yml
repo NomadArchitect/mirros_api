@@ -4,13 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-ical_1:
+ical_uk_holidays:
   source_id: ical
   title: calendar
   configuration:
    url: 'https://calendar.google.com/calendar/ical/de.german%23holiday%40group.v.calendar.google.com/public/basic.ics'
-  options: [{uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0', display: 'calendar'}]
-  job_id: 1
-  last_refresh: <%= Time.now %>
-
-# column: value

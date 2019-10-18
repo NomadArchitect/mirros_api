@@ -7,8 +7,8 @@
 
 # column: value
 #
-one:
-  configuration: {chosen: ["e4ffacba5591440a14a08eac7aade57c603e17c0_0"]}
+holiday_calendar_event_list:
+  configuration: {chosen: ["daea8ad478bbbb68e7524f2380420c4d3857e587_0"]}
   group: calendar
-  widget_instance: calendar_event_list_1,
-  source_instance: ical_source_instance_1
+  widget_instance: calendar_event_list
+  source_instance: ical_uk_holidays

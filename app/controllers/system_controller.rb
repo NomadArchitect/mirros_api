@@ -250,27 +250,26 @@ class SystemController < ApplicationController
     feed_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
-      # Skip callbacks to avoid HTTP calls in meta generation
-      SourceInstance.skip_callback :create, :after, :set_meta
       calendar_source = SourceInstance.new(
         source: Source.find_by(slug: 'ical'),
-        configuration: { "url": feed_settings[:url] },
+        configuration: { "url": feed_settings[:url] }
+      )
+      calendar_source.save!(validate: false)
+      calendar_source.update(
         options: [
           {
-            uid: 'e4ffacba5591440a14a08eac7aade57c603e17c0_0',
+            uid: calendar_source.options.first['uid'],
             display: feed_settings[:title]
           }
         ],
         title: feed_settings[:title]
       )
-      calendar_source.save!(validate: false)
-      SourceInstance.set_callback :create, :after, :set_meta
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
       calendar_widget.update(title: feed_settings[:title])
       InstanceAssociation.create!(
         configuration: {
-          "chosen": ['e4ffacba5591440a14a08eac7aade57c603e17c0_0']
+          "chosen": [calendar_source.options.first['uid']]
         },
         group: Group.find_by(slug: 'calendar'),
         widget_instance: calendar_widget,
