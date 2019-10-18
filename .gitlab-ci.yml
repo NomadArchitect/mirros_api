@@ -41,9 +41,8 @@ rails:
     # Install dependencies into ./vendor/bundle
     - bundle install -j $(nproc) --path vendor/bundle
     - export RAILS_ENV=test
-    - bin/rails db:migrate
-    - bin/rails db:seed
     - export RAILS_DATABASE_HOST=mysql
+    - bin/rails db:setup
     # - rails test # disabled until we're actually using tests
   dependencies: []  # do not pass vendor/bundle to next job – it's x86-specific
 
