@@ -9,10 +9,6 @@ if Rails.const_defined? 'Server'
   settings_cache = SettingsCache.singleton
   state_cache = StateCache.singleton
 
-  #if OS.linux?
-  #  SettingExecution::Network.disable_lan unless settings_cache[:network_connectiontype].eql? 'lan'
-  #end
-
   s = Rufus::Scheduler.singleton(lockfile: Rails.root.join('tmp', '.rufus-scheduler.lock'))
   s.stderr = File.open(Rails.root.join('log', 'scheduler.log'), 'wb')
 
