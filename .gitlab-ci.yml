@@ -43,6 +43,7 @@ rails:
     - export RAILS_ENV=test
     - bin/rails db:migrate
     - bin/rails db:seed
+    - export RAILS_DATABASE_HOST=mysql
     # - rails test # disabled until we're actually using tests
   dependencies: []  # do not pass vendor/bundle to next job – it's x86-specific
 
