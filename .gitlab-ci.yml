@@ -2,6 +2,14 @@
 # https://hub.docker.com/r/library/ruby/tags/
 image: "ruby:2.6.3"
 
+services:
+  - mysql:latest
+
+variables:
+  # Configure mysql environment variables (https://hub.docker.com/_/mysql/)
+  MYSQL_DATABASE: "mirrOS_api_test"
+  MYSQL_ROOT_PASSWORD: "glancr"
+
 # Cache gems in between builds
 cache:
   paths:

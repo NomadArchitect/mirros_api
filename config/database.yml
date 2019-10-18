@@ -24,6 +24,7 @@ development:
 
 test:
   <<: *mysql
+  host: mysql
   database: db/mirrOS_api_test
   username: root
   password: glancr
