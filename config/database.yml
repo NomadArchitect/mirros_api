@@ -23,8 +23,10 @@ development:
   password: glancr
 
 test:
-  <<: *sqlite
-  database: db/mirrOS_api_test.sqlite3
+  <<: *mysql
+  database: db/mirrOS_api_test
+  username: root
+  password: glancr
 
 # NOTE: password provided in cleartext since the snap with env variables is open source as well, so using env
 # variables is really a vain attempt at security by obscurity.
