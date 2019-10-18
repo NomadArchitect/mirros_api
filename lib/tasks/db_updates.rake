@@ -36,6 +36,12 @@ namespace :db do
       entry.key = 'backgroundImage'
       entry.value = ''
     end
+
+    Setting.find_or_create_by(slug: 'system_stacktrace') do |entry|
+      entry.category = 'system'
+      entry.key 'stacktrace'
+      entry.value 'false'
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
