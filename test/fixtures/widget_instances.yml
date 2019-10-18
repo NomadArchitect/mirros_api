@@ -1,8 +1,8 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-calendar_event_list_1:
+calendar_event_list:
   widget: calendar_event_list
-  title: Feiertage
+  title: UK Holidays (Google)
   showtitle: true
   configuration: {}
   position:
