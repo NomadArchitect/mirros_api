@@ -6,7 +6,13 @@ namespace :mirros do
   namespace :setup do
     desc 'Set up static network connections for LAN and Setup WiFi'
     task network_connections: :environment do
-      NetworkManager::Commands.instance.add_predefined_connections if OS.linux?
+      next unless OS.linux?
+
+      predefined = %w[glancrsetup glancrlan]
+      next if NmNetwork.where(connection_id: predefined).length.eql? 2
+
+      NetworkManager::Commands.instance.add_predefined_connections
+    end
 
     desc 'Creates NmNetwork records for existing NetworkManager connections. Intended as a one-time job for the update 1.0.2 -> 1.0.3'
     task delete_connections_without_model: :environment do
