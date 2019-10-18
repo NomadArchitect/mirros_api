@@ -2,6 +2,14 @@
 # https://hub.docker.com/r/library/ruby/tags/
 image: "ruby:2.6.3"
 
+services:
+  - mysql:5.7
+
+variables:
+  # Configure mysql environment variables (https://hub.docker.com/_/mysql/)
+  MYSQL_DATABASE: "mirrOS_api_test"
+  MYSQL_ROOT_PASSWORD: "glancr"
+
 # Cache gems in between builds
 cache:
   paths:
@@ -33,8 +41,8 @@ rails:
     # Install dependencies into ./vendor/bundle
     - bundle install -j $(nproc) --path vendor/bundle
     - export RAILS_ENV=test
-    - bin/rails db:migrate
-    - bin/rails db:seed
+    - export RAILS_DATABASE_HOST=mysql
+    - bin/rails db:setup
     # - rails test # disabled until we're actually using tests
   dependencies: []  # do not pass vendor/bundle to next job – it's x86-specific
 

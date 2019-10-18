@@ -24,6 +24,7 @@ development:
 
 test:
   <<: *mysql
+  host: <%= ENV.fetch("RAILS_DATABASE_HOST") { 'localhost' } %>
   database: db/mirrOS_api_test
   username: root
   password: glancr
