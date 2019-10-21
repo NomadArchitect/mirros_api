@@ -36,6 +36,20 @@ namespace :db do
       entry.key = 'backgroundImage'
       entry.value = ''
     end
+
+    if OS.linux?
+      # Synchronize NM connections to new NmNetwork model if required.
+      networks = %w[glancrsetup glancrlan]
+      ssid = Setting.find_by(slug: 'network_ssid')
+      networks.append(ssid.value) if ssid.value.present?
+      networks.each do |network_name|
+        next if NmNetwork.find_by(connection_id: network_name).present?
+
+        NetworkManager::Commands.instance.sync_db_to_nm_connection(
+          connection_id: network_name
+        )
+      end
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
