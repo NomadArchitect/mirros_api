@@ -191,6 +191,11 @@ module NetworkManager
       end
     end
 
+    def sync_db_to_nm_connection(connection_id: nil)
+      settings = nm_settings_for_connection(connection_id: connection_id)
+      persist_inactive_connection(settings: settings)
+    end
+
     private
 
     def connection_object_path(connection_id)
@@ -245,17 +250,22 @@ module NetworkManager
       settings_path = nm_settings_i.AddConnection(connection_settings)
       nm_conn_i = @nm_s[settings_path]['org.freedesktop.NetworkManager.Settings.Connection']
       # noinspection RubyResolve
-      settings = nm_conn_i.GetSettings
+      persist_inactive_connection(settings: nm_conn_i.GetSettings)
+    end
 
-      NmNetwork.create(
-        uuid: settings.dig('connection', 'uuid'),
-        connection_id: settings.dig('connection', 'id'),
-        interface_type: settings.dig('connection', 'type'),
-        devices: nil,
-        active: false,
-        ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
-        ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
-      )
+    # Retrieves the NetworkManager connection settings for a given connection ID.
+    # @param [String] connection_id ID of the connection
+    # @return [Hash,nil] Settings hash, or nil if NetworkManager cannot find a connection with this ID.
+    def nm_settings_for_connection(connection_id: nil)
+      nm_s_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
+      nm_s_i = nm_s_o['org.freedesktop.NetworkManager.Settings']
+      nm_s_i['Connections'].filter do |con|
+        nm_conn_o = @nm_s[con]
+        nm_conn_i = nm_conn_o['org.freedesktop.NetworkManager.Settings.Connection']
+        # noinspection RubyResolve
+        settings = nm_conn_i.GetSettings
+        break settings if settings.dig('connection', 'id').eql?(connection_id)
+      end
     end
 
     # @param [DBus::ProxyObjectInterface] active_connection_if a valid NetworkManager.Connection.Active proxy
@@ -273,6 +283,18 @@ module NetworkManager
         active: true,
         ip4_address: ip_address(IP4_PROTOCOL, active_connection_if['Ip4Config']),
         ip6_address: ip_address(IP6_PROTOCOL, active_connection_if['Ip6Config'])
+      )
+    end
+
+    def persist_inactive_connection(settings: {})
+      NmNetwork.create(
+        uuid: settings.dig('connection', 'uuid'),
+        connection_id: settings.dig('connection', 'id'),
+        interface_type: settings.dig('connection', 'type'),
+        devices: nil,
+        active: false,
+        ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
+        ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
       )
     end
   end
