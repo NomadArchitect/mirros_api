@@ -111,15 +111,15 @@ module NetworkManager
     end
 
     def deactivate_connection(connection_id)
-      # TODO: Maybe cleaner to get the connection from active connections?
+      # FIXME: Current polling implementation is too fragile to rely on connection state in the DB.
+      # Maybe revert to network.active once NM signal listeners are implemented.
       network = NmNetwork.find_by(connection_id: connection_id)
-      return unless network.active # Assumes the active state in the DB reflects the actual connection state
-
-      # Assumes that a) the saved device path is correct and b) there's only one device.
-      device = JSON.parse(network.devices).first
-      active_connection_path = @nm_s[device]['org.freedesktop.NetworkManager.Device']['ActiveConnection']
+      active_connection_path = @nm_i['ActiveConnections'].filter do |connection_path|
+        nm_con_i = @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
+        nm_con_i['Id'].eql?(connection_id)
+      end.first
       # noinspection RubyResolve
-      @nm_i.DeactivateConnection(active_connection_path)
+      @nm_i.DeactivateConnection(active_connection_path) if active_connection_path.present?
       network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
     end
 
