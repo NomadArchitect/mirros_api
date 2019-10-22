@@ -40,7 +40,7 @@ source 'https://rubygems.org' do
   gem 'friendly_id', '~> 5.2.5'
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
-  gem 'ruby-dbus', '~> 0.15.0'
+  gem 'ruby-dbus', '~> 0.16.0'
   gem 'image_processing', '~> 1.9'
 end
 
