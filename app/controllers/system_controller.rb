@@ -142,6 +142,18 @@ class SystemController < ApplicationController
     ), status: :gateway_timeout
   end
 
+  def log_client_error
+    err_string = "
+----------------------------------
+Message: #{params[:error]}
+Vue instance: #{params[:instance]}
+stack trace:
+#{params[:stack]}
+----------------------------------
+    "
+    ClientLogger.error err_string
+  end
+
   # Checks if a logfile with the given name exists in the Rails log directory
   # and returns it.
   # @return [FileBody] Content of the requested log file

@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   get 'system/logs/:logfile', to: 'system#fetch_logfile'
   get 'system/report', to: 'system#generate_system_report'
   post 'system/report/send', to: 'system#send_debug_report'
+  post 'system/log_client_error', to: 'system#log_client_error'
 
   match 'system/control/:category/:command', to: 'system#setting_execution', via: [:get, :patch]
   # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
