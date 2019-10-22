@@ -51,6 +51,28 @@ class System
     raise e
   end
 
+  def self.shut_down
+    # macOS requires sudoers file manipulation without tty/askpass, see
+    # https://www.sudo.ws/man/sudoers.man.html
+    return if Rails.env.development? # Don't reboot a running dev system
+    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
+
+    # TODO: Refactor with ruby-dbus for consistency
+    line = Terrapin::CommandLine.new(
+      'dbus-send',
+      '--system \
+      --print-reply \
+      --dest=org.freedesktop.login1 \
+      /org/freedesktop/login1 \
+      "org.freedesktop.login1.Manager.PowerOff" \
+      boolean:true'
+    )
+    line.run
+  rescue Terrapin::ExitStatusError => e
+    Rails.logger.error "Error during shutdown attempt: #{e.message}"
+    raise e
+  end
+
   def self.reload_browser
     sysbus = DBus.system_bus
     cog_s = sysbus['com.igalia.Cog']
