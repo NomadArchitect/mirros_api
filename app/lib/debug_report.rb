@@ -2,6 +2,7 @@
 
 # Data structure for debug reports.
 class DebugReport
+  UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/
   # @return [Hash] Installed extensions by type, each an array of name and
   # version.
   def self.installed_extensions
@@ -28,7 +29,9 @@ class DebugReport
     @body = {
       title: title,
       description: description,
-      email: email.nil? ? SettingsCache.s[:personal_email] : email
+      email: email.nil? ? SettingsCache.s[:personal_email] : email,
+      # Use yes/no to avoid type conversions of booleans during transit and support scripts.
+      validProductKey: SettingsCache.s[:personal_productkey].match?(UUID_REGEX) ? :yes : :no
     }
   end
 
