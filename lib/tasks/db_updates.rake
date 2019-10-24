@@ -50,6 +50,24 @@ namespace :db do
         )
       end
     end
+
+    Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
+      entry.category = 'personal'
+      entry.key = 'productKey'
+      entry.value = ''
+    end
+
+    Setting.find_or_create_by(slug: 'system_headercolor') do |entry|
+      entry.category = 'system'
+      entry.key = 'headerColor'
+      entry.value = '#8ba4c1'
+    end
+
+    Setting.find_or_create_by(slug: 'system_headerlogo') do |entry|
+      entry.category = 'system'
+      entry.key = 'headerLogo'
+      entry.value = ''
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
