@@ -63,6 +63,11 @@ Setting.create!(
       value: 'no' # Requires frontend to specify checkbox values.
     },
     {
+      category: 'personal',
+      key: 'productKey',
+      value: ''
+    },
+    {
       category: 'system',
       key: 'backgroundColor',
       value: '#000000'
@@ -75,6 +80,16 @@ Setting.create!(
     {
       category: 'system',
       key: 'backgroundImage',
+      value: ''
+    },
+    {
+      category: 'system',
+      key: 'themeColor',
+      value: '#8ba4c1'
+    },
+    {
+      category: 'system',
+      key: 'headerLogo',
       value: ''
     }
   ]
