@@ -174,7 +174,7 @@ WidgetInstance.create(
   title: 'Holidays',
   showtitle: true,
   configuration: {},
-  position: { "x": 8, "y": 0, "width": 4, "height": 4 }
+  position: { "x": 8, "y": 0, "width": 5, "height": 4 }
 )
 
 WidgetInstance.create(
