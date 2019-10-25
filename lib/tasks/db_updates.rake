@@ -57,9 +57,9 @@ namespace :db do
       entry.value = ''
     end
 
-    Setting.find_or_create_by(slug: 'system_headercolor') do |entry|
+    Setting.find_or_create_by(slug: 'system_themecolor') do |entry|
       entry.category = 'system'
-      entry.key = 'headerColor'
+      entry.key = 'themeColor'
       entry.value = '#8ba4c1'
     end
 

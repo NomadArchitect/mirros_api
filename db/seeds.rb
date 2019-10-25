@@ -84,7 +84,7 @@ Setting.create!(
     },
     {
       category: 'system',
-      key: 'headerColor',
+      key: 'themeColor',
       value: '#8ba4c1'
     },
     {
