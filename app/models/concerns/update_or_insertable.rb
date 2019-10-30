@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/concern'
 
 # Concern to enable in-place update-or-insert operations on associated models.
