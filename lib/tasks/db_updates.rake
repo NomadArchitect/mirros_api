@@ -37,18 +37,22 @@ namespace :db do
       entry.value = ''
     end
 
-    if OS.linux?
-      # Synchronize NM connections to new NmNetwork model if required.
-      networks = %w[glancrsetup glancrlan]
-      ssid = Setting.find_by(slug: 'network_ssid')
-      networks.append(ssid.value) if ssid.value.present?
-      networks.each do |network_name|
-        next if NmNetwork.find_by(connection_id: network_name).present?
+    Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
+      entry.category = 'personal'
+      entry.key = 'productKey'
+      entry.value = ''
+    end
 
-        NetworkManager::Commands.instance.sync_db_to_nm_connection(
-          connection_id: network_name
-        )
-      end
+    Setting.find_or_create_by(slug: 'system_themecolor') do |entry|
+      entry.category = 'system'
+      entry.key = 'themeColor'
+      entry.value = '#8ba4c1'
+    end
+
+    Setting.find_or_create_by(slug: 'system_headerlogo') do |entry|
+      entry.category = 'system'
+      entry.key = 'headerLogo'
+      entry.value = ''
     end
   end
 

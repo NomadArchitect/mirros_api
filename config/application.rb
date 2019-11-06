@@ -71,6 +71,17 @@ module MirrOSApi
       /[\w-]+.local:\d{2,4}/ # local network via bonjour / zeroconf
     ]
 
+    # Serve image/svg+xml with the correct content type.
+    # See https://github.com/rails/rails/issues/34665#issuecomment-445888009
+    config.active_storage.content_types_to_serve_as_binary = config
+                                                             .active_storage
+                                                             .content_types_to_serve_as_binary
+                                                             .reject { |ct| ct.eql?('image/svg+xml') }
+    config.active_storage.content_types_allowed_inline = config
+                                                         .active_storage
+                                                         .content_types_allowed_inline
+                                                         .dup
+                                                         .push('image/svg+xml')
     # Set custom log path for terrapin commands.
     # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
