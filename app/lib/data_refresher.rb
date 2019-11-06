@@ -37,9 +37,10 @@ class DataRefresher
                                                         timeout: '5m',
                                                         overlap: false,
                                                         tag: job_tag do |job|
-      # Skip refresh if the system is offline.
-      next unless StateCache.s.online
-
+      unless StateCache.s.online
+        Rails.logger.info "[DataRefresher] Skipping #{source.name} instance #{source_instance.id}, System is offline"
+        next
+      end
       job_block(source_instance, job, source_hooks)
     end
 
