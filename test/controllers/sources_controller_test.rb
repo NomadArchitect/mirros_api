@@ -12,23 +12,6 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should create source' do
-    assert_difference('Source.count') do
-      post sources_url,
-           params: {
-             source: {
-               creator: @source.creator,
-               name: @source.name,
-               download: @source.download,
-               version: @source.version,
-               homepage: @source.homepage
-             }
-           }, as: :json, headers: jsonapi_headers
-    end
-
-    assert_response 201
-  end
-
   test 'should show source' do
     get source_url(@source), as: :json, headers: jsonapi_headers
     assert_response :success
@@ -45,13 +28,5 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
       }
     }, as: :json, headers: jsonapi_headers
     assert_response 200
-  end
-
-  test 'should destroy source' do
-    assert_difference('Source.count', -1) do
-      delete source_url(@source), as: :json, headers: jsonapi_headers
-    end
-
-    assert_response 204
   end
 end
