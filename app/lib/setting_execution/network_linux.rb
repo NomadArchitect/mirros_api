@@ -26,8 +26,8 @@ module SettingExecution
       # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run(iface: Commands.instance.wifi_interface).split("\"\n")
-      results.map do |result|
+      results = line.run(iface: Commands.instance.wifi_interface)&.split("\"\n")
+      results&.map do |result|
         signal, encryption, ssid = result.split("\n")
         {
           ssid: ssid.match(/".*$/).to_s.delete('"'),
@@ -58,11 +58,13 @@ module SettingExecution
     private_class_method :normalize_signal_strength
 
     def self.toggle_lan(state)
+      ci = Commands.instance
+      cn = 'glancrlan'
       case state
       when 'on'
-        Commands.instance.activate_connection('glancrlan')
+        ci.activate_connection(cn) unless ci.connection_active?(cn)
       when 'off'
-        Commands.instance.deactivate_connection('glancrlan')
+        ci.deactivate_connection(cn) if ci.connection_active?(cn)
       else
         raise ArgumentError,
               "Could not toggle glancrlan to invalid state: #{state}"

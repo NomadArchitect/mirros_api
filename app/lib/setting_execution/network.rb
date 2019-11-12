@@ -1,6 +1,7 @@
 module SettingExecution
 
-  # Apply network-related settings.
+  # Apply network-related settings. StandardError rescues are intentional to
+  # decouple from platform-specific implementation details.
   class Network
 
     # TODO: Support other authentication methods as well
@@ -15,11 +16,10 @@ module SettingExecution
       disable_lan
 
       os_subclass.connect(ssid, password)
-      true
-    rescue Terrapin::CommandLineError => e
+    rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
       SettingExecution::Network.open_ap
-      false
+      raise e
     ensure
       StateCache.s.connection_attempt = false
       ::System.check_network_status
@@ -84,7 +84,7 @@ module SettingExecution
 
     def self.remove_stale_connections
       os_subclass.remove_stale_connections
-    rescue Terrapin::CommandLineError => e
+    rescue StandardError => e
       Rails.logger.error "Could not delete stale connections: #{e.message}"
     end
 
@@ -106,7 +106,7 @@ module SettingExecution
 
       begin
         success = os_subclass.toggle_lan(state)
-      rescue Terrapin::CommandLineError => e
+      rescue StandardError => e
         Rails.logger.error "Could not toggle LAN connection to #{state}, reason: #{e.message}"
         success = false
       end

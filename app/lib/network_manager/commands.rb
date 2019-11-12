@@ -74,16 +74,29 @@ module NetworkManager
     def activate_new_wifi_connection(ssid, password)
       # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
       # noinspection RubyStringKeysInHashInspection
-      conn = { '802-11-wireless-security' => { 'psk' => password} }
-      ap = ap_object_path_for_ssid(ssid)
-      raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
+      conn = { '802-11-wireless-security' => { 'psk' => password } }
 
+      # NM 1.2.2 doesn't have Device.Wireless LastScan property, so we need to
+      # poll the available APs during a 10-second wait time.
+      ap = ap_object_path_for_ssid(ssid)
+      if ap.blank?
+        request_wifi_scan(ssid)
+        timeout = 0
+        # Wait for 20 seconds until we give up
+        while timeout <= 20
+          ap = ap_object_path_for_ssid(ssid)
+          break if ap.present?
+
+          sleep 2
+          timeout += 2
+        end
+        raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
+      end
       # noinspection RubyResolve
       _settings, active_connection = @nm_i.AddAndActivateConnection(
         conn, @wifi_device, ap
       )
-      active_conn_o = @nm_s[active_connection]
-      active_conn_i = active_conn_o['org.freedesktop.NetworkManager.Connection.Active']
+      active_conn_i = @nm_s[active_connection]['org.freedesktop.NetworkManager.Connection.Active']
 
       # wait until connection is active, see https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html#NMActiveConnectionState
       sleep 0.25 until active_conn_i['State'].eql? NmActiveConnectionState::ACTIVATED
@@ -105,22 +118,25 @@ module NetworkManager
       connection_path = @nm_i.ActivateConnection(
         connection_object_path(connection_id), '/', '/'
       )
-      persist_active_connection(
-        active_connection_if: @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
-      )
+      active_conn_i = @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
+      sleep 0.25 until active_conn_i['State'].eql? NmActiveConnectionState::ACTIVATED
+      persist_active_connection(active_connection_if: active_conn_i)
     end
 
     def deactivate_connection(connection_id)
       # FIXME: Current polling implementation is too fragile to rely on connection state in the DB.
       # Maybe revert to network.active once NM signal listeners are implemented.
       network = NmNetwork.find_by(connection_id: connection_id)
+      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
+
       active_connection_path = @nm_i['ActiveConnections'].filter do |connection_path|
         nm_con_i = @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
         nm_con_i['Id'].eql?(connection_id)
       end.first
+      return if active_connection_path.blank?
+
       # noinspection RubyResolve
-      @nm_i.DeactivateConnection(active_connection_path) if active_connection_path.present?
-      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
+      @nm_i.DeactivateConnection(active_connection_path)
     end
 
     def delete_connection(connection_id: nil, connection_path: nil)
@@ -183,14 +199,27 @@ module NetworkManager
       nm_ip4_i['AddressData'].first['address']
     end
 
+    # In case a connection object path is stale and no longer present on NMs
+    # side, NM would throw misleading errors about the Properties interface
+    # missing from this object. In that case, the connection is a) not active
+    # and b) probably not the connection we are looking for.
+    # @param [String] connection_id Name of the connection to check.
+    # @return [Boolean] Whether the connection is active.
     def connection_active?(connection_id)
       @nm_i['ActiveConnections'].any? do |con|
         nm_con_o = @nm_s[con]
         nm_con_i = nm_con_o['org.freedesktop.NetworkManager.Connection.Active']
-        nm_con_i['Id'].eql? connection_id
+        begin
+          nm_con_i['Id'].eql? connection_id
+        rescue DBus::Error => e
+          Rails.logger.error e.message
+          false
+        end
       end
     end
 
+    # @param [String] connection_id Name of the NM connection to sync.
+    # @return [NmNetwork] The added or updated NmNetwork model.
     def sync_db_to_nm_connection(connection_id: nil)
       settings = nm_settings_for_connection(connection_id: connection_id)
       persist_inactive_connection(settings: settings)
@@ -198,6 +227,8 @@ module NetworkManager
 
     private
 
+    # @param [String] connection_id
+    # @return [String] The DBus object path for this connection.
     def connection_object_path(connection_id)
       stored_connection = NmNetwork.find_by(connection_id: connection_id)
       nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
@@ -206,12 +237,28 @@ module NetworkManager
       nm_settings_i.GetConnectionByUuid(stored_connection.uuid)
     end
 
+    # @param [String] ssid
+    # @return [String, nil] The DBus object path for the given connection or nil if NM does not have it.
     def ap_object_path_for_ssid(ssid)
       list_access_point_paths.filter do |ap|
         nm_ap_o = @nm_s[ap]
         nm_ap_i = nm_ap_o['org.freedesktop.NetworkManager.AccessPoint']
         nm_ap_i['Ssid'].pack('U*').eql? ssid # NM returns byte-array
       end.shift
+    end
+
+    # @param [String] ssid Scan for a given SSID, otherwise do a general scan.
+    # @return [nil]
+    def request_wifi_scan(ssid = nil)
+      nm_wifi_s = @nm_s[@wifi_device]
+      nm_wifi_i = nm_wifi_s['org.freedesktop.NetworkManager.Device.Wireless']
+      # noinspection RubyStringKeysInHashInspection
+      params = ssid.nil? ? {} : { 'ssid' => DBus.variant('aay', [ssid.bytes]) }
+      # noinspection RubyResolve
+      nm_wifi_i.RequestScan(params)
+    rescue DBus::Error => e
+      # Device is probably already scanning, avoid error bubbling.
+      Rails.logger.error "#{__method__}: #{e.message}"
     end
 
     def device_path(interface)
