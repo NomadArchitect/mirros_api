@@ -221,6 +221,20 @@ module NetworkManager
       end.shift
     end
 
+    # @param [String] ssid Scan for a given SSID, otherwise do a general scan.
+    # @return [nil]
+    def request_wifi_scan(ssid = nil)
+      nm_wifi_s = @nm_s[@wifi_device]
+      nm_wifi_i = nm_wifi_s['org.freedesktop.NetworkManager.Device.Wireless']
+      # noinspection RubyStringKeysInHashInspection
+      params = ssid.nil? ? {} : { 'ssid' => DBus.variant('aay', [ssid.bytes]) }
+      # noinspection RubyResolve
+      nm_wifi_i.RequestScan(params)
+    rescue DBus::Error => e
+      # Device is probably already scanning, avoid error bubbling.
+      Rails.logger.error "#{__method__}: #{e.message}"
+    end
+
     def device_path(interface)
       # noinspection RubyResolve
       @nm_i.GetDeviceByIpIface(interface)
