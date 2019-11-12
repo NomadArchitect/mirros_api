@@ -199,6 +199,12 @@ module NetworkManager
       nm_ip4_i['AddressData'].first['address']
     end
 
+    # In case a connection object path is stale and no longer present on NMs
+    # side, NM would throw misleading errors about the Properties interface
+    # missing from this object. In that case, the connection is a) not active
+    # and b) probably not the connection we are looking for.
+    # @param [String] connection_id Name of the connection to check.
+    # @return [Boolean] Whether the connection is active.
     def connection_active?(connection_id)
       @nm_i['ActiveConnections'].any? do |con|
         nm_con_o = @nm_s[con]
@@ -212,6 +218,8 @@ module NetworkManager
       end
     end
 
+    # @param [String] connection_id Name of the NM connection to sync.
+    # @return [NmNetwork] The added or updated NmNetwork model.
     def sync_db_to_nm_connection(connection_id: nil)
       settings = nm_settings_for_connection(connection_id: connection_id)
       persist_inactive_connection(settings: settings)
@@ -219,6 +227,8 @@ module NetworkManager
 
     private
 
+    # @param [String] connection_id
+    # @return [String] The DBus object path for this connection.
     def connection_object_path(connection_id)
       stored_connection = NmNetwork.find_by(connection_id: connection_id)
       nm_settings_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
@@ -227,6 +237,8 @@ module NetworkManager
       nm_settings_i.GetConnectionByUuid(stored_connection.uuid)
     end
 
+    # @param [String] ssid
+    # @return [String, nil] The DBus object path for the given connection or nil if NM does not have it.
     def ap_object_path_for_ssid(ssid)
       list_access_point_paths.filter do |ap|
         nm_ap_o = @nm_s[ap]
