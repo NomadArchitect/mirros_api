@@ -74,10 +74,24 @@ module NetworkManager
     def activate_new_wifi_connection(ssid, password)
       # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
       # noinspection RubyStringKeysInHashInspection
-      conn = { '802-11-wireless-security' => { 'psk' => password} }
-      ap = ap_object_path_for_ssid(ssid)
-      raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
+      conn = { '802-11-wireless-security' => { 'psk' => password } }
 
+      # NM 1.2.2 doesn't have Device.Wireless LastScan property, so we need to
+      # poll the available APs during a 10-second wait time.
+      ap = ap_object_path_for_ssid(ssid)
+      if ap.blank?
+        request_wifi_scan(ssid)
+        timeout = 0
+        # Wait for 20 seconds until we give up
+        while timeout <= 20
+          ap = ap_object_path_for_ssid(ssid)
+          break if ap.present?
+
+          sleep 2
+          timeout += 2
+        end
+        raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
+      end
       # noinspection RubyResolve
       _settings, active_connection = @nm_i.AddAndActivateConnection(
         conn, @wifi_device, ap
