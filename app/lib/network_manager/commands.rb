@@ -189,7 +189,12 @@ module NetworkManager
       @nm_i['ActiveConnections'].any? do |con|
         nm_con_o = @nm_s[con]
         nm_con_i = nm_con_o['org.freedesktop.NetworkManager.Connection.Active']
-        nm_con_i['Id'].eql? connection_id
+        begin
+          nm_con_i['Id'].eql? connection_id
+        rescue DBus::Error => e
+          Rails.logger.error e.message
+          false
+        end
       end
     end
 
