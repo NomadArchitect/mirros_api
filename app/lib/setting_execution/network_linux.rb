@@ -26,8 +26,8 @@ module SettingExecution
       # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run(iface: Commands.instance.wifi_interface).split("\"\n")
-      results.map do |result|
+      results = line.run(iface: Commands.instance.wifi_interface)&.split("\"\n")
+      results&.map do |result|
         signal, encryption, ssid = result.split("\n")
         {
           ssid: ssid.match(/".*$/).to_s.delete('"'),
