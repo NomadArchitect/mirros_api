@@ -104,9 +104,9 @@ module NetworkManager
       connection_path = @nm_i.ActivateConnection(
         connection_object_path(connection_id), '/', '/'
       )
-      persist_active_connection(
-        active_connection_if: @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
-      )
+      active_conn_i = @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
+      sleep 0.25 until active_conn_i['State'].eql? NmActiveConnectionState::ACTIVATED
+      persist_active_connection(active_connection_if: active_conn_i)
     end
 
     def deactivate_connection(connection_id)
