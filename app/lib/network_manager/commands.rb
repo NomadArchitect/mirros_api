@@ -14,6 +14,7 @@ module NetworkManager
     IP_PROTOCOL_VERSIONS = [4, 6].freeze
     IP4_PROTOCOL = 4
     IP6_PROTOCOL = 6
+    CONNECTION_ATTEMPT_TIMEOUT = 20 # seconds
 
     # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
     # D-Bus proxy calls String.bytesize, so we require string keys.
@@ -81,14 +82,13 @@ module NetworkManager
       ap = ap_object_path_for_ssid(ssid)
       if ap.blank?
         request_wifi_scan(ssid)
-        timeout = 0
-        # Wait for 20 seconds until we give up
-        while timeout <= 20
+        time_elapsed = 0
+        while time_elapsed <= CONNECTION_ATTEMPT_TIMEOUT
           ap = ap_object_path_for_ssid(ssid)
           break if ap.present?
 
           sleep 2
-          timeout += 2
+          time_elapsed += 2
         end
         raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
       end
