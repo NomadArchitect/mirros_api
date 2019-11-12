@@ -82,8 +82,7 @@ module NetworkManager
       _settings, active_connection = @nm_i.AddAndActivateConnection(
         conn, @wifi_device, ap
       )
-      active_conn_o = @nm_s[active_connection]
-      active_conn_i = active_conn_o['org.freedesktop.NetworkManager.Connection.Active']
+      active_conn_i = @nm_s[active_connection]['org.freedesktop.NetworkManager.Connection.Active']
 
       # wait until connection is active, see https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html#NMActiveConnectionState
       sleep 0.25 until active_conn_i['State'].eql? NmActiveConnectionState::ACTIVATED
