@@ -127,8 +127,6 @@ module NetworkManager
       # FIXME: Current polling implementation is too fragile to rely on connection state in the DB.
       # Maybe revert to network.active once NM signal listeners are implemented.
       network = NmNetwork.find_by(connection_id: connection_id)
-      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
-
       active_connection_path = @nm_i['ActiveConnections'].filter do |connection_path|
         nm_con_i = @nm_s[connection_path]['org.freedesktop.NetworkManager.Connection.Active']
         nm_con_i['Id'].eql?(connection_id)
@@ -137,6 +135,7 @@ module NetworkManager
 
       # noinspection RubyResolve
       @nm_i.DeactivateConnection(active_connection_path)
+      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
     end
 
     def delete_connection(connection_id: nil, connection_path: nil)
