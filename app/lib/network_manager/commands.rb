@@ -211,7 +211,10 @@ module NetworkManager
         begin
           nm_con_i['Id'].eql? connection_id
         rescue DBus::Error => e
-          Rails.logger.error e.message
+          Rails.logger.error "
+                             #{__method__} encountered probably stale
+connection while searching for #{connection_id} #{e.message}
+                             "
           false
         end
       end
