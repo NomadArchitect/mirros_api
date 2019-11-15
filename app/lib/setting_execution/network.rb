@@ -14,13 +14,13 @@ module SettingExecution
         raise ArgumentError, 'SSID and password must be set'
       end
 
-      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
+      close_ap if ap_active?
       disable_lan
 
       os_subclass.connect(ssid, password)
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
-      SettingExecution::Network.open_ap
+      open_ap
       raise e
     ensure
       StateCache.s.connection_attempt = false
