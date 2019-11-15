@@ -14,7 +14,7 @@ module NetworkManager
     IP_PROTOCOL_VERSIONS = [4, 6].freeze
     IP4_PROTOCOL = 4
     IP6_PROTOCOL = 6
-    CONNECTION_ATTEMPT_TIMEOUT = 20 # seconds
+    WIFI_SCAN_TIMEOUT = 20 # seconds
 
     # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
     # D-Bus proxy calls String.bytesize, so we require string keys.
@@ -81,15 +81,7 @@ module NetworkManager
       # poll the available APs during a 10-second wait time.
       ap = ap_object_path_for_ssid(ssid)
       if ap.blank?
-        request_wifi_scan(ssid)
-        time_elapsed = 0
-        while time_elapsed <= CONNECTION_ATTEMPT_TIMEOUT
-          ap = ap_object_path_for_ssid(ssid)
-          break if ap.present?
-
-          sleep 2
-          time_elapsed += 2
-        end
+        ap = scan_for_ssid(ssid)
         raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
       end
       # noinspection RubyResolve
@@ -250,17 +242,36 @@ connection while searching for #{connection_id} #{e.message}
     end
 
     # @param [String] ssid Scan for a given SSID, otherwise do a general scan.
-    # @return [nil]
-    def request_wifi_scan(ssid = nil)
+    # @return [String]
+    def scan_for_ssid(ssid = '')
       nm_wifi_s = @nm_s[@wifi_device]
       nm_wifi_i = nm_wifi_s['org.freedesktop.NetworkManager.Device.Wireless']
-      # noinspection RubyStringKeysInHashInspection
-      params = ssid.nil? ? {} : { 'ssid' => DBus.variant('aay', [ssid.bytes]) }
-      # noinspection RubyResolve
-      nm_wifi_i.RequestScan(params)
-    rescue DBus::Error => e
-      # Device is probably already scanning, avoid error bubbling.
-      Rails.logger.error "#{__method__}: #{e.message}"
+
+      loop = DBus::Main.new
+      loop << DBus::SystemBus.instance
+      nm_wifi_i.on_signal('AccessPointAdded') do |ap_path|
+        ap_i = @nm_s[ap_path]['org.freedesktop.NetworkManager.AccessPoint']
+        if ap_i['Ssid'].pack('U*').eql?(ssid)
+          loop.quit
+          Thread.current[:output] = ap_path
+          Thread.current.exit
+        end
+      end
+      thr = Thread.new { loop.run }
+
+      request_scan(dbus_wifi_iface: nm_wifi_i, ssid: ssid)
+
+      time_elapsed = 0
+      result = while time_elapsed <= WIFI_SCAN_TIMEOUT
+                 sleep 2
+                 time_elapsed += 2
+                 break thr[:output] unless thr[:output].nil?
+               end
+      return result if result.present?
+
+      loop.quit
+      thr.kill
+      raise StandardError, "NM could not find AP for given SSID #{ssid}"
     end
 
     def device_path(interface)
@@ -345,6 +356,14 @@ connection while searching for #{connection_id} #{e.message}
         ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
         ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
       )
+    end
+
+    def request_scan(dbus_wifi_iface:, ssid: '')
+      # noinspection RubyResolve, RubyStringKeysInHashInspection
+      dbus_wifi_iface.RequestScan('ssid' => DBus.variant('aay', [ssid.bytes]))
+    rescue DBus::Error => e
+      # Device is probably already scanning, avoid error bubbling.
+      Rails.logger.error "#{__method__}: #{e.message}"
     end
   end
 end
