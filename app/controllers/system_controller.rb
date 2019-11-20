@@ -246,7 +246,6 @@ stack trace:
       SettingExecution::Network.enable_lan
       SettingExecution::Network.reset
     else
-      Rails.logger.error "Setup encountered invalid connection type #{conn_type}"
       raise ArgumentError, "invalid connection type #{conn_type}"
     end
   end
