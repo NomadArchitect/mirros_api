@@ -37,18 +37,6 @@ module SettingExecution
       end
     end
 
-    def self.check_signal(ssid)
-      line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | egrep -B 2 ESSID:\":ssid')
-      # Search for the given SSID; previous line contains signal strength.
-      signal = line.run(ssid: ssid).split("\n").first
-
-      { ssid: ssid, signal: normalize_signal_strength(signal) }
-    rescue Terrapin::ExitStatusError => e
-      Rails.logger.error "Could not check signal strength: #{e.message}"
-      { ssid: ssid, signal: 0 }
-    end
-
     # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
     # @param [String] signal string containing the signal strength as a two-digit integer
     def self.normalize_signal_strength(signal)
@@ -56,6 +44,13 @@ module SettingExecution
     end
 
     private_class_method :normalize_signal_strength
+
+    def self.wifi_signal_status
+      Commands.instance.wifi_status
+    rescue StandardError => e
+      Rails.logger.error "#{__method__}: #{e.message}"
+      nil
+    end
 
     def self.toggle_lan(state)
       ci = Commands.instance

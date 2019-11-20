@@ -49,11 +49,8 @@ module SettingExecution
       available_networks
     end
 
-    def self.check_signal
-      ssid = SettingsCache.s[:network_ssid]
-      return if ssid.blank?
-
-      os_subclass.check_signal(ssid)
+    def self.wifi_signal_status
+      os_subclass.wifi_signal_status
     end
 
     def self.open_ap

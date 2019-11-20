@@ -28,8 +28,9 @@ module SettingExecution
       ]
     end
 
-    def self.check_signal(ssid)
-      list.select { |wifi| wifi[:ssid].eql?(ssid) }.pop
+    def self.wifi_signal_status
+      # Just get the first mock network.
+      list.pop
     end
 
     def self.toggle_lan(_state)
