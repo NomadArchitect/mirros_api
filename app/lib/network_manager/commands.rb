@@ -76,8 +76,6 @@ module NetworkManager
       # noinspection RubyStringKeysInHashInspection
       conn = { '802-11-wireless-security' => { 'psk' => password } }
 
-      # NM 1.2.2 doesn't have Device.Wireless LastScan property, so we need to
-      # poll the available APs during a 10-second wait time.
       ap = ap_object_path_for_ssid(ssid)
       if ap.blank?
         ap = scan_for_ssid(ssid)

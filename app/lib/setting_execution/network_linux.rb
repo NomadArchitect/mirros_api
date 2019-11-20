@@ -3,7 +3,7 @@
 module SettingExecution
   # Apply network-related settings in Linux environments.
   #
-  # Requires the package wireless-tools to run iwlist in `check_signal`.
+  # Requires the package wireless-tools to run iwlist in `list`.
   # The AP-related methods assume that there is a valid NetworkManager connection
   # named `glancrsetup`.
   class NetworkLinux < Network
