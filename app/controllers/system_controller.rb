@@ -75,17 +75,14 @@ class SystemController < ApplicationController
       raise ArgumentError, 'Missing required setting.'
     end
 
-    StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-
-    connect_to_network
-    online_or_raise
-
-    # System has internet connectivity, complete seed and send setup mail
+    StateCache.s.configured_at_boot = true
     # TODO: Handle errors in thread and take action if required
     Thread.new(options) do |opts|
+      connect_to_network
+      online_or_raise
       sleep 2
       SettingExecution::Personal.send_setup_email
       if opts[:create_defaults]
@@ -95,7 +92,7 @@ class SystemController < ApplicationController
       ActiveRecord::Base.clear_active_connections!
     end
 
-    render json: { meta: System.info }
+    render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
