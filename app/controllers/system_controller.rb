@@ -69,7 +69,10 @@ class SystemController < ApplicationController
   def run_setup(options = { create_defaults: true })
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
-    raise ArgumentError, 'Missing required setting.' unless System.setup_completed?
+    unless System.setup_completed?
+      Rails.logger.error 'Aborting setup, missing a value'
+      raise ArgumentError, 'Missing required setting.'
+    end
 
     StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
@@ -254,7 +257,9 @@ stack trace:
       sleep 5
       retries += 1
     end
-    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
+    if retries > 5
+      raise StandardError, 'Could not connect to the internet within 25 seconds'
+    end
   end
 
   def create_default_cal_instances

@@ -53,7 +53,6 @@ module NetworkManager
       }
     }.freeze
 
-
     # TODO: Refactor to less lines if object is just needed for a single interface
     # see https://www.rubydoc.info/github/mvidner/ruby-dbus/file/doc/Reference.md#Errors
 
