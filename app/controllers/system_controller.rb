@@ -67,6 +67,7 @@ class SystemController < ApplicationController
 
   # @param [Hash] options
   def run_setup(options = { create_defaults: true })
+    Rufus::Scheduler.s.pause
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
     unless System.setup_completed?
@@ -98,6 +99,8 @@ class SystemController < ApplicationController
   rescue StandardError => e
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
+  ensure
+    Rufus::Scheduler.s.pause
   end
 
   # TODO: Respond with appropriate status codes in addition to success
