@@ -71,6 +71,8 @@ module NetworkManager
       add_connection(GLANCRLAN_CONNECTION)
     end
 
+    # @param [String] ssid SSID of the access point for which a new connection should be established.
+    # @param [String] password Passphrase for this access point. @see https://developer.gnome.org/NetworkManager/1.2/ref-settings.html#id-1.4.3.31.1
     def activate_new_wifi_connection(ssid, password)
       # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
       # noinspection RubyStringKeysInHashInspection
@@ -101,6 +103,9 @@ module NetworkManager
       nm_wifi_i.GetAllAccessPoints
     end
 
+    # Activates a NetworkManager connection with the given ID. If the connection is already active,
+    # @param [String] connection_id ID of the connection to activate.
+    # @return [Boolean] If the persistence update was successful
     def activate_connection(connection_id)
       # TODO: Check if we can always pass base paths
       # noinspection RubyResolve
@@ -210,7 +215,8 @@ connection while searching for #{connection_id} #{e.message}
     end
 
     # @param [String] connection_id Name of the NM connection to sync.
-    # @return [NmNetwork] The added or updated NmNetwork model.
+    # @return [NmNetwork, nil] The added or updated NmNetwork model, or nil if
+    # NetworkManager could not find a connection with the given ID.
     def sync_db_to_nm_connection(connection_id: nil)
       settings = nm_settings_for_connection(connection_id: connection_id)
       persist_inactive_connection(settings: settings)
@@ -234,7 +240,8 @@ connection while searching for #{connection_id} #{e.message}
 
     private
 
-    # @param [String] connection_id
+    # @param [String] connection_id The given ID of a connection. Assumes that a
+    # NmNetwork entry with this ID exists in the DB.
     # @return [String] The DBus object path for this connection.
     def connection_object_path(connection_id)
       stored_connection = NmNetwork.find_by(connection_id: connection_id)
@@ -342,7 +349,7 @@ connection while searching for #{connection_id} #{e.message}
     end
 
     # @param [DBus::ProxyObjectInterface] active_connection_if a valid NetworkManager.Connection.Active proxy
-    # @return [NmNetwork] the created network connection
+    # @return [Boolean] whether the update was successful
     def persist_active_connection(active_connection_if:)
       sleep 0.25 until active_connection_if['State'].eql? NmActiveConnectionState::ACTIVATED
       nm_network = NmNetwork.find_or_initialize_by(
