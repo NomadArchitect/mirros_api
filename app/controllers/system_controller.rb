@@ -99,7 +99,7 @@ class SystemController < ApplicationController
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
   ensure
-    Rufus::Scheduler.s.pause
+    Rufus::Scheduler.s.resume
   end
 
   # TODO: Respond with appropriate status codes in addition to success
