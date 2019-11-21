@@ -2,6 +2,16 @@
 
 module NetworkManager
   module Constants
+    # Helpers for reused String values
+    module NmInterfaces
+      ACCESS_POINT = 'org.freedesktop.NetworkManager.AccessPoint'
+      CONNECTION_ACTIVE = 'org.freedesktop.NetworkManager.Connection.Active'
+      DEVICE = 'org.freedesktop.NetworkManager.Device'
+      DEVICE_WIRELESS = 'org.freedesktop.NetworkManager.Device.Wireless'
+      SETTINGS = 'org.freedesktop.NetworkManager.Settings'
+      SETTINGS_CONNECTION = 'org.freedesktop.NetworkManager.Settings.Connection'
+    end
+
     # NetworkManager DBus API Type constants.
     # See https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html
 
