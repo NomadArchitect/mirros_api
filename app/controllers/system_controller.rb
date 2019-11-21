@@ -79,10 +79,12 @@ class SystemController < ApplicationController
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
     StateCache.s.configured_at_boot = true
+
+    connect_to_network
+    online_or_raise
+
     # TODO: Handle errors in thread and take action if required
     Thread.new(options) do |opts|
-      connect_to_network
-      online_or_raise
       sleep 2
       SettingExecution::Personal.send_setup_email
       if opts[:create_defaults]
