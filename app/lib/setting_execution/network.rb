@@ -8,8 +8,8 @@ module SettingExecution
     def self.connect
       StateCache.s.connection_attempt = true
       ::System.push_status_update
-      ssid = SettingsCache.s[:network_ssid]
-      password = SettingsCache.s[:network_password]
+      ssid = Setting.find_by(slug: :network_ssid).value
+      password = Setting.find_by(slug: :network_password).value
       unless ssid.present? && password.present?
         raise ArgumentError, 'SSID and password must be set'
       end
