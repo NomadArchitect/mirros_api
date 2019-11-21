@@ -14,9 +14,9 @@ module SettingExecution
         raise ArgumentError, 'SSID and password must be set'
       end
 
-      close_ap if ap_active?
       disable_lan
 
+      close_ap
       os_subclass.connect(ssid, password)
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
