@@ -67,21 +67,22 @@ class SystemController < ApplicationController
 
   # @param [Hash] options
   def run_setup(options = { create_defaults: true })
+    Rufus::Scheduler.s.pause
     user_time = Integer(params[:reference_time])
     System.change_system_time(user_time)
-    raise ArgumentError, 'Missing required setting.' unless System.setup_completed?
+    unless System.setup_completed?
+      Rails.logger.error 'Aborting setup, missing a value'
+      raise ArgumentError, 'Missing required setting.'
+    end
 
-    StateCache.s.configured_at_boot = true
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-
-    connect_to_network
-    online_or_raise
-
-    # System has internet connectivity, complete seed and send setup mail
+    StateCache.s.configured_at_boot = true
     # TODO: Handle errors in thread and take action if required
     Thread.new(options) do |opts|
+      connect_to_network
+      online_or_raise
       sleep 2
       SettingExecution::Personal.send_setup_email
       if opts[:create_defaults]
@@ -91,10 +92,12 @@ class SystemController < ApplicationController
       ActiveRecord::Base.clear_active_connections!
     end
 
-    render json: { meta: System.info }
+    render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
+  ensure
+    Rufus::Scheduler.s.pause
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -243,7 +246,6 @@ stack trace:
       SettingExecution::Network.enable_lan
       SettingExecution::Network.reset
     else
-      Rails.logger.error "Setup encountered invalid connection type #{conn_type}"
       raise ArgumentError, "invalid connection type #{conn_type}"
     end
   end
@@ -254,7 +256,9 @@ stack trace:
       sleep 5
       retries += 1
     end
-    raise StandardError, 'Could not connect to the internet within 25 seconds' if retries > 5
+    if retries > 5
+      raise StandardError, 'Could not connect to the internet within 25 seconds'
+    end
   end
 
   def create_default_cal_instances

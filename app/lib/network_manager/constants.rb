@@ -1,8 +1,40 @@
 # frozen_string_literal: true
 
 module NetworkManager
-  # See https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html#NMDeviceType
   module Constants
+    # Helpers for reused String values
+    module NmInterfaces
+      ACCESS_POINT = 'org.freedesktop.NetworkManager.AccessPoint'
+      CONNECTION_ACTIVE = 'org.freedesktop.NetworkManager.Connection.Active'
+      DEVICE = 'org.freedesktop.NetworkManager.Device'
+      DEVICE_WIRELESS = 'org.freedesktop.NetworkManager.Device.Wireless'
+      SETTINGS = 'org.freedesktop.NetworkManager.Settings'
+      SETTINGS_CONNECTION = 'org.freedesktop.NetworkManager.Settings.Connection'
+    end
+
+    # NetworkManager DBus API Type constants.
+    # See https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html
+
+    # NmState values indicate the current overall networking state.
+    module NmState
+      # networking state is unknown
+      UNKNOWN = 0
+      # networking is not enabled
+      ASLEEP = 10
+      # there is no active network connection
+      DISCONNECTED = 20
+      # network connections are being cleaned
+      DISCONNECTING = 30
+      # a network connection is being started
+      CONNECTING = 40
+      # there is only local IPv4 and/or IPv6 connectivity
+      CONNECTED_LOCAL = 50
+      # there is only site-wide IPv4 and/or IPv6 connectivity
+      CONNECTED_SITE = 60
+      # there is global IPv4 and/or IPv6 Internet connectivity
+      CONNECTED_GLOBAL = 70
+    end
+
     # NMActiveConnectionState values indicate the state of a connection to a specific network while it is starting, connected, or disconnecting from that network.
     module NmActiveConnectionState
       # the state of the connection is unknown
@@ -89,6 +121,19 @@ module NetworkManager
       # a disconnection from the current network connection was requested, and # the device is cleaning up resources used for that connection. The network connection may still be valid.
       FAILED = 120
       # the device failed to connect to the requested network and is cleaning up the connection request
+    end
+
+    module NmConnectivityState
+      # Network connectivity is unknown.
+      UNKNOWN = 1
+      # The host is not connected to any network.
+      NONE = 2
+      # The host is behind a captive portal and cannot reach the full Internet.
+      PORTAL = 3
+      # The host is connected to a network, but does not appear to be able to reach the full Internet.
+      LIMITED = 4
+      # The host is connected to a network, and appears to be able to reach the full Internet.
+      FULL = 5
     end
   end
 end

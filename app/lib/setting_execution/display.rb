@@ -14,7 +14,7 @@ module SettingExecution
                                       "rotate_hdmi_display=#{degrees}"))
         true
       rescue Errno::ENOENT => e
-        Rails.logger.warning "Failed to apply setting #{__method__} with parameter #{degrees}, cause: #{e}"
+        Rails.logger.error "Failed to apply setting #{__method__} with parameter #{degrees}, cause: #{e}"
         false
       end
     end

@@ -1,24 +1,25 @@
-module SettingExecution
+# frozen_string_literal: true
 
+module SettingExecution
   # Apply network-related settings. StandardError rescues are intentional to
   # decouple from platform-specific implementation details.
   class Network
-
     # TODO: Support other authentication methods as well
     def self.connect
       StateCache.s.connection_attempt = true
       ::System.push_status_update
-      ssid = SettingsCache.s[:network_ssid]
-      password = SettingsCache.s[:network_password]
-      raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
+      ssid = Setting.find_by(slug: :network_ssid).value
+      password = Setting.find_by(slug: :network_password).value
+      unless ssid.present? && password.present?
+        raise ArgumentError, 'SSID and password must be set'
+      end
 
-      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
-      disable_lan
-
+      close_ap
+      # disable_lan
       os_subclass.connect(ssid, password)
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
-      SettingExecution::Network.open_ap
+      open_ap
       raise e
     ensure
       StateCache.s.connection_attempt = false
@@ -41,15 +42,14 @@ module SettingExecution
 
     def self.list
       available_networks = os_subclass.list
-      Rails.logger.error 'Could not retrieve WiFi list' if available_networks.empty?
+      if available_networks.empty?
+        Rails.logger.error 'Could not retrieve WiFi list'
+      end
       available_networks
     end
 
-    def self.check_signal
-      ssid = SettingsCache.s[:network_ssid]
-      return if ssid.blank?
-
-      os_subclass.check_signal(ssid)
+    def self.wifi_signal_status
+      os_subclass.wifi_signal_status
     end
 
     def self.open_ap
@@ -102,7 +102,9 @@ module SettingExecution
     private_class_method :os_subclass
 
     def self.toggle_lan(state)
-      raise ArgumentError, 'valid args are "on" or "off"' unless %w[on off].include? state
+      unless %w[on off].include? state
+        raise ArgumentError, 'valid args are "on" or "off"'
+      end
 
       begin
         success = os_subclass.toggle_lan(state)
@@ -114,6 +116,5 @@ module SettingExecution
     end
 
     private_class_method :toggle_lan
-
   end
 end

@@ -22,7 +22,9 @@ if Rails.const_defined? 'Server'
 
   if SettingsCache.s[:network_connectiontype].eql?('wlan')
     s.every '2m', tag: 'network-signal-check', overlap: false do
-      StateCache.s.network_status = SettingExecution::Network.check_signal
+      next unless StateCache.s.online && SettingsCache.s.using_wifi?
+
+      StateCache.s.network_status = SettingExecution::Network.wifi_signal_status
       ActionCable.server.broadcast 'status', payload: System.info
     end
   end

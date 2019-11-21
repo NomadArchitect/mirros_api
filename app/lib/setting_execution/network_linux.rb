@@ -3,7 +3,7 @@
 module SettingExecution
   # Apply network-related settings in Linux environments.
   #
-  # Requires the package wireless-tools to run iwlist in `check_signal`.
+  # Requires the package wireless-tools to run iwlist in `list`.
   # The AP-related methods assume that there is a valid NetworkManager connection
   # named `glancrsetup`.
   class NetworkLinux < Network
@@ -37,18 +37,6 @@ module SettingExecution
       end
     end
 
-    def self.check_signal(ssid)
-      line = Terrapin::CommandLine.new('iwlist',
-                                       'wlan0 scan | egrep -B 2 ESSID:\":ssid')
-      # Search for the given SSID; previous line contains signal strength.
-      signal = line.run(ssid: ssid).split("\n").first
-
-      { ssid: ssid, signal: normalize_signal_strength(signal) }
-    rescue Terrapin::ExitStatusError => e
-      Rails.logger.error "Could not check signal strength: #{e.message}"
-      { ssid: ssid, signal: 0 }
-    end
-
     # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
     # @param [String] signal string containing the signal strength as a two-digit integer
     def self.normalize_signal_strength(signal)
@@ -57,14 +45,19 @@ module SettingExecution
 
     private_class_method :normalize_signal_strength
 
+    def self.wifi_signal_status
+      Commands.instance.wifi_status
+    rescue StandardError => e
+      Rails.logger.error "#{__method__}: #{e.message}"
+      nil
+    end
+
     def self.toggle_lan(state)
-      ci = Commands.instance
-      cn = 'glancrlan'
       case state
       when 'on'
-        ci.activate_connection(cn) unless ci.connection_active?(cn)
+        Commands.instance.activate_connection('glancrlan')
       when 'off'
-        ci.deactivate_connection(cn) if ci.connection_active?(cn)
+        Commands.instance.deactivate_connection('glancrlan')
       else
         raise ArgumentError,
               "Could not toggle glancrlan to invalid state: #{state}"
