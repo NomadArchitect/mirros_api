@@ -53,13 +53,11 @@ module SettingExecution
     end
 
     def self.toggle_lan(state)
-      ci = Commands.instance
-      cn = 'glancrlan'
       case state
       when 'on'
-        ci.activate_connection(cn) unless ci.connection_active?(cn)
+        Commands.instance.activate_connection('glancrlan')
       when 'off'
-        ci.deactivate_connection(cn) if ci.connection_active?(cn)
+        Commands.instance.deactivate_connection('glancrlan')
       else
         raise ArgumentError,
               "Could not toggle glancrlan to invalid state: #{state}"
