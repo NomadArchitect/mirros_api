@@ -219,20 +219,21 @@ connection while searching for #{connection_id} #{e.message}
       persist_inactive_connection(settings: settings)
     end
 
-    # Retrieves the SSID and signal strength of the currently active access point.
-    # Returns nil for both values if no access point is active.
-    # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70).
+    # Retrieves SSID and signal strength of the currently active AccessPoint.
+    # Returns nil for both values if no access point is active or an error occurred.
+    # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70)
     def wifi_status
-      ret = { ssid: nil, signal: nil }
       nm_wifi_if = @nm_s[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
       active_ap_path = nm_wifi_if['ActiveAccessPoint']
-      unless active_ap_path.eql?('/')
-        ap_if = @nm_s[active_ap_path][NmInterfaces::ACCESS_POINT]
-        ret[:ssid] = ap_if['Ssid'].pack('U*')
-        ret[:signal] = ap_if['Strength'].to_i
-      end
-    ensure
-      ret
+      return { ssid: nil, signal: nil } if active_ap_path.eql?('/')
+
+      ap_if = @nm_s[active_ap_path][NmInterfaces::ACCESS_POINT]
+      {
+        ssid: ap_if['Ssid'].pack('U*'), signal: ap_if['Strength'].to_i
+      }
+    rescue DBus::Error => e
+      Rails.logger.error e.message
+      { ssid: nil, signal: nil }
     end
 
     private
