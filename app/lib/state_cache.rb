@@ -1,9 +1,17 @@
+# frozen_string_literal: true
+
+# In-memory cache for application state
 class StateCache
   include ActiveModel::Validations
+  include Singleton
 
   attr_accessor :resetting, :connection_attempt, :setup_complete,
                 :configured_at_boot, :current_ip, :online, :network_status
   validates :resetting, :connection_attempt, inclusion: [true, false]
+
+  class << self
+    delegate_missing_to :instance
+  end
 
   def initialize
     # FIXME: resetting is a temporary indicator, rework with https://gitlab.com/glancr/mirros_api/issues/87
@@ -23,7 +31,13 @@ class StateCache
     @singleton ||= new
   end
 
-  def self.s
-    singleton
+  def self.as_json
+    hash = {}
+    instance.instance_variables.map do |iv|
+      hash[iv[1..-1].to_sym] = instance.instance_variable_get(iv)
+    end
+    hash
+  end
+
   end
 end

@@ -58,7 +58,7 @@ module SettingExecution
       raise NotImplementedError, 'AP functionality only implemented for Linux hosts' if prod_server
 
       # TODO: Implement this if possible through /usr/sbin/networksetup
-      !StateCache.s.setup_complete
+      !StateCache.setup_complete
     end
 
     def self.close_ap

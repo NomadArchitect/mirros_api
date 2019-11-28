@@ -6,7 +6,7 @@ module SettingExecution
   class Network
     # TODO: Support other authentication methods as well
     def self.connect
-      StateCache.s.connection_attempt = true
+      StateCache.connection_attempt = true
       ::System.push_status_update
       ssid = Setting.find_by(slug: :network_ssid).value
       password = Setting.find_by(slug: :network_password).value
@@ -22,7 +22,7 @@ module SettingExecution
       open_ap
       raise e
     ensure
-      StateCache.s.connection_attempt = false
+      StateCache.connection_attempt = false
       ::System.check_network_status
       ActionCable.server.broadcast 'status', payload: ::System.info
     end

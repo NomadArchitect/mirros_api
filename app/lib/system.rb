@@ -22,7 +22,7 @@ class System
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
       connection_type: SettingsCache.s[:network_connectiontype]
-    }.merge(StateCache.s.as_json)
+    }.merge(StateCache.as_json)
   end
 
   def self.push_status_update
@@ -147,7 +147,7 @@ class System
     current_ip = current_ip_address
     check_ip_change(current_ip)
     StateCache.s.current_ip = current_ip
-    StateCache.s.online = online?
+    StateCache.online = online?
     start_offline_mode unless no_offline_mode_required?
   end
 
@@ -240,9 +240,9 @@ class System
   private_class_method :last_known_ip_was_different
 
   def self.no_offline_mode_required?
-    StateCache.s.online ||
-      StateCache.s.current_ip.present? ||
-      StateCache.s.connection_attempt ||
+    StateCache.online ||
+      StateCache.current_ip.present? ||
+      StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end
 
