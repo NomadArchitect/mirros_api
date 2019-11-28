@@ -292,7 +292,7 @@ connection while searching for #{connection_id} #{e.message}
       loop << DBus::SystemBus.instance
       nm_wifi_i.on_signal('AccessPointAdded') do |ap_path|
         ap_i = @nm_s[ap_path][NmInterfaces::ACCESS_POINT]
-        if ap_i['Ssid'].pack('U*').eql?(ssid)
+        if ap_i['Ssid'].eql?(ssid.bytes)
           loop.quit
           Thread.current[:output] = ap_path
           Thread.current.exit
