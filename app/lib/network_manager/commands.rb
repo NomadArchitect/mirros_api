@@ -262,11 +262,22 @@ connection while searching for #{connection_id} #{e.message}
     # @param [String] ssid
     # @return [String, nil] The DBus object path for the given connection or nil if NM does not have it.
     def ap_object_path_for_ssid(ssid)
-      list_access_point_paths.filter do |ap|
-        nm_ap_o = @nm_s[ap]
-        nm_ap_i = nm_ap_o[NmInterfaces::ACCESS_POINT]
-        nm_ap_i['Ssid'].pack('U*').eql? ssid # NM returns byte-array
-      end.shift
+      candidates = []
+      list_access_point_paths.each do |ap|
+        begin
+          nm_ap_i = @nm_s[ap][NmInterfaces::ACCESS_POINT]
+          if nm_ap_i['Ssid'].eql? ssid.bytes # NM returns byte-array
+            candidates << { ap_path: ap, strength: nm_ap_i['Strength'] }
+          end
+        rescue StandardError => e
+          sleep 1
+          retry if (attempts += 1) <= 3
+
+          Rails.logger.error "#{__method__} #{e.message}"
+          next
+        end
+      end
+      candidates.empty? ? nil : candidates.max { |c| c[:strength] }[:ap_path]
     end
 
     # @param [String] ssid Scan for a given SSID, otherwise do a general scan.
