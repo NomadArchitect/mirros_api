@@ -73,6 +73,8 @@ module SettingExecution
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
       Commands.instance.activate_connection('glancrsetup')
+    rescue StandardError => e
+      Rails.logger.warn "#{__method__} #{e.message}"
     end
 
     #
@@ -87,6 +89,8 @@ module SettingExecution
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
       dns_line.run
       Commands.instance.deactivate_connection('glancrsetup')
+    rescue StandardError => e
+      Rails.logger.warn "#{__method__} #{e.message}"
     end
 
     # Removes all NetworkManager WiFi connections.
