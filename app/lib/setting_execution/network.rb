@@ -52,6 +52,18 @@ module SettingExecution
       os_subclass.wifi_signal_status
     end
 
+    def self.schedule_ap
+      Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
+        open_ap
+      end
+    end
+
+    def self.cancel_ap_schedule
+      Rufus::Scheduler.s.in_jobs.select do |job|
+        job.tags.include? 'ap-timeout'
+      end.each(&:unschedule)
+    end
+
     def self.open_ap
       os_subclass.open_ap
       true

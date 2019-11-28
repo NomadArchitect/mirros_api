@@ -25,4 +25,8 @@ class SettingsCache
   def using_wifi?
     @cache[:network_connectiontype].eql? 'wlan'
   end
+
+  def using_lan?
+    @cache[:network_connectiontype].eql? 'lan'
+  end
 end

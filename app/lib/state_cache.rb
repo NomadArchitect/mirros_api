@@ -6,7 +6,8 @@ class StateCache
   include Singleton
 
   attr_accessor :resetting, :connection_attempt, :setup_complete,
-                :configured_at_boot, :current_ip, :online, :network_status
+                :configured_at_boot, :online, :connectivity,
+                :network_status
   validates :resetting, :connection_attempt, inclusion: [true, false]
 
   class << self
@@ -22,13 +23,28 @@ class StateCache
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
     @configured_at_boot = @setup_complete
-    @current_ip = System.current_ip_address
     @online = System.online?
+    @connectivity = initial_connectivity
     @network_status = SettingExecution::Network.wifi_signal_status
+
+    # private
+    primary_path = if OS.linux?
+                     NetworkManager::Commands.instance.primary_connection
+                   else
+                     '/'
+                   end
+    @primary_connection = update_primary_connection(primary_path)
+    @networks = NmNetwork.all.map(&:public_info)
   end
 
-  def self.singleton
-    @singleton ||= new
+  def refresh_networks
+    @networks = NmNetwork.all.map(&:public_info)
+  end
+
+  def update_primary_connection(ac_path)
+    @primary_connection = NmNetwork.find_by(
+      active_connection_path: ac_path
+    )&.public_info
   end
 
   def self.as_json
@@ -39,5 +55,13 @@ class StateCache
     hash
   end
 
+  private
+
+  def initial_connectivity
+    if OS.linux?
+      NetworkManager::Commands.instance.connectivity
+    else
+      NetworkManager::Constants::NmConnectivityState::UNKNOWN
+    end
   end
 end

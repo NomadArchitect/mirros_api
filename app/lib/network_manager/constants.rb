@@ -10,6 +10,7 @@ module NetworkManager
       DEVICE_WIRELESS = 'org.freedesktop.NetworkManager.Device.Wireless'
       SETTINGS = 'org.freedesktop.NetworkManager.Settings'
       SETTINGS_CONNECTION = 'org.freedesktop.NetworkManager.Settings.Connection'
+      IP4CONFIG = 'org.freedesktop.NetworkManager.IP4Config'
     end
 
     # NetworkManager DBus API Type constants.

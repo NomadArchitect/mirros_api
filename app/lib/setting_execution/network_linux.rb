@@ -79,7 +79,7 @@ module SettingExecution
     # @return [Boolean] True if the AP connection is present in NetworkManager's active connection list.
     def self.ap_active?
       # TODO: This should also check whether the DNS service is running
-      Commands.instance.connection_active? 'glancrsetup'
+      NmNetwork.find_by(connection_id: 'glancrsetup').active
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.

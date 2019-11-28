@@ -244,9 +244,8 @@ stack trace:
     when 'wlan'
       SettingExecution::Network.connect
     when 'lan'
-      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       SettingExecution::Network.enable_lan
-      SettingExecution::Network.reset
+      SettingExecution::Network.close_ap
     else
       raise ArgumentError, "invalid connection type #{conn_type}"
     end

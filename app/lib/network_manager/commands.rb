@@ -9,6 +9,7 @@ module NetworkManager
   class Commands
     include Singleton
     include Constants
+    include Helpers
     attr_reader :wifi_interface
 
     IP_PROTOCOL_VERSIONS = [4, 6].freeze
@@ -86,15 +87,11 @@ module NetworkManager
         raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
       end
       # noinspection RubyResolve
-      _settings, active_conn_path = @nm_i.AddAndActivateConnection(
-        conn, @wifi_device, ap
-      )
-      persist_once_active(path: active_conn_path, timeout: WIFI_CONNECT_TIMEOUT)
+      @nm_i.AddAndActivateConnection(conn, @wifi_device, ap)
     end
 
     def list_access_point_paths
-      wifi_device = @wifi_device || list_devices[:wifi]&.first
-      nm_wifi_s = @nm_s[wifi_device]
+      nm_wifi_s = @nm_s[@wifi_device]
       nm_wifi_i = nm_wifi_s[NmInterfaces::DEVICE_WIRELESS]
       # noinspection RubyResolve
       nm_wifi_i.GetAllAccessPoints
@@ -102,38 +99,29 @@ module NetworkManager
 
     # Activates a NetworkManager connection with the given ID. If the connection is already active,
     # @param [String] connection_id ID of the connection to activate.
-    # @return [Boolean] If the persistence update was successful
+    # @return [String] The new active connection path
     def activate_connection(connection_id)
-      # TODO: Check if we can always pass base paths
+      network = NmNetwork.find_by(connection_id: connection_id)
+      return if network.active
+
       # noinspection RubyResolve
-      connection_path = @nm_i.ActivateConnection(
-        connection_object_path(connection_id), '/', '/'
-      )
-      persist_once_active(
-        path: connection_path,
-        timeout: CONNECTION_ACTIVATION_TIMEOUT
-      )
+      @nm_i.ActivateConnection(network.connection_settings_path, '/', '/')
     end
 
+    # @param [String] connection_id The connection to deactivate
+    # @return [nil]
     def deactivate_connection(connection_id)
-      # FIXME: Current polling implementation is too fragile to rely on connection state in the DB.
-      # Maybe revert to network.active once NM signal listeners are implemented.
       network = NmNetwork.find_by(connection_id: connection_id)
-      active_connection_path = @nm_i['ActiveConnections'].filter do |connection_path|
-        nm_con_i = @nm_s[connection_path][NmInterfaces::CONNECTION_ACTIVE]
-        nm_con_i['Id'].eql?(connection_id)
-      end.first
-      return if active_connection_path.blank?
+      return unless network.active
 
       # noinspection RubyResolve
-      @nm_i.DeactivateConnection(active_connection_path)
-      network.update(devices: nil, active: false, ip4_address: nil, ip6_address: nil)
+      @nm_i.DeactivateConnection(network.active_connection_path)
     end
 
     def delete_connection(connection_id: nil, connection_path: nil)
-      connection_path ||= connection_object_path(connection_id)
+      connection_path ||= NmNetwork.find_by(connection_id: connection_id).connection_settings_path
       conn_o = @nm_s[connection_path]
-      conn_i = conn_o['org.freedesktop.NetworkManager.Settings.Connection']
+      conn_i = conn_o[NmInterfaces::SETTINGS_CONNECTION]
       conn_i.Delete
     rescue DBus::Error => e
       Rails.logger.error e.dbus_message.params
@@ -143,9 +131,7 @@ module NetworkManager
     def delete_all_wifi_connections
       # Use Model scopes to exclude system-defined and LAN connections
       NmNetwork.user_defined.wifi.each do |network|
-        wifi_conn = wifi_connection_path(network.id)
-        delete_connection(connection_path: wifi_conn) unless wifi_conn.nil?
-        network.destroy
+        delete_connection(connection_path: network.connection_settings_path)
       end
     end
 
@@ -156,7 +142,7 @@ module NetworkManager
       }
       # noinspection RubyResolve
       @nm_i.GetDevices.each do |dev|
-        nm_dev_i = @nm_s[dev]['org.freedesktop.NetworkManager.Device']
+        nm_dev_i = @nm_s[dev][NmInterfaces::DEVICE]
         device_state = nm_dev_i['State']
         unless device_state.between? NMDeviceState::DISCONNECTED, NMDeviceState::ACTIVATED
           next
@@ -185,7 +171,7 @@ module NetworkManager
       return nil if ip4config_path.eql? '/'
 
       nm_ip4_o = @nm_s[ip4config_path]
-      nm_ip4_i = nm_ip4_o['org.freedesktop.NetworkManager.IP4Config']
+      nm_ip4_i = nm_ip4_o[NmInterfaces::IP4CONFIG]
       nm_ip4_i['AddressData'].first['address']
     end
 
@@ -235,6 +221,25 @@ connection while searching for #{connection_id} #{e.message}
     rescue DBus::Error => e
       Rails.logger.error e.message
       { ssid: nil, signal: nil }
+    end
+
+    def connectivity
+      @nm_i['Connectivity']
+    end
+
+    def state
+      @nm_i['State']
+    end
+
+    def primary_connection
+      @nm_i['PrimaryConnection']
+    end
+
+    def settings_for_connection_path(connection_path:)
+      nm_conn_o = @nm_s[connection_path]
+      nm_conn_i = nm_conn_o[NmInterfaces::SETTINGS_CONNECTION]
+      # noinspection RubyResolve
+      nm_conn_i.GetSettings
     end
 
     private
@@ -332,57 +337,19 @@ connection while searching for #{connection_id} #{e.message}
       nm_settings_i = @nm_s['/org/freedesktop/NetworkManager/Settings'][NmInterfaces::SETTINGS]
       # noinspection RubyResolve
       settings_path = nm_settings_i.AddConnection(connection_settings)
-      nm_conn_i = @nm_s[settings_path][NmInterfaces::SETTINGS_CONNECTION]
-      # noinspection RubyResolve
-      persist_inactive_connection(settings: nm_conn_i.GetSettings)
+      persist_inactive_connection(settings_path: settings_path)
     end
 
     # Retrieves the NetworkManager connection settings for a given connection ID.
     # @param [String] connection_id ID of the connection
     # @return [Hash,nil] Settings hash, or nil if NetworkManager cannot find a connection with this ID.
-    def nm_settings_for_connection(connection_id: nil)
+    def nm_settings_for_connection_id(connection_id: nil)
       nm_s_o = @nm_s['/org/freedesktop/NetworkManager/Settings']
       nm_s_i = nm_s_o[NmInterfaces::SETTINGS]
       nm_s_i['Connections'].filter do |con|
-        nm_conn_o = @nm_s[con]
-        nm_conn_i = nm_conn_o[NmInterfaces::SETTINGS_CONNECTION]
-        # noinspection RubyResolve
-        settings = nm_conn_i.GetSettings
+        settings = settings_for_connection_path(con)
         break settings if settings.dig('connection', 'id').eql?(connection_id)
       end
-    end
-
-    # @param [DBus::ProxyObjectInterface] active_connection_if a valid NetworkManager.Connection.Active proxy
-    # @return [Boolean] whether the update was successful
-    def persist_active_connection(active_connection_if:)
-      # wait until connection is active
-      # see https://developer.gnome.org/NetworkManager/1.2/nm-dbus-types.html#NMActiveConnectionState
-      sleep 0.25 until active_connection_if['State'].eql? NmActiveConnectionState::ACTIVATED
-      nm_network = NmNetwork.find_or_initialize_by(
-        uuid: active_connection_if['Uuid']
-      ) do |network|
-        network.connection_id = active_connection_if['Id']
-        network.interface_type = active_connection_if['Type']
-      end
-      # TODO: Update returns a boolean, but we might want to return the NmNetwork instead.
-      nm_network.update(
-        devices: active_connection_if['Devices'],
-        active: true,
-        ip4_address: ip_address(IP4_PROTOCOL, active_connection_if['Ip4Config']),
-        ip6_address: ip_address(IP6_PROTOCOL, active_connection_if['Ip6Config'])
-      )
-    end
-
-    def persist_inactive_connection(settings: {})
-      NmNetwork.create(
-        uuid: settings.dig('connection', 'uuid'),
-        connection_id: settings.dig('connection', 'id'),
-        interface_type: settings.dig('connection', 'type'),
-        devices: nil,
-        active: false,
-        ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
-        ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
-      )
     end
 
     def persist_once_active(path: nil, timeout: CONNECTION_ACTIVATION_TIMEOUT)
@@ -390,7 +357,7 @@ connection while searching for #{connection_id} #{e.message}
       begin
         # FIXME: This becomes obsolete once persistence is handled through signals
         active_conn_i = @nm_s[path][NmInterfaces::CONNECTION_ACTIVE]
-        persist_active_connection(active_connection_if: active_conn_i)
+        persist_active_connection(object_path: path, iface: active_conn_i)
       rescue DBus::Error => e
         sleep 1
         retry if (attempts += 1) <= timeout
