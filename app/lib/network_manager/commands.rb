@@ -209,14 +209,15 @@ connection while searching for #{connection_id} #{e.message}
       false
     end
 
-    # @param [String] connection_id Name of the NM connection to sync.
-    # @return [NmNetwork, nil] The added or updated NmNetwork model, or nil if
-    # NetworkManager could not find a connection with the given ID.
-    def sync_db_to_nm_connection(connection_id: nil)
-      settings = nm_settings_for_connection(connection_id: connection_id)
-      return if settings.nil?
-
-      persist_inactive_connection(settings: settings)
+    def sync_all_connections
+      @nm_settings_i = @nm_s['/org/freedesktop/NetworkManager/Settings'][NmInterfaces::SETTINGS]
+      @nm_settings_i['Connections'].each do |settings_path|
+        persist_inactive_connection(settings_path: settings_path)
+      end
+      @nm_i['ActiveConnections'].each do |ac_path|
+        ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
+        persist_active_connection(object_path: ac_path, iface: ac_if)
+      end
     end
 
     # Retrieves SSID and signal strength of the currently active AccessPoint.
