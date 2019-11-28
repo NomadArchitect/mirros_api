@@ -15,7 +15,6 @@ module SettingExecution
       end
 
       close_ap
-      # disable_lan
       os_subclass.connect(ssid, password)
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
@@ -29,7 +28,6 @@ module SettingExecution
 
     def self.enable_lan
       toggle_lan('on')
-      os_subclass.reset
     end
 
     def self.disable_lan
