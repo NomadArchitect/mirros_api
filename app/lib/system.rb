@@ -18,9 +18,9 @@ class System
     {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
-      ap_active: NmNetwork.find_by(connection_id: :glancrsetup)&.active,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
+      # TODO: Maybe add more settings here as well; define a read_public_settings on SettingsCache
       connection_type: SettingsCache.s[:network_connectiontype]
     }.merge(StateCache.as_json)
   end
