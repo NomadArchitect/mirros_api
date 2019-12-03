@@ -14,11 +14,11 @@ module SettingExecution
     # @param [String] password
     def self.connect(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      remove_stale_connections
       Commands.instance.activate_new_wifi_connection(
         ssid,
         password
       )
+      remove_stale_connections
     end
 
     def self.list
