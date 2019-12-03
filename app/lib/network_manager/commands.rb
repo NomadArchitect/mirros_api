@@ -60,7 +60,7 @@ module NetworkManager
     # see https://www.rubydoc.info/github/mvidner/ruby-dbus/file/doc/Reference.md#Errors
 
     def initialize
-      @nm_s = DBus.system_bus['org.freedesktop.NetworkManager']
+      @nm_s = DBus::ASystemBus.new['org.freedesktop.NetworkManager']
       @nm_o = @nm_s['/org/freedesktop/NetworkManager']
       @nm_i = @nm_o['org.freedesktop.NetworkManager']
 
