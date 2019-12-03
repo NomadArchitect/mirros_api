@@ -17,7 +17,6 @@ module NetworkManager
     IP6_PROTOCOL = 6
     WIFI_CONNECT_TIMEOUT = 45 # seconds
     WIFI_SCAN_TIMEOUT = 20 # seconds
-    CONNECTION_ACTIVATION_TIMEOUT = 10 # seconds
 
     # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
     # D-Bus proxy calls String.bytesize, so we require string keys.
@@ -80,21 +79,29 @@ module NetworkManager
       # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
       # noinspection RubyStringKeysInHashInspection
       conn = { '802-11-wireless-security' => { 'psk' => password } }
-
       ap = ap_object_path_for_ssid(ssid)
       if ap.blank?
+        Rails.logger.warn "AP for given SSID #{ssid} not known yet, initiating scan"
         ap = scan_for_ssid(ssid)
-        raise StandardError, "no Access Point found for #{ssid}" if ap.blank?
       end
       # noinspection RubyResolve
       @nm_i.AddAndActivateConnection(conn, @wifi_device, ap)
     end
 
+    # List all access points currently available on the primary NetworkManager WiFi device. Includes hidden SSIDs.
+    # @return [Array] List of DBus object paths.
     def list_access_point_paths
-      nm_wifi_s = @nm_s[@wifi_device]
-      nm_wifi_i = nm_wifi_s[NmInterfaces::DEVICE_WIRELESS]
-      # noinspection RubyResolve
-      nm_wifi_i.GetAllAccessPoints
+      attempts = 0
+      begin
+        nm_wifi_i = @nm_s[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
+        # noinspection RubyResolve
+        nm_wifi_i['AccessPoints']
+      rescue DBus::Error => e
+        sleep 1
+        retry if (attempts += 1) <= 3
+
+        raise e
+      end
     end
 
     # Activates a NetworkManager connection with the given ID. If the connection is already active,
@@ -124,8 +131,7 @@ module NetworkManager
       conn_i = conn_o[NmInterfaces::SETTINGS_CONNECTION]
       conn_i.Delete
     rescue DBus::Error => e
-      Rails.logger.error e.dbus_message.params
-      Rails.logger.error e.dbus_message
+      Rails.logger.error e.message
     end
 
     def delete_all_wifi_connections
@@ -236,10 +242,12 @@ connection while searching for #{connection_id} #{e.message}
     end
 
     def settings_for_connection_path(connection_path:)
-      nm_conn_o = @nm_s[connection_path]
-      nm_conn_i = nm_conn_o[NmInterfaces::SETTINGS_CONNECTION]
-      # noinspection RubyResolve
-      nm_conn_i.GetSettings
+      retry_wrap max_attempts: 3 do
+        nm_conn_o = @nm_s[connection_path]
+        nm_conn_i = nm_conn_o[NmInterfaces::SETTINGS_CONNECTION]
+        # noinspection RubyResolve
+        nm_conn_i.GetSettings
+      end
     end
 
     private
@@ -263,29 +271,31 @@ connection while searching for #{connection_id} #{e.message}
     # @return [String, nil] The DBus object path for the given connection or nil if NM does not have it.
     def ap_object_path_for_ssid(ssid)
       candidates = []
-      list_access_point_paths.each do |ap|
-        begin
-          nm_ap_i = @nm_s[ap][NmInterfaces::ACCESS_POINT]
-          if nm_ap_i['Ssid'].eql? ssid.bytes # NM returns byte-array
-            candidates << { ap_path: ap, strength: nm_ap_i['Strength'] }
-          end
-        rescue StandardError => e
-          sleep 1
-          retry if (attempts += 1) <= 3
-
-          Rails.logger.error "#{__method__} #{e.message}"
-          next
-        end
+      list_access_point_paths.each do |ap_path|
+        details = ap_details(ap_path)
+        candidates.push(details) if details.dig(:ssid).eql?(ssid.to_s)
       end
       candidates.empty? ? nil : candidates.max { |c| c[:strength] }[:ap_path]
+    end
+
+    # @param [String] ap_path Valid DBus access point object path
+    # @return [Hash] Hash containing the given path, ssid as String and strength as Integer.
+    def ap_details(ap_path)
+      nm_ap_i = @nm_s[ap_path][NmInterfaces::ACCESS_POINT]
+      {
+        ap_path: ap_path,
+        ssid: nm_ap_i['Ssid']&.pack('U*'), # NM returns byte-array
+        strength: nm_ap_i['Strength']
+      }
+    rescue DBus::Error => e
+      Rails.logger.error "#{__method__} L:#{__LINE__} #{e.message}"
+      {}
     end
 
     # @param [String] ssid Scan for a given SSID, otherwise do a general scan.
     # @return [String]
     def scan_for_ssid(ssid = '')
-      nm_wifi_s = @nm_s[@wifi_device]
-      nm_wifi_i = nm_wifi_s[NmInterfaces::DEVICE_WIRELESS]
-
+      nm_wifi_i = @nm_s[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
       # NM 1.2.2 doesn't have Device.Wireless LastScan property, so we need to
       # listen on the DBus signal when new AP's are added. Assumes the AP
       loop = DBus::Main.new
@@ -299,12 +309,12 @@ connection while searching for #{connection_id} #{e.message}
         end
       end
       thr = Thread.new { loop.run }
-
       request_scan(dbus_wifi_iface: nm_wifi_i, ssid: ssid)
       time_elapsed = 0
       result = while time_elapsed <= WIFI_SCAN_TIMEOUT
                  sleep 2
                  time_elapsed += 2
+                 Rails.logger.warn "searching for #{ssid}, #{time_elapsed} sec elapsed"
                  break thr[:output] unless thr[:output].nil?
                end
       return result if result.present?
@@ -340,7 +350,7 @@ connection while searching for #{connection_id} #{e.message}
       # noinspection RubyResolve
       nm_settings_i.GetConnectionByUuid(connection_uuid)
     rescue DBus::Error => e
-      Rails.logger.error e.dbus_message.params
+      Rails.logger.error e.message
       nil
     end
 
@@ -360,20 +370,6 @@ connection while searching for #{connection_id} #{e.message}
       nm_s_i['Connections'].filter do |con|
         settings = settings_for_connection_path(con)
         break settings if settings.dig('connection', 'id').eql?(connection_id)
-      end
-    end
-
-    def persist_once_active(path: nil, timeout: CONNECTION_ACTIVATION_TIMEOUT)
-      attempts = 0
-      begin
-        # FIXME: This becomes obsolete once persistence is handled through signals
-        active_conn_i = @nm_s[path][NmInterfaces::CONNECTION_ACTIVE]
-        persist_active_connection(object_path: path, iface: active_conn_i)
-      rescue DBus::Error => e
-        sleep 1
-        retry if (attempts += 1) <= timeout
-
-        raise e
       end
     end
 

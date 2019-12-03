@@ -7,6 +7,7 @@ module NetworkManager
     IP_PROTOCOL_VERSIONS = [4, 6].freeze
     IP4_PROTOCOL = 4
     IP6_PROTOCOL = 6
+    CONNECTION_ACTIVATION_TIMEOUT = 10 # seconds
 
     def map_state(state)
       NmState.constants.select do |c|
@@ -26,19 +27,21 @@ module NetworkManager
       unless IP_PROTOCOL_VERSIONS.include? protocol_version
         raise ArgumentError, "Protocol version must be one of #{IP_PROTOCOL_VERSIONS}"
       end
+      return nil if config_path.eql?('/')
 
       nm_ip_o = @nm_s[config_path]
       nm_ip_i = nm_ip_o["org.freedesktop.NetworkManager.IP#{protocol_version}Config"]
       # FIXME: This only returns the first address without the prefix, maybe extend it to handle the whole array
       nm_ip_i['AddressData'].first&.dig('address')
     rescue DBus::Error => e
-      Rails.logger.error "#{__method__} #{e.message} #{e.dbus_message}"
+      Logger.error "#{__method__} #{e.message} #{e.dbus_message}"
       nil
     end
 
     def update_connection_ip_address(ac_path:, protocol_version: IP4_PROTOCOL, ip_config_path:)
+      Logger.debug "#{__method__} #{protocol_version} #{ip_config_path}"
       model = NmNetwork.find_by(active_connection_path: ac_path)
-      if ip_config_path.eql? '/'
+      if ip_config_path.eql?('/')
         model&.update_static_ip_settings
         return
       end
@@ -50,18 +53,29 @@ module NetworkManager
     end
 
     def change_connection_active_state(ac_path:, state:)
+      Logger.debug "#{__method__} #{ac_path} #{state}"
       value = case state
               when NmActiveConnectionState::ACTIVATED
                 true
               else
                 false
               end
-      NmNetwork.find_by(active_connection_path: ac_path)&.update(active: value)
+      model = NmNetwork.find_by(active_connection_path: ac_path)
+      if model.nil?
+        Logger.debug "Model with #{ac_path} not found, persisting"
+        ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
+        persist_active_connection(object_path: ac_path, iface: ac_if)
+      else
+        attrs = { active: value }
+        attrs = attrs.merge active_connection_path: nil unless value.eql?(true)
+        model.update(attrs)
+      end
     end
 
     # @param [DBus::ProxyObjectInterface] iface a valid NetworkManager.Connection.Active proxy
     # @return [Boolean] whether the update was successful
     def persist_active_connection(object_path:, iface:)
+      Logger.debug "persisting active connection #{iface['Id']}"
       nm_network = NmNetwork.find_or_initialize_by(
         uuid: iface['Uuid']
       ) do |network|
@@ -82,20 +96,34 @@ module NetworkManager
 
     def persist_inactive_connection(settings_path:)
       settings = NetworkManager::Commands.instance.settings_for_connection_path(connection_path: settings_path)
+      Logger.debug "persisting inactive connection #{settings.dig('connection', 'id')}"
       model = NmNetwork.find_or_initialize_by(
         uuid: settings.dig('connection', 'uuid')
       ) do |network|
         network.connection_id = settings.dig('connection', 'id')
         network.interface_type = settings.dig('connection', 'type')
       end
-      model.update(
-        devices: nil,
-        active: false,
-        active_connection_path: nil,
+      model.assign_attributes(
         connection_settings_path: settings_path,
         ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
         ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
       )
+      model.save!
+    rescue StandardError => e
+      Logger.error e.message
+    end
+
+    def retry_wrap(max_attempts: 3, &block)
+      attempts = 0
+      begin
+        yield block
+      rescue DBus::Error => e
+        # Rails.logger.warn "#{__method__} #{e.message}"
+        sleep 1
+        retry if (attempts += 1) <= max_attempts
+
+        raise e
+      end
     end
   end
 end
