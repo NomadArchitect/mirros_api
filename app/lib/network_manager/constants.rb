@@ -3,14 +3,20 @@
 module NetworkManager
   module Constants
     # Helpers for reused String values
+    module ObjectPaths
+      NETWORK_MANAGER = '/org/freedesktop/NetworkManager'
+      NM_SETTINGS = '/org/freedesktop/NetworkManager/Settings'
+    end
+
     module NmInterfaces
       ACCESS_POINT = 'org.freedesktop.NetworkManager.AccessPoint'
       CONNECTION_ACTIVE = 'org.freedesktop.NetworkManager.Connection.Active'
       DEVICE = 'org.freedesktop.NetworkManager.Device'
       DEVICE_WIRELESS = 'org.freedesktop.NetworkManager.Device.Wireless'
+      IP4CONFIG = 'org.freedesktop.NetworkManager.IP4Config'
+      NETWORK_MANAGER = 'org.freedesktop.NetworkManager'
       SETTINGS = 'org.freedesktop.NetworkManager.Settings'
       SETTINGS_CONNECTION = 'org.freedesktop.NetworkManager.Settings.Connection'
-      IP4CONFIG = 'org.freedesktop.NetworkManager.IP4Config'
     end
 
     # NetworkManager DBus API Type constants.
