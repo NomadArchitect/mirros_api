@@ -53,7 +53,7 @@ class Setting < ApplicationRecord
   end
 
   def check_setup_status
-    StateCache.s.setup_complete = System.setup_completed?
+    StateCache.setup_complete = System.setup_completed?
   end
 
   def update_cache

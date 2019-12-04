@@ -9,7 +9,7 @@ class SystemController < ApplicationController
 
   def reset
     # FIXME: Temporary workaround for Display app
-    StateCache.s.resetting = true
+    StateCache.resetting = true
     ActionCable.server.broadcast 'status', payload: ::System.info
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
@@ -40,7 +40,7 @@ class SystemController < ApplicationController
     head :no_content
 
   rescue StandardError => e
-    StateCache.s.resetting = false
+    StateCache.resetting = false
     render json: jsonapi_error('Error during reset', e.message, 500),
            status: :internal_server_error
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
@@ -78,7 +78,7 @@ class SystemController < ApplicationController
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-    StateCache.s.configured_at_boot = true
+    StateCache.configured_at_boot = true
 
     connect_to_network
     online_or_raise
@@ -208,7 +208,7 @@ stack trace:
     return if ENV['SNAP_DATA'].nil?
 
     Rufus::Scheduler.s.stop
-    StateCache.s.resetting = true
+    StateCache.resetting = true
     ::System.push_status_update
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
 
@@ -244,9 +244,8 @@ stack trace:
     when 'wlan'
       SettingExecution::Network.connect
     when 'lan'
-      SettingExecution::Network.close_ap if SettingExecution::Network.ap_active?
       SettingExecution::Network.enable_lan
-      SettingExecution::Network.reset
+      SettingExecution::Network.close_ap
     else
       raise ArgumentError, "invalid connection type #{conn_type}"
     end

@@ -6,8 +6,10 @@ module SettingExecution
   class Network
     # TODO: Support other authentication methods as well
     def self.connect
-      StateCache.s.connection_attempt = true
+      # FIXME: Can we get rid of this as Nm signals ensure the latest state?
+      StateCache.connection_attempt = true
       ::System.push_status_update
+
       ssid = Setting.find_by(slug: :network_ssid).value
       password = Setting.find_by(slug: :network_password).value
       unless ssid.present? && password.present?
@@ -15,21 +17,20 @@ module SettingExecution
       end
 
       close_ap
-      # disable_lan
       os_subclass.connect(ssid, password)
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
       open_ap
       raise e
     ensure
-      StateCache.s.connection_attempt = false
+      # FIXME: Can we get rid of this as Nm signals ensure the latest state?
+      StateCache.connection_attempt = false
       ::System.check_network_status
       ActionCable.server.broadcast 'status', payload: ::System.info
     end
 
     def self.enable_lan
       toggle_lan('on')
-      os_subclass.reset
     end
 
     def self.disable_lan
@@ -50,6 +51,18 @@ module SettingExecution
 
     def self.wifi_signal_status
       os_subclass.wifi_signal_status
+    end
+
+    def self.schedule_ap
+      Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
+        open_ap
+      end
+    end
+
+    def self.cancel_ap_schedule
+      Rufus::Scheduler.s.in_jobs.select do |job|
+        job.tags.include? 'ap-timeout'
+      end.each(&:unschedule)
     end
 
     def self.open_ap

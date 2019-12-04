@@ -18,11 +18,11 @@ class System
     {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
-      ap_active: SettingExecution::Network.ap_active?,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
+      # TODO: Maybe add more settings here as well; define a read_public_settings on SettingsCache
       connection_type: SettingsCache.s[:network_connectiontype]
-    }.merge(StateCache.s.as_json)
+    }.merge(StateCache.as_json)
   end
 
   def self.push_status_update
@@ -111,9 +111,8 @@ class System
 
     begin
       ip_address = if OS.linux?
-                     NetworkManager::Commands.instance.ip_for_device(
-                       map_interfaces(:linux, conn_type)
-                     )
+                     connection_id = SettingsCache.s.using_wifi? ? SettingsCache.s[:network_ssid] : :glancrlan
+                     NmNetwork.find_by(connection_id: connection_id)&.ip4_address
                    elsif OS.mac?
                      # FIXME: This command returns only the IPv4.
                      line = Terrapin::CommandLine.new(
@@ -133,11 +132,24 @@ class System
     end
   end
 
-  def self.online?
-    # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
-    Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? false : true
+  def self.online_state
+    if OS.linux?
+      NetworkManager::Commands.instance.state
+    else
+      # TODO: This doesn't reflect intermediate states.
+      # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
+      Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? NetworkManager::Constants::NmState::DISCONNECTED : NetworkManager::Constants::NmState::CONNECTED_GLOBAL
+    end
   rescue StandardError
     false
+  end
+
+  def self.state_is_online?(nm_state)
+    nm_state.eql?(NetworkManager::Constants::NmState::CONNECTED_GLOBAL)
+  end
+
+  def self.online?
+    online_state.eql?(NetworkManager::Constants::NmState::CONNECTED_GLOBAL)
   end
 
   # Determines if the internal access point needs to be opened because mirr.OS does
@@ -146,8 +158,7 @@ class System
   def self.check_network_status
     current_ip = current_ip_address
     check_ip_change(current_ip)
-    StateCache.s.current_ip = current_ip
-    StateCache.s.online = online?
+    StateCache.online = online?
     start_offline_mode unless no_offline_mode_required?
   end
 
@@ -212,10 +223,12 @@ class System
   private_class_method :map_interfaces
 
   def self.check_ip_change(ip)
+    # FIXME: Get macOS support working again.
+    return unless OS.linux?
     # Do nothing if we don't have an IP
     return if ip.nil?
     # The IP has not changed in between checks
-    return if ip.eql?(StateCache.s.current_ip)
+    return if ip.eql?(NmNetwork.first.ip4_address)
     # Check if the IP has changed after a period of disconnection
     return unless last_known_ip_was_different(ip)
 
@@ -240,9 +253,9 @@ class System
   private_class_method :last_known_ip_was_different
 
   def self.no_offline_mode_required?
-    StateCache.s.online ||
-      StateCache.s.current_ip.present? ||
-      StateCache.s.connection_attempt ||
+    StateCache.online ||
+      StateCache.current_ip.present? ||
+      StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end
 

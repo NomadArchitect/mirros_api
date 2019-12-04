@@ -14,11 +14,11 @@ module SettingExecution
     # @param [String] password
     def self.connect(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      remove_stale_connections
       Commands.instance.activate_new_wifi_connection(
         ssid,
         password
       )
+      remove_stale_connections
     end
 
     def self.list
@@ -73,13 +73,15 @@ module SettingExecution
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
       Commands.instance.activate_connection('glancrsetup')
+    rescue StandardError => e
+      Rails.logger.warn "#{__method__} #{e.message}"
     end
 
     #
     # @return [Boolean] True if the AP connection is present in NetworkManager's active connection list.
     def self.ap_active?
       # TODO: This should also check whether the DNS service is running
-      Commands.instance.connection_active? 'glancrsetup'
+      NmNetwork.find_by(connection_id: 'glancrsetup').active
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.
@@ -87,6 +89,8 @@ module SettingExecution
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
       dns_line.run
       Commands.instance.deactivate_connection('glancrsetup')
+    rescue StandardError => e
+      Rails.logger.warn "#{__method__} #{e.message}"
     end
 
     # Removes all NetworkManager WiFi connections.

@@ -5,7 +5,7 @@ module GroupSchemas
     def serializable_hash(options = nil)
       base = super({except: %i[uid newsfeed_id published]}.merge(options || {}))
       base.merge(
-        published: published.iso8601
+        published: published&.iso8601
       )
     end
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_30_122635) do
+ActiveRecord::Schema.define(version: 2019_11_25_140824) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -90,7 +90,7 @@ ActiveRecord::Schema.define(version: 2019_10_30_122635) do
     t.string "newsfeed_id"
     t.string "title"
     t.text "content"
-    t.string "url"
+    t.string "url", limit: 700
     t.datetime "published"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -204,6 +204,8 @@ ActiveRecord::Schema.define(version: 2019_10_30_122635) do
     t.string "ip6_address"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "active_connection_path"
+    t.string "connection_settings_path"
   end
 
   create_table "openweathermap_cities", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
