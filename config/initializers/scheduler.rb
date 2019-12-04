@@ -10,23 +10,25 @@ if Rails.const_defined? 'Server'
   )
   s.stderr = File.open(Rails.root.join('log', 'scheduler.log'), 'wb')
 
+  # Initialize StateCache so that signal listeners have it available
+  StateCache.instance
+  # Perform initial network status to determine if we need the AP right away
+  System.check_network_status
 
-  # If running on a linux host, we utilize NetworkManager signals.
   if OS.linux?
-    # Perform initial network status check through state cache
-    StateCache.instance
+    # On linux hosts, we utilize NetworkManager signal listeners.
     listeners = NetworkManager::SignalListeners.instance
     listeners.add_permanent_listeners
     listeners.listen
 
     at_exit { listeners.quit }
-    # On other hosts, we schedule static checks.
   else
-    System.check_network_status
+    # On other hosts, we schedule network status check jobs.
     s.every '30s', tag: 'network-status-check', overlap: false do
       System.check_network_status
       ActionCable.server.broadcast 'status', payload: System.info
     end
+  end
 
     s.every '2m', tag: 'network-signal-check', overlap: false do
       next unless StateCache.online && SettingsCache.s.using_wifi?
@@ -34,7 +36,6 @@ if Rails.const_defined? 'Server'
       StateCache.network_status = SettingExecution::Network.wifi_signal_status
       System.push_status_update
     end
-  end
 
 
   # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the
