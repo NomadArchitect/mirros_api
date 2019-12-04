@@ -6,15 +6,16 @@ class NmNetwork < ApplicationRecord
   scope :user_defined, -> { where.not(connection_id: %w[glancrsetup glancrlan]) }
   scope :wifi, -> { where(interface_type: '802-11-wireless') }
 
-  def deactivate
-    settings = nm_settings
-    update(
-      devices: nil,
-      active: false,
-      active_connection_path: nil,
-      ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
-      ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
-    )
+  def deactivate(with_ip_check: true)
+    attributes = { devices: nil, active: false, active_connection_path: nil }
+    if with_ip_check
+      settings = nm_settings
+      attributes.merge!(
+        ip4_address: settings.dig('ipv4', 'address-data', 0, 'address'),
+        ip6_address: settings.dig('ipv6', 'address-data', 0, 'address')
+      )
+    end
+    update(attributes)
   end
 
   def update_static_ip_settings

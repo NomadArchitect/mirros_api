@@ -203,12 +203,19 @@ connection while searching for #{connection_id} #{e.message}
 
     def sync_all_connections
       @nm_settings_i = @nm_s['/org/freedesktop/NetworkManager/Settings'][NmInterfaces::SETTINGS]
-      @nm_settings_i['Connections'].each do |settings_path|
-        persist_inactive_connection(settings_path: settings_path)
-      end
+      available_connections = @nm_settings_i['Connections']
+      available_connections.each { |settings_path| persist_inactive_connection(settings_path: settings_path) }
+
       @nm_i['ActiveConnections'].each do |ac_path|
         ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
+        # If the connection is active, remove it from the available connections so it won't get deactivated later
+        available_connections.delete(ac_if['Connection'])
         persist_active_connection(object_path: ac_path, iface: ac_if)
+      end
+
+      # Ensure all inactive connections have their state properly updated in the DB.
+      available_connections.each do |settings_path|
+        NmNetwork.find_by(connection_settings_path: settings_path)&.deactivate(with_ip_check: false)
       end
     end
 

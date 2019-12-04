@@ -105,6 +105,7 @@ class System
   end
 
   # TODO: Add support for IPv6.
+  # FIXME: Needlessly complex due to OS specifics, split up.
   def self.current_ip_address
     conn_type = SettingsCache.s[:network_connectiontype]
     return nil if conn_type.blank?
@@ -167,7 +168,7 @@ class System
     network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
                            SettingsCache.s[:network_ssid].present? &&
-                             SettingsCache.s[:network_password].present?
+                           SettingsCache.s[:network_password].present?
                          else
                            true
                          end
@@ -184,6 +185,7 @@ class System
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
+    # noinspection RubyResolve
     timedated_interface.SetNTP(bool, false) # Restarts systemd-timesyncd
   rescue DBus::Error => e
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
@@ -200,8 +202,11 @@ class System
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
+    # noinspection RubyResolve
     timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
+    # noinspection RubyResolve
     timedated_interface.SetTime(epoch_timestamp * 1000, false, false) # timedated requires microseconds
+    # noinspection RubyResolve
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
     Rails.logger.error "could not change system time via timesyncd: #{e.message}"
@@ -238,14 +243,14 @@ class System
   private_class_method :check_ip_change
 
   def self.last_known_ip_was_different(ip)
-    ip_file = Pathname("#{Rails.root}/tmp/last_ip")
+    ip_file = Pathname(Rails.root.join('tmp', 'last_ip'))
     return false unless ip_file.readable? # No dump available, e.g. on first boot
 
     last_known_ip = File.read(ip_file).chomp
     if last_known_ip.eql?(ip) || ip.nil?
       false
     else
-      File.write(ip_file, @current_ip)
+      File.write(ip_file, ip)
       true
     end
   end
@@ -254,7 +259,7 @@ class System
 
   def self.no_offline_mode_required?
     StateCache.online ||
-      StateCache.current_ip.present? ||
+      StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED ||
       StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end
@@ -306,5 +311,4 @@ class System
   end
 
   private_class_method :resume_background_jobs
-
 end

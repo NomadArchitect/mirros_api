@@ -62,7 +62,6 @@ module NetworkManager
       Logger.debug "Called #{__method__}, listen status: #{listening?}"
       return unless listening?
 
-      Logger.debug 'Restarting listener'
       quit
       add_permanent_listeners
       listen
@@ -75,7 +74,6 @@ module NetworkManager
 
     def listen_property_changed
       @nm_i.on_signal('PropertiesChanged') do |props|
-        # Logger.debug "NM props changed: #{props}"
         props.each do |key, value|
           case key.to_sym
           when :State
@@ -99,7 +97,6 @@ module NetworkManager
     end
 
     def listen_new_connection
-      Logger.debug 'Adding NewConnection listener'
       @nm_settings_i.on_signal('NewConnection') do |connection_path|
         persist_inactive_connection(settings_path: connection_path)
       rescue StandardError => e
@@ -108,7 +105,6 @@ module NetworkManager
     end
 
     def listen_connection_deleted
-      Logger.debug 'Adding ConnectionRemoved listener'
       @nm_settings_i.on_signal('ConnectionRemoved') do |connection_path|
         ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
         NmNetwork.find_by(connection_settings_path: connection_path)&.destroy
@@ -147,9 +143,9 @@ module NetworkManager
     end
 
     # Assumes that the Access Point does not change for the given SSID.
+    # TODO: Currently not called, see config/initializers/scheduler.rb:33
     def listen_ap_signal
-      return if ap_listener_active?
-
+      Logger.warn "Called #{__method__} which is not ready yet"
       pc_path = @nm_i['PrimaryConnection']
       pc_if = @nm_s[pc_path][NmInterfaces::CONNECTION_ACTIVE]
       ap_path = pc_if['SpecificObject']
@@ -232,6 +228,7 @@ module NetworkManager
       end
     end
 
+    # TODO: Currently not in use, see listen_ap_signal
     def handle_ap_props_change(ap_if:, props:)
       props.each do |key, value|
         if key.eql?('Strength')
