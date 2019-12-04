@@ -105,6 +105,7 @@ class System
   end
 
   # TODO: Add support for IPv6.
+  # FIXME: Needlessly complex due to OS specifics, split up.
   def self.current_ip_address
     conn_type = SettingsCache.s[:network_connectiontype]
     return nil if conn_type.blank?
