@@ -62,7 +62,6 @@ module NetworkManager
       Logger.debug "Called #{__method__}, listen status: #{listening?}"
       return unless listening?
 
-      Logger.debug 'Restarting listener'
       quit
       add_permanent_listeners
       listen
@@ -75,7 +74,6 @@ module NetworkManager
 
     def listen_property_changed
       @nm_i.on_signal('PropertiesChanged') do |props|
-        # Logger.debug "NM props changed: #{props}"
         props.each do |key, value|
           case key.to_sym
           when :State
@@ -99,7 +97,6 @@ module NetworkManager
     end
 
     def listen_new_connection
-      Logger.debug 'Adding NewConnection listener'
       @nm_settings_i.on_signal('NewConnection') do |connection_path|
         persist_inactive_connection(settings_path: connection_path)
       rescue StandardError => e
@@ -108,7 +105,6 @@ module NetworkManager
     end
 
     def listen_connection_deleted
-      Logger.debug 'Adding ConnectionRemoved listener'
       @nm_settings_i.on_signal('ConnectionRemoved') do |connection_path|
         ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
         NmNetwork.find_by(connection_settings_path: connection_path)&.destroy
