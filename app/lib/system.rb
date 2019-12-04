@@ -249,7 +249,7 @@ class System
     if last_known_ip.eql?(ip) || ip.nil?
       false
     else
-      File.write(ip_file, @current_ip)
+      File.write(ip_file, ip)
       true
     end
   end
@@ -258,7 +258,7 @@ class System
 
   def self.no_offline_mode_required?
     StateCache.online ||
-      StateCache.current_ip.present? ||
+      StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED ||
       StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end
