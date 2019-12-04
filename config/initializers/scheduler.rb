@@ -30,13 +30,17 @@ if Rails.const_defined? 'Server'
     end
   end
 
-    s.every '2m', tag: 'network-signal-check', overlap: false do
-      next unless StateCache.online && SettingsCache.s.using_wifi?
-
-      StateCache.network_status = SettingExecution::Network.wifi_signal_status
-      System.push_status_update
+  # TODO: Move this to NetworkManager SignalListeners once we figure out a reliable
+  # way to have only one listener for the active access point. ruby-dbus doesn't
+  # seem to allow removing listeners, but the AP might still be active in NM.
+  s.every '2m', tag: 'network-signal-check', overlap: false do
+    next unless SettingsCache.s.using_wifi?
+    unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
+      next
     end
 
+    StateCache.network_status = SettingExecution::Network.wifi_signal_status
+  end
 
   # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the
   # proper timezone is set at all times. Remove once https://bugs.launchpad.net/snappy/+bug/1650688

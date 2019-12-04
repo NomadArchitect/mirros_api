@@ -143,9 +143,9 @@ module NetworkManager
     end
 
     # Assumes that the Access Point does not change for the given SSID.
+    # TODO: Currently not called, see config/initializers/scheduler.rb:33
     def listen_ap_signal
-      return if ap_listener_active?
-
+      Logger.warn "Called #{__method__} which is not ready yet"
       pc_path = @nm_i['PrimaryConnection']
       pc_if = @nm_s[pc_path][NmInterfaces::CONNECTION_ACTIVE]
       ap_path = pc_if['SpecificObject']
@@ -228,6 +228,7 @@ module NetworkManager
       end
     end
 
+    # TODO: Currently not in use, see listen_ap_signal
     def handle_ap_props_change(ap_if:, props:)
       props.each do |key, value|
         if key.eql?('Strength')
