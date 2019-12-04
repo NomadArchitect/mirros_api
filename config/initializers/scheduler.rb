@@ -3,9 +3,11 @@
 require 'rufus-scheduler'
 require 'yaml'
 
-# only schedule when not running from the Ruby on Rails console or from a rake task
+# Prevent scheduling for Rails console starts or rake tasks.
 if Rails.const_defined? 'Server'
-  s = Rufus::Scheduler.singleton(lockfile: Rails.root.join('tmp', '.rufus-scheduler.lock'))
+  s = Rufus::Scheduler.singleton(
+    lockfile: Rails.root.join('tmp', '.rufus-scheduler.lock')
+  )
   s.stderr = File.open(Rails.root.join('log', 'scheduler.log'), 'wb')
 
 

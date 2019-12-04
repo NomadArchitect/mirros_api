@@ -167,7 +167,7 @@ class System
     network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
                            SettingsCache.s[:network_ssid].present? &&
-                             SettingsCache.s[:network_password].present?
+                           SettingsCache.s[:network_password].present?
                          else
                            true
                          end
@@ -184,6 +184,7 @@ class System
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
+    # noinspection RubyResolve
     timedated_interface.SetNTP(bool, false) # Restarts systemd-timesyncd
   rescue DBus::Error => e
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
@@ -200,8 +201,11 @@ class System
     timedated_service = sysbus['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
+    # noinspection RubyResolve
     timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
+    # noinspection RubyResolve
     timedated_interface.SetTime(epoch_timestamp * 1000, false, false) # timedated requires microseconds
+    # noinspection RubyResolve
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
     Rails.logger.error "could not change system time via timesyncd: #{e.message}"
@@ -238,7 +242,7 @@ class System
   private_class_method :check_ip_change
 
   def self.last_known_ip_was_different(ip)
-    ip_file = Pathname("#{Rails.root}/tmp/last_ip")
+    ip_file = Pathname(Rails.root.join('tmp', 'last_ip'))
     return false unless ip_file.readable? # No dump available, e.g. on first boot
 
     last_known_ip = File.read(ip_file).chomp
@@ -306,5 +310,4 @@ class System
   end
 
   private_class_method :resume_background_jobs
-
 end
