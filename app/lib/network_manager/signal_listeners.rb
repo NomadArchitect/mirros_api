@@ -180,15 +180,19 @@ module NetworkManager
     def handle_ac_change(ac_path)
       # Logger.debug "reacting to ActiveConnections change for #{ac_path}"
       ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
-      case ac_if['State']
-      when NmActiveConnectionState::ACTIVATING..NmActiveConnectionState::ACTIVATED
+      state = ac_if['State']
+      case state
+      when NmActiveConnectionState::ACTIVATING
         listen_active_connection(ac_path)
         Logger.debug "#{__method__} #{ac_path} is activating or activated, added listener"
+      when NmActiveConnectionState::ACTIVATED
+        listen_active_connection(ac_path)
+        change_connection_active_state(ac_path: ac_path, state: state)
       when NmActiveConnectionState::DEACTIVATING..NmActiveConnectionState::DEACTIVATED
         @listeners.delete(ac_path)
         Logger.debug "#{ac_path} deactivating, deleted from listeners: #{@listeners}"
       else
-        Logger.debug "active connection #{ac_path} with unhandled state #{ac_if['State']}"
+        Logger.debug "active connection #{ac_path} with unhandled state #{state}"
       end
     rescue DBus::Error => e
       @listeners.delete(ac_path)
