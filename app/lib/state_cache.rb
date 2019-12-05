@@ -7,7 +7,7 @@ class StateCache
 
   attr_accessor :resetting, :connection_attempt, :setup_complete,
                 :configured_at_boot, :online, :primary_connection,
-                :connectivity, :network_status
+                :connectivity, :connectivity_check_available, :network_status
   validates :resetting, :connection_attempt, inclusion: [true, false]
 
   class << self
@@ -37,6 +37,7 @@ class StateCache
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
     @configured_at_boot = @setup_complete
     @online = System.online?
+    @connectivity_check_available = NetworkManager::Commands.instance.connectivity_check_available?
     @connectivity = init_connectivity
     @network_status = SettingExecution::Network.wifi_signal_status
 
