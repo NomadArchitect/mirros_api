@@ -12,8 +12,6 @@ if Rails.const_defined? 'Server'
 
   # Initialize StateCache so that signal listeners have it available
   StateCache.instance
-  # Perform initial network status to determine if we need the AP right away
-  System.check_network_status
 
   if OS.linux?
     # On linux hosts, we utilize NetworkManager signal listeners.
@@ -63,6 +61,9 @@ if Rails.const_defined? 'Server'
       SettingExecution::System.timezone(tz) unless tz.empty?
     end
   end
+
+  # Perform initial network status to determine if we need the AP right away
+  System.check_network_status
 
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
