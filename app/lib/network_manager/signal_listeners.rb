@@ -34,10 +34,12 @@ module NetworkManager
       @loop = DBus::Main.new
       @loop << DBus::SystemBus.instance
       @listener_thread = Thread.new do
+        ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
         Logger.debug 'running loop …'
         @loop.run
       ensure
         @loop.quit
+        ActiveRecord::Base.clear_active_connections!
         Logger.debug 'stopped loop'
       end
       @listening = true
@@ -106,12 +108,9 @@ module NetworkManager
 
     def listen_connection_deleted
       @nm_settings_i.on_signal('ConnectionRemoved') do |connection_path|
-        ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
         NmNetwork.find_by(connection_settings_path: connection_path)&.destroy
       rescue StandardError => e
         Logger.error "#{__method__} #{e.message}"
-      ensure
-        ActiveRecord::Base.clear_active_connections!
       end
     end
 
@@ -126,8 +125,6 @@ module NetworkManager
       @listeners.push ac_path
       ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
       ac_if.on_signal('PropertiesChanged') do |props|
-        ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
-        # Logger.debug "reacting to props change on #{ac_path}"
         handle_connection_props_change(ac_path: ac_path, props: props)
       rescue StandardError => e
         # Connection going down, interface no longer available
@@ -135,7 +132,6 @@ module NetworkManager
         deactivate_network_by_ac_path(ac_path)
       ensure
         StateCache.refresh_networks
-        ActiveRecord::Base.clear_active_connections!
       end
     rescue StandardError => e
       Logger.error "#{__method__} L:#{__LINE__} #{e.message}"
