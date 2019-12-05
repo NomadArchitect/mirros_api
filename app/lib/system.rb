@@ -259,7 +259,7 @@ class System
 
   def self.no_offline_mode_required?
     StateCache.online ||
-      StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED ||
+      current_ip_address.present? ||
       StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end

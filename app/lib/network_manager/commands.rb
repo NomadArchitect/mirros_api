@@ -236,6 +236,14 @@ connection while searching for #{connection_id} #{e.message}
       { ssid: nil, signal: nil }
     end
 
+    def connectivity_check_available?
+      @nm_i['ConnectivityCheckAvailable']
+    rescue DBus::Error => _e
+      # NM 1.2.2 doesn't have this property, and the snap version disables this
+      # feature anyway.
+      false
+    end
+
     def connectivity
       @nm_i['Connectivity']
     end
