@@ -172,7 +172,7 @@ module NetworkManager
     # @param [Integer] connectivity_state Integer describing NetworkManager's overall connectivity state.
     # @return [nil]
     def handle_connectivity_change(connectivity_state)
-      # TODO: Pass through state to clients once implemented there
+      Logger.debug "Connectivity update: #{map_connectivity(connectivity_state)}"
       StateCache.connectivity = connectivity_state
     end
 
