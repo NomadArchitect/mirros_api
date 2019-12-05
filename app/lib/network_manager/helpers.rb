@@ -67,7 +67,7 @@ module NetworkManager
         persist_active_connection(object_path: ac_path, iface: ac_if)
       else
         attrs = { active: value }
-        attrs = attrs.merge active_connection_path: nil unless value.eql?(true)
+        attrs = attrs.merge(active_connection_path: nil) unless value.eql?(true)
         model.update(attrs)
       end
     end
