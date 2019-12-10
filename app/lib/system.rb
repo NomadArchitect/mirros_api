@@ -157,9 +157,7 @@ class System
   # not have an IP address. Also checks if the AP is already open to avoid
   # activating an already-active connection.
   def self.check_network_status
-    current_ip = current_ip_address
-    check_ip_change(current_ip)
-    StateCache.online = online?
+    check_ip_change current_ip_address
     start_offline_mode unless no_offline_mode_required?
   end
 
@@ -259,7 +257,7 @@ class System
 
   def self.no_offline_mode_required?
     StateCache.online ||
-      current_ip_address.present? ||
+      NmNetwork.exclude_ap.where(active: true).present? ||
       StateCache.connection_attempt ||
       SettingExecution::Network.ap_active?
   end

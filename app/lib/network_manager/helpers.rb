@@ -39,7 +39,6 @@ module NetworkManager
     end
 
     def update_connection_ip_address(ac_path:, protocol_version: IP4_PROTOCOL, ip_config_path:)
-      Logger.debug "#{__method__} #{protocol_version} #{ip_config_path}"
       model = NmNetwork.find_by(active_connection_path: ac_path)
       if ip_config_path.eql?('/')
         model&.update_static_ip_settings
@@ -53,7 +52,6 @@ module NetworkManager
     end
 
     def change_connection_active_state(ac_path:, state:)
-      Logger.debug "#{__method__} #{ac_path} #{state}"
       value = case state
               when NmActiveConnectionState::ACTIVATED
                 true
@@ -62,7 +60,6 @@ module NetworkManager
               end
       model = NmNetwork.find_by(active_connection_path: ac_path)
       if model.nil?
-        Logger.debug "Model with #{ac_path} not found, persisting"
         ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
         persist_active_connection(object_path: ac_path, iface: ac_if)
       else
@@ -75,7 +72,6 @@ module NetworkManager
     # @param [DBus::ProxyObjectInterface] iface a valid NetworkManager.Connection.Active proxy
     # @return [Boolean] whether the update was successful
     def persist_active_connection(object_path:, iface:)
-      Logger.debug "persisting active connection #{iface['Id']}"
       nm_network = NmNetwork.find_or_initialize_by(
         uuid: iface['Uuid']
       ) do |network|
@@ -96,7 +92,6 @@ module NetworkManager
 
     def persist_inactive_connection(settings_path:)
       settings = NetworkManager::Commands.instance.settings_for_connection_path(connection_path: settings_path)
-      Logger.debug "persisting inactive connection #{settings.dig('connection', 'id')}"
       model = NmNetwork.find_or_initialize_by(
         uuid: settings.dig('connection', 'uuid')
       ) do |network|

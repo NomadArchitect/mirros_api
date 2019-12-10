@@ -14,7 +14,7 @@ class InstanceAssociation < ApplicationRecord
       return
     end
 
-    source_hooks = "#{source.name.camelcase}::Hooks".safe_constantize
+    source_hooks = "#{source.name.camelize}::Hooks".safe_constantize
     if source_hooks.nil?
       Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
       return

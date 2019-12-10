@@ -5,26 +5,14 @@ class StateCache
   include ActiveModel::Validations
   include Singleton
 
-  attr_accessor :resetting, :connection_attempt, :setup_complete,
-                :configured_at_boot, :online, :primary_connection,
-                :connectivity, :connectivity_check_available, :network_status
+  attr_reader :resetting, :connection_attempt, :setup_complete,
+              :configured_at_boot, :online, :connectivity,
+              :connectivity_check_available,
+              :network_status
   validates :resetting, :connection_attempt, inclusion: [true, false]
 
   class << self
     delegate_missing_to :instance
-  end
-
-  # FIXME: Maybe there's a nicer way to ensure instant Websocket updates on
-  # every StateCache write access?
-
-  # Add a generic handler that fires a websocket update every time the
-  # StateCache is updated. Other methods with metaprogramming are fragile for
-  # methods with parameters. Regex excludes initializer methods (would create
-  # infinite loops) and attr_reader methods to avoid spamming clients.
-  TracePoint.trace(:call) do |tp|
-    if tp.defined_class.eql?(StateCache) && !tp.method_id.match?(/^init|=$/)
-      ::System.push_status_update
-    end
   end
 
   def initialize
@@ -37,36 +25,77 @@ class StateCache
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
     @configured_at_boot = @setup_complete
     @online = System.online?
-    @connectivity_check_available = NetworkManager::Commands.instance.connectivity_check_available?
     @connectivity = init_connectivity
+    @connectivity_check_available = NetworkManager::Commands.instance.connectivity_check_available? if OS.linux?
     @network_status = SettingExecution::Network.wifi_signal_status
-
-    # private
     @primary_connection = init_primary_connection
     @networks = NmNetwork.all.map(&:public_info)
   end
-  def refresh_networks
-    @networks = NmNetwork.all.map(&:public_info)
+
+  def refresh_resetting(status)
+    @resetting = status
+    ::System.push_status_update
+  end
+
+  def refresh_connection_attempt(status)
+    @connection_attempt = status
+    ::System.push_status_update
+  end
+
+  def refresh_setup_complete(status)
+    @setup_complete = status
+    ::System.push_status_update
+  end
+
+  def refresh_configured_at_boot(status)
+    @configured_at_boot = status
+    ::System.push_status_update
+  end
+
+  def refresh_online(nm_state)
+    @online = System.state_is_online?(nm_state)
+    ::System.push_status_update
+  end
+
+  def refresh_connectivity(status)
+    @connectivity = status
+    ::System.push_status_update
+  end
+
+  def refresh_conn_check_available(status)
+    @connectivity_check_available = status
+    ::System.push_status_update
+  end
+
+  # @param [Hash] status
+  def refresh_network_status(status)
+    @network_status = status
+    ::System.push_status_update
+  end
+
+  def refresh_primary_connection(connection_info)
+    @primary_connection = connection_info
+    ::System.push_status_update
   end
 
   # @param [Object] ac_path
   # @return [nil]
-  def update_primary_connection(ac_path)
+  def schedule_pc_refresh(ac_path)
     if ac_path.eql?('/')
-      @primary_connection = nil
+      refresh_primary_connection(nil)
     else
       # Use a delayed job to ensure the connection is already persisted with
       # its current active path.
       Rufus::Scheduler.singleton.in '10s' do
-        @primary_connection = NmNetwork.find_by(
-          active_connection_path: ac_path
-        )&.public_info
+        model = NmNetwork.find_by(active_connection_path: ac_path)&.public_info
+        StateCache.refresh_primary_connection(model)
       end
     end
   end
 
-  def update_online_status(nm_state)
-    @online = System.state_is_online?(nm_state)
+  def refresh_networks
+    @networks = NmNetwork.all.map(&:public_info)
+    ::System.push_status_update
   end
 
   def self.as_json

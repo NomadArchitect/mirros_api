@@ -6,10 +6,6 @@ module SettingExecution
   class Network
     # TODO: Support other authentication methods as well
     def self.connect
-      # FIXME: Can we get rid of this as Nm signals ensure the latest state?
-      StateCache.connection_attempt = true
-      ::System.push_status_update
-
       ssid = Setting.find_by(slug: :network_ssid).value
       password = Setting.find_by(slug: :network_password).value
       unless ssid.present? && password.present?
@@ -24,8 +20,7 @@ module SettingExecution
       raise e
     ensure
       # FIXME: Can we get rid of this as Nm signals ensure the latest state?
-      StateCache.connection_attempt = false
-      ::System.check_network_status
+      StateCache.refresh_connection_attempt false
       ActionCable.server.broadcast 'status', payload: ::System.info
     end
 
@@ -57,12 +52,14 @@ module SettingExecution
       Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
         open_ap
       end
+      Rails.logger.warn 'Scheduled AP opening in 15m'
     end
 
     def self.cancel_ap_schedule
       Rufus::Scheduler.s.in_jobs.select do |job|
         job.tags.include? 'ap-timeout'
       end.each(&:unschedule)
+      Rails.logger.warn 'Unscheduled AP opening'
     end
 
     def self.open_ap

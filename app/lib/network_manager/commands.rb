@@ -311,31 +311,17 @@ connection while searching for #{connection_id} #{e.message}
     # @return [String]
     def scan_for_ssid(ssid = '')
       nm_wifi_i = @nm_s[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
-      # NM 1.2.2 doesn't have Device.Wireless LastScan property, so we need to
-      # listen on the DBus signal when new AP's are added. Assumes the AP
-      loop = DBus::Main.new
-      loop << DBus::SystemBus.instance
-      nm_wifi_i.on_signal('AccessPointAdded') do |ap_path|
-        ap_i = @nm_s[ap_path][NmInterfaces::ACCESS_POINT]
-        if ap_i['Ssid'].eql?(ssid.bytes)
-          loop.quit
-          Thread.current[:output] = ap_path
-          Thread.current.exit
-        end
-      end
-      thr = Thread.new { loop.run }
       request_scan(dbus_wifi_iface: nm_wifi_i, ssid: ssid)
       time_elapsed = 0
-      result = while time_elapsed <= WIFI_SCAN_TIMEOUT
+      result = while time_elapsed < WIFI_SCAN_TIMEOUT
                  sleep 2
                  time_elapsed += 2
+                 ap_path = ap_object_path_for_ssid(ssid)
                  Rails.logger.warn "searching for #{ssid}, #{time_elapsed} sec elapsed"
-                 break thr[:output] unless thr[:output].nil?
+                 break ap_path unless ap_path.nil?
                end
       return result if result.present?
 
-      loop.quit
-      thr.kill
       raise StandardError, "NM could not find AP for given SSID #{ssid}"
     end
 

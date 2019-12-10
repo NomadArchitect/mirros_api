@@ -26,7 +26,7 @@ if Rails.const_defined? 'Server'
     # TODO: Revisit once we can use 1.16 or later on Core.
     if NetworkManager::Commands.instance.connectivity_check_available?
       s.every '60s', tag: 'network-connectivity-check', overlap: false do
-        StateCache.connectivity = NetworkManager::Commands.instance.connectivity
+        StateCache.refresh_connectivity NetworkManager::Commands.instance.connectivity
       end
     end
   else
@@ -46,7 +46,7 @@ if Rails.const_defined? 'Server'
       next
     end
 
-    StateCache.network_status = SettingExecution::Network.wifi_signal_status
+    StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
 
   # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the
@@ -67,7 +67,7 @@ if Rails.const_defined? 'Server'
 
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
-    sleep 15
+    sleep 10
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
   end
