@@ -27,7 +27,15 @@ class System
   end
 
   def self.push_status_update
-    ActionCable.server.broadcast 'status', payload: info
+    attempts = 0
+    begin
+      ActionCable.server.broadcast 'status', payload: info
+    rescue StandardError => e
+      sleep 1
+      retry if (attempts += 1) <= 3
+
+      Rails.logger.error "Failed to push status update: #{e.message}"
+    end
   end
 
   def self.reboot
