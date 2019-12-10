@@ -57,12 +57,14 @@ module SettingExecution
       Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
         open_ap
       end
+      Rails.logger.warn 'Scheduled AP opening in 15m'
     end
 
     def self.cancel_ap_schedule
       Rufus::Scheduler.s.in_jobs.select do |job|
         job.tags.include? 'ap-timeout'
       end.each(&:unschedule)
+      Rails.logger.warn 'Unscheduled AP opening'
     end
 
     def self.open_ap
