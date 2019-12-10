@@ -253,13 +253,12 @@ stack trace:
 
   def online_or_raise
     retries = 0
-    until retries > 5 || System.online?
+    until retries > 24 || System.online?
       sleep 5
       retries += 1
     end
-    if retries > 5
-      raise StandardError, 'Could not connect to the internet within 25 seconds'
-    end
+
+    raise StandardError, 'Could not connect to the internet within two minutes' if retries > 24
   end
 
   def create_default_cal_instances

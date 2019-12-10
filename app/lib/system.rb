@@ -8,6 +8,7 @@ require 'dbus'
 
 # Provides OS-level operations and mirr.OS system information.
 class System
+  include NetworkManager::Constants
   API_HOST = 'api.glancr.de'
   SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
@@ -26,7 +27,15 @@ class System
   end
 
   def self.push_status_update
-    ActionCable.server.broadcast 'status', payload: info
+    attempts = 0
+    begin
+      ActionCable.server.broadcast 'status', payload: info
+    rescue StandardError => e
+      sleep 1
+      retry if (attempts += 1) <= 3
+
+      Rails.logger.error "Failed to push status update: #{e.message}"
+    end
   end
 
   def self.reboot
@@ -139,18 +148,18 @@ class System
     else
       # TODO: This doesn't reflect intermediate states.
       # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
-      Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? NetworkManager::Constants::NmState::DISCONNECTED : NetworkManager::Constants::NmState::CONNECTED_GLOBAL
+      Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? NmState::DISCONNECTED : NmState::CONNECTED_GLOBAL
     end
   rescue StandardError
     false
   end
 
   def self.state_is_online?(nm_state)
-    nm_state.eql?(NetworkManager::Constants::NmState::CONNECTED_GLOBAL)
+    nm_state.eql?(NmState::CONNECTED_GLOBAL)
   end
 
   def self.online?
-    online_state.eql?(NetworkManager::Constants::NmState::CONNECTED_GLOBAL)
+    online_state.eql?(NmState::CONNECTED_GLOBAL)
   end
 
   # Determines if the internal access point needs to be opened because mirr.OS does
