@@ -10,7 +10,7 @@ namespace :mirros do
       Setting.find_by(slug: 'personal_email').update!(value: 'tg@glancr.de')
       Setting.find_by(slug: 'personal_name').update!(value: 'Tobias')
 
-      StateCache.configured_at_boot = true
+      StateCache.refresh_configured_at_boot true
       # FIXME: This is a temporary workaround to differentiate between
       # initial setup before first connection attempt and subsequent network problems.
       # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands

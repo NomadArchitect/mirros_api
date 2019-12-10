@@ -9,7 +9,7 @@ class SystemController < ApplicationController
 
   def reset
     # FIXME: Temporary workaround for Display app
-    StateCache.resetting = true
+    StateCache.refresh_resetting true
     ActionCable.server.broadcast 'status', payload: ::System.info
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
@@ -40,7 +40,7 @@ class SystemController < ApplicationController
     head :no_content
 
   rescue StandardError => e
-    StateCache.resetting = false
+    StateCache.refresh_resetting false
     render json: jsonapi_error('Error during reset', e.message, 500),
            status: :internal_server_error
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
@@ -78,7 +78,7 @@ class SystemController < ApplicationController
     # FIXME: This is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
     # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-    StateCache.configured_at_boot = true
+    StateCache.refresh_configured_at_boot true
 
     connect_to_network
     online_or_raise
@@ -208,8 +208,7 @@ stack trace:
     return if ENV['SNAP_DATA'].nil?
 
     Rufus::Scheduler.s.stop
-    StateCache.resetting = true
-    ::System.push_status_update
+    StateCache.refresh_resetting true
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
 
     # TODO: Create backup of current state to roll back if necessary
