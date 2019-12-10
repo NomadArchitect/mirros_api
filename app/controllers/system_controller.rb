@@ -96,6 +96,7 @@ class SystemController < ApplicationController
 
     render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
+    Rails.logger.error "#{__method__} #{e.message}"
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
   ensure
