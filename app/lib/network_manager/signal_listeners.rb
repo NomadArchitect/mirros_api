@@ -76,25 +76,29 @@ module NetworkManager
 
     def listen_property_changed
       @nm_i.on_signal('PropertiesChanged') do |props|
-        props.each do |key, value|
-          case key.to_sym
-          when :State
-            handle_state_change(value)
-          when :Connectivity
-            handle_connectivity_change(value)
-          when :ActivatingConnection
-            StateCache.connection_attempt = true unless value.eql?('/')
-          when :ActiveConnections
-            value.each { |ac_path| handle_ac_change(ac_path) }
-          when :PrimaryConnection
-            StateCache.connection_attempt = false
-            StateCache.update_primary_connection(value)
-          else
-            # Rails.logger.info "unhandled property name #{key} in #{__method__}"
+        retry_wrap max_attempts: 3 do
+          props.each do |key, value|
+            Logger.debug "Handling NM PropertiesChanged for #{key} with #{value}"
+            case key.to_sym
+            when :State
+              handle_state_change(value)
+            when :Connectivity
+              handle_connectivity_change(value)
+            when :ActivatingConnection
+              StateCache.refresh_connection_attempt(true) unless value.eql?('/')
+            when :ActiveConnections
+              value.each { |ac_path| handle_ac_change(ac_path) }
+            when :PrimaryConnection
+              Logger.debug "PrimaryConnection update: #{value}"
+              StateCache.refresh_connection_attempt false
+              StateCache.schedule_pc_refresh(value)
+            else
+              # Rails.logger.info "unhandled property name #{key} in #{__method__}"
+            end
           end
+        rescue StandardError => e
+          Logger.error "#{__method__} #{e.backtrace} #{e.message}"
         end
-      rescue StandardError => e
-        Logger.error "#{__method__} #{e.backtrace} #{e.message}"
       end
     end
 
@@ -157,11 +161,15 @@ module NetworkManager
     end
 
     def handle_state_change(nm_state)
-      StateCache.update_online_status(nm_state)
+      Logger.debug "NmState update: #{map_state(nm_state)}"
+      StateCache.refresh_online nm_state
       case nm_state
       when NmState::UNKNOWN..NmState::DISCONNECTED
         SettingExecution::Network.schedule_ap
-      when NmState::CONNECTING..NmState::CONNECTED_GLOBAL
+      when NmState::CONNECTING
+        StateCache.refresh_connection_attempt(true)
+        SettingExecution::Network.cancel_ap_schedule
+      when NmState::CONNECTED_LOCAL..NmState::CONNECTED_GLOBAL
         SettingExecution::Network.cancel_ap_schedule
       else
         # Rails.logger.debug "unhandled state change #{nm_state}"
@@ -173,26 +181,28 @@ module NetworkManager
     # @return [nil]
     def handle_connectivity_change(connectivity_state)
       Logger.debug "Connectivity update: #{map_connectivity(connectivity_state)}"
-      StateCache.connectivity = connectivity_state
+      StateCache.refresh_connectivity connectivity_state
     end
 
     # @param [String] ac_path DBus object path to an active connection.
     def handle_ac_change(ac_path)
-      # Logger.debug "reacting to ActiveConnections change for #{ac_path}"
-      ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
-      state = ac_if['State']
-      case state
-      when NmActiveConnectionState::ACTIVATING
-        listen_active_connection(ac_path)
-        Logger.debug "#{__method__} #{ac_path} is activating or activated, added listener"
-      when NmActiveConnectionState::ACTIVATED
-        listen_active_connection(ac_path)
-        change_connection_active_state(ac_path: ac_path, state: state)
-      when NmActiveConnectionState::DEACTIVATING..NmActiveConnectionState::DEACTIVATED
-        @listeners.delete(ac_path)
-        Logger.debug "#{ac_path} deactivating, deleted from listeners: #{@listeners}"
-      else
-        Logger.debug "active connection #{ac_path} with unhandled state #{state}"
+      Logger.debug "reacting to ActiveConnections change for #{ac_path}"
+      retry_wrap max_attempts: 3 do
+        ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
+        state = ac_if['State']
+        case state
+        when NmActiveConnectionState::ACTIVATING
+          listen_active_connection(ac_path)
+          Logger.debug "#{__method__} #{ac_path} is activating or activated, added listener"
+        when NmActiveConnectionState::ACTIVATED
+          listen_active_connection(ac_path)
+          retry_wrap(max_attempts: 3) { change_connection_active_state(ac_path: ac_path, state: state) }
+        when NmActiveConnectionState::DEACTIVATING..NmActiveConnectionState::DEACTIVATED
+          @listeners.delete(ac_path)
+          Logger.debug "#{ac_path} deactivating, deleted from listeners: #{@listeners}"
+        else
+          Logger.debug "active connection #{ac_path} with unhandled state #{state}"
+        end
       end
     rescue DBus::Error => e
       @listeners.delete(ac_path)
@@ -201,7 +211,7 @@ module NetworkManager
 
     def handle_connection_props_change(ac_path:, props:)
       props.each do |key, value|
-        # Logger.debug "#{__method__} prop change for #{ac_path} #{key} #{value}"
+        Logger.debug "#{__method__} prop change for #{ac_path} #{key} #{value}"
         case key.to_sym
         when :State
           change_connection_active_state(ac_path: ac_path, state: value)
@@ -222,9 +232,6 @@ module NetworkManager
         end
       rescue DBus::Error, ActiveRecordError => e
         Logger.error "#{__method__} #{e.message}"
-        Logger.warn "#{__method__} destroying model with #{NmNetwork.find_by(active_connection_path: ac_path)&.connection_id}"
-        # Connection probably deleted, so we should delete the corresponding model.
-        NmNetwork.find_by(active_connection_path: ac_path)&.destroy
       end
     end
 
@@ -232,13 +239,13 @@ module NetworkManager
     def handle_ap_props_change(ap_if:, props:)
       props.each do |key, value|
         if key.eql?('Strength')
-          StateCache.network_status = {
+          StateCache.refresh_network_status(
             ssid: ap_if['Ssid'].pack('U*'), signal: value.to_i
-          }
+          )
         end
       rescue DBus::Error => e
         Rails.logger.error e.message
-        StateCache.network_status = { ssid: nil, signal: nil }
+        StateCache.refresh_network_status(ssid: nil, signal: nil)
       end
     end
 
