@@ -62,11 +62,12 @@ if Rails.const_defined? 'Server'
     end
   end
 
+  # Perform initial network status to determine if we need the AP right away
+  System.check_network_status
+
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
     sleep 10
-    # Perform initial network status to determine if we need the AP right away
-    System.check_network_status
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
   end
