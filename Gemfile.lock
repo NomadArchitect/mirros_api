@@ -53,7 +53,7 @@ GEM
       debug_inspector (>= 0.0.1)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
-    builder (3.2.3)
+    builder (3.2.4)
     byebug (11.0.1)
     calendar_event_list (0.1.16)
     calendar_week_overview (0.1.1)
