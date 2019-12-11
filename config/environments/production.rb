@@ -88,3 +88,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 end
+
+# Ensure that ActionCable has a nil log device to prevent errors from race conditions.
+ActionCable.server.config.logger = Logger.new(nil)
+
