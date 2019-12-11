@@ -19,9 +19,10 @@ module SettingExecution
       open_ap
       raise e
     ensure
-      # FIXME: Can we get rid of this as Nm signals ensure the latest state?
-      StateCache.refresh_connection_attempt false
-      ActionCable.server.broadcast 'status', payload: ::System.info
+      # FIXME: This is a temporary workaround to differentiate between
+      # initial setup before first connection attempt and subsequent network problems.
+      # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
+      StateCache.refresh_configured_at_boot true
     end
 
     def self.enable_lan

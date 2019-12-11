@@ -31,10 +31,10 @@ class System
     begin
       ActionCable.server.broadcast 'status', payload: info
     rescue StandardError => e
-      sleep 1
-      retry if (attempts += 1) <= 3
+      sleep 2
+      retry if (attempts += 1) <= 5
 
-      Rails.logger.error "Failed to push status update: #{e.message}"
+      Rails.logger.error "Failed to push status update: #{e.message} #{e.backtrace_locations}"
     end
   end
 
@@ -83,8 +83,7 @@ class System
   end
 
   def self.reload_browser
-    sysbus = DBus.system_bus
-    cog_s = sysbus['com.igalia.Cog']
+    cog_s = DBus::ASystemBus.new['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
     # noinspection RubyResolve
@@ -188,8 +187,7 @@ class System
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
     raise ArgumentError, "not a valid boolean: #{bool}" unless [true, false].include? bool # Ruby has no Boolean superclass
 
-    sysbus = DBus.system_bus
-    timedated_service = sysbus['org.freedesktop.timedate1']
+    timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
     # noinspection RubyResolve
@@ -205,8 +203,7 @@ class System
     raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
     raise ArgumentError, "not an integer: #{epoch_timestamp}" unless epoch_timestamp.class.eql? Integer
 
-    sysbus = DBus.system_bus
-    timedated_service = sysbus['org.freedesktop.timedate1']
+    timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
     timedated_interface = timedated_object['org.freedesktop.timedate1']
     # noinspection RubyResolve
@@ -250,7 +247,7 @@ class System
   private_class_method :check_ip_change
 
   def self.last_known_ip_was_different(ip)
-    ip_file = Pathname(Rails.root.join('tmp', 'last_ip'))
+    ip_file = Pathname(Rails.root.join('tmp/last_ip'))
     return false unless ip_file.readable? # No dump available, e.g. on first boot
 
     last_known_ip = File.read(ip_file).chomp
@@ -267,7 +264,7 @@ class System
   def self.no_offline_mode_required?
     StateCache.online ||
       NmNetwork.exclude_ap.where(active: true).present? ||
-      StateCache.connection_attempt ||
+      StateCache.nm_state.eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
   end
 

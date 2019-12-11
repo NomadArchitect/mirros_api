@@ -84,13 +84,10 @@ module NetworkManager
               handle_state_change(value)
             when :Connectivity
               handle_connectivity_change(value)
-            when :ActivatingConnection
-              StateCache.refresh_connection_attempt(true) unless value.eql?('/')
             when :ActiveConnections
               value.each { |ac_path| handle_ac_change(ac_path) }
             when :PrimaryConnection
               Logger.debug "PrimaryConnection update: #{value}"
-              StateCache.refresh_connection_attempt false
               StateCache.schedule_pc_refresh(value)
             else
               # Rails.logger.info "unhandled property name #{key} in #{__method__}"
@@ -162,18 +159,13 @@ module NetworkManager
 
     def handle_state_change(nm_state)
       Logger.debug "NmState update: #{map_state(nm_state)}"
-      StateCache.refresh_online nm_state
-      case nm_state
-      when NmState::UNKNOWN..NmState::DISCONNECTED
+      if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
-      when NmState::CONNECTING
-        StateCache.refresh_connection_attempt(true)
-        SettingExecution::Network.cancel_ap_schedule
-      when NmState::CONNECTED_LOCAL..NmState::CONNECTED_GLOBAL
-        SettingExecution::Network.cancel_ap_schedule
       else
-        # Rails.logger.debug "unhandled state change #{nm_state}"
+        SettingExecution::Network.cancel_ap_schedule
       end
+      StateCache.refresh_nm_state nm_state
+      StateCache.refresh_online nm_state
     end
 
     # React to changes in NetworkManager's overall connectivity state.
