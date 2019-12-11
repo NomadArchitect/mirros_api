@@ -6,9 +6,9 @@ require 'yaml'
 # Prevent scheduling for Rails console starts or rake tasks.
 if Rails.const_defined? 'Server'
   s = Rufus::Scheduler.singleton(
-    lockfile: Rails.root.join('tmp', '.rufus-scheduler.lock')
+    lockfile: Rails.root.join('tmp/.rufus-scheduler.lock')
   )
-  s.stderr = File.open(Rails.root.join('log', 'scheduler.log'), 'wb')
+  s.stderr = File.open(Rails.root.join('log/scheduler.log'), 'wb')
 
   # Initialize StateCache so that signal listeners have it available
   StateCache.instance

@@ -250,7 +250,7 @@ class System
   private_class_method :check_ip_change
 
   def self.last_known_ip_was_different(ip)
-    ip_file = Pathname(Rails.root.join('tmp', 'last_ip'))
+    ip_file = Pathname(Rails.root.join('tmp/last_ip'))
     return false unless ip_file.readable? # No dump available, e.g. on first boot
 
     last_known_ip = File.read(ip_file).chomp
