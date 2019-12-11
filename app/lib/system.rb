@@ -264,7 +264,7 @@ class System
   def self.no_offline_mode_required?
     StateCache.online ||
       NmNetwork.exclude_ap.where(active: true).present? ||
-      StateCache.connection_attempt ||
+      StateCache.nm_state.eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
   end
 

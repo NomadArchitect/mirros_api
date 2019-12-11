@@ -5,11 +5,11 @@ class StateCache
   include ActiveModel::Validations
   include Singleton
 
-  attr_reader :resetting, :connection_attempt, :setup_complete,
+  attr_reader :resetting, :nm_state, :setup_complete,
               :configured_at_boot, :online, :connectivity,
               :connectivity_check_available,
               :network_status
-  validates :resetting, :connection_attempt, inclusion: [true, false]
+  validates :resetting, inclusion: [true, false]
 
   class << self
     delegate_missing_to :instance
@@ -18,7 +18,7 @@ class StateCache
   def initialize
     # FIXME: resetting is a temporary indicator, rework with https://gitlab.com/glancr/mirros_api/issues/87
     @resetting = false
-    @connection_attempt = false
+    @nm_state = NetworkManager::Commands.instance.state if OS.linux?
     @setup_complete = System.setup_completed?
     # FIXME: configured_at_boot is a temporary workaround to differentiate between
     # initial setup before first connection attempt and subsequent network problems.
@@ -37,8 +37,8 @@ class StateCache
     ::System.push_status_update
   end
 
-  def refresh_connection_attempt(status)
-    @connection_attempt = status
+  def refresh_nm_state(status)
+    @nm_state = status
     ::System.push_status_update
   end
 
