@@ -31,10 +31,10 @@ class System
     begin
       ActionCable.server.broadcast 'status', payload: info
     rescue StandardError => e
-      sleep 1
-      retry if (attempts += 1) <= 3
+      sleep 2
+      retry if (attempts += 1) <= 5
 
-      Rails.logger.error "Failed to push status update: #{e.message}"
+      Rails.logger.error "Failed to push status update: #{e.message} #{e.backtrace_locations}"
     end
   end
 
