@@ -45,11 +45,12 @@ class StateCache
     # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
     # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
     # after 30 seconds to avoid a stale state.
-    Rails.logger.warn 'Scheduling manual nm_state refresh in 30s'
     Rufus::Scheduler.singleton.in '30s',
                                   tags: 'force-nm_state-check',
                                   overlap: false do
-      StateCache.refresh_nm_state(NetworkManager::Commands.instance.state)
+      state = NetworkManager::Commands.instance.state
+      StateCache.refresh_nm_state state
+      StateCache.refresh_online state
     end
   end
 
