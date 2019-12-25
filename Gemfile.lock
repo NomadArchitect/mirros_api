@@ -51,6 +51,7 @@ GEM
       rack (>= 0.9.0)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
+    bing_traffic (1.0.0)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
     builder (3.2.4)
@@ -262,6 +263,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors (~> 2.5.0)!
   binding_of_caller (~> 0.8.0)!
+  bing_traffic!
   bootsnap (>= 1.1.0)!
   bundler (>= 1.17.1)!
   byebug!

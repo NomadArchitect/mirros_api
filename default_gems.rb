@@ -47,6 +47,7 @@ end
 ### mirr.OS bundled extensions ###
 source 'http://gems.marco-roth.ch/' do
   group :widget do
+    gem 'bing_traffic'
     gem 'calendar_event_list'
     gem 'calendar_week_overview'
     gem 'clock'
