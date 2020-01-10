@@ -14,8 +14,13 @@ class DataRefresher
   def self.schedule(source_instance)
     source = source_instance.source
 
+    if source.nil?
+      Rails.logger.warn "instance #{source_instance.id} does not have an associated source, aborting."
+      return
+    end
+
     if source_instance.configuration.empty?
-      Rails.logger.info "Configuration for instance #{source_instance.id} of source #{source.name} is empty, aborting scheduling."
+      Rails.logger.warn "Configuration for instance #{source_instance.id} of source #{source.name} is empty, aborting scheduling."
       return
     end
 
