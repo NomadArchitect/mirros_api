@@ -33,10 +33,15 @@ class SourceInstance < Instance
   end
 
   def validate_configuration
+    hook_instance.validate_configuration
+    # FIXME: Remove once all source have migrated to raising on errors so that they can provide user feedback
+  rescue NoMethodError => _e
+    Rails.logger.warn ActiveSupport::Deprecation.warn("Please implement a `validate_configuration` hook for #{source.name}")
     unless hook_instance.configuration_valid?
       errors.add(:configuration, 'invalid parameters')
     end
-  rescue RuntimeError => e
+  rescue StandardError => e
+    Rails.logger.error "[#{__method__} #{source_id}] #{e.message}"
     errors.add(:configuration, e.message)
   end
 
