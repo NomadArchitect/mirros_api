@@ -53,6 +53,13 @@ class SystemController < ApplicationController
            status: :internal_server_error
   end
 
+  def shut_down
+    System.shut_down
+  rescue StandardError => e
+    render json: jsonapi_error('Error during shutdown attempt', e.message, 500),
+           status: :internal_server_error
+  end
+
   def reload_browser
     System.reload_browser
   rescue StandardError => e
