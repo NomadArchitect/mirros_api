@@ -69,6 +69,7 @@ if Rails.const_defined? 'Server'
   Thread.new do
     sleep 10
     DataRefresher.schedule_all
+    DataRefresher.run_all_once
     ActiveRecord::Base.connection.close
   end
 end
