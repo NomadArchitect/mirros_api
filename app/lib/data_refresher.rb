@@ -129,7 +129,7 @@ class DataRefresher
           source_instance.record_links <<
             RecordLink.create(recordable: recordable, group: Group.find(group))
         end
-        source_instance.last_refresh = job.nil? ? Time.utc.now : job.last_time.to_s
+        source_instance.last_refresh = job.nil? ? Time.now.utc : job.last_time.to_s
         source_instance.save
       end
     end
