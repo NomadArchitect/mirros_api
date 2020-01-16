@@ -68,6 +68,7 @@ if Rails.const_defined? 'Server'
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
     sleep 10
+    DataRefresher.run_all_once
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
   end

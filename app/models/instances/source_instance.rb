@@ -59,12 +59,12 @@ class SourceInstance < Instance
   end
 
   def add_to_scheduler
-    DataRefresher.schedule(self)
+    DataRefresher.schedule(source_instance: self)
   end
 
   def update_scheduler
     DataRefresher.unschedule(self)
-    DataRefresher.schedule(self)
+    DataRefresher.schedule(source_instance: self)
   end
 
   def remove_from_scheduler
