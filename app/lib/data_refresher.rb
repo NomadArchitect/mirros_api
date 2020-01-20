@@ -61,7 +61,7 @@ class DataRefresher
     Rufus::Scheduler.s.in '1s', timeout: '5m', overlap: false do
       unless StateCache.online
         Rails.logger.info "[#{__method__}] Skipping #{source.name} instance #{source_instance.id}, system is offline"
-        break
+        return
       end
       job_block(source_instance: source_instance, source_hooks: source_hooks)
     end
