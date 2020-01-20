@@ -58,12 +58,12 @@ class DataRefresher
   end
 
   def self.schedule_once_job(source_instance:, source_hooks:)
-    Rufus::Scheduler.s.in '1s', timeout: '5m', overlap: false do
-      unless StateCache.online
-        Rails.logger.info "[#{__method__}] Skipping #{source.name} instance #{source_instance.id}, system is offline"
-        return
+    if StateCache.online
+      Rufus::Scheduler.s.in '1s', timeout: '5m', overlap: false do
+        job_block(source_instance: source_instance, source_hooks: source_hooks)
       end
-      job_block(source_instance: source_instance, source_hooks: source_hooks)
+    else
+      Rails.logger.info "[#{__method__}] Skipping #{source_instance.source.name} instance #{source_instance.id}, system is offline"
     end
   end
 
@@ -80,11 +80,11 @@ class DataRefresher
                                                         timeout: '5m',
                                                         overlap: false,
                                                         tag: job_tag do |job|
-      unless StateCache.online
-        Rails.logger.info "[DataRefresher] Skipping #{source.name} instance #{source_instance.id}, System is offline"
-        next
+      if StateCache.online
+        job_block(source_instance: source_instance, job: job, source_hooks: source_hooks)
+      else
+        Rails.logger.info "[DataRefresher] Skipping #{source_instance.source.name} instance #{source_instance.id}, System is offline"
       end
-      job_block(source_instance: source_instance, job: job, source_hooks: source_hooks)
     end
 
     source_instance.update(job_id: job_instance.job_id)
