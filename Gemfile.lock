@@ -246,7 +246,7 @@ GEM
     unicode-display_width (1.6.1)
     vbb (0.1.9)
       httparty (~> 0.17)
-    video_player (1.0.0)
+    video_player (1.0.1)
       rails (~> 5.2)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
