@@ -100,6 +100,7 @@ class SystemController < ApplicationController
     render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
     Rails.logger.error "#{__method__} #{e.message}"
+    open_ap # e.g. wrong WiFi password -> no error during connection, but not online
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
   ensure
