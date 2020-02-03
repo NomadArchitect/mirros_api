@@ -71,10 +71,10 @@ namespace :extension do
     end
 
     extension_class = args[:type].capitalize.safe_constantize
-    extension_class.without_callbacks('destroy') do |_|
-      record = extension_class.find_by(slug: args[:extension])
-      record.destroy!
-    end
+
+    record = extension_class.find_by(slug: args[:extension])
+    record.delete
+
     puts "Removed #{args[:type]} #{args[:extension]} from the #{Rails.env} database"
 
     Bundler::Injector.remove([args[:extension]])
