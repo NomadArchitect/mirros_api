@@ -14,6 +14,9 @@ class SourceInstanceResource < JSONAPI::Resource
       records[group_id] ||= {}
       resource_type = "#{group_id.classify}Resource".safe_constantize
       recordable = link.recordable
+      next if recordable.nil?
+      # TODO: Check when this occurs, so we can add better error handling.
+
       serialized = JSONAPI::ResourceSerializer.new(
         resource_type, key_formatter: JSONAPI::KeyFormatter
       ).serialize_to_hash(
