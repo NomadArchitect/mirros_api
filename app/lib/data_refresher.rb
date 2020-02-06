@@ -134,7 +134,7 @@ class DataRefresher
       end
     end
   rescue StandardError => e
-    Rails.logger.error "#{e.message}\n#{e.backtrace.join("\n")}"
+    Rails.logger.error e.message
   ensure
     ActiveRecord::Base.connection_pool.release_connection
   end
