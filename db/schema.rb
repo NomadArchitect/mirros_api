@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_16_103402) do
+ActiveRecord::Schema.define(version: 2020_02_10_190510) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -64,6 +64,26 @@ ActiveRecord::Schema.define(version: 2020_01_16_103402) do
     t.string "name"
     t.string "description"
     t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "group_schemas_current_weather_entries", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.float "temperature"
+    t.integer "humidity"
+    t.float "wind_speed"
+    t.integer "wind_angle"
+    t.float "air_pressure"
+    t.integer "rain_last_hour"
+    t.string "condition_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "group_schemas_current_weathers", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "type"
+    t.string "station_name"
+    t.string "location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

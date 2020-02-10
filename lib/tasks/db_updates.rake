@@ -54,6 +54,10 @@ namespace :db do
       entry.key = 'headerLogo'
       entry.value = ''
     end
+
+    Group.find_or_create_by(name: 'current_weather') do |group|
+      group.name = 'current_weather'
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

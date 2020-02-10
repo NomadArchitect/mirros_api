@@ -129,6 +129,9 @@ Group.create(
     },
     {
       name: 'idiom_collection'
+    },
+    {
+      name: 'current_weather'
     }
   ]
 )
