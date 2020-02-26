@@ -69,7 +69,7 @@ namespace :db do
     Setting.find_or_create_by(slug: 'system_activeboard') do |entry|
       entry.category = 'system'
       entry.key = 'activeBoard'
-      entry.value = '1'
+      entry.value = default_board.id.to_s
     end
 
     WidgetInstance.all.select { |w| w.board.eql? nil }.each do |wi|
