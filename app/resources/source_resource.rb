@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # JSON:API-compliant resource model for Sources.
 class SourceResource < JSONAPI::Resource
   primary_key :slug

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GroupSchemas
   class WeatherOwmEntry < ApplicationRecord
     belongs_to :weather_owm

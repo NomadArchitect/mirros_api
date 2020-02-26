@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -91,4 +93,3 @@ end
 
 # Ensure that ActionCable has a nil log device to prevent errors from race conditions.
 ActionCable.server.config.logger = Logger.new(nil)
-

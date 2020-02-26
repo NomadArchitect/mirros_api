@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InstanceAssociation < ApplicationRecord
   belongs_to :group
   belongs_to :widget_instance

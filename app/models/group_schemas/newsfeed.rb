@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GroupSchemas
   class Newsfeed < ApplicationRecord
     include UpdateOrInsertable

@@ -27,7 +27,9 @@ class ApplicationRecord < ActiveRecord::Base
 
   def serialize_resource
     res_class = "#{self.class}Resource".safe_constantize
-    raise ArgumentError, "Could not constantize #{self.class}Resource" if res_class.nil?
+    if res_class.nil?
+      raise ArgumentError, "Could not constantize #{self.class}Resource"
+    end
 
     # Unless we're broadcasting a destroyed model:
     # Reload from DB to ensure we're not pushing stale data, see https://github.com/rails/rails/issues/27342

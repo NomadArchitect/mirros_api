@@ -8,4 +8,4 @@ class NewsfeedResource < RecordableResource
   def items
     @model.items.sort_by(&:published).reverse.as_json
   end
-  end
+end

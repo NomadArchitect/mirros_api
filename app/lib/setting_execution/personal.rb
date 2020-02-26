@@ -1,10 +1,8 @@
 # frozen-string-literal: true
 
 module SettingExecution
-
   # Provides methods to apply settings in the personal namespace.
   class Personal
-
     def self.send_setup_email
       send_email(:setup)
     end
@@ -23,7 +21,7 @@ module SettingExecution
       body[:type] = type
       res = HTTParty.post(
         host,
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: body.to_json
       )
       # TODO: Add error handling

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SourceInstance < Instance
   belongs_to :source
   has_many :instance_associations, dependent: :destroy
@@ -70,5 +72,4 @@ class SourceInstance < Instance
   def remove_from_scheduler
     DataRefresher.unschedule(self)
   end
-
 end
