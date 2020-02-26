@@ -216,6 +216,13 @@ class System
     Rails.logger.error "could not change system time via timesyncd: #{e.message}"
   end
 
+  def self.reset_timezone
+    tz = SettingsCache.s[:system_timezone]
+    SettingExecution::System.timezone(tz) unless tz.empty?
+  rescue StandardError => e
+    Rails.logger.error "#{__method__} #{e.message}"
+  end
+
   # @param [Symbol] operating_system
   # @@param [Symbol] interface The interface to query for the current IP.
   def self.map_interfaces(operating_system, interface)

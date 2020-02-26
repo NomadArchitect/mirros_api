@@ -53,12 +53,9 @@ if Rails.const_defined? 'Server'
   # proper timezone is set at all times. Remove once https://bugs.launchpad.net/snappy/+bug/1650688
   # is resolved.
   if ENV['SNAP_VERSION']
-    tz = SettingsCache.s[:system_timezone]
-    SettingExecution::System.timezone(tz) unless tz.empty?
-
+    System.reset_timezone
     s.every '30m', tag: 'system-fix-system-timezone', overlap: false do
-      tz = SettingsCache.s[:system_timezone]
-      SettingExecution::System.timezone(tz) unless tz.empty?
+      System.reset_timezone
     end
   end
 
