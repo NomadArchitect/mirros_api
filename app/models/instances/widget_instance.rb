@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WidgetInstance < Instance
   belongs_to :widget
   belongs_to :board, inverse_of: :widget_instances

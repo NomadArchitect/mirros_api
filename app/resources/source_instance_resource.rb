@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SourceInstanceResource < JSONAPI::Resource
   attributes :title, :configuration, :options, :last_refresh, :refresh_interval, :records
 
@@ -15,6 +17,7 @@ class SourceInstanceResource < JSONAPI::Resource
       resource_type = "#{group_id.classify}Resource".safe_constantize
       recordable = link.recordable
       next if recordable.nil?
+
       # TODO: Check when this occurs, so we can add better error handling.
 
       serialized = JSONAPI::ResourceSerializer.new(
@@ -23,9 +26,7 @@ class SourceInstanceResource < JSONAPI::Resource
         resource_type.new(recordable, nil)
       )
       records[group_id][recordable.id] = serialized[:data]
-
     end
     records
   end
-
 end

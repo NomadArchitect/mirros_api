@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateWidgetInstances < ActiveRecord::Migration[5.1]
   def change
     create_table :widget_instances do |t|

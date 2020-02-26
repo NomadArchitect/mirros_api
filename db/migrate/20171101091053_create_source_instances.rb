@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateSourceInstances < ActiveRecord::Migration[5.1]
   def change
     create_table :source_instances do |t|

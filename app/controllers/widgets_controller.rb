@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Controller for Widget actions.
 class WidgetsController < ApplicationController
   include JSONAPI::ActsAsResourceController

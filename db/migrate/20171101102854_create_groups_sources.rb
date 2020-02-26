@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupsSources < ActiveRecord::Migration[5.1]
   def change
     create_table :groups_sources, id: false do |t|

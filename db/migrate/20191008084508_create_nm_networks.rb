@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateNmNetworks < ActiveRecord::Migration[5.2]
   def change
     create_table :nm_networks, id: false do |t|

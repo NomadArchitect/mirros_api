@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :db do
   # Starting with version 0.4.0, new or changed seeds are added here to allow for seeding a running system.
   desc 'Update seeds for mirr.OS system settings'

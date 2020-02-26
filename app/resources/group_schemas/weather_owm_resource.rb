@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WeatherOwmResource < RecordableResource
   model_name 'GroupSchemas::WeatherOwm'
   key_type :string

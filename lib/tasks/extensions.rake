@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../app/models/concerns/installable'
 
 namespace :extensions do
@@ -37,7 +39,6 @@ namespace :extension do
 
   desc 'update an extension in the DB'
   task :update, %i[type extension mode] => [:environment] do |_task, args|
-
     unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Setting < ApplicationRecord
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
@@ -68,5 +70,4 @@ class Setting < ApplicationRecord
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
     executor.send(key, value) if executor.respond_to?(key)
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GroupResource < JSONAPI::Resource
   primary_key :slug
   key_type :string

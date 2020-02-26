@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddSunsCourseToGroupSchemasWeatherOwm < ActiveRecord::Migration[5.2]
   def change
     add_column :group_schemas_weather_owms, :sunrise, :datetime

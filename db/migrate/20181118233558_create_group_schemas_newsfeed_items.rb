@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasNewsfeedItems < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_newsfeed_items, id: false do |t|

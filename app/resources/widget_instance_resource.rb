@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WidgetInstanceResource < JSONAPI::Resource
   attributes :title, :showtitle, :configuration, :position
   has_one :widget, exclude_links: [:self]

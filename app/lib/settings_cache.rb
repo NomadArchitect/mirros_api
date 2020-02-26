@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SettingsCache
   def initialize
     @cache = {}

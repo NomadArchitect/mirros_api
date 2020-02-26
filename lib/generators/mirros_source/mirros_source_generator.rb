@@ -5,7 +5,6 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   argument :name
   argument :fields, optional: true, type: :hash, default: {}
 
-
   def initialize_variables
     @fields = fields
     @path = "sources/#{name}"

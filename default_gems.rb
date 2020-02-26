@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ######
 # Rails default Gemfile for API
 ######

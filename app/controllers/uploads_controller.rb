@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UploadsController < ApplicationController
   # include JSONAPI::ActsAsResourceController
   before_action :set_upload_type, :set_host
@@ -39,5 +41,4 @@ class UploadsController < ApplicationController
   def set_host
     ActiveStorage::Current.host = request.base_url
   end
-
 end
