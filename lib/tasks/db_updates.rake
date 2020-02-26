@@ -55,6 +55,11 @@ namespace :db do
       entry.value = ''
     end
 
+    # BEGIN boards feature
+    default_board = Board.find_or_create_by(id: 1) do |board|
+      board.title = 'default'
+    end
+
     Setting.find_or_create_by(slug: 'system_multipleboards') do |entry|
       entry.category = 'system'
       entry.key = 'multipleBoards'
@@ -67,13 +72,10 @@ namespace :db do
       entry.value = '1'
     end
 
-    default_board = Board.find_or_create_by(id: 1) do |board|
-      board.title = 'default'
-    end
-
     WidgetInstance.all.select { |w| w.board.eql? nil }.each do |wi|
       wi.update board: default_board
     end
+    # END boards feature
 
     Group.find_or_create_by(name: 'current_weather') do |group|
       group.name = 'current_weather'
