@@ -303,6 +303,8 @@ ActiveRecord::Schema.define(version: 2020_02_10_190510) do
     t.json "position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "board_id"
+    t.index ["board_id"], name: "index_widget_instances_on_board_id"
     t.index ["widget_id"], name: "index_widget_instances_on_widget_id"
   end
 
