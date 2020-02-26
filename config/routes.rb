@@ -37,6 +37,11 @@ Rails.application.routes.draw do
   end
   jsonapi_resources :settings, only: %i[index show update]
 
+  jsonapi_resources :boards do
+    jsonapi_related_resources :widget_instances
+    jsonapi_links :widget_instances
+  end
+
   # File uploads
   resources :uploads
 
