@@ -12,7 +12,8 @@ class ApplicationRecord < ActiveRecord::Base
       Source,
       SourceInstance,
       InstanceAssociation,
-      Setting
+      Setting,
+      Board
     ].include? self.class
   end
 
@@ -38,6 +39,8 @@ class ApplicationRecord < ActiveRecord::Base
                  %w[widget source_instances instance_associations]
                when InstanceAssociationResource
                  %w[source_instance widget_instance]
+               when BoardResource
+                 %w[widget_instances]
                else
                  []
                end
