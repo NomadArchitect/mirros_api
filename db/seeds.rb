@@ -91,6 +91,16 @@ Setting.create!(
       category: 'system',
       key: 'headerLogo',
       value: ''
+    },
+    {
+      category: 'system',
+      key: 'multipleBoards',
+      value: 'no'
+    },
+    {
+      category: 'system',
+      key: 'activeBoard',
+      value: '1'
     }
   ]
 )
@@ -136,6 +146,8 @@ Group.create(
   ]
 )
 
+Board.create(title: 'default')
+
 MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
@@ -177,7 +189,8 @@ WidgetInstance.create(
   title: 'Holidays',
   showtitle: true,
   configuration: {},
-  position: { "x": 8, "y": 0, "width": 5, "height": 4 }
+  position: { "x": 8, "y": 0, "width": 5, "height": 4 },
+  board: Board.first
 )
 
 WidgetInstance.create(
@@ -185,7 +198,8 @@ WidgetInstance.create(
   title: 'glancr News',
   showtitle: true,
   configuration: { "amount": 5, "showFeedIcon": true },
-  position: { "x": 0, "y": 16, "width": 6, "height": 4 }
+  position: { "x": 0, "y": 16, "width": 6, "height": 4 },
+  board: Board.first
 )
 
 WidgetInstance.create(
@@ -193,7 +207,8 @@ WidgetInstance.create(
   title: '',
   showtitle: false,
   configuration: {},
-  position: { "x": 8, "y": 16, "width": 4, "height": 2 }
+  position: { "x": 8, "y": 16, "width": 4, "height": 2 },
+  board: Board.first
 )
 
 WidgetInstance.create(
@@ -201,7 +216,8 @@ WidgetInstance.create(
   title: '',
   showtitle: false,
   configuration: {},
-  position: { "x": 8, "y": 18, "width": 2, "height": 2 }
+  position: { "x": 8, "y": 18, "width": 2, "height": 2 },
+  board: Board.first
 )
 
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
