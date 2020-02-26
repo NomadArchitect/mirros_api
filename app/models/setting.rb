@@ -43,7 +43,7 @@ class Setting < ApplicationRecord
   def options
     # FIXME: Maybe cleaner to extract?
     if slug.eql? 'system_timezone'
-      ActiveSupport::TimeZone.all.map { |tz| {id: tz.tzinfo.identifier, name: tz.to_s} }
+      ActiveSupport::TimeZone.all.map { |tz| { id: tz.tzinfo.identifier, name: tz.to_s } }
     else
       options_file = File.read("#{Rails.root}/app/lib/setting_options.yml")
       # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
