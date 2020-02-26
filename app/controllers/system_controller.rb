@@ -263,7 +263,9 @@ stack trace:
       retries += 1
     end
 
-    raise StandardError, 'Could not connect to the internet within two minutes' if retries > 24
+    if retries > 24
+      raise StandardError, 'Could not connect to the internet within two minutes'
+    end
   end
 
   def create_default_cal_instances

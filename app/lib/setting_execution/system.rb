@@ -3,7 +3,6 @@
 require 'dbus'
 
 module SettingExecution
-
   # Provides methods to apply settings in the system namespace.
   class System
     def self.timezone(tz_identifier)

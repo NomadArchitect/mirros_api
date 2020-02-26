@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'bundler/setup'
 require 'bundler/dependency'
 require 'bundler/injector'
@@ -28,7 +29,7 @@ module Installable
   }.freeze
 
   class_methods do
-    def without_callbacks(action, &block)
+    def without_callbacks(action)
       post_cb = ACTION_MAP[action.to_sym]
       callbacks = [
         [action.to_sym, :after, "#{post_cb}_gem".to_sym],
@@ -169,11 +170,15 @@ module Installable
   # Sets up the instance variables after validation.
   def setup_instance
     @extension_type = self.class.name.downcase
-    raise JSONAPI::Exceptions::InvalidResource unless EXTENSION_TYPES.include?(@extension_type)
+    unless EXTENSION_TYPES.include?(@extension_type)
+      raise JSONAPI::Exceptions::InvalidResource
+    end
 
     @gem = name
     @version = version
-    raise JSONAPI::Exceptions::InvalidResource unless Gem::Version.correct?(@version)
+    unless Gem::Version.correct?(@version)
+      raise JSONAPI::Exceptions::InvalidResource
+    end
     # TODO: Verify that gem name conforms to gem naming conventions (lowercase letters + underscore)
   end
 
@@ -250,5 +255,4 @@ module Installable
   def bundler_options
     { without: Rails.env.production? ? %w[development test] : ['production'], jobs: 5 }
   end
-
 end

@@ -54,7 +54,9 @@ namespace :extension do
 
     extension_class.without_callbacks('update') do |_|
       record = extension_class.find_by(slug: args[:extension])
-      raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db" if record.nil?
+      if record.nil?
+        raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db"
+      end
 
       record.update!(construct_attributes(args, spec, meta))
     end

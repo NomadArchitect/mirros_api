@@ -26,7 +26,9 @@ class StateCache
     @configured_at_boot = @setup_complete
     @online = System.online?
     @connectivity = init_connectivity
-    @connectivity_check_available = NetworkManager::Commands.instance.connectivity_check_available? if OS.linux?
+    if OS.linux?
+      @connectivity_check_available = NetworkManager::Commands.instance.connectivity_check_available?
+    end
     @network_status = SettingExecution::Network.wifi_signal_status
     @primary_connection = init_primary_connection
     @networks = NmNetwork.all.map(&:public_info)
