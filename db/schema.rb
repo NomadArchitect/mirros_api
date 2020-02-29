@@ -251,6 +251,19 @@ ActiveRecord::Schema.define(version: 2020_02_10_190510) do
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
   end
 
+  create_table "rules", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "field", null: false
+    t.string "operator", null: false
+    t.json "value", null: false
+    t.bigint "source_instance_id"
+    t.bigint "board_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["board_id"], name: "index_rules_on_board_id"
+    t.index ["source_instance_id"], name: "index_rules_on_source_instance_id"
+  end
+
   create_table "settings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "slug", null: false
     t.string "category", null: false
