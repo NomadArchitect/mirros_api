@@ -16,6 +16,11 @@ class Rule < ApplicationRecord
     record.errors.add attr, "Value #{value} incompatible with #{@op} operator: #{e.message}"
   end
 
+  def evaluate
+    setup
+    # TODO: Remove parse call if we implement typecasting before save
+    @op.evaluate @provider_class.method(field.underscore).call, @op.parse(value)
+  end
 
   def setup
     @provider_class = "RuleManager::#{provider.camelize}RulesProvider".safe_constantize
