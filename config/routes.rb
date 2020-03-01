@@ -40,7 +40,10 @@ Rails.application.routes.draw do
   jsonapi_resources :boards do
     jsonapi_related_resources :widget_instances
     jsonapi_links :widget_instances
+    jsonapi_related_resources :rules
   end
+
+  jsonapi_resources :rules
 
   # File uploads
   resources :uploads

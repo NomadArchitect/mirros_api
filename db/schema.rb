@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_10_190510) do
+ActiveRecord::Schema.define(version: 2020_02_29_115830) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -249,6 +249,19 @@ ActiveRecord::Schema.define(version: 2020_02_10_190510) do
     t.index ["group_id"], name: "index_record_links_on_group_id"
     t.index ["recordable_type", "recordable_id"], name: "index_record_links_on_recordable_type_and_recordable_id"
     t.index ["source_instance_id"], name: "index_record_links_on_source_instance_id"
+  end
+
+  create_table "rules", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "field", null: false
+    t.string "operator", null: false
+    t.json "value", null: false
+    t.bigint "source_instance_id"
+    t.bigint "board_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["board_id"], name: "index_rules_on_board_id"
+    t.index ["source_instance_id"], name: "index_rules_on_source_instance_id"
   end
 
   create_table "settings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
