@@ -12,7 +12,8 @@ class ApplicationRecord < ActiveRecord::Base
       Source,
       SourceInstance,
       InstanceAssociation,
-      Setting
+      Setting,
+      Board
     ].include? self.class
   end
 
@@ -26,7 +27,9 @@ class ApplicationRecord < ActiveRecord::Base
 
   def serialize_resource
     res_class = "#{self.class}Resource".safe_constantize
-    raise ArgumentError, "Could not constantize #{self.class}Resource" if res_class.nil?
+    if res_class.nil?
+      raise ArgumentError, "Could not constantize #{self.class}Resource"
+    end
 
     # Unless we're broadcasting a destroyed model:
     # Reload from DB to ensure we're not pushing stale data, see https://github.com/rails/rails/issues/27342
@@ -38,6 +41,8 @@ class ApplicationRecord < ActiveRecord::Base
                  %w[widget source_instances instance_associations]
                when InstanceAssociationResource
                  %w[source_instance widget_instance]
+               when BoardResource
+                 %w[widget_instances]
                else
                  []
                end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../app/models/concerns/installable'
 
 namespace :extensions do
@@ -37,7 +39,6 @@ namespace :extension do
 
   desc 'update an extension in the DB'
   task :update, %i[type extension mode] => [:environment] do |_task, args|
-
     unless args[:mode].eql?('seed')
       next unless arguments_valid?(args)
     end
@@ -53,7 +54,9 @@ namespace :extension do
 
     extension_class.without_callbacks('update') do |_|
       record = extension_class.find_by(slug: args[:extension])
-      raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db" if record.nil?
+      if record.nil?
+        raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db"
+      end
 
       record.update!(construct_attributes(args, spec, meta))
     end

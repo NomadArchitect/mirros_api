@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
+# Instances of a data source with concrete account credentials.
 class SourceInstance < Instance
   belongs_to :source
   has_many :instance_associations, dependent: :destroy
   has_many :widget_instances, through: :instance_associations
   has_many :record_links, dependent: :destroy
+  has_many :rules, dependent: :destroy
 
   after_create :set_meta, :add_to_scheduler
   after_update :update_callbacks
@@ -70,5 +74,4 @@ class SourceInstance < Instance
   def remove_from_scheduler
     DataRefresher.unschedule(self)
   end
-
 end

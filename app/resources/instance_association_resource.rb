@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InstanceAssociationResource < JSONAPI::Resource
   attribute :configuration
   has_one :group

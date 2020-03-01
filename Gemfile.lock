@@ -1,6 +1,6 @@
 GEM
   remote: https://rubygems.org/
-  remote: http://gems.marco-roth.ch/
+  remote: https://extensions.glancr.net/
   specs:
     actioncable (5.2.4.1)
       actionpack (= 5.2.4.1)
@@ -154,7 +154,7 @@ GEM
       nio4r (~> 2.0)
     qrcode (0.2.2)
     raabro (1.1.6)
-    rack (2.1.2)
+    rack (2.2.1)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-test (1.1.0)

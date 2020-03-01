@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasPublicTransportDepartures < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_public_transport_departures, id: false do |t|

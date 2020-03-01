@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasWeatherOwms < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_weather_owms, id: false do |t|

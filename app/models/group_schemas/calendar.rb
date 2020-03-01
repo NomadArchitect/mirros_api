@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GroupSchemas
   class Calendar < ApplicationRecord
     include UpdateOrInsertable

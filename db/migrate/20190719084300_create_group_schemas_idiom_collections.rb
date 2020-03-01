@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasIdiomCollections < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_idiom_collections, id: false do |t|

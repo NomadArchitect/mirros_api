@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DataRefresher
   # TODO: Clean this up and document methods once we reach a stable API.
   def self.schedule_all
@@ -96,7 +98,9 @@ class DataRefresher
   # @param [Object] source_hooks
   def self.job_block(source_instance:, job: nil, source_hooks:)
     # Ensure we're not working with a stale connection
-    ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
+    unless ActiveRecord::Base.connected?
+      ActiveRecord::Base.connection.verify!(0)
+    end
     associations = source_instance.instance_associations
     sub_resources = associations.map { |assoc| assoc.configuration['chosen'] }
                                 .flatten

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :mirros do
   namespace :dev do
     desc 'Perform an automated setup routine with pre-set settings'

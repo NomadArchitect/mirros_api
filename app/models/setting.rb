@@ -1,30 +1,32 @@
+# frozen_string_literal: true
+
 class Setting < ApplicationRecord
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
   validates_each :value do |record, attr, value|
-    # TODO: Can this be extracted to handle special cases for different entries in a more elegant way?
-    if record.slug.eql?('system_timezone')
+    case record.slug
+    when 'system_timezone'
       if ActiveSupport::TimeZone[value.to_s].nil?
-        record.errors.add(
-          attr,
-          "#{value} is not a valid timezone!"
-        )
+        record.errors.add(attr, "#{value} is not a valid timezone!")
       end
-    elsif record.slug.match?(/system_backgroundcolor|system_fontcolor/)
+    when /system_backgroundcolor|system_fontcolor/
+      # Check for valid hex color values.
       unless value.match?(/^#[0-9A-F]{6}$/i)
-        record.errors.add(
-          attr,
-          "#{value} is not a valid CSS color!"
-        )
+        record.errors.add(attr, "#{value} is not a valid CSS color!")
+      end
+    when 'system_activeboard'
+      unless Board.exists?(value)
+        record.errors.add(attr, "Cannot find board with ID #{value}")
       end
     else
       opts = record.options
-      unless opts.key?(value) || opts.empty?
-        record.errors.add(
-          attr,
-          "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
-        )
-      end
+      # Check for empty options in case this setting has no options (free-form)
+      next if opts.key?(value) || opts.empty?
+
+      record.errors.add(
+        attr,
+        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
+      )
     end
   end
 
@@ -43,7 +45,7 @@ class Setting < ApplicationRecord
   def options
     # FIXME: Maybe cleaner to extract?
     if slug.eql? 'system_timezone'
-      ActiveSupport::TimeZone.all.map { |tz| {id: tz.tzinfo.identifier, name: tz.to_s} }
+      ActiveSupport::TimeZone.all.map { |tz| { id: tz.tzinfo.identifier, name: tz.to_s } }
     else
       options_file = File.read("#{Rails.root}/app/lib/setting_options.yml")
       # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
@@ -68,5 +70,4 @@ class Setting < ApplicationRecord
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
     executor.send(key, value) if executor.respond_to?(key)
   end
-
 end

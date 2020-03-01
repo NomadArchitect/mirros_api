@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ######
 # Rails default Gemfile for API
 ######
@@ -45,7 +47,7 @@ source 'https://rubygems.org' do
 end
 
 ### mirr.OS bundled extensions ###
-source 'http://gems.marco-roth.ch/' do
+source 'https://extensions.glancr.net/' do
   group :widget do
     gem 'bing_traffic'
     gem 'calendar_event_list'

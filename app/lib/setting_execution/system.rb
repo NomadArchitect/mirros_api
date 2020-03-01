@@ -3,10 +3,10 @@
 require 'dbus'
 
 module SettingExecution
-
   # Provides methods to apply settings in the system namespace.
   class System
     def self.timezone(tz_identifier)
+      Rails.configuration.time_zone = tz_identifier
       if OS.mac?
         # Bail in macOS dev env or if invoked during rake task
         return if Rails.env.development? || !Rails.const_defined?('Server')

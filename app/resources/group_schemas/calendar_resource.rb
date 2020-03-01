@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CalendarResource < RecordableResource
   model_name 'GroupSchemas::Calendar'
   attributes :name, :description, :events

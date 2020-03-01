@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class WidgetResource < JSONAPI::Resource
   primary_key :slug
   key_type :string

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasCalendarEvent < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_calendar_events, id: false do |t|

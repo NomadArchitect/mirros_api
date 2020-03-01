@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  provider: MyString
+  field: MyString
+  operator: MyString
+  value: 
+  source_instance: 
+
+two:
+  provider: MyString
+  field: MyString
+  operator: MyString
+  value: 
+  source_instance: 

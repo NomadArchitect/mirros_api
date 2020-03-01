@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIdentifierToGroupSchemasWeatherOwmEntries < ActiveRecord::Migration[5.2]
   def change
     change_table :group_schemas_weather_owm_entries, bulk: true do |t|

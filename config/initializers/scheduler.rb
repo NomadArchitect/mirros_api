@@ -53,12 +53,9 @@ if Rails.const_defined? 'Server'
   # proper timezone is set at all times. Remove once https://bugs.launchpad.net/snappy/+bug/1650688
   # is resolved.
   if ENV['SNAP_VERSION']
-    tz = SettingsCache.s[:system_timezone]
-    SettingExecution::System.timezone(tz) unless tz.empty?
-
+    System.reset_timezone
     s.every '30m', tag: 'system-fix-system-timezone', overlap: false do
-      tz = SettingsCache.s[:system_timezone]
-      SettingExecution::System.timezone(tz) unless tz.empty?
+      System.reset_timezone
     end
   end
 
@@ -71,5 +68,15 @@ if Rails.const_defined? 'Server'
     DataRefresher.run_all_once
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
+
+    s.cron '0 * * * *' do
+      Board.all.each do |board|
+        # TODO: Extend logic for rulesets in each board. Right now, this only gets time-based rules for the board and runs them in sequential order.
+        if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
+          Setting.find_by(slug: :system_activeboard).update(value: board.id)
+          break
+        end
+      end
+    end
   end
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module NetworkManager
-
   require 'English'
   class Logger < ::Logger
     class << self

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :db do
   # Starting with version 0.4.0, new or changed seeds are added here to allow for seeding a running system.
   desc 'Update seeds for mirr.OS system settings'
@@ -53,6 +55,32 @@ namespace :db do
       entry.category = 'system'
       entry.key = 'headerLogo'
       entry.value = ''
+    end
+
+    # BEGIN boards feature
+    default_board = Board.find_or_create_by(id: 1) do |board|
+      board.title = 'default'
+    end
+
+    Setting.find_or_create_by(slug: 'system_multipleboards') do |entry|
+      entry.category = 'system'
+      entry.key = 'multipleBoards'
+      entry.value = 'no'
+    end
+
+    Setting.find_or_create_by(slug: 'system_activeboard') do |entry|
+      entry.category = 'system'
+      entry.key = 'activeBoard'
+      entry.value = default_board.id.to_s
+    end
+
+    WidgetInstance.all.select { |w| w.board.eql? nil }.each do |wi|
+      wi.update board: default_board
+    end
+    # END boards feature
+
+    Group.find_or_create_by(name: 'current_weather') do |group|
+      group.name = 'current_weather'
     end
   end
 

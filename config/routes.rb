@@ -37,6 +37,14 @@ Rails.application.routes.draw do
   end
   jsonapi_resources :settings, only: %i[index show update]
 
+  jsonapi_resources :boards do
+    jsonapi_related_resources :widget_instances
+    jsonapi_links :widget_instances
+    jsonapi_related_resources :rules
+  end
+
+  jsonapi_resources :rules
+
   # File uploads
   resources :uploads
 
@@ -57,20 +65,22 @@ Rails.application.routes.draw do
   post 'system/report/send', to: 'system#send_debug_report'
   post 'system/log_client_error', to: 'system#log_client_error'
 
-  match 'system/control/:category/:command', to: 'system#setting_execution', via: [:get, :patch]
+  match 'system/control/:category/:command', to: 'system#setting_execution', via: %i[get patch]
   # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
       engine = "#{source.id.camelize}::Engine".safe_constantize
-      mount engine, at: "/#{source.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
+      unless engine.config.paths['config/routes.rb'].existent.empty?
+        mount engine, at: "/#{source.id}"
+      end
     end
 
     Widget.all.each do |widget|
       engine = "#{widget.id.camelize}::Engine".safe_constantize
-      mount engine, at: "/#{widget.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
+      unless engine.config.paths['config/routes.rb'].existent.empty?
+        mount engine, at: "/#{widget.id}"
+      end
     end
   end
-
 end
-

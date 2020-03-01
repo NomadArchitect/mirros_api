@@ -34,7 +34,9 @@ module NetworkManager
       @loop = DBus::Main.new
       @loop << DBus::SystemBus.instance
       @listener_thread = Thread.new do
-        ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
+        unless ActiveRecord::Base.connected?
+          ActiveRecord::Base.connection.verify!(0)
+        end
         Logger.debug 'running loop …'
         @loop.run
       ensure

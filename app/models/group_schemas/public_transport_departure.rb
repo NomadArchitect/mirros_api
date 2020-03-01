@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GroupSchemas
   class PublicTransportDeparture < ApplicationRecord
     belongs_to :public_transport

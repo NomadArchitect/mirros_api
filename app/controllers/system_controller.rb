@@ -1,5 +1,6 @@
-class SystemController < ApplicationController
+# frozen_string_literal: true
 
+class SystemController < ApplicationController
   def status
     render json: { meta: System.info }
   rescue StandardError => e
@@ -38,7 +39,6 @@ class SystemController < ApplicationController
     end
 
     head :no_content
-
   rescue StandardError => e
     StateCache.refresh_resetting false
     render json: jsonapi_error('Error during reset', e.message, 500),
@@ -263,7 +263,9 @@ stack trace:
       retries += 1
     end
 
-    raise StandardError, 'Could not connect to the internet within two minutes' if retries > 24
+    if retries > 24
+      raise StandardError, 'Could not connect to the internet within two minutes'
+    end
   end
 
   def create_default_cal_instances
@@ -374,5 +376,4 @@ stack trace:
       ]
     }
   end
-
 end

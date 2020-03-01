@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::API
   rescue_from NotImplementedError, with: :not_implemented_error_renderer
 

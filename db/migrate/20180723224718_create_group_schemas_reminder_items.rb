@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateGroupSchemasReminderItems < ActiveRecord::Migration[5.2]
   def change
     create_table :group_schemas_reminder_items, id: false do |t|

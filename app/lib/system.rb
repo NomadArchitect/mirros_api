@@ -42,7 +42,9 @@ class System
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
     return if Rails.env.development? # Don't reboot a running dev system
-    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
+    unless OS.linux?
+      raise NotImplementedError, 'Reboot only implemented for Linux hosts'
+    end
 
     # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(
@@ -64,7 +66,9 @@ class System
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
     return if Rails.env.development? # Don't reboot a running dev system
-    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
+    unless OS.linux?
+      raise NotImplementedError, 'Reboot only implemented for Linux hosts'
+    end
 
     # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(
@@ -134,7 +138,6 @@ class System
                      Rails.logger.error 'Unknown or unsupported OS in query for IP address'
                    end
       ip_address.eql?(SETUP_IP) ? nil : ip_address
-
     rescue Terrapin::ExitStatusError => e
       Rails.logger.error "Could not determine current IP: #{e.message}"
       nil
@@ -184,8 +187,12 @@ class System
 
   def self.toggle_timesyncd_ntp(bool)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
-    raise ArgumentError, "not a valid boolean: #{bool}" unless [true, false].include? bool # Ruby has no Boolean superclass
+    unless OS.linux?
+      raise NotImplementedError, 'timedate control only implemented for Linux hosts'
+    end
+    unless [true, false].include? bool
+      raise ArgumentError, "not a valid boolean: #{bool}"
+    end # Ruby has no Boolean superclass
 
     timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
@@ -200,8 +207,12 @@ class System
   # @return [Array] Return messages from DBus call, if any
   def self.change_system_time(epoch_timestamp)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
-    raise ArgumentError, "not an integer: #{epoch_timestamp}" unless epoch_timestamp.class.eql? Integer
+    unless OS.linux?
+      raise NotImplementedError, 'timedate control only implemented for Linux hosts'
+    end
+    unless epoch_timestamp.class.eql? Integer
+      raise ArgumentError, "not an integer: #{epoch_timestamp}"
+    end
 
     timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
@@ -214,6 +225,13 @@ class System
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
     Rails.logger.error "could not change system time via timesyncd: #{e.message}"
+  end
+
+  def self.reset_timezone
+    tz = SettingsCache.s[:system_timezone]
+    SettingExecution::System.timezone(tz) unless tz.empty?
+  rescue StandardError => e
+    Rails.logger.error "#{__method__} #{e.message}"
   end
 
   # @param [Symbol] operating_system
@@ -248,7 +266,9 @@ class System
 
   def self.last_known_ip_was_different(ip)
     ip_file = Pathname(Rails.root.join('tmp/last_ip'))
-    return false unless ip_file.readable? # No dump available, e.g. on first boot
+    unless ip_file.readable?
+      return false
+    end # No dump available, e.g. on first boot
 
     last_known_ip = File.read(ip_file).chomp
     if last_known_ip.eql?(ip) || ip.nil?
