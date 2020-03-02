@@ -228,7 +228,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.2)
     styling (0.2.0)
       rails (~> 5.2)
     terrapin (0.6.0)
@@ -303,7 +302,6 @@ DEPENDENCIES
   sbb!
   spring!
   spring-watcher-listen (~> 2.0.0)!
-  sqlite3 (~> 1.4)!
   styling!
   terrapin (~> 0.6.0)!
   text_field!
