@@ -29,10 +29,6 @@ source 'https://rubygems.org' do
     gem 'rubocop-rails'
   end
 
-  group :test do
-    gem 'sqlite3', '~> 1.4'
-  end
-
   ### mirr.OS gems ###
   gem 'mysql2', '~> 0.5.2'
   gem 'bundler', '>= 1.17.1' # extension management
