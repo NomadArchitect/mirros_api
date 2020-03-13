@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_29_115830) do
+ActiveRecord::Schema.define(version: 2020_03_09_140547) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -51,7 +51,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
-  create_table "group_schemas_calendar_events", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_calendar_events", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.string "calendar_id"
     t.datetime "dtstart"
     t.datetime "dtend"
@@ -74,7 +75,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "group_schemas_current_weather_entries", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_current_weather_entries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.float "temperature"
     t.integer "humidity"
     t.float "wind_speed"
@@ -94,7 +96,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "group_schemas_idiom_collection_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_idiom_collection_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.string "idiom_collection_id"
     t.string "title"
     t.text "message"
@@ -113,7 +116,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "group_schemas_newsfeed_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_newsfeed_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.string "newsfeed_id"
     t.string "title"
     t.text "content"
@@ -135,7 +139,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.index ["url"], name: "index_group_schemas_newsfeeds_on_url"
   end
 
-  create_table "group_schemas_public_transport_departures", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_public_transport_departures", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.string "public_transport_id"
     t.datetime "departure", null: false
     t.integer "delay_minutes"
@@ -155,7 +160,8 @@ ActiveRecord::Schema.define(version: 2020_02_29_115830) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "group_schemas_reminder_items", primary_key: "uid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "group_schemas_reminder_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "uid", null: false
     t.string "reminder_list_id"
     t.datetime "due_date"
     t.datetime "creation_date"
