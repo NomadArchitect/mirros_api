@@ -42,7 +42,7 @@ class ApplicationRecord < ActiveRecord::Base
                when InstanceAssociationResource
                  %w[source_instance widget_instance]
                when BoardResource
-                 %w[widget_instances]
+                 %w[widget_instances widget_instances.widget]
                else
                  []
                end
