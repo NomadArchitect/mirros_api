@@ -86,6 +86,8 @@ ActiveRecord::Schema.define(version: 2020_03_09_140547) do
     t.string "condition_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "current_weather_id"
+    t.index ["current_weather_id"], name: "items_on_current_weather_id"
   end
 
   create_table "group_schemas_current_weathers", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
