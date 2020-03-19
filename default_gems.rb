@@ -48,6 +48,7 @@ source 'https://extensions.glancr.net/' do
     gem 'bing_traffic'
     gem 'calendar_event_list'
     gem 'calendar_week_overview'
+    gem 'calendar_upcoming_event'
     gem 'clock'
     gem 'countdown'
     gem 'current_date'

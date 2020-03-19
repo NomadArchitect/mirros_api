@@ -57,6 +57,7 @@ GEM
     builder (3.2.4)
     byebug (11.1.1)
     calendar_event_list (1.1.1)
+    calendar_upcoming_event (1.0.0)
     calendar_week_overview (1.0.0)
     choice (0.2.0)
     climate_control (0.2.0)
@@ -69,7 +70,7 @@ GEM
       rails (~> 5.2)
     debug_inspector (0.0.3)
     erubi (1.9.0)
-    et-orbi (1.2.3)
+    et-orbi (1.2.4)
       tzinfo
     feedjira (3.1.1)
       loofah (>= 2.3.1)
@@ -268,6 +269,7 @@ DEPENDENCIES
   bundler (>= 1.17.1)!
   byebug!
   calendar_event_list!
+  calendar_upcoming_event!
   calendar_week_overview!
   clock!
   countdown!
