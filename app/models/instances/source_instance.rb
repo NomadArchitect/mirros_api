@@ -17,7 +17,7 @@ class SourceInstance < Instance
   # serialize :options, Array if Rails.env.development?
 
   def refresh_interval
-    "#{source_id.camelize}::Hooks".safe_constantize.refresh_interval
+    source.hooks_class.refresh_interval
   end
 
   def set_meta
@@ -52,14 +52,7 @@ class SourceInstance < Instance
   private
 
   def hook_instance
-    hooks = "#{source_id.camelize}::Hooks".safe_constantize
-    raise "could not initialize #{source_id.camelize}::Hooks" if hooks.nil?
-
-    begin
-      hooks.new(id, configuration)
-    rescue StandardError => e
-      raise e.message
-    end
+    source.hooks_class.new(id, configuration)
   end
 
   def add_to_scheduler

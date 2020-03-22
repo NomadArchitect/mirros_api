@@ -22,4 +22,16 @@ class Widget < ApplicationRecord
   def pre_installed?
     MirrOSApi::Application::DEFAULT_WIDGETS.include?(slug)
   end
+
+  def engine_class
+    engine_name = "#{id.camelize}::Engine"
+
+    begin
+      engine = engine_name.constantize
+    rescue NameError
+      engine = "Mirros::Widget::#{engine_name}".safe_constantize
+    end
+
+    engine
+  end
 end

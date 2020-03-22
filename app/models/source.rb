@@ -20,4 +20,26 @@ class Source < ApplicationRecord
   def pre_installed?
     MirrOSApi::Application::DEFAULT_SOURCES.include?(slug)
   end
+
+  def engine_class
+    find_source_class('Engine')
+  end
+
+  def hooks_class
+    find_source_class('Hooks')
+  end
+
+  private
+
+  def find_source_class(type)
+    klass_name = "#{id.camelize}::#{type}"
+
+    begin
+      klass = klass_name.constantize
+    rescue NameError
+      klass = "Mirros::Source::#{klass_name}".safe_constantize
+    end
+
+    klass
+  end
 end
