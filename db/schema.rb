@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_09_140547) do
+ActiveRecord::Schema.define(version: 2020_03_27_235358) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -87,6 +87,7 @@ ActiveRecord::Schema.define(version: 2020_03_09_140547) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "current_weather_id"
+    t.string "unit"
     t.index ["current_weather_id"], name: "items_on_current_weather_id"
   end
 
