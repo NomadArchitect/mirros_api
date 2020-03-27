@@ -3,13 +3,19 @@
 namespace :mirros do
   namespace :dev do
     desc 'Perform an automated setup routine with pre-set settings'
-    task run_setup: :environment do
+    task :run_setup, %i[user email] => :environment do |_task, args|
+
+      email = args[:email] || `git config --get user.email`.chomp!
+      name = args[:user] || `git config --get user.name`.chomp!
+      p "Using #{name} / #{email} for setup"
+      raise ArgumentError if name.empty? || email.empty?
+
       Setting.find_by(slug: 'system_language').update!(value: 'enGb')
       Setting.find_by(slug: 'system_timezone').update!(value: 'Europe/Berlin')
       Setting.find_by(slug: 'personal_privacyConsent').update!(value: 'yes')
       Setting.find_by(slug: 'network_connectiontype').update!(value: 'lan')
-      Setting.find_by(slug: 'personal_email').update!(value: 'tg@glancr.de')
-      Setting.find_by(slug: 'personal_name').update!(value: 'Tobias')
+      Setting.find_by(slug: 'personal_email').update!(value: email)
+      Setting.find_by(slug: 'personal_name').update!(value: name)
 
       StateCache.refresh_configured_at_boot true
       # FIXME: This is a temporary workaround to differentiate between
