@@ -24,6 +24,7 @@ namespace :extension do
 
     spec = load_spec(args)
     meta = parse_meta(spec)
+    unnamespaced_name = spec.name.gsub("mirros-#{args[:type]}-", '')
 
     unless args[:mode].eql?('seed')
       next unless spec_valid?(args[:type], spec, meta)
@@ -31,10 +32,10 @@ namespace :extension do
 
     extension_class = args[:type].capitalize.safe_constantize
     extension_class.without_callbacks('create') do |_|
-      extension_class.create!(construct_attributes(args, spec, meta))
+      extension_class.create!(construct_attributes(unnamespaced_name, args, spec, meta))
     end
 
-    puts "Inserted #{args[:type]} #{extension_class.find(spec.name)} into the #{Rails.env} database"
+    puts "Inserted #{args[:type]} #{extension_class.find(unnamespaced_name)} into the #{Rails.env} database"
   end
 
   desc 'update an extension in the DB'
@@ -45,6 +46,7 @@ namespace :extension do
 
     spec = load_spec(args)
     meta = parse_meta(spec)
+    unnamespaced_name = spec.name.gsub("mirros-#{args[:type]}-", '')
 
     unless args[:mode].eql?('seed')
       next unless spec_valid?(args[:type], spec, meta)
@@ -58,7 +60,7 @@ namespace :extension do
         raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db"
       end
 
-      record.update!(construct_attributes(args, spec, meta))
+      record.update!(construct_attributes(unnamespaced_name, args, spec, meta))
     end
 
     puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
@@ -83,6 +85,13 @@ namespace :extension do
     Bundler::Injector.remove([args[:extension]])
   end
 
+  def find_spec_file(type, extension)
+    spec_file = Rails.root.join("#{type}s", extension, "#{extension}.gemspec")
+    spec_file = Rails.root.join("#{type}s", extension, "mirros-#{type}-#{extension}.gemspec") unless File.exist? spec_file
+
+    spec_file
+  end
+
   # Helpers
   def arguments_valid?(args)
     unless Installable::EXTENSION_TYPES.include?(args[:type])
@@ -90,7 +99,8 @@ namespace :extension do
       return false
     end
 
-    spec_path = Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec")
+    spec_path = find_spec_file(args[:type], args[:extension])
+
     unless File.exist? spec_path
       puts "Could not find gemspec file at #{spec_path}\nCheck if you provided the correct extension name and if the gemspec file exists."
       return false
@@ -116,8 +126,10 @@ namespace :extension do
       spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
       Gem::Specification.load(spec_file)
     else
+      spec_file = find_spec_file(args[:type], args[:extension])
+
       Gem::Specification.load(
-        Rails.root.join("#{args[:type]}s", args[:extension], "#{args[:extension]}.gemspec").to_s
+        Rails.root.join(spec_file).to_s
       )
     end
   end
@@ -126,7 +138,7 @@ namespace :extension do
     JSON.parse(spec.metadata['json'], symbolize_names: true)
   end
 
-  def construct_attributes(args, spec, meta)
+  def construct_attributes(name, args, spec, meta)
     # FIXME: Use proper values if pulled from gemserver for seeding
     type_specifics = if args[:type].to_sym.equal? :widget
                        attrs = {
@@ -145,12 +157,13 @@ namespace :extension do
                          groups: meta[:groups].map { |g| Group.find_by(name: g) }
                        }
                      end
+
     {
-      name: spec.name,
+      name: name,
       title: meta[:title],
       description: meta[:description],
       version: spec.version.to_s,
-      creator: spec.author,
+      creator: spec.authors.join(', '),
       homepage: spec.homepage,
       download: 'http://my-gemserver.local',
       active: true
