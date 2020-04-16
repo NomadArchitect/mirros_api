@@ -88,6 +88,8 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
         { w: 4, h: 4 }
         # TODO: Default size is 4x4, add additional sizes if your widget supports them.
       ],
+      # Add all languages for which your Vue templates are fully translated.
+      languages: [:enGb],
       single_source: false # Change to true if your widget doesn't aggregate data from multiple sources.
     }.to_json
   }
