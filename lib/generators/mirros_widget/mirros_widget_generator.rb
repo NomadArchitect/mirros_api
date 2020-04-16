@@ -73,7 +73,7 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
       <<-RUBY
   spec.metadata    = { 'json' =>
     {
-      type: 'source',
+      type: 'widget',
       title: {
         enGb: '#{name.camelcase}',
         deDe: '#{name.camelcase}'
