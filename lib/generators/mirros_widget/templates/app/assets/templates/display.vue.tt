@@ -61,7 +61,7 @@ module.exports = {
   },
   locales: {
     /*
-    <%- locales = %w[deDe frFr esEs plPl koKr]; locales.each do |locale| -%>
+    <%- locales = %w[enGb deDe frFr esEs plPl koKr]; locales.each do |locale| -%>
       <%= locale %>: {
       <%- fields.each do |key, type| -%>
         "<%= key %>": ""<% if fields.to_a.last.last != key %>,<%end %>
