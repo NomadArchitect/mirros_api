@@ -14,7 +14,13 @@ module.exports = {
   props: {
       currentSettings: {
         type: Object,
-        required: false
+        required: false,
+        default: {
+            // Specify default configuration for your form controls.
+            <%- fields.each do |key, type| -%>
+                <%= key %>: ""<% if fields.to_a.last.last != key %>,<%end %>
+            <%- end -%>
+        }
       },
       currentDimensions: {
         type: Object,
@@ -44,20 +50,6 @@ module.exports = {
         type: Function,
         required: false
       }
-  },
-  data: function() {
-    return {
-      defaults: {
-        <%- fields.each do |key, type| -%>
-        <%= key %>: ""<% if fields.to_a.last.last != key %>,<%end %>
-        <%- end -%>
-      }
-    };
-  },
-  computed: {
-    conf: function() {
-      return { ...this.defaults, ...this.currentSettings };
-    }
   },
   locales: {
     /*
