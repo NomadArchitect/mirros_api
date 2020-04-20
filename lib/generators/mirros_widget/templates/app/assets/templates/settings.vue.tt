@@ -1,11 +1,11 @@
 <%- mapping = { string: "text", int: "number", integer: "number", default: "string" } -%>
 <template>
-  <div>
+  <fieldset>
     <%- fields.each do |key, type| -%>
     <label for="<%= key %>"">{{ t("<%= name %> <%= key %>") }}</label>
     <input type="<% unless mapping[type.to_sym].nil? %><%= mapping[type.to_sym] %><% else %><%= mapping[:default] %><% end %>" id="<%= key %>" name="<%= key %>" :value="conf.<%= key %>">
     <%- end -%>
-  </div>
+  </fieldset>
 </template>
 
 <script>
