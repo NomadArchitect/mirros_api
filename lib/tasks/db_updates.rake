@@ -88,12 +88,12 @@ namespace :db do
   task update_default_gems: [:environment] do |_task, _args|
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
-      Rake::Task['extension:update'].invoke('widget', widget, 'seed')
+      Rake::Task['extension:update'].invoke(widget)
     rescue StandardError => e
       puts "#{e.message}, trying insert task"
       begin
         Rake::Task['extension:insert'].reenable
-        Rake::Task['extension:insert'].invoke('widget', widget, 'seed')
+        Rake::Task['extension:insert'].invoke(widget)
       rescue StandardError => e
         puts e.message
         next
@@ -101,12 +101,12 @@ namespace :db do
     end
     MirrOSApi::Application::DEFAULT_SOURCES.each do |source|
       Rake::Task['extension:update'].reenable
-      Rake::Task['extension:update'].invoke('source', source, 'seed')
+      Rake::Task['extension:update'].invoke(source)
     rescue StandardError => e
       puts "#{e.message}, trying insert task"
       begin
         Rake::Task['extension:insert'].reenable
-        Rake::Task['extension:insert'].invoke('source', source, 'seed')
+        Rake::Task['extension:insert'].invoke(source)
       rescue StandardError => e
         puts e.message
         next

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../app/models/concerns/installable'
+require_relative '../../app/lib/extension_parser'
 
 namespace :extensions do
   desc 'installs all available migrations for the bundled extensions'
@@ -16,157 +16,81 @@ namespace :extensions do
 end
 
 namespace :extension do
+  # FIXME: Can we offload the parser initialization + validity check to a setup task?
+
   desc 'insert an extension into the DB'
-  task :insert, %i[type extension mode] => [:environment] do |_task, args|
-    unless args[:mode].eql?('seed')
-      next unless arguments_valid?(args)
+  task :insert, %i[extension_name] => [:environment] do |_task, args|
+    parser = parser_for_gem args[:extension_name]
+
+    unless parser.meta_valid?
+      puts 'Sources must specify at least one group for which they provide data.'
+      next
     end
 
-    spec = load_spec(args)
-    meta = parse_meta(spec)
-    unnamespaced_name = spec.name.gsub("mirros-#{args[:type]}-", '')
-
-    unless args[:mode].eql?('seed')
-      next unless spec_valid?(args[:type], spec, meta)
+    klass = parser.extension_class
+    klass.without_callbacks('create') do |_|
+      klass.create!(parser.extension_attributes)
     end
 
-    extension_class = args[:type].capitalize.safe_constantize
-    extension_class.without_callbacks('create') do |_|
-      extension_class.create!(construct_attributes(unnamespaced_name, args, spec, meta))
-    end
-
-    puts "Inserted #{args[:type]} #{extension_class.find(unnamespaced_name)} into the #{Rails.env} database"
+    puts "Inserted #{klass} #{klass.find(parser.internal_name)} into the #{Rails.env} database"
   end
 
   desc 'update an extension in the DB'
-  task :update, %i[type extension mode] => [:environment] do |_task, args|
-    unless args[:mode].eql?('seed')
-      next unless arguments_valid?(args)
+  task :update, %i[extension_name] => [:environment] do |_task, args|
+    # FIXME: Add migration logic to upgrade existing extensions without the namespace!
+
+    parser = parser_for_gem args[:extension_name]
+
+    unless parser.meta_valid?
+      puts 'Sources must specify at least one group for which they provide data.'
+      next
     end
 
-    spec = load_spec(args)
-    meta = parse_meta(spec)
-    unnamespaced_name = spec.name.gsub("mirros-#{args[:type]}-", '')
-
-    unless args[:mode].eql?('seed')
-      next unless spec_valid?(args[:type], spec, meta)
-    end
-
-    extension_class = args[:type].capitalize.safe_constantize
-
-    extension_class.without_callbacks('update') do |_|
-      record = extension_class.find_by(slug: args[:extension])
+    klass = parser.extension_class
+    klass.without_callbacks('update') do |_|
+      record = klass.find_by(slug: parser.internal_name)
       if record.nil?
-        raise ArgumentError, "Couldn't find #{args[:type]} #{args[:extension]} in the #{Rails.env} db"
+        raise ArgumentError, "Couldn't find #{klass} #{parser.internal_name} in the #{Rails.env} db"
       end
 
-      record.update!(construct_attributes(unnamespaced_name, args, spec, meta))
+      record.update!(parser.extension_attributes)
     end
 
-    puts "Updated #{args[:type]} #{extension_class.find(spec.name)} in the #{Rails.env} database"
+    puts "Updated #{klass} #{klass.find(parser.internal_name)} in the #{Rails.env} database"
   end
 
   desc 'remove an extension from the DB'
-  task :remove, %i[type extension] => [:environment] do |_task, args|
-    next unless arguments_valid?(args)
+  task :remove, %i[extension_name] => [:environment] do |_task, args|
 
     unless Gem.loaded_specs['bundler'].version >= Gem::Version.new('1.17.0')
       puts 'Please upgrade your bundler installation to 1.17.0 or later to run this task.'
       next
     end
-
-    extension_class = args[:type].capitalize.safe_constantize
-
-    record = extension_class.find_by(slug: args[:extension])
+    parser = parser_for_gem args[:extension_name]
+    record = parser.extension_class.find_by(slug: parser.internal_name)
     record.delete
 
-    puts "Removed #{args[:type]} #{args[:extension]} from the #{Rails.env} database"
+    puts "Removed #{parser.extension_class} #{parser.internal_name} from the #{Rails.env} database"
 
-    Bundler::Injector.remove([args[:extension]])
+    Bundler::Injector.remove([parser.gem_name])
+  rescue Bundler::GemfileError => e
+    puts e.message
   end
 
-  def find_spec_file(type, extension)
-    spec_file = Rails.root.join("#{type}s", extension, "#{extension}.gemspec")
-    spec_file = Rails.root.join("#{type}s", extension, "mirros-#{type}-#{extension}.gemspec") unless File.exist? spec_file
-
-    spec_file
+  def parser_for_gem(gem_name)
+    spec = load_spec gem_name
+    ExtensionParser.new spec
   end
 
-  # Helpers
-  def arguments_valid?(args)
-    unless Installable::EXTENSION_TYPES.include?(args[:type])
-      puts 'Type must be widget or source'
-      return false
+  # Retrieves the loaded gem specification for a given gem name.
+  # @return [Gem::Specification] The loaded Gem specification.
+  # @raise [ArgumentError] if no spec for the given gem name is present in the loaded Bundler dependencies.
+  def load_spec(gem_name)
+    dependency = Gem.loaded_specs[gem_name]
+    if dependency.nil?
+      raise ArgumentError, "Could not find a Gem dependency for gem #{gem_name}"
     end
-
-    spec_path = find_spec_file(args[:type], args[:extension])
-
-    unless File.exist? spec_path
-      puts "Could not find gemspec file at #{spec_path}\nCheck if you provided the correct extension name and if the gemspec file exists."
-      return false
-    end
-
-    true
+    dependency
   end
 
-  def spec_valid?(type, _spec, meta)
-    if type.to_sym.equal? :source
-      if meta[:groups].empty?
-        puts 'Sources must specify at least one group for which they provide data.'
-        return false
-      end
-    end
-    true
-  end
-
-  def load_spec(args)
-    if args[:mode] == 'seed'
-      path = `bin/bundle show #{args[:extension]}`
-      parts = path.split('/')
-      spec_file = "#{parts.slice(0..-3).join('/')}/specifications/#{parts.last.chomp!}.gemspec"
-      Gem::Specification.load(spec_file)
-    else
-      spec_file = find_spec_file(args[:type], args[:extension])
-
-      Gem::Specification.load(
-        Rails.root.join(spec_file).to_s
-      )
-    end
-  end
-
-  def parse_meta(spec)
-    JSON.parse(spec.metadata['json'], symbolize_names: true)
-  end
-
-  def construct_attributes(name, args, spec, meta)
-    # FIXME: Use proper values if pulled from gemserver for seeding
-    type_specifics = if args[:type].to_sym.equal? :widget
-                       attrs = {
-                         icon: "http://server.tld/icons/#{spec.name}.svg",
-                         sizes: meta[:sizes],
-                         languages: meta[:languages],
-                         single_source: meta[:single_source]
-                       }
-                       if meta[:group].nil?
-                         attrs
-                       else
-                         attrs.merge(group_id: Group.find_by(name: meta[:group]))
-                       end
-                     else
-                       {
-                         groups: meta[:groups].map { |g| Group.find_by(name: g) }
-                       }
-                     end
-
-    {
-      name: name,
-      title: meta[:title],
-      description: meta[:description],
-      version: spec.version.to_s,
-      creator: spec.authors.join(', '),
-      homepage: spec.homepage,
-      download: 'http://my-gemserver.local',
-      active: true
-    }.merge(type_specifics)
-  end
 end
