@@ -73,7 +73,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
       <<-RUBY
   spec.metadata    = { 'json' =>
     {
-      type: 'source',
+      type: 'sources',
       title: {
         enGb: '#{name.camelcase}',
         deDe: '#{name.camelcase}'
