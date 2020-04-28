@@ -94,8 +94,8 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
       RUBY
     end
 
-    gsub_file gemspec,
-              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |_|
+    original_version = /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+", ">= [0-9.]*"$/
+    gsub_file gemspec, original_version do |_|
       "spec.add_development_dependency 'rails', '#{Gem::Version.new(Rails.version).approximate_recommendation}'"
     end
     gsub_file gemspec, /"TODO(: )?/ do |_|
