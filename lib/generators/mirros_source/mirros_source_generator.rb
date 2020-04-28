@@ -45,6 +45,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   end
 
   def lib_files
+    remove_file "#{@path}/lib/#{name}.rb"
     template 'lib/%name%.rb', "#{@path}/lib/%name%.rb"
     template 'lib/%name%/version.rb', "#{@path}/lib/%name%/version.rb"
     template 'lib/%name%/engine.rb', "#{@path}/lib/%name%/engine.rb"
