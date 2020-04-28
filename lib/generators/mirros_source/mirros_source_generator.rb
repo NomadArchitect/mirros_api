@@ -51,6 +51,10 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
     template 'lib/%name%/engine.rb', "#{@path}/lib/%name%/engine.rb"
   end
 
+  def config_files
+    template Rails.root.join('.rubocop.yml'), "#{@path}/.rubocop.yml"
+  end
+
   def append_to_gemfile
     gem name.underscore, path: @path
   end
@@ -96,6 +100,9 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
     end
     gsub_file gemspec, /"TODO(: )?/ do |_|
       '"'
+    end
+    insert_into_file gemspec, after: /'rails', '~> [0-9]+.[0-9]+'$/ do |_|
+      "\nspec.add_development_dependency 'rubocop', '~> 0.81'\nspec.add_development_dependency 'rubocop-rails'\n"
     end
   end
 end

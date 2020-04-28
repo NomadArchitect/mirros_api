@@ -49,6 +49,10 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
     template 'app/assets/icons/%name%.svg', "#{@path}/app/assets/icons/%name%.svg"
   end
 
+  def config_files
+    template Rails.root.join('.rubocop.yml'), "#{@path}/.rubocop.yml"
+  end
+
   def append_to_gemfile
     gem name.underscore, path: @path
   end
@@ -102,6 +106,9 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
     end
     gsub_file gemspec, /"TODO(: )?/ do |_|
       '"'
+    end
+    insert_into_file gemspec, after: /'rails', '~> [0-9]+.[0-9]+'$/ do |_|
+      "\nspec.add_development_dependency 'rubocop', '~> 0.81'\nspec.add_development_dependency 'rubocop-rails'\n"
     end
   end
 end
