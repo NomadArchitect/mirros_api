@@ -50,7 +50,7 @@ Rails.application.routes.draw do
   resources :uploads
 
   # Non-resourceful routes for controlling the system
-  get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
+  get 'assets/:extension_type/:extension/:asset_type/:file', to: 'assets#show', constraints: { file: /.*/ }
   get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'
 
   get 'system/status', to: 'system#status'
