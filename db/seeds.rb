@@ -147,9 +147,9 @@ Group.create(
 
 MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   Rake::Task['extension:insert'].reenable
-  Rake::Task['extension:insert'].invoke('widget', extension, 'seed')
+  Rake::Task['extension:insert'].invoke(extension)
 
-  has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
+  has_seed = Widget.find_by(slug: extension)&.engine_class&.load_seed
   puts "Successfully ran #{extension} seed" if has_seed
 end
 
@@ -218,8 +218,8 @@ WidgetInstance.create([
 
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].reenable
-  Rake::Task['extension:insert'].invoke('source', extension, 'seed')
+  Rake::Task['extension:insert'].invoke(extension)
 
-  has_seed = "#{extension.camelize}::Engine".safe_constantize.load_seed
+  has_seed = Source.find_by(slug: extension)&.engine_class&.load_seed
   puts "Successfully ran #{extension} seed" if has_seed
 end

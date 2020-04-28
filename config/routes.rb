@@ -50,7 +50,7 @@ Rails.application.routes.draw do
   resources :uploads
 
   # Non-resourceful routes for controlling the system
-  get 'assets/:extension/:type/:file', to: 'assets#show', constraints: { file: /.*/ }
+  get 'assets/:extension_type/:extension/:asset_type/:file', to: 'assets#show', constraints: { file: /.*/ }
   get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'
 
   get 'system/status', to: 'system#status'
@@ -71,17 +71,15 @@ Rails.application.routes.draw do
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
-      engine = "#{source.id.camelize}::Engine".safe_constantize
-      unless engine.config.paths['config/routes.rb'].existent.empty?
-        mount engine, at: "/#{source.id}"
-      end
+      engine = source.engine_class
+
+      mount engine, at: "/#{source.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
 
     Widget.all.each do |widget|
-      engine = "#{widget.id.camelize}::Engine".safe_constantize
-      unless engine.config.paths['config/routes.rb'].existent.empty?
-        mount engine, at: "/#{widget.id}"
-      end
+      engine = widget.engine_class
+
+      mount engine, at: "/#{widget.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
   end
 end

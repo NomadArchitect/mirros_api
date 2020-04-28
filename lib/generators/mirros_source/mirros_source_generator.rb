@@ -45,9 +45,14 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   end
 
   def lib_files
+    remove_file "#{@path}/lib/#{name}.rb"
     template 'lib/%name%.rb', "#{@path}/lib/%name%.rb"
     template 'lib/%name%/version.rb', "#{@path}/lib/%name%/version.rb"
     template 'lib/%name%/engine.rb', "#{@path}/lib/%name%/engine.rb"
+  end
+
+  def config_files
+    template Rails.root.join('.rubocop.yml'), "#{@path}/.rubocop.yml"
   end
 
   def append_to_gemfile
@@ -62,7 +67,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   end
 
   def show_dev_info
-    Thor::Shell::Color.new.say("You can now insert your source by invoking rails extension:insert[source, #{name.underscore}]", :yellow)
+    Thor::Shell::Color.new.say("You can now insert your source by invoking rails extension:insert[#{name.underscore}]", :yellow)
     Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :red)
   end
 
@@ -73,7 +78,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
       <<-RUBY
   spec.metadata    = { 'json' =>
     {
-      type: 'source',
+      type: 'sources',
       title: {
         enGb: '#{name.camelcase}',
         deDe: '#{name.camelcase}'
@@ -89,12 +94,15 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
       RUBY
     end
 
-    gsub_file gemspec,
-              /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+"\n/ do |_|
+    original_version = /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+", ">= [0-9.]*"$/
+    gsub_file gemspec, original_version do |_|
       "spec.add_development_dependency 'rails', '#{Gem::Version.new(Rails.version).approximate_recommendation}'"
     end
     gsub_file gemspec, /"TODO(: )?/ do |_|
       '"'
+    end
+    insert_into_file gemspec, after: /'rails', '~> [0-9]+.[0-9]+'$/ do |_|
+      "\nspec.add_development_dependency 'rubocop', '~> 0.81'\nspec.add_development_dependency 'rubocop-rails'\n"
     end
   end
 end

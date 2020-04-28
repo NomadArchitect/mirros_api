@@ -79,5 +79,6 @@ source 'https://extensions.glancr.net/' do
     gem 'todoist'
     gem 'vbb'
     gem 'wunderlist'
+    gem 'mirros-source-netatmo'
   end
 end
