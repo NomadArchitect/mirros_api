@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+ruby '2.6.5'
+
 ######
 # Rails default Gemfile for API
 ######
