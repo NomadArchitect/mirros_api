@@ -3,21 +3,25 @@
 class Setting < ApplicationRecord
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
+
+  # FIXME: Refactor with custom validator class to avoid condition bloat.
   validates_each :value do |record, attr, value|
     case record.slug
     when 'system_timezone'
-      if ActiveSupport::TimeZone[value.to_s].nil?
-        record.errors.add(attr, "#{value} is not a valid timezone!")
-      end
+      next unless ActiveSupport::TimeZone[value.to_s].nil?
+
+      record.errors.add(attr, "#{value} is not a valid timezone!")
+
     when /system_backgroundcolor|system_fontcolor/
-      # Check for valid hex color values.
-      unless value.match?(/^#[0-9A-F]{6}$/i)
-        record.errors.add(attr, "#{value} is not a valid CSS color!")
-      end
+      next if value.match?(/^#[0-9A-F]{6}$/i) # Check for valid hex color values.
+
+      record.errors.add(attr, "#{value} is not a valid CSS color!")
+
     when 'system_activeboard'
-      unless Board.exists?(value)
-        record.errors.add(attr, "Cannot find board with ID #{value}")
-      end
+      next if Board.exists?(value)
+
+      record.errors.add(attr, "Cannot find board with ID #{value}")
+
     else
       opts = record.options
       # Check for empty options in case this setting has no options (free-form)
