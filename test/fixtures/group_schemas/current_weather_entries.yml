@@ -4,8 +4,13 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  # uid: 2020-06-15 12:00:00
+  temperature: 23.98
+  humidity: 47
+  wind_speed: 2.77
+  wind_angle: 59
+  air_pressure: 1013
+  rain_last_hour:
+  condition_code: 03d
+  current_weather_id: 2911522

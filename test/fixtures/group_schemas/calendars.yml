@@ -4,8 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+google_holidays:
+  id: daea8ad478bbbb68e7524f2380420c4d3857e587_0
+  type: Ical::Calendar
+  name: calendar
+
