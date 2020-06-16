@@ -13,7 +13,7 @@ class SettingResource < JSONAPI::Resource
   end
 
   def self.updatable_fields(context)
-    super - [:category, :key]
+    super - %i[category key]
   end
 
 end
