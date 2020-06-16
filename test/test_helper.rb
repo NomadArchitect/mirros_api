@@ -19,6 +19,13 @@ module ActiveSupport
       }
     end
 
-    # Add more helper methods to be used by all tests here...
+    # Taken from https://stackoverflow.com/a/42618473/2915244
+    def assert_invalid(record, options)
+      assert_predicate record, :invalid?
+
+      options.each do |attribute, message|
+        assert record.errors.added?(attribute, message), "Expected #{attribute} to have the following error: #{message}"
+      end
+    end
   end
 end
