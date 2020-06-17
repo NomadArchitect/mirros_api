@@ -40,3 +40,15 @@ personal_privacyconsent:
   category: personal
   key: privacyConsent
   value: no # Requires frontend to specify checkbox values.
+
+personal_productkey:
+  slug: personal_productkey
+  category: personal
+  key: productKey
+  value: ''
+
+system_showerrornotifications:
+  slug: system_showerrornotifications
+  category: system
+  key: showErrorNotifications
+  value: on
