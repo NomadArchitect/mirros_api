@@ -22,6 +22,12 @@ class Setting < ApplicationRecord
 
       record.errors.add(attr, "Cannot find board with ID #{value}")
 
+    when 'personal_productkey'
+      handler = RegistrationHandler.new(value)
+      next if handler.product_key_valid? || handler.deregister?
+
+      record.errors.add(attr, "#{value} is not a valid product key.")
+
     else
       opts = record.options
       # Check for empty options in case this setting has no options (free-form)
