@@ -45,6 +45,25 @@ class Setting < ApplicationRecord
 
   before_update :apply_setting, if: :auto_applicable?
   after_update :update_cache, :check_setup_status
+  after_update :reset_premium_settings, if: :changes_product_key?
+  before_validation :check_license_status, unless: :changes_product_key?
+
+  def changes_product_key?
+    slug.eql? 'personal_productkey'
+  end
+
+  def reset_premium_settings
+    return if RegistrationHandler.new.product_key_valid?
+
+    RegistrationHandler.reset_premium_to_default
+  end
+
+  def check_license_status
+    RegistrationHandler.setting_requires_license?(slug)
+    return if RegistrationHandler.new.product_key_valid?
+
+    errors.add(slug, 'this setting requires a valid product key.')
+  end
 
   def category_and_key
     "#{category}_#{key}"
