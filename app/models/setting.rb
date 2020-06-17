@@ -59,7 +59,8 @@ class Setting < ApplicationRecord
   end
 
   def check_license_status
-    RegistrationHandler.setting_requires_license?(slug)
+    return unless RegistrationHandler.setting_requires_license?(slug)
+
     return if RegistrationHandler.new.product_key_valid?
 
     errors.add(slug, 'this setting requires a valid product key.')
