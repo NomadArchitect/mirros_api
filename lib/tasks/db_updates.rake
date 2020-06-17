@@ -74,6 +74,13 @@ namespace :db do
       entry.value = default_board.id.to_s
     end
 
+    setting = Setting.find_or_initialize_by(slug: 'system_showerrornotifications') do |entry|
+      entry.category = 'system'
+      entry.key = 'showErrorNotifications'
+      entry.value = 'on'
+    end
+    setting.save(validate: false) if setting.new_record?
+
     WidgetInstance.all.select { |w| w.board.eql? nil }.each do |wi|
       wi.update board: default_board
     end
