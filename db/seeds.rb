@@ -89,6 +89,11 @@ settings = [
     category: 'system',
     key: 'timezone',
     value: ''
+  },
+  {
+    category: 'system',
+    key: 'showErrorNotifications',
+    value: 'on'
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.
