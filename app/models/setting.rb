@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
 class Setting < ApplicationRecord
+  extend FriendlyId
+  friendly_id :category_and_key, use: :slugged
+
+  before_update :apply_setting, if: :auto_applicable?
+  after_update :update_cache, :check_setup_status
+  after_update :reset_premium_settings, if: :changes_product_key?
+  before_validation :check_license_status, unless: :changes_product_key?
+
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
 
@@ -39,14 +47,6 @@ class Setting < ApplicationRecord
       )
     end
   end
-
-  extend FriendlyId
-  friendly_id :category_and_key, use: :slugged
-
-  before_update :apply_setting, if: :auto_applicable?
-  after_update :update_cache, :check_setup_status
-  after_update :reset_premium_settings, if: :changes_product_key?
-  before_validation :check_license_status, unless: :changes_product_key?
 
   def changes_product_key?
     slug.eql? 'personal_productkey'
