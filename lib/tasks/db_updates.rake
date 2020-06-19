@@ -89,6 +89,20 @@ namespace :db do
     Group.find_or_create_by(name: 'current_weather') do |group|
       group.name = 'current_weather'
     end
+
+    setting_rotation = Setting.find_or_initialize_by(slug: 'system_boardrotation') do |entry|
+      entry.category = 'system'
+      entry.key = 'boardRotation'
+      entry.value = 'off'
+    end
+    setting_rotation.save(validate: false) if setting_rotation.new_record?
+
+    setting_rotation_interval = Setting.find_or_initialize_by(slug: 'system_boardrotationinterval') do |entry|
+      entry.category = 'system'
+      entry.key = 'boardRotationInterval'
+      entry.value = '1'
+    end
+    setting_rotation_interval.save(validate: false) if setting_rotation_interval.new_record?
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

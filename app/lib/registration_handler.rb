@@ -6,6 +6,12 @@ class RegistrationHandler
     },
     system_themecolor: {
       default: '#8ba4c1'
+    },
+    system_boardrotation: {
+      default: 'off'
+    },
+    system_boardrotationinterval: {
+      default: '1'
     }
   }.freeze
 

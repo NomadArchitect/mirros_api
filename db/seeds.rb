@@ -94,6 +94,16 @@ settings = [
     category: 'system',
     key: 'showErrorNotifications',
     value: 'on'
+  },
+  {
+    category: 'system',
+    key: 'boardRotation',
+    value: 'off'
+  },
+  {
+    category: 'system',
+    key: 'boardRotationInterval',
+    value: '1'
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.

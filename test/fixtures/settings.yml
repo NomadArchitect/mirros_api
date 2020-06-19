@@ -52,3 +52,15 @@ system_showerrornotifications:
   category: system
   key: showErrorNotifications
   value: on
+
+system_boardrotation:
+  slug: system_boardrotation
+  category: system
+  key: boardRotation
+  value: off
+
+system_boardrotationinterval:
+  slug: system_boardrotationinterval
+  category: system
+  key: boardRotationInterval
+  value: 1m
