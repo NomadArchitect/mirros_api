@@ -42,9 +42,8 @@ if Rails.const_defined? 'Server'
   # seem to allow removing listeners, but the AP might still be active in NM.
   s.every '2m', tag: 'network-signal-check', overlap: false do
     next unless SettingsCache.s.using_wifi?
-    unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
-      next
-    end
+
+    next unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
 
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
