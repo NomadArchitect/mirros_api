@@ -47,6 +47,20 @@ personal_productkey:
   key: productKey
   value: ''
 
+system_multipleboards:
+  slug: system_multipleboards
+  category: system
+  key: multipleBoards
+  value: 'off'
+
+
+# Premium features
+system_themecolor:
+  slug: system_themecolor
+  category: system
+  key: themeColor
+  value: '#8ba4c1'
+
 system_showerrornotifications:
   slug: system_showerrornotifications
   category: system
@@ -57,10 +71,10 @@ system_boardrotation:
   slug: system_boardrotation
   category: system
   key: boardRotation
-  value: off
+  value: 'off'
 
 system_boardrotationinterval:
   slug: system_boardrotationinterval
   category: system
   key: boardRotationInterval
-  value: 1m
+  value: '1m'

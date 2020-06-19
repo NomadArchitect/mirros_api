@@ -52,4 +52,45 @@ class SettingTest < ActiveSupport::TestCase
     assert license.valid?
     assert Setting.find(premium_setting.id).value.eql? 'on'
   end
+
+  test 'Prevents enabling board rotation when multi-board feature is off' do
+    save_valid_product_key
+    assert settings('system_multipleboards').value.eql?('off')
+    setting = settings('system_boardrotation')
+    setting.update(value: 'on')
+
+    assert_invalid(
+      setting,
+      value: 'Please enable `multiple boards` first'
+    )
+  end
+
+  test 'Enables board rotation when system.multipleBoards is active' do
+    save_valid_product_key
+    assert settings('system_multipleboards').update(value: 'on') # update should succeed with `true`
+
+    setting = settings('system_boardrotation')
+    setting.update(value: 'on')
+
+    assert setting.valid?
+  end
+
+  test 'Prevents setting an invalid board rotation interval' do
+    save_valid_product_key
+    setting = settings('system_boardrotationinterval')
+    setting.update(value: 'fnord')
+
+    assert_invalid(
+      setting,
+      value: 'fnord is not a valid interval expression. Schema is `<integer>m`'
+    )
+  end
+
+  test 'Saves a valid board rotation interval' do
+    save_valid_product_key
+    setting = settings('system_boardrotationinterval')
+    setting.update(value: '5m')
+
+    assert setting.valid?
+  end
 end
