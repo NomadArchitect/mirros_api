@@ -21,3 +21,6 @@ system_language:
 system_showerrornotifications:
   "on": "on"
   "off": "off"
+system_boardrotation:
+  "on": "on"
+  "off": "off"
