@@ -36,6 +36,30 @@ class Setting < ApplicationRecord
 
       record.errors.add(attr, "#{value} is not a valid product key.")
 
+    when 'system_boardrotation'
+      unless Setting.find_by(slug: 'system_multipleboards')&.value.eql?('on')
+        record.errors.add(attr, 'Please enable `multiple boards` first')
+        next
+      end
+
+      opts = record.options
+      next if opts.key?(value)
+
+      record.errors.add(
+        attr,
+        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
+      )
+
+    when 'system_boardrotationinterval'
+      begin
+        Rufus::Scheduler.parse_in value
+      rescue ArgumentError
+        record.errors.add(
+          attr,
+          "#{value} is not a valid interval expression. Schema is `<integer>m`"
+        )
+      end
+
     else
       opts = record.options
       # Check for empty options in case this setting has no options (free-form)
