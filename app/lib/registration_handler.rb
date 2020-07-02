@@ -12,6 +12,9 @@ class RegistrationHandler
     },
     system_boardrotationinterval: {
       default: '1m'
+    },
+    system_displayfont: {
+      default: 'alegreya'
     }
   }.freeze
 
@@ -21,7 +24,7 @@ class RegistrationHandler
     PREMIUM_SETTINGS.each_pair do |slug, opts|
       # Use `update_column` to bypass validations, which would prevent updating
       # a setting that requires a license.
-      Setting.find_by(slug: slug)&.update_attribute(:value, opts[:default])
+      Setting.find_by(slug: slug)&.update_attribute(:value, opts[:default]) # rubocop:disable Rails/SkipsModelValidations
     end
   end
 

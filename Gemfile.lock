@@ -63,7 +63,7 @@ GEM
     calendar_week_overview (1.0.1)
     choice (0.2.0)
     climate_control (0.2.0)
-    clock (0.3.1)
+    clock (0.3.2)
     coderay (1.1.2)
     concurrent-ruby (1.1.6)
     countdown (0.1.3)

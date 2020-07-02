@@ -24,3 +24,6 @@ system_showerrornotifications:
 system_boardrotation:
   "on": "on"
   "off": "off"
+system_displayfont:
+  alegreya: "Alegreya Sans"
+  inter: "Inter"
