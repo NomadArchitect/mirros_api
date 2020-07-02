@@ -12,6 +12,9 @@ class RegistrationHandler
     },
     system_boardrotationinterval: {
       default: '1m'
+    },
+    system_displayfont: {
+      default: 'alegreya'
     }
   }.freeze
 
