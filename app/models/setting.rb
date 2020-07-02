@@ -122,6 +122,7 @@ class Setting < ApplicationRecord
 
   def apply_setting
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
-    executor.send(key, value) if executor.respond_to?(key)
+    method_name = key.underscore
+    executor.send(method_name, value) if executor.respond_to?(method_name)
   end
 end
