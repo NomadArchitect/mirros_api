@@ -32,7 +32,6 @@ class SettingTest < ActiveSupport::TestCase
     )
   end
 
-
   test 'Rejects an invalid product key' do
     setting = save_invalid_product_key
     assert_invalid(setting, value: "#{setting.value} is not a valid product key.")
