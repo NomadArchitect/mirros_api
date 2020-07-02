@@ -31,5 +31,14 @@ module SettingExecution
       #::System.toggle_timesyncd_ntp(true)
       # TODO: See if this needs additional error handling, either here or in controller
     end
+
+    def self.board_rotation(state)
+      RuleManager::BoardScheduler.manage_jobs rotation_active: state.eql?('on')
+    end
+
+    def self.board_rotation_interval(interval)
+      RuleManager::BoardScheduler.stop_rotation_interval
+      RuleManager::BoardScheduler.start_rotation_interval(interval)
+    end
   end
 end

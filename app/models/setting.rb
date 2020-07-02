@@ -117,7 +117,7 @@ class Setting < ApplicationRecord
   end
 
   def auto_applicable?
-    [:system_timezone].include?(slug.to_sym)
+    %i[system_timezone system_boardrotation system_boardrotationinterval].include?(slug.to_sym)
   end
 
   def apply_setting
