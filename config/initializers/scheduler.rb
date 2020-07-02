@@ -68,14 +68,8 @@ if Rails.const_defined? 'Server'
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
 
-    s.cron '0 * * * *' do
-      Board.all.each do |board|
-        # TODO: Extend logic for rulesets in each board. Right now, this only gets time-based rules for the board and runs them in sequential order.
-        if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
-          Setting.find_by(slug: :system_activeboard).update(value: board.id)
-          break
-        end
-      end
-    end
+    RuleManager::BoardScheduler.manage_jobs(
+      rotation_active: SettingsCache.s[:system_boardrotation].eql?('on')
+    )
   end
 end
