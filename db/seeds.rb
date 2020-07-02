@@ -104,6 +104,11 @@ settings = [
     category: 'system',
     key: 'boardRotationInterval',
     value: '1m'
+  },
+  {
+    category: 'system',
+    key: 'displayFont',
+    value: 'alegreya'
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.

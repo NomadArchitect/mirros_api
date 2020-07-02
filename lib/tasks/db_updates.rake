@@ -105,6 +105,13 @@ namespace :db do
       entry.value = '1m'
     end
     setting_rotation_interval.save(validate: false) if setting_rotation_interval.new_record?
+
+    setting_display_font = Setting.find_or_initialize_by(slug: 'system_displayfont') do |entry|
+      entry.category = 'system'
+      entry.key = 'displayFont'
+      entry.value = 'alegreya'
+    end
+    setting_display_font.save(validate: false) if setting_display_font.new_record?
   end
 
   desc 'Sync all default extension\'s gem specs to the database'
