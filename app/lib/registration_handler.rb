@@ -11,7 +11,7 @@ class RegistrationHandler
       default: 'off'
     },
     system_boardrotationinterval: {
-      default: '1'
+      default: '1m'
     }
   }.freeze
 

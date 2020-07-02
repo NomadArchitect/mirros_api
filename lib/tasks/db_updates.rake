@@ -102,7 +102,7 @@ namespace :db do
     setting_rotation_interval = Setting.find_or_initialize_by(slug: 'system_boardrotationinterval') do |entry|
       entry.category = 'system'
       entry.key = 'boardRotationInterval'
-      entry.value = '1'
+      entry.value = '1m'
     end
     setting_rotation_interval.save(validate: false) if setting_rotation_interval.new_record?
   end

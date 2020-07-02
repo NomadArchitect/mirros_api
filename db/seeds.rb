@@ -103,7 +103,7 @@ settings = [
   {
     category: 'system',
     key: 'boardRotationInterval',
-    value: '1'
+    value: '1m'
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.
