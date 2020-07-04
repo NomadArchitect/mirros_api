@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Base class for file uploads. Inherit from this class to scope uploads by
+# controller name.
+# TODO: Render keys in camelCase
 class UploadsController < ApplicationController
   # include JSONAPI::ActsAsResourceController
   before_action :set_upload_type, :set_host
