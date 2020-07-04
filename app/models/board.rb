@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Model for a screen configuration.
 class Board < ApplicationRecord
   before_destroy :abort_if_active
   has_many :widget_instances, dependent: :destroy

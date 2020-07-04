@@ -1,3 +1,4 @@
+# JSON representation of the Board model.
 class BoardResource < JSONAPI::Resource
   attributes :title, :background_id, :background_url
 
