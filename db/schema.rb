@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_28_102630) do
+ActiveRecord::Schema.define(version: 2020_07_03_054157) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -37,6 +37,8 @@ ActiveRecord::Schema.define(version: 2020_04_28_102630) do
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "uploads_id"
+    t.index ["uploads_id"], name: "index_boards_on_uploads_id"
   end
 
   create_table "friendly_id_slugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
@@ -353,6 +355,7 @@ ActiveRecord::Schema.define(version: 2020_04_28_102630) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "boards", "uploads", column: "uploads_id"
   add_foreign_key "instance_associations", "groups", primary_key: "name"
   add_foreign_key "instance_associations", "source_instances"
   add_foreign_key "instance_associations", "widget_instances"
