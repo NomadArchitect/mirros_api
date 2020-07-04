@@ -35,11 +35,9 @@ namespace :db do
       entry.value = '#ffffff'
     end
 
-    Setting.find_or_create_by(slug: 'system_backgroundimage') do |entry|
-      entry.category = 'system'
-      entry.key = 'backgroundImage'
-      entry.value = ''
-    end
+    bg_setting = Setting.find_by(slug: 'system_backgroundimage')
+    Upload.find_by(id: bg_setting.value.to_i)&.destroy if bg_setting&.value.present?
+    bg_setting&.destroy
 
     Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
       entry.category = 'personal'
