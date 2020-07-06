@@ -283,7 +283,7 @@ GEM
     wunderlist (0.1.4)
       httparty (~> 0.17.0)
       rails (~> 5.2)
-    zeitwerk (2.3.0)
+    zeitwerk (2.3.1)
 
 PLATFORMS
   ruby
