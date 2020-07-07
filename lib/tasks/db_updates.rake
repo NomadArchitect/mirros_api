@@ -110,6 +110,20 @@ namespace :db do
       entry.value = 'alegreya'
     end
     setting_display_font.save(validate: false) if setting_display_font.new_record?
+
+    setting_password_protection = Setting.find_or_initialize_by(slug: 'system_passwordprotection') do |entry|
+      entry.category = 'system'
+      entry.key = 'passwordProtection'
+      entry.value = 'off'
+    end
+    setting_password_protection.save(validate: false) if setting_password_protection.new_record?
+
+    setting_password = Setting.find_or_initialize_by(slug: 'system_adminpassword') do |entry|
+      entry.category = 'system'
+      entry.key = 'adminPassword'
+      entry.value = ''
+    end
+    setting_password.save(validate: false) if setting_password.new_record?
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

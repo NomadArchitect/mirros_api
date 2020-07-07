@@ -27,3 +27,6 @@ system_boardrotation:
 system_displayfont:
   alegreya: "Alegreya Sans"
   inter: "Inter"
+system_passwordprotection:
+  "on": "on"
+  "off": "off"
