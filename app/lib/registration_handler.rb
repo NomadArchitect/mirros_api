@@ -15,6 +15,12 @@ class RegistrationHandler
     },
     system_displayfont: {
       default: 'alegreya'
+    },
+    'system_passwordprotection': {
+      default: 'off'
+    },
+    'system_adminpassword': {
+      default: ''
     }
   }.freeze
 

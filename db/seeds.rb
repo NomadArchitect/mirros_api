@@ -109,6 +109,16 @@ settings = [
     category: 'system',
     key: 'displayFont',
     value: 'alegreya'
+  },
+  {
+    category: 'system',
+    'key': 'passwordProtection',
+    value: ''
+  },
+  {
+    category: 'system',
+    'key': 'adminPassword',
+    value: ''
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.
