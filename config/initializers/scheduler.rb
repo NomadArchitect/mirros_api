@@ -42,9 +42,8 @@ if Rails.const_defined? 'Server'
   # seem to allow removing listeners, but the AP might still be active in NM.
   s.every '2m', tag: 'network-signal-check', overlap: false do
     next unless SettingsCache.s.using_wifi?
-    unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
-      next
-    end
+
+    next unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
 
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
@@ -69,14 +68,8 @@ if Rails.const_defined? 'Server'
     DataRefresher.schedule_all
     ActiveRecord::Base.connection.close
 
-    s.cron '0 * * * *' do
-      Board.all.each do |board|
-        # TODO: Extend logic for rulesets in each board. Right now, this only gets time-based rules for the board and runs them in sequential order.
-        if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
-          Setting.find_by(slug: :system_activeboard).update(value: board.id)
-          break
-        end
-      end
-    end
+    RuleManager::BoardScheduler.manage_jobs(
+      rotation_active: SettingsCache.s[:system_boardrotation].eql?('on')
+    )
   end
 end

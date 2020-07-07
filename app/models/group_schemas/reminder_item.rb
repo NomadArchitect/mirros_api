@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module GroupSchemas
+  # FIXME: Refactor to consistent naming when we have too much time ...
   class ReminderItem < ApplicationRecord
     belongs_to :reminder_list
 

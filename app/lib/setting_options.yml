@@ -18,3 +18,15 @@ system_language:
   plPl: polski (Polska)
   koKr: 한국어(대한민국)
   # jaJp: 日本語
+system_showerrornotifications:
+  "on": "on"
+  "off": "off"
+system_boardrotation:
+  "on": "on"
+  "off": "off"
+system_displayfont:
+  alegreya: "Alegreya Sans"
+  inter: "Inter"
+system_passwordprotection:
+  "on": "on"
+  "off": "off"

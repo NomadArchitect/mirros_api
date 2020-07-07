@@ -4,120 +4,129 @@
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 default_board = Board.create(title: 'default')
 
-Setting.create!(
-  [
-    #     {
-    #       category: 'display',
-    #       key: 'orientation',
-    #       value: '1'
-    #     },
-    #     {
-    #       category: 'display',
-    #       key: 'offInterval',
-    #       value: 'off'
-    #     },
-    #     {
-    #       category: 'display',
-    #       key: 'offIntervalStart',
-    #       value: ''
-    #     },
-    #     {
-    #       category: 'display',
-    #       key: 'offIntervalEnd',
-    #       value: ''
-    #     },
-    {
-      category: 'network',
-      key: 'connectiontype',
-      value: 'wlan'
-    },
-    {
-      category: 'network',
-      key: 'ssid',
-      value: ''
-    },
-    {
-      category: 'network',
-      key: 'ssidInvisible',
-      value: 'no' # Requires frontend to specify checkbox values.
-    },
-    {
-      category: 'network',
-      key: 'password',
-      value: ''
-    },
-    {
-      category: 'personal',
-      key: 'email',
-      value: ''
-    },
-    {
-      category: 'personal',
-      key: 'name',
-      value: ''
-    },
-    {
-      category: 'personal',
-      key: 'privacyConsent',
-      value: 'no' # Requires frontend to specify checkbox values.
-    },
-    {
-      category: 'personal',
-      key: 'productKey',
-      value: ''
-    },
-    {
-      category: 'system',
-      key: 'backgroundColor',
-      value: '#000000'
-    },
-    {
-      category: 'system',
-      key: 'fontColor',
-      value: '#ffffff'
-    },
-    {
-      category: 'system',
-      key: 'backgroundImage',
-      value: ''
-    },
-    {
-      category: 'system',
-      key: 'themeColor',
-      value: '#8ba4c1'
-    },
-    {
-      category: 'system',
-      key: 'headerLogo',
-      value: ''
-    },
-    {
-      category: 'system',
-      key: 'multipleBoards',
-      value: 'no'
-    },
-    {
-      category: 'system',
-      key: 'activeBoard',
-      value: default_board.id.to_s
-    }
-  ]
-)
-
-# Bypasses validation to prevent setting a default language
-Setting.new(
-  slug: 'system_language', # new.save does not create the slug for some reason
-  category: 'system',
-  key: 'language',
-  value: ''
-).save(validate: false)
-
-Setting.new(
-  slug: 'system_timezone',
-  category: 'system',
-  key: 'timezone',
-  value: ''
-).save(validate: false)
+settings = [
+  {
+    category: 'network',
+    key: 'connectionType',
+    value: 'wlan'
+  },
+  {
+    category: 'network',
+    key: 'ssid',
+    value: ''
+  },
+  {
+    category: 'network',
+    key: 'ssidInvisible',
+    value: 'no' # Requires frontend to specify checkbox values.
+  },
+  {
+    category: 'network',
+    key: 'password',
+    value: ''
+  },
+  {
+    category: 'personal',
+    key: 'email',
+    value: ''
+  },
+  {
+    category: 'personal',
+    key: 'name',
+    value: ''
+  },
+  {
+    category: 'personal',
+    key: 'privacyConsent',
+    value: 'no' # Requires frontend to specify checkbox values.
+  },
+  {
+    category: 'personal',
+    key: 'productKey',
+    value: ''
+  },
+  {
+    category: 'system',
+    key: 'backgroundColor',
+    value: '#000000'
+  },
+  {
+    category: 'system',
+    key: 'fontColor',
+    value: '#ffffff'
+  },
+  {
+    category: 'system',
+    key: 'backgroundImage',
+    value: ''
+  },
+  {
+    category: 'system',
+    key: 'themeColor',
+    value: '#8ba4c1'
+  },
+  {
+    category: 'system',
+    key: 'headerLogo',
+    value: ''
+  },
+  {
+    category: 'system',
+    key: 'multipleBoards',
+    value: 'no'
+  },
+  {
+    category: 'system',
+    key: 'activeBoard',
+    value: default_board.id.to_s
+  },
+  {
+    category: 'system',
+    key: 'language',
+    value: ''
+  },
+  {
+    category: 'system',
+    key: 'timezone',
+    value: ''
+  },
+  {
+    category: 'system',
+    key: 'showErrorNotifications',
+    value: 'on'
+  },
+  {
+    category: 'system',
+    key: 'boardRotation',
+    value: 'off'
+  },
+  {
+    category: 'system',
+    key: 'boardRotationInterval',
+    value: '1m'
+  },
+  {
+    category: 'system',
+    key: 'displayFont',
+    value: 'alegreya'
+  },
+  {
+    category: 'system',
+    'key': 'passwordProtection',
+    value: ''
+  },
+  {
+    category: 'system',
+    'key': 'adminPassword',
+    value: ''
+  }
+]
+# Bypasses validation since some settings would raise errors or trigger system calls.
+settings.each do |setting|
+  setting = Setting.new(setting)
+  setting.slug = setting.category_and_key.downcase
+  setting.save(validate: false)
+end
 
 Group.create(
   [

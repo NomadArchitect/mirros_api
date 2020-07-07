@@ -48,6 +48,7 @@ Rails.application.routes.draw do
 
   # File uploads
   resources :uploads
+  resources :backgrounds
 
   # Non-resourceful routes for controlling the system
   get 'assets/:extension_type/:extension/:asset_type/:file', to: 'assets#show', constraints: { file: /.*/ }

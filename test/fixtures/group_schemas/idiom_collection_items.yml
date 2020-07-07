@@ -4,8 +4,6 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+goethe:
+  uid: 673BFC95-C674-463F-A974-2E1775226C42
+  idiom_collection_id: csv

@@ -5,7 +5,8 @@
 # below each fixture, per the syntax in the comments below
 #
 tram:
-  public_transport_id: 980190962
+  uid: 39275B41-CEFA-42E7-AAB0-09ABCFE17765
+  public_transport_id: sbb
   departure: <%= DateTime.now %>
   delay_minutes: 5
   line: 'N20'
@@ -14,7 +15,8 @@ tram:
   platform: 'T1'
 
 bus:
-  public_transport_id: 980190962
+  uid: 173AB351-D746-48CD-ACD2-764BE02AF52F
+  public_transport_id: sbb
   departure: <%= DateTime.now %>
   delay_minutes: 2
   line: 'N19'

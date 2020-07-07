@@ -1,6 +1,6 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-network_connection_type:
+network_connectiontype:
   category: network
   key: connectionType
   value: wlan
@@ -10,7 +10,7 @@ network_ssid:
   key: ssid
   value: nil
 
-network_ssid_invisible:
+network_ssidinvisible:
   category: network
   key: ssidInvisible
   value: no # Requires frontend to specify checkbox values.
@@ -36,7 +36,45 @@ personal_name:
   key: name
   value:
 
-personal_privacy_consent:
+personal_privacyconsent:
   category: personal
   key: privacyConsent
   value: no # Requires frontend to specify checkbox values.
+
+personal_productkey:
+  slug: personal_productkey
+  category: personal
+  key: productKey
+  value: ''
+
+system_multipleboards:
+  slug: system_multipleboards
+  category: system
+  key: multipleBoards
+  value: 'off'
+
+
+# Premium features
+system_themecolor:
+  slug: system_themecolor
+  category: system
+  key: themeColor
+  value: '#8ba4c1'
+
+system_showerrornotifications:
+  slug: system_showerrornotifications
+  category: system
+  key: showErrorNotifications
+  value: on
+
+system_boardrotation:
+  slug: system_boardrotation
+  category: system
+  key: boardRotation
+  value: 'off'
+
+system_boardrotationinterval:
+  slug: system_boardrotationinterval
+  category: system
+  key: boardRotationInterval
+  value: '1m'

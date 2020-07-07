@@ -4,6 +4,8 @@ namespace :db do
   # Starting with version 0.4.0, new or changed seeds are added here to allow for seeding a running system.
   desc 'Update seeds for mirr.OS system settings'
   task seed_diff: [:environment] do |_task, _args|
+    # FIXME: Replace with cleaner variant e.g. like in seeds.rb
+
     Setting.skip_callback :update, :before, :apply_setting
     Setting.skip_callback :update, :after, :update_cache
     Setting.skip_callback :update, :after, :check_setup_status
@@ -33,11 +35,9 @@ namespace :db do
       entry.value = '#ffffff'
     end
 
-    Setting.find_or_create_by(slug: 'system_backgroundimage') do |entry|
-      entry.category = 'system'
-      entry.key = 'backgroundImage'
-      entry.value = ''
-    end
+    bg_setting = Setting.find_by(slug: 'system_backgroundimage')
+    Upload.find_by(id: bg_setting.value.to_i)&.destroy if bg_setting&.value.present?
+    bg_setting&.destroy
 
     Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
       entry.category = 'personal'
@@ -74,6 +74,13 @@ namespace :db do
       entry.value = default_board.id.to_s
     end
 
+    setting = Setting.find_or_initialize_by(slug: 'system_showerrornotifications') do |entry|
+      entry.category = 'system'
+      entry.key = 'showErrorNotifications'
+      entry.value = 'on'
+    end
+    setting.save(validate: false) if setting.new_record?
+
     WidgetInstance.all.select { |w| w.board.eql? nil }.each do |wi|
       wi.update board: default_board
     end
@@ -82,6 +89,41 @@ namespace :db do
     Group.find_or_create_by(name: 'current_weather') do |group|
       group.name = 'current_weather'
     end
+
+    setting_rotation = Setting.find_or_initialize_by(slug: 'system_boardrotation') do |entry|
+      entry.category = 'system'
+      entry.key = 'boardRotation'
+      entry.value = 'off'
+    end
+    setting_rotation.save(validate: false) if setting_rotation.new_record?
+
+    setting_rotation_interval = Setting.find_or_initialize_by(slug: 'system_boardrotationinterval') do |entry|
+      entry.category = 'system'
+      entry.key = 'boardRotationInterval'
+      entry.value = '1m'
+    end
+    setting_rotation_interval.save(validate: false) if setting_rotation_interval.new_record?
+
+    setting_display_font = Setting.find_or_initialize_by(slug: 'system_displayfont') do |entry|
+      entry.category = 'system'
+      entry.key = 'displayFont'
+      entry.value = 'alegreya'
+    end
+    setting_display_font.save(validate: false) if setting_display_font.new_record?
+
+    setting_password_protection = Setting.find_or_initialize_by(slug: 'system_passwordprotection') do |entry|
+      entry.category = 'system'
+      entry.key = 'passwordProtection'
+      entry.value = 'off'
+    end
+    setting_password_protection.save(validate: false) if setting_password_protection.new_record?
+
+    setting_password = Setting.find_or_initialize_by(slug: 'system_adminpassword') do |entry|
+      entry.category = 'system'
+      entry.key = 'adminPassword'
+      entry.value = ''
+    end
+    setting_password.save(validate: false) if setting_password.new_record?
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

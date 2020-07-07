@@ -4,8 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
+one:
+  uid: FF255FA0-AFAB-477C-B9AB-90E90FA11E0F
+  calendar_id: google_holidays
 # column: value
 #
-two: {}
-# column: value
