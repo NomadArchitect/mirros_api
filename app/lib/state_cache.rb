@@ -5,6 +5,8 @@ class StateCache
   include ActiveModel::Validations
   include Singleton
 
+  include NetworkManager::Constants
+
   attr_reader :resetting, :nm_state, :setup_complete,
               :configured_at_boot, :online, :connectivity,
               :connectivity_check_available,
@@ -39,10 +41,12 @@ class StateCache
     ::System.push_status_update
   end
 
+  # Updates the network-manager state and notifies all websocket subscribers.
+  # @param [Integer] status valid NmState
   def refresh_nm_state(status)
     @nm_state = status
     ::System.push_status_update
-    return unless status.eql?(NetworkManager::Constants::NmState::CONNECTING)
+    return unless status.eql?(NmState::CONNECTING)
 
     # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
     # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
@@ -71,9 +75,13 @@ class StateCache
     ::System.push_status_update
   end
 
+  # Updates the connectivity state and notifies all websocket subscribers.
+  # @param [Integer] status valid NmConnectivityState
   def refresh_connectivity(status)
     @connectivity = status
     ::System.push_status_update
+
+    force_connectivity_check if status.eql?(NmConnectivityState::LIMITED)
   end
 
   def refresh_conn_check_available(status)
@@ -120,14 +128,33 @@ class StateCache
     hash
   end
 
+  def connectivity_from_dns
+    if Resolv::DNS.new.getaddress(::System::API_HOST).to_s.eql?(::System::SETUP_IP)
+      NmConnectivityState::PORTAL
+    else
+      NmConnectivityState::FULL
+    end
+  rescue StandardError
+    NmConnectivityState::NONE
+  end
+
   private
 
   def init_connectivity
     if OS.linux?
-      NetworkManager::Commands.instance.connectivity
+      state = NetworkManager::Commands.instance.connectivity
+      force_connectivity_check if state.eql?(NmConnectivityState::LIMITED)
+      state
     else
-      NetworkManager::Constants::NmConnectivityState::UNKNOWN
+      NmConnectivityState::UNKNOWN
     end
+  end
+
+  def force_connectivity_check
+    Rufus::Scheduler.singleton.in '10s', tags: 'check-nm_connectivity_state', overlap: false do
+      StateCache.refresh_connectivity StateCache.connectivity_from_dns
+    end
+    Rails.logger.error 'scheduled forced connectivity check in 10s'
   end
 
   def init_primary_connection
