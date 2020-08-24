@@ -30,7 +30,8 @@ class InstanceAssociation < ApplicationRecord
       begin
         recordables = source_hooks_instance.fetch_data(group_id, sub_resources)
       rescue StandardError => e
-        Rails.logger.error "Error during initial data fetch of #{source} instance #{source_instance.id}: #{e.message}"
+        Rails.logger.error "Error during initial data fetch of #{source_instance.source} instance #{source_instance.id}:
+            #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
         return
       end
 
