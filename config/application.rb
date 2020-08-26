@@ -82,6 +82,9 @@ module MirrOSApi
                                                          .content_types_allowed_inline
                                                          .dup
                                                          .push('image/svg+xml')
+
+    config.active_storage.service_urls_expire_in = 24.hours
+
     # Set custom log path for terrapin commands.
     # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
