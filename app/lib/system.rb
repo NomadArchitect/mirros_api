@@ -29,7 +29,7 @@ class System
   def self.push_status_update
     attempts = 0
     begin
-      ActionCable.server.broadcast 'status', payload: info
+      ActionCable.server.broadcast 'status', { payload: info }
     rescue StandardError => e
       sleep 2
       retry if (attempts += 1) <= 5

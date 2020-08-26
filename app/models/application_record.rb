@@ -19,8 +19,10 @@ class ApplicationRecord < ActiveRecord::Base
 
   def broadcast
     ActionCable.server.broadcast 'updates',
-                                 payload: serialize_resource,
-                                 type: destroyed? ? 'deletion' : 'update'
+                                 {
+                                   payload: serialize_resource,
+                                   type: destroyed? ? 'deletion' : 'update'
+                                 }
   rescue StandardError => e
     Rails.logger.error "Failed to broadcast #{self.class} #{id} update: #{e.message}"
   end

@@ -11,7 +11,7 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.refresh_resetting true
-    ActionCable.server.broadcast 'status', payload: ::System.info
+    ActionCable.server.broadcast 'status', { payload: ::System.info }
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
     Rufus::Scheduler.s.shutdown(:kill)
