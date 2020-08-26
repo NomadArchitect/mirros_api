@@ -67,6 +67,7 @@ module NetworkManager
       # not used
       UNUSED2 = 4
       # not used
+      #noinspection RubyConstantNamingConvention
       BT = 5
       # a Bluetooth device supporting PAN or DUN access protocols
       OLPC_MESH = 6

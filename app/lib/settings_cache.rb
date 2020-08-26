@@ -12,6 +12,7 @@ class SettingsCache
     @singleton ||= new
   end
 
+  #noinspection RubyClassMethodNamingConvention
   def self.s
     singleton
   end
