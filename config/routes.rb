@@ -73,12 +73,14 @@ Rails.application.routes.draw do
   if Rails.const_defined? 'Server'
     Source.all.each do |source|
       engine = source.engine_class
+      raise ArgumentError, "Engine class for #{source} is nil. Is the gem installed?" if engine.nil?
 
       mount engine, at: "/#{source.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
 
     Widget.all.each do |widget|
       engine = widget.engine_class
+      raise ArgumentError, "Engine class for #{widget} is nil. Is the gem installed?" if engine.nil?
 
       mount engine, at: "/#{widget.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
     end
