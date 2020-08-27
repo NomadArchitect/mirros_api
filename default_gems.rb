@@ -24,7 +24,7 @@ source 'https://rubygems.org' do
     gem 'spring-watcher-listen', '~> 2.0.0'
     gem 'better_errors', '~> 2.5.0'
     gem 'binding_of_caller', '~> 0.8.0'
-    gem 'git', '~> 1.5.0'
+    gem 'git', '~> 1.7'
     # Data Visualization
     gem 'rails-erd', '~> 1.6.0'
     gem 'rubocop'
