@@ -96,12 +96,12 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
 
     original_version = /spec.add_dependency "rails", "~> [0-9]+.[0-9]+.[0-9]+", ">= [0-9.]*"$/
     gsub_file gemspec, original_version do |_|
-      "spec.add_development_dependency 'rails', '#{Gem::Version.new(Rails.version).approximate_recommendation}'"
+      "spec.add_development_dependency 'rails'"
     end
     gsub_file gemspec, /"TODO(: )?/ do |_|
       '"'
     end
-    insert_into_file gemspec, after: /'rails', '~> [0-9]+.[0-9]+'$/ do |_|
+    insert_into_file gemspec, after: /'rails'$/ do |_|
       "\nspec.add_development_dependency 'rubocop', '~> 0.81'\nspec.add_development_dependency 'rubocop-rails'\n"
     end
   end
