@@ -37,7 +37,7 @@ source 'https://rubygems.org' do
   gem 'httparty', '~> 0.17.0'
   gem 'jsonapi-resources', '~> 0.9.10'
   gem 'rufus-scheduler', '~> 3.6.0'
-  gem 'friendly_id', '~> 5.2.5'
+  gem 'friendly_id', '~> 5.4'
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
   gem 'ruby-dbus', '~> 0.16.0'
