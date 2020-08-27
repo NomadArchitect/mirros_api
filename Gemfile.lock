@@ -291,9 +291,8 @@ GEM
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    wunderlist (0.1.4)
+    wunderlist (0.1.5)
       httparty (~> 0.17.0)
-      rails (~> 5.2)
     zeitwerk (2.4.0)
 
 PLATFORMS
