@@ -80,12 +80,12 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
     {
       type: 'sources',
       title: {
-        enGb: '#{name.camelcase}',
-        deDe: '#{name.camelcase}'
+        enGb: '#{name.camelize}',
+        deDe: '#{name.camelize}'
       },
       description: {
         enGb: spec.description,
-        deDe: 'TODO: Description of #{name.camelcase}'
+        deDe: 'TODO: Description of #{name.camelize}'
       },
       groups: [], # TODO
       compatibility: '0.0.0'

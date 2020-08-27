@@ -79,12 +79,12 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
     {
       type: 'widgets',
       title: {
-        enGb: '#{name.camelcase}',
-        deDe: '#{name.camelcase}'
+        enGb: '#{name.camelize}',
+        deDe: '#{name.camelize}'
       },
       description: {
         enGb: spec.description,
-        deDe: 'TODO: Description of #{name.camelcase}'
+        deDe: 'TODO: Description of #{name.camelize}'
       },
       group: nil, # TODO
       compatibility: '0.0.0',

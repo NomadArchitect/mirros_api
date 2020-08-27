@@ -137,9 +137,9 @@ class SystemController < ApplicationController
     end
   end
 
-  # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
   # TODO: This is currently not used since all extensions are bundled, however it can be useful for custom installations
   # that use different gem servers.
+  # @return [JSON,nil] JSON:API formatted list of all available extensions for the given extension type
   def fetch_extensions
     render json: HTTParty.get(
       "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
