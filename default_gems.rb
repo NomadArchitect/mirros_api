@@ -9,7 +9,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 source 'https://rubygems.org' do
   gem 'rails', '~> 6.0', '>= 6.0.3.2'
-  gem 'puma', '~> 4.0.1'
+  gem 'puma', '~> 4.3'
   gem 'bootsnap', '>= 1.1.0', require: false
   gem 'rack-cors'
   group :development, :test do
