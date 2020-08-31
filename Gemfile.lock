@@ -303,7 +303,7 @@ DEPENDENCIES
   better_errors (~> 2.5.0)!
   binding_of_caller (~> 0.8.0)!
   bing_traffic!
-  bootsnap (>= 1.1.0)!
+  bootsnap (>= 1.4.2)!
   bundler (~> 2.1)!
   byebug!
   calendar_event_list!
