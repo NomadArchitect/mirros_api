@@ -164,7 +164,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     openweathermap (1.1.5)
       httparty (~> 0.18)
-    os (1.0.1)
+    os (1.1.1)
     owm_current_weather (0.4.5)
     owm_daily_values (0.2.3)
     owm_forecast (0.3.2)
@@ -316,7 +316,7 @@ DEPENDENCIES
   mysql2 (~> 0.5.2)!
   network!
   openweathermap!
-  os (~> 1.0.0)!
+  os (~> 1.1)!
   owm_current_weather!
   owm_daily_values!
   owm_forecast!
