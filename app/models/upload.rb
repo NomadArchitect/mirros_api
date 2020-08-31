@@ -5,6 +5,7 @@ class Upload < ApplicationRecord
 
   delegate :content_type, to: :file
 
+  # @return [String] The complete URL to the file attachment
   def file_url
     return unless file.attached?
 
