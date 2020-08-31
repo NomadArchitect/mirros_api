@@ -60,7 +60,7 @@ GEM
     byebug (11.1.3)
     calendar_event_list (1.1.2)
     calendar_upcoming_event (1.0.2)
-    calendar_week_overview (1.0.2)
+    calendar_week_overview (1.0.4)
     choice (0.2.0)
     climate_control (0.2.0)
     clock (0.3.3)
