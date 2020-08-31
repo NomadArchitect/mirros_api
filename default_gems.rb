@@ -31,7 +31,7 @@ source 'https://rubygems.org' do
 
   ### mirr.OS gems ###
   gem 'mysql2', '~> 0.5.2'
-  gem 'httparty', '~> 0.17.0'
+  gem 'httparty', '~> 0.18'
   gem 'bundler', '~> 2.1' # extension management
   gem 'jsonapi-resources', '~> 0.9.10'
   gem 'rufus-scheduler', '~> 3.6.0'
