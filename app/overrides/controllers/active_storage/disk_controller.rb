@@ -10,5 +10,7 @@ ActiveStorage::DiskController.class_eval do
     else
       head :not_found
     end
+  rescue Errno::ENOENT
+    head :not_found
   end
 end
