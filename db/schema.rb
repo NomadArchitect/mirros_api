@@ -355,6 +355,7 @@ ActiveRecord::Schema.define(version: 2020_08_28_120645) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "boards", "uploads", column: "uploads_id"
   add_foreign_key "instance_associations", "groups", primary_key: "name"
   add_foreign_key "instance_associations", "source_instances"
   add_foreign_key "instance_associations", "widget_instances"
