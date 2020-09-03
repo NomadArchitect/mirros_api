@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class NewsfeedResource < RecordableResource
+class GroupSchemas::NewsfeedResource < RecordableResource
   model_name 'GroupSchemas::Newsfeed'
   attributes :name, :url, :icon_url, :latest_entry, :items
   key_type :string

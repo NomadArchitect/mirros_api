@@ -1,4 +1,4 @@
-class PublicTransportResource < RecordableResource
+class GroupSchemas::PublicTransportResource < RecordableResource
   model_name 'GroupSchemas::PublicTransport'
   attributes :station_name, :departures
   key_type :string

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class WeatherOwmResource < RecordableResource
+class GroupSchemas::WeatherOwmResource < RecordableResource
   model_name 'GroupSchemas::WeatherOwm'
   key_type :string
   attributes :location_name, :entries, :sunrise, :sunset

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CalendarResource < RecordableResource
+class GroupSchemas::CalendarResource < RecordableResource
   model_name 'GroupSchemas::Calendar'
   attributes :name, :description, :events
   key_type :string

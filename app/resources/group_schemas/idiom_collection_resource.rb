@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IdiomCollectionResource < RecordableResource
+class GroupSchemas::IdiomCollectionResource < RecordableResource
   model_name 'GroupSchemas::IdiomCollection'
   attributes :collection_name, :items
   key_type :string

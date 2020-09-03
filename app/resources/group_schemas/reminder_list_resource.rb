@@ -1,4 +1,4 @@
-class ReminderListResource < RecordableResource
+class GroupSchemas::ReminderListResource < RecordableResource
   model_name 'GroupSchemas::ReminderList'
   attributes :name, :description, :reminders
   key_type :string

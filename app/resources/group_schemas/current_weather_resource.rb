@@ -1,4 +1,4 @@
-class CurrentWeatherResource < RecordableResource
+class GroupSchemas::CurrentWeatherResource < RecordableResource
   model_name 'GroupSchemas::CurrentWeather'
   attributes :station_name, :entries; :location
   key_type :string
