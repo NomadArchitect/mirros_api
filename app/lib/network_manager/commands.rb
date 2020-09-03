@@ -2,6 +2,8 @@
 
 require 'singleton'
 require 'dbus'
+require 'network_manager/constants'
+require 'network_manager/helpers'
 
 module NetworkManager
   # High-level commands. Proxied NetworkManager D-Bus methods are excluded from

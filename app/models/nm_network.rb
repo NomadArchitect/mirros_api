@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'application_record' # @see config/initializers/scheduler.rb NmNetwork is required during boot
+
 # Internal network metadata persistence for NetworkManager.
 class NmNetwork < ApplicationRecord
   # Excludes the pre-defined LAN and setup WiFi connections by connection_id

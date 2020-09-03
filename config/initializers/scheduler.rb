@@ -2,6 +2,15 @@
 
 require 'rufus-scheduler'
 require 'yaml'
+require 'network_manager/commands'
+require 'network_manager/signal_listeners'
+require 'setting_execution/network'
+require 'setting_execution/network_mac'
+require 'nm_network'
+require 'state_cache'
+require 'settings_cache'
+require 'setting'
+require 'system'
 
 # Prevent scheduling for Rails console starts or rake tasks.
 if Rails.const_defined? 'Server'
