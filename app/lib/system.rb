@@ -17,8 +17,8 @@ class System
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.info
     {
-      snap_version: SNAP_VERSION,
-      api_version: API_VERSION,
+      snap_version: Versions::SNAP,
+      api_version: Versions::API,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
       # TODO: Maybe add more settings here as well; define a read_public_settings on SettingsCache

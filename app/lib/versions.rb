@@ -2,8 +2,10 @@
 
 require 'terrapin'
 
-SNAP_VERSION = ENV['SNAP_VERSION'] ||= '0.0.0'
-API_VERSION = case File.exist? 'build_version'
+class Versions
+
+SNAP = ENV['SNAP_VERSION'] ||= '0.0.0'
+API = case File.exist? 'build_version'
               when true
                 File.read('build_version').chomp
               when false
@@ -20,3 +22,4 @@ API_VERSION = case File.exist? 'build_version'
               else
                 '0.0.0'
               end
+end

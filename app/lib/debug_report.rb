@@ -79,7 +79,7 @@ class DebugReport
 
   def append_debugging_info
     @body['debugging_info'] = "
-      snap_version: #{SNAP_VERSION}
+      snap_version: #{Versions::SNAP}
       extensions:
       #{extensions_hash_to_string}
 

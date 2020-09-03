@@ -37,7 +37,7 @@ module SettingExecution
         email: SettingsCache.s[:personal_email],
         language: convert_language_tag(language),
         localip: ::System.current_ip_address,
-        os_version: API_VERSION
+        os_version: Versions::API
       }
     end
 
