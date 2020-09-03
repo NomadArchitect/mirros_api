@@ -25,6 +25,7 @@ module MirrOSApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
+    # Rails.autoloaders.log!
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -39,6 +40,8 @@ module MirrOSApi
     ##############
     ### CUSTOM ###
     ##############
+
+    Rails.autoloaders.main.collapse(Rails.root.join('app/overrides/controllers'))
 
     config.i18n.default_locale = :en
     config.i18n.enforce_available_locales = false
