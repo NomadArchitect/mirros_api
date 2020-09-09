@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'sti_preload'
+
 module GroupSchemas
   # Base model for public transport data schema.
   class PublicTransport < ApplicationRecord
+    include StiPreload
     include UpdateOrInsertable
     UPSERT_ASSOC = :departures
     ID_FIELD = :uid

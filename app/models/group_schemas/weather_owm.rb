@@ -1,5 +1,8 @@
+require 'sti_preload'
+
 module GroupSchemas
   class WeatherOwm < ApplicationRecord
+    include StiPreload
     include UpdateOrInsertable
     UPSERT_ASSOC = :entries
     ID_FIELD = :dt_txt

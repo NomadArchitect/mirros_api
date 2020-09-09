@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'sti_preload'
+
 module GroupSchemas
   class Calendar < ApplicationRecord
+    include StiPreload
     include UpdateOrInsertable
     UPSERT_ASSOC = :events
     ID_FIELD = :uid

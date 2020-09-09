@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'sti_preload'
+
 module GroupSchemas
   class Newsfeed < ApplicationRecord
+    include StiPreload
     include UpdateOrInsertable
     UPSERT_ASSOC = :items
     ID_FIELD = :uid
