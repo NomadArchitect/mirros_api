@@ -33,7 +33,7 @@ source 'https://rubygems.org' do
   gem 'mysql2', '~> 0.5.2'
   gem 'httparty', '~> 0.18'
   gem 'bundler', '~> 2.1' # extension management
-  gem 'jsonapi-resources', '~> 0.9.10'
+  gem 'jsonapi-resources', '~> 0.10'
   gem 'rufus-scheduler', '~> 3.6.0'
   gem 'friendly_id', '~> 5.4'
   gem 'os', '~> 1.1'
