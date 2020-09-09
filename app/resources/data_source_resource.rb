@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # JSON:API-compliant resource model for Sources.
-class SourceResource < JSONAPI::Resource
+class DataSourceResource < JSONAPI::Resource
   primary_key :slug
   key_type :string
   exclude_links [:self]

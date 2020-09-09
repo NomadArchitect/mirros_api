@@ -3,7 +3,7 @@ class ExtensionParser
   attr_reader :gem_name
   # @return [String] the extension's name without the namespace; used in the database.
   attr_reader :internal_name
-  # @return [Widget, Source] the mirr.OS extension class
+  # @return [Widget, DataSource] the mirr.OS extension class
   attr_reader :extension_class
 
   # @param [Gem::Specification] spec

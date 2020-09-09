@@ -2,7 +2,7 @@ class Group < ApplicationRecord
   self.primary_key = :name
 
   has_many :widgets, dependent: :nullify
-  has_and_belongs_to_many :sources
+  has_and_belongs_to_many :data_sources
 
   validates :name, uniqueness: true
 

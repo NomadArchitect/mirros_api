@@ -20,7 +20,7 @@ class DataRefresher
   # FIXME: Refactor to smaller method, maybe convert class methods to instance.
   # Maybe raise errors if preconditions fail and rescue once with log message
   def self.schedule(source_instance:, type: :interval)
-    source = source_instance.source
+    source = source_instance.data_source
 
     if source.nil?
       Rails.logger.warn "instance #{source_instance.id} does not have an associated source, aborting."
@@ -50,7 +50,7 @@ class DataRefresher
 
   # Removes the refresh job for a given SourceInstance from the central schedule.
   def self.unschedule(source_instance)
-    tag = tag_instance(source_instance.source.name, source_instance.id)
+    tag = tag_instance(source_instance.data_source.name, source_instance.id)
     Rufus::Scheduler.s.jobs(tag: tag).each(&:unschedule)
     Rails.logger.info "unscheduled job with tag #{tag}"
   end
@@ -65,7 +65,7 @@ class DataRefresher
         job_block(source_instance: source_instance, source_hooks: source_hooks)
       end
     else
-      Rails.logger.info "[#{__method__}] Skipping #{source_instance.source.name} instance #{source_instance.id}, system is offline"
+      Rails.logger.info "[#{__method__}] Skipping #{source_instance.data_source.name} instance #{source_instance.id}, system is offline"
     end
   end
 
@@ -77,7 +77,7 @@ class DataRefresher
       return
     end
 
-    job_tag = tag_instance(source_instance.source.name, source_instance.id)
+    job_tag = tag_instance(source_instance.data_source.name, source_instance.id)
     job_instance = Rufus::Scheduler.s.schedule_interval source_hooks.refresh_interval,
                                                         timeout: '5m',
                                                         overlap: false,
@@ -85,7 +85,7 @@ class DataRefresher
       if StateCache.online
         job_block(source_instance: source_instance, job: job, source_hooks: source_hooks)
       else
-        Rails.logger.info "[DataRefresher] Skipping #{source_instance.source.name} instance #{source_instance.id}, System is offline"
+        Rails.logger.info "[DataRefresher] Skipping #{source_instance.data_source.name} instance #{source_instance.id}, System is offline"
       end
     end
 
@@ -117,7 +117,7 @@ class DataRefresher
         begin
           recordables = source_hooks_instance.fetch_data(group, sub_resources)
         rescue StandardError => e
-          Rails.logger.error "Error during refresh of #{source_instance.source} instance #{source_instance.id}:
+          Rails.logger.error "Error during refresh of #{source_instance.data_source} instance #{source_instance.id}:
             #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
           # Delay the next run on failures
           unless job.nil?

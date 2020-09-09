@@ -4,6 +4,6 @@ class SourcesTest < ApplicationSystemTestCase
   # test "visiting the index" do
   #   visit sources_url
   #
-  #   assert_selector "h1", text: "Source"
+  #   assert_selector "h1", text: "DataSource"
   # end
 end

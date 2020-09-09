@@ -229,6 +229,6 @@ MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke(extension)
 
-  has_seed = Source.find_by(slug: extension)&.engine_class&.load_seed
+  has_seed = DataSource.find_by(slug: extension)&.engine_class&.load_seed
   puts "Successfully ran #{extension} seed" if has_seed
 end

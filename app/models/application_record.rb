@@ -9,7 +9,7 @@ class ApplicationRecord < ActiveRecord::Base
     [
       Widget,
       WidgetInstance,
-      Source,
+      DataSource,
       SourceInstance,
       InstanceAssociation,
       Setting,
@@ -38,7 +38,7 @@ class ApplicationRecord < ActiveRecord::Base
     res = res_class.new(destroyed? ? self : reload, nil)
     includes = case res # Use instance here since case evaluates the class
                when SourceInstanceResource
-                 %w[source widget_instances instance_associations]
+                 %w[data_source widget_instances instance_associations]
                when WidgetInstanceResource
                  %w[widget source_instances instance_associations]
                when InstanceAssociationResource

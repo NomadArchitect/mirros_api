@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     jsonapi_links :group
   end
 
-  jsonapi_resources :sources do
+  jsonapi_resources :data_sources do
     jsonapi_related_resources :source_instances
     jsonapi_related_resources :groups
   end
@@ -26,14 +26,14 @@ Rails.application.routes.draw do
   end
 
   jsonapi_resources :source_instances do
-    jsonapi_related_resource :source
+    jsonapi_related_resource :data_source
     jsonapi_related_resources :widget_instances
   end
 
   jsonapi_resources :instance_associations
 
   jsonapi_resources :groups do
-    jsonapi_related_resources :sources
+    jsonapi_related_resources :data_sources
     jsonapi_related_resources :widgets
   end
   jsonapi_resources :settings, only: %i[index show update]
@@ -71,7 +71,7 @@ Rails.application.routes.draw do
   # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
 
   if Rails.const_defined? 'Server'
-    Source.all.each do |source|
+    DataSource.all.each do |source|
       engine = source.engine_class
       raise ArgumentError, "Engine class for #{source} is nil. Is the gem installed?" if engine.nil?
 

@@ -9,7 +9,7 @@ class InstanceAssociation < ApplicationRecord
 
   def fetch_data
     source_instance = self.source_instance
-    source = source_instance.source
+    source = source_instance.data_source
 
     if source_instance.configuration.empty?
       Rails.logger.info "Configuration for instance #{source_instance.id} of #{source.name} is empty, aborting initial fetch."

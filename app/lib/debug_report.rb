@@ -8,7 +8,7 @@ class DebugReport
   def self.installed_extensions
     {
       widgets: Widget.all.pluck(:name, :version),
-      sources: Source.all.pluck(:name, :version)
+      data_sources: DataSource.all.pluck(:name, :version)
     }
   end
 

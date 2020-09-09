@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Source < ApplicationRecord
+class DataSource < ApplicationRecord
   self.primary_key = 'slug'
 
   include Installable
@@ -37,7 +37,7 @@ class Source < ApplicationRecord
     begin
       klass = klass_name.constantize
     rescue NameError
-      klass = "Mirros::Source::#{klass_name}".safe_constantize
+      klass = "Mirros::DataSource::#{klass_name}".safe_constantize
     end
 
     klass

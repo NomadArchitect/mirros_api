@@ -2,7 +2,7 @@
 
 # Instances of a data source with concrete account credentials.
 class SourceInstance < Instance
-  belongs_to :source
+  belongs_to :data_source
   has_many :instance_associations, dependent: :destroy
   has_many :widget_instances, through: :instance_associations
   has_many :record_links, dependent: :destroy
@@ -17,7 +17,7 @@ class SourceInstance < Instance
   # serialize :options, Array if Rails.env.development?
 
   def refresh_interval
-    source.hooks_class.refresh_interval
+    data_source.hooks_class.refresh_interval
   end
 
   def set_meta
@@ -52,7 +52,7 @@ class SourceInstance < Instance
   private
 
   def hook_instance
-    source.hooks_class.new(id, configuration)
+    data_source.hooks_class.new(id, configuration)
   end
 
   def add_to_scheduler
