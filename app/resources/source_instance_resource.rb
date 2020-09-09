@@ -8,6 +8,9 @@ class SourceInstanceResource < JSONAPI::Resource
            through: :instance_associations,
            always_include_linkage_data: true,
            exclude_links: [:self]
+  has_many :instance_associations,
+           always_include_linkage_data: true,
+           exclude_links: [:self]
 
   def records
     records = {}
