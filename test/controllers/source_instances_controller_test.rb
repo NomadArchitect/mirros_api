@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SourceInstancesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @source = sources(:ical)
+    @source = data_sources(:ical)
     @source_instance = source_instances(:ical_1)
     set_jsonapi_headers
   end
@@ -22,9 +22,9 @@ class SourceInstancesControllerTest < ActionDispatch::IntegrationTest
                configuration: {}
              },
              relationships: {
-               source: {
+               dataSource: {
                  data: {
-                   type: 'sources',
+                   type: 'data-sources',
                    id: 'non-existent-source'
                  }
                }
@@ -47,9 +47,9 @@ class SourceInstancesControllerTest < ActionDispatch::IntegrationTest
                  configuration: {}
                },
                relationships: {
-                 source: {
+                 dataSource: {
                    data: {
-                     type: 'sources',
+                     type: 'data-sources',
                      id: @source.name
                    }
                  }
