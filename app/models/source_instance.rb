@@ -14,8 +14,6 @@ class SourceInstance < Instance
 
   validate :validate_configuration, if: :configuration_changed?
 
-  # serialize :options, Array if Rails.env.development?
-
   def refresh_interval
     data_source.hooks_class.refresh_interval
   end
