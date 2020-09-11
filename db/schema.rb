@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_28_120645) do
+ActiveRecord::Schema.define(version: 2020_09_09_110442) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -39,6 +39,30 @@ ActiveRecord::Schema.define(version: 2020_08_28_120645) do
     t.datetime "updated_at", null: false
     t.bigint "uploads_id"
     t.index ["uploads_id"], name: "index_boards_on_uploads_id"
+  end
+
+  create_table "data_sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "active", default: true
+    t.json "title", null: false
+    t.string "compatibility"
+    t.json "description", null: false
+    t.string "creator"
+    t.string "version", null: false
+    t.string "homepage"
+    t.string "icon"
+    t.string "download", null: false
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_data_sources_on_slug", unique: true
+  end
+
+  create_table "data_sources_groups", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "group_id"
+    t.string "data_source_id"
+    t.index ["data_source_id"], name: "index_data_sources_groups_on_data_source_id"
+    t.index ["group_id"], name: "index_data_sources_groups_on_group_id"
   end
 
   create_table "friendly_id_slugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
@@ -214,13 +238,6 @@ ActiveRecord::Schema.define(version: 2020_08_28_120645) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "groups_sources", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "group_id"
-    t.string "source_id"
-    t.index ["group_id"], name: "index_groups_sources_on_group_id"
-    t.index ["source_id"], name: "index_groups_sources_on_source_id"
-  end
-
   create_table "instance_associations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.json "configuration"
     t.string "group_id", null: false
@@ -285,7 +302,7 @@ ActiveRecord::Schema.define(version: 2020_08_28_120645) do
   end
 
   create_table "source_instances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "source_id"
+    t.string "data_source_id"
     t.string "title"
     t.json "configuration"
     t.json "options"
@@ -293,24 +310,7 @@ ActiveRecord::Schema.define(version: 2020_08_28_120645) do
     t.datetime "last_refresh"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["source_id"], name: "index_source_instances_on_source_id"
-  end
-
-  create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "name", null: false
-    t.boolean "active", default: true
-    t.json "title", null: false
-    t.string "compatibility"
-    t.json "description", null: false
-    t.string "creator"
-    t.string "version", null: false
-    t.string "homepage"
-    t.string "icon"
-    t.string "download", null: false
-    t.string "slug", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_sources_on_slug", unique: true
+    t.index ["data_source_id"], name: "index_source_instances_on_data_source_id"
   end
 
   create_table "uploads", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
