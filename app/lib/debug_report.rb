@@ -88,6 +88,7 @@ class DebugReport
       #{DebugReport.active_instances}"
   end
 
+  # @return [String] multi-line list of installed extensions by type.
   def extensions_hash_to_string
     # Use String.new since string literals are frozen in this file.
     final = String.new('')
