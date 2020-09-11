@@ -275,7 +275,7 @@ stack trace:
 
     ActiveRecord::Base.transaction do
       calendar_source = SourceInstance.new(
-        source: DataSource.find_by(slug: 'ical'),
+        data_source: DataSource.find_by(slug: 'ical'),
         configuration: { "url": feed_settings[:url] }
       )
       calendar_source.save!(validate: false)
@@ -309,7 +309,7 @@ stack trace:
     ActiveRecord::Base.transaction do
       SourceInstance.skip_callback :create, :after, :set_meta
       newsfeed_source = SourceInstance.new(
-        source: DataSource.find_by(slug: 'rss_feeds'),
+        data_source: DataSource.find_by(slug: 'rss_feeds'),
         title: 'glancr: Welcome Screen',
         configuration: {
           "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
