@@ -6,6 +6,11 @@ class ExtensionParser
   # @return [Widget, DataSource] the mirr.OS extension class
   attr_reader :extension_class
 
+  EXTENSION_CLASS_MAP = {
+    sources: DataSource,
+    widgets: Widget
+  }
+
   # @param [Gem::Specification] spec
   # @raise [JSON::JSONError] if the spec's metadata JSON cannot be parsed
   # @raise [NameError] if no class constant was found for the extension type
@@ -15,7 +20,8 @@ class ExtensionParser
     @internal_name = spec.name.split('-').last
     @meta = JSON.parse(@spec.metadata['json'], symbolize_names: true)
     @type = @meta[:type].to_sym
-    @extension_class = @type.to_s.singularize.classify.constantize
+    # FIXME: Remove once all extensions are updated
+    @extension_class = EXTENSION_CLASS_MAP[@type] # @type.to_s.singularize.classify.constantize
   end
 
   # @return [TrueClass, FalseClass] whether the metadata is valid.
