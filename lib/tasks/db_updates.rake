@@ -124,6 +124,13 @@ namespace :db do
       entry.value = ''
     end
     setting_password.save(validate: false) if setting_password.new_record?
+
+    setting_schedule_shutdown = Setting.find_or_initialize_by(slug: 'system_scheduleshutdown') do |entry|
+      entry.category = 'system'
+      entry.key = 'scheduleShutdown'
+      entry.value = ''
+    end
+    setting_schedule_shutdown.save(validate: false) if setting_schedule_shutdown.new_record?
   end
 
   desc 'Sync all default extension\'s gem specs to the database'

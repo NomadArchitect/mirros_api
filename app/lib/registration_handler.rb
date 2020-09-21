@@ -21,6 +21,9 @@ class RegistrationHandler
     },
     'system_adminpassword': {
       default: ''
+    },
+    'system_scheduleshutdown': {
+      default: ''
     }
   }.freeze
 

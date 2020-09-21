@@ -119,6 +119,11 @@ settings = [
     category: 'system',
     'key': 'adminPassword',
     value: ''
+  },
+  {
+    category: 'system',
+    'key': 'scheduleShutdown',
+    value: ''
   }
 ]
 # Bypasses validation since some settings would raise errors or trigger system calls.
