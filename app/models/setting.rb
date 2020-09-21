@@ -59,6 +59,12 @@ class Setting < ApplicationRecord
           "#{value} is not a valid interval expression. Schema is `<integer>m`"
         )
       end
+    when 'system_scheduleshutdown'
+      begin
+        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`") if value.present? && value.to_time.blank?
+      rescue StandardError
+        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`")
+      end
 
     else
       opts = record.options
