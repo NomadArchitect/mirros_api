@@ -80,7 +80,6 @@ source 'https://extensions.glancr.net/' do
     gem 'sbb'
     gem 'todoist'
     gem 'vbb'
-    gem 'wunderlist'
     gem 'mirros-source-netatmo'
   end
 end
