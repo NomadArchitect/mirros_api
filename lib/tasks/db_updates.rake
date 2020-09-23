@@ -133,8 +133,18 @@ namespace :db do
     setting_schedule_shutdown.save(validate: false) if setting_schedule_shutdown.new_record?
   end
 
-  desc 'Sync all default extension\'s gem specs to the database'
+  desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
   task update_default_gems: [:environment] do |_task, _args|
+    manually_installed = Bundler.load
+      .current_dependencies
+      .select { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+
+    Widget.pluck('name').difference(MirrOSApi::Application::DEFAULT_WIDGETS, manually_installed).each do |widget_name|
+      next if MirrOSApi::Application::DEFAULT_WIDGETS.include?("mirros-widget-#{widget_name}")
+      Widget.find_by(name: widget_name)&.destroy
+      puts "Removed #{widget_name} as it is no longer listed as a default or manually installed widget."
+    end
+
     MirrOSApi::Application::DEFAULT_WIDGETS.each do |widget|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke(widget)
@@ -148,6 +158,13 @@ namespace :db do
         next
       end
     end
+
+    Source.pluck('name').difference(MirrOSApi::Application::DEFAULT_SOURCES, manually_installed).each do |source_name|
+      next if MirrOSApi::Application::DEFAULT_SOURCES.include?("mirros-source-#{source_name}")
+      Source.find_by(name: source_name)&.destroy
+      puts "Removed #{source_name} as it is no longer listed as a default or manually installed source."
+    end
+
     MirrOSApi::Application::DEFAULT_SOURCES.each do |source|
       Rake::Task['extension:update'].reenable
       Rake::Task['extension:update'].invoke(source)
