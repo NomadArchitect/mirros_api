@@ -57,7 +57,28 @@ module RuleManager
       def self.as_json
         { type: :range, values: { start: :number, end: :number } }
       end
-
     end
+
+    class BetweenDates
+      def self.parse(value)
+        { start: Time.parse(value['start']), end: Time.parse(value['end']) }
+      end
+
+      # Determines if the given datetime matches the current datetime, based on the beginning of the hour to adjust for
+      # job runner timing.
+      # @param [DateTime] field The current time and date.
+      # @param [Time] value A valid time and date.
+      def self.evaluate(field, value)
+        field >= value[:start] && field < value[:end]
+      rescue StandardError => e
+        Rails.logger.error "#{__method__} #{e.message}"
+        false
+      end
+
+      def self.as_json
+        { type: :betweenDates, values: { start: :date, end: :date } }
+      end
+    end
+
   end
 end
