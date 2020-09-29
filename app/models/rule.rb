@@ -10,6 +10,8 @@ class Rule < ApplicationRecord
   belongs_to :source_instance, optional: true
 
   before_validation :setup
+  after_validation :normalize_timestamp, if: -> { errors.blank? && operator.eql?('betweenDates') }
+
   validates_each :value do |record, attr, value|
     record.operator_class.parse(value)
   rescue StandardError => e
@@ -27,5 +29,12 @@ class Rule < ApplicationRecord
     raise ArgumentError, "Failed to instantiate RuleManager::#{provider.camelize}RulesProvider" if @provider_class.nil?
 
     @operator_class = @provider_class.rules.dig(field.to_sym, :operators, operator.to_sym)
+  end
+
+  def normalize_timestamp
+    normalized = ->(value) { Time.zone.parse(value).utc.iso8601 }
+    tz = SettingsCache.s[:system_timezone]
+    Time.zone = tz unless tz.empty?
+    self.value = { start: normalized.call(value['start']), end: normalized.call(value['end']) }
   end
 end
