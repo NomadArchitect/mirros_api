@@ -18,6 +18,8 @@ class Rule < ApplicationRecord
     record.errors.add attr, "Value #{value} incompatible with #{@operator_class} operator: #{e.message}"
   end
 
+  # Evaluates this rule through the associated operator.
+  # @return [TrueClass, FalseClass] Whether the rule applies or not.
   def evaluate
     setup
     # TODO: Remove parse call if we implement typecasting before save
