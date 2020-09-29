@@ -124,6 +124,7 @@ class Setting < ApplicationRecord
   # @return [String] The updated value
   def update_cache
     SettingsCache.s[slug.to_sym] = value
+    StateCache.refresh_registered(RegistrationHandler.new.product_key_valid?) if slug.eql? 'personal_productkey'
   end
 
   # Check whether a setting can and should be applied automatically by `apply_setting`.
