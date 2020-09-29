@@ -29,6 +29,7 @@ class Rule < ApplicationRecord
     raise ArgumentError, "Failed to instantiate RuleManager::#{provider.camelize}RulesProvider" if @provider_class.nil?
 
     @operator_class = @provider_class.rules.dig(field.to_sym, :operators, operator.to_sym)
+    raise ArgumentError, "Failed to instantiate RuleManager::Operators::#{operator.camelize}" if @operator_class.nil?
   end
 
   def normalize_timestamp
