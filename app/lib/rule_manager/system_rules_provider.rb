@@ -8,6 +8,11 @@ module RuleManager
             after: Operators::GreaterThanOrEqualTo,
             between: Operators::Range
           }
+        },
+        dateAndTime: {
+          operators: {
+            betweenDates: Operators::BetweenDates,
+          }
         }
       }
 
@@ -15,6 +20,10 @@ module RuleManager
 
     def self.time_of_day
       Time.current.hour
+    end
+
+    def self.date_and_time
+      Time.current
     end
   end
 end
