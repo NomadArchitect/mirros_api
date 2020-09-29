@@ -12,7 +12,7 @@ module RuleManager
     def self.start_rule_evaluation
       return if job_running? RULE_EVALUATION_TAG
 
-      Rufus::Scheduler.singleton.cron '0 * * * *', tag: RULE_EVALUATION_TAG do
+      Rufus::Scheduler.singleton.cron '* * * * *', tag: RULE_EVALUATION_TAG do
         Board.all.each do |board|
           # TODO: Extend logic for rule sets in each board.
 
