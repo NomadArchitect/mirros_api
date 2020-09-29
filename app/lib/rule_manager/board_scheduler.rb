@@ -15,7 +15,13 @@ module RuleManager
       Rufus::Scheduler.singleton.cron '0 * * * *', tag: RULE_EVALUATION_TAG do
         Board.all.each do |board|
           # TODO: Extend logic for rule sets in each board.
-          # Right now, this only gets time-based rules for the board and runs them in sequential order.
+
+          # Date-based rules take precedence over recurring rules.
+          if board.rules.where(provider: 'system', field: 'dateAndTime').any?(&:evaluate)
+            Setting.find_by(slug: :system_activeboard).update(value: board.id)
+            break
+          end
+          # TODO: this only gets time-based rules for the board and runs them in sequential order.
           if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
             Setting.find_by(slug: :system_activeboard).update(value: board.id)
             break
