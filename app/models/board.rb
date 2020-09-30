@@ -23,4 +23,8 @@ class Board < ApplicationRecord
     errors.add(:base, 'Cannot delete active board')
     throw(:abort)
   end
+
+  def default?
+    id.eql?(Board.first.id)
+  end
 end
