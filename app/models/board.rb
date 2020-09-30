@@ -11,7 +11,7 @@ class Board < ApplicationRecord
              optional: true # background image is optional.
 
   def abort_if_default
-    return unless id.eql?(Board.first.id)
+    return unless default?
 
     errors.add :base, I18n.t('board.errors.messages.default_board_deletion')
     throw(:abort)
