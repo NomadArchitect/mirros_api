@@ -1,6 +1,7 @@
 # JSON representation of the Board model.
 class BoardResource < JSONAPI::Resource
   attributes :title, :background_id, :background_url
+  attribute :is_default
 
   has_many :widget_instances,
            always_include_linkage_data: true,
@@ -8,6 +9,10 @@ class BoardResource < JSONAPI::Resource
   has_many :rules,
            always_include_linkage_data: true,
            exclude_links: [:self]
+
+  def is_default
+    @model.default?
+  end
 
   def background_id
     @model.background&.id
