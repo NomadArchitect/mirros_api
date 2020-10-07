@@ -88,7 +88,7 @@ GEM
     fugit (1.3.8)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.3)
-    geocoder (1.6.3)
+    geocoder (1.6.4)
     git (1.5.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
@@ -117,8 +117,8 @@ GEM
       activerecord (>= 4.1)
       concurrent-ruby
       railties (>= 4.1)
-    lhc (12.3.0)
-      activesupport (>= 4.2)
+    lhc (13.1.0)
+      activesupport (>= 5.2)
       addressable
       typhoeus (>= 0.11)
     listen (3.1.5)
@@ -148,7 +148,7 @@ GEM
     multi_xml (0.6.0)
     multipart-post (2.1.1)
     mysql2 (0.5.3)
-    netatmo (0.1.2)
+    netatmo (0.1.3)
       easy_enum (~> 0.1.4)
       faraday (~> 1.0)
       geocoder (~> 1.6)
