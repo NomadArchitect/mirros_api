@@ -81,5 +81,6 @@ source 'https://extensions.glancr.net/' do
     gem 'todoist'
     gem 'vbb'
     gem 'mirros-source-netatmo'
+    gem 'mirros-source-microsoft_todo'
   end
 end
