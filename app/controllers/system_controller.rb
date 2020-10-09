@@ -41,6 +41,7 @@ class SystemController < ApplicationController
     head :no_content
   rescue StandardError => e
     StateCache.refresh_resetting false
+    Rails.logger.error e.message
     render json: jsonapi_error('Error during reset', e.message, 500),
            status: :internal_server_error
     # TODO: Remove installed extensions as well, since they're no longer registered in the database
