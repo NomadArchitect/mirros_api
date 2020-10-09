@@ -1,0 +1,9 @@
+de:
+  rule:
+    errors:
+      messages:
+        no_default_board: 'Default-Board kann keine Regeln enthalten'
+  board:
+    errors:
+      messages:
+        default_board_deletion: 'Cannot delete default board'

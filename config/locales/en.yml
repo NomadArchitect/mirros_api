@@ -30,4 +30,11 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  rule:
+    errors:
+      messages:
+        no_default_board: 'Default board cannot have rules'
+  board:
+    errors:
+      messages:
+        default_board_deletion: 'Cannot delete default board'

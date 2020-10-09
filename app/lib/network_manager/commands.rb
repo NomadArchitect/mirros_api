@@ -223,6 +223,8 @@ connection while searching for #{connection_id} #{e.message}
     # Returns nil for both values if no access point is active or an error occurred.
     # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70)
     def wifi_status
+      return { ssid: nil, signal: nil } if @wifi_device.nil?
+
       nm_wifi_if = @nm_s[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
       active_ap_path = nm_wifi_if['ActiveAccessPoint']
       return { ssid: nil, signal: nil } if active_ap_path.eql?('/')

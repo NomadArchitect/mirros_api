@@ -59,6 +59,12 @@ class Setting < ApplicationRecord
           "#{value} is not a valid interval expression. Schema is `<integer>m`"
         )
       end
+    when 'system_scheduleshutdown'
+      begin
+        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`") if value.present? && value.to_time.blank?
+      rescue StandardError
+        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`")
+      end
 
     else
       opts = record.options
@@ -108,18 +114,28 @@ class Setting < ApplicationRecord
     end
   end
 
+  # Forces the StateCache singleton to re-evaluate if the setup has been completed.
+  # @return [nil]
   def check_setup_status
     StateCache.refresh_setup_complete System.setup_completed?
   end
 
+  # Update the SettingsCache singleton for this setting.
+  # @return [String] The updated value
   def update_cache
     SettingsCache.s[slug.to_sym] = value
+    StateCache.refresh_registered(RegistrationHandler.new.product_key_valid?) if slug.eql? 'personal_productkey'
   end
 
+  # Check whether a setting can and should be applied automatically by `apply_setting`.
+  # @return [TrueClass, FalseClass] True if the setting should be auto-applied by SettingExecution, false otherwise.
   def auto_applicable?
-    %i[system_timezone system_boardrotation system_boardrotationinterval].include?(slug.to_sym)
+    %i[system_timezone system_boardrotation system_boardrotationinterval system_scheduleshutdown].include?(slug.to_sym)
   end
 
+  # Applies a setting automatically. Requires an executor class with the same constant name as the setting's category,
+  # which has a class method corresponding to the setting's `key` attribute. E.g. category `system` and
+  # key `scheduleShutdown` would invoke SettingExecution::System.schedule_shutdown.
   def apply_setting
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
     method_name = key.underscore

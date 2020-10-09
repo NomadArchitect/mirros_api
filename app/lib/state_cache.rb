@@ -10,7 +10,7 @@ class StateCache
   attr_reader :resetting, :nm_state, :setup_complete,
               :configured_at_boot, :online, :connectivity,
               :connectivity_check_available,
-              :network_status
+              :network_status, :registered
   validates :resetting, inclusion: [true, false]
 
   class << self
@@ -34,6 +34,7 @@ class StateCache
     @network_status = SettingExecution::Network.wifi_signal_status
     @primary_connection = init_primary_connection
     @networks = NmNetwork.all.map(&:public_info)
+    @registered = RegistrationHandler.new.product_key_valid?
   end
 
   def refresh_resetting(status)
@@ -67,6 +68,11 @@ class StateCache
 
   def refresh_configured_at_boot(status)
     @configured_at_boot = status
+    ::System.push_status_update
+  end
+
+  def refresh_registered(status)
+    @registered = status
     ::System.push_status_update
   end
 
