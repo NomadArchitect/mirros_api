@@ -74,9 +74,16 @@ class SystemController < ApplicationController
   end
 
   # @param [Hash] options
+  # @option options [String] :reference_time epoch timestamp in milliseconds
   def run_setup(options = { create_defaults: true })
     Rufus::Scheduler.s.pause
-    user_time = Integer(params[:reference_time])
+    ref_time = params[:reference_time]
+    user_time = begin
+                  ref_time.is_a?(Integer) ? ref_time/1000 : Time.strptime(ref_time, '%Q').to_i
+                rescue ArgumentError, TypeError => e
+                  Rails.logger.warn "#{__method__} using current system time. #{ref_time}: #{e.message}"
+                  Time.current.to_i
+                end
     System.change_system_time(user_time)
     unless System.setup_completed?
       Rails.logger.error 'Aborting setup, missing a value'

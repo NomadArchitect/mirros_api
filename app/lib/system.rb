@@ -203,7 +203,7 @@ class System
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end
 
-  # @param [Integer] epoch_timestamp A valid Unix timestamp in *milliseconds*.
+  # @param [Integer] epoch_timestamp A valid Unix timestamp in seconds.
   # @return [Array] Return messages from DBus call, if any
   def self.change_system_time(epoch_timestamp)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
@@ -220,7 +220,7 @@ class System
     # noinspection RubyResolve
     timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
     # noinspection RubyResolve
-    timedated_interface.SetTime(epoch_timestamp * 1000, false, false) # timedated requires microseconds
+    timedated_interface.SetTime(epoch_timestamp * 1000000, false, false) # timedated requires microseconds
     # noinspection RubyResolve
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
