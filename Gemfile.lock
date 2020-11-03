@@ -145,7 +145,7 @@ GEM
     minitest (5.14.2)
     mirros-source-microsoft_todo (1.0.0)
       omniauth-oauth2 (~> 1.7.0)
-    mirros-source-netatmo (1.0.2)
+    mirros-source-netatmo (1.0.3)
       lhc
       netatmo (~> 0.1.2)
     msgpack (1.3.3)
