@@ -41,9 +41,10 @@ class System
   def self.reboot
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
-    return if Rails.env.development? # Don't reboot a running dev system
     unless OS.linux?
-      raise NotImplementedError, 'Reboot only implemented for Linux hosts'
+      raise NotImplementedError, 'Reboot only implemented for Linux hosts' if Rails.env.production?
+      Rails.logger.warn "#{__method__} not implemented for #{OS.config['host_os']}"
+      return
     end
 
     # TODO: Refactor with ruby-dbus for consistency
