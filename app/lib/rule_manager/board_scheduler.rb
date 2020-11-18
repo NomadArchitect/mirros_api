@@ -81,12 +81,11 @@ module RuleManager
     #
     # @return [Boolean] whether the log entry succeeded.
     def self.stop_rotation_interval
-      return unless job_running? ROTATION_INTERVAL_TAG
-
-      Rufus::Scheduler.s.every_jobs(tag: ROTATION_INTERVAL_TAG).each(&:unschedule)
-      Rails.logger.info "stopped job #{ROTATION_INTERVAL_TAG}"
-      Rufus::Scheduler.s.every_jobs(tag: ROTATION_INTERVAL_RELOAD_TAG).each(&:unschedule)
-      Rails.logger.info "stopped job #{ROTATION_INTERVAL_RELOAD_TAG}"
+      [ROTATION_INTERVAL_TAG, ROTATION_INTERVAL_RELOAD_TAG].each do |tag|
+        next unless job_running? tag
+        Rufus::Scheduler.s.every_jobs(tag: tag).each(&:unschedule)
+        Rails.logger.info "stopped job #{tag}"
+        end
     end
 
     def self.manage_jobs(rotation_active: false)
