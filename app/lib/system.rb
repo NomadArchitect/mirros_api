@@ -178,7 +178,7 @@ class System
     network_configured = case SettingsCache.s[:network_connectiontype]
                          when 'wlan'
                            SettingsCache.s[:network_ssid].present? &&
-                           SettingsCache.s[:network_password].present?
+                             SettingsCache.s[:network_password].present?
                          else
                            true
                          end
