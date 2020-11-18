@@ -9,7 +9,7 @@ class Scheduler
   def self.start_reboot_job
     return if job_running? REBOOT_JOB_TAG
 
-    tz = SettingsCache.s[:system_timezone] || 'UTC'
+    tz = SettingsCache.s[:system_timezone].present? ? SettingsCache.s[:system_timezone] : 'UTC'
     Rufus::Scheduler.singleton.cron "0 2 * * * #{tz}", tag: REBOOT_JOB_TAG do
       Rails.logger.info "Scheduled reboot from #{REBOOT_JOB_TAG}"
       System.reboot
