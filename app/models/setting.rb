@@ -7,6 +7,7 @@ class Setting < ApplicationRecord
   before_update :apply_setting, if: :auto_applicable?
   after_update :update_cache, :check_setup_status
   after_update :reset_premium_settings, if: :changes_product_key?
+  after_update :restart_jobs, if: -> { slug.eql?('system_timezone') }
   before_validation :check_license_status, unless: :changes_product_key?
 
   self.primary_key = 'slug'
@@ -140,5 +141,13 @@ class Setting < ApplicationRecord
     executor = "SettingExecution::#{category.capitalize}".safe_constantize
     method_name = key.underscore
     executor.send(method_name, value) if executor.respond_to?(method_name)
+  end
+
+  # Restarts Rufus scheduler jobs if required by settings changes.
+  # Currently only used for system_timezone, see callback proc.
+  def restart_jobs
+    # Restart the reboot job so that it picks up the timezone change.
+    Scheduler.stop_reboot_job
+    Scheduler.start_reboot_job
   end
 end
