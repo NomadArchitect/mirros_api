@@ -48,10 +48,10 @@ if Rails.const_defined? 'Server'
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
 
-  # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the
-  # proper timezone is set at all times. Remove once https://bugs.launchpad.net/snappy/+bug/1650688
-  # is resolved.
-  if ENV['SNAP_VERSION']
+
+  if ENV['SNAP']
+    # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the proper timezone is set at all times.
+    # Remove once https://bugs.launchpad.net/snappy/+bug/1650688 is resolved.
     System.reset_timezone
     s.every '30m', tag: 'system-fix-system-timezone', overlap: false do
       System.reset_timezone
