@@ -1,0 +1,2 @@
+class SystemState < ApplicationRecord
+end
