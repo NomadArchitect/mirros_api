@@ -294,6 +294,8 @@ stack trace:
     WidgetInstance.create(instances)
   end
 
+  # Creates the default holiday calendar configuration.
+  # @see SystemController.create_widget_instances must run before to create the widget instance.
   def create_default_cal_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
     calendar_settings = default_holiday_calendar(locale)
@@ -355,34 +357,16 @@ stack trace:
     Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
-  # noinspection SpellCheckingInspection
+  # Generates locale-dependent configuration for the default holiday calendar iCal source instance.
+  # @param [string] locale A valid system locale, @see app/lib/setting_options.yaml at system_language
   def default_holiday_calendar(locale)
-    fragments = {
-      url: {
-        enGb: 'en.uk',
-        deDe: 'de.german',
-        frFr: 'fr.french',
-        esEs: 'es.spain',
-        plPl: 'pl.polish',
-        koKr: 'ko.south_korea'
-      }[locale.to_sym],
-      title: {
-        enGb: 'UK Holidays',
-        deDe: 'Deutsche Feiertage',
-        frFr: 'vacances en France',
-        esEs: 'Vacaciones en España',
-        plPl: 'Polskie święta',
-        koKr: '한국의 휴일'
-      }[locale.to_sym]
+    yaml = @defaults['source_instances']['holiday_calendar']
+    {
+      url: yaml['configuration']['url'] % yaml['locale_fragments'][locale],
+      title: yaml['configuration']['title'] % yaml['titles'][locale]
     }
-    holiday_calendar_hash(fragments)
   end
 
-  def holiday_calendar_hash(fragments)
-    {
-      url: "https://calendar.google.com/calendar/ical/#{fragments[:url]}%23holiday%40group.v.calendar.google.com/public/basic.ics",
-      title: "#{fragments[:title]} (Google)"
-    }
   # Loads the default extension configuration from a YAML file to reduce bloat here.
   def load_defaults_file
     return unless @defaults.nil?
