@@ -16,6 +16,11 @@ class System
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.info
+    state = {}
+    SystemState.pluck(:variable, :value).each do |variable, value|
+      state[variable] = value
+    end
+
     {
       snap_version: SNAP_VERSION,
       api_version: API_VERSION,
@@ -23,7 +28,7 @@ class System
       rails_env: Rails.env,
       # TODO: Maybe add more settings here as well; define a read_public_settings on SettingsCache
       connection_type: SettingsCache.s[:network_connectiontype]
-    }.merge(StateCache.as_json)
+    }.merge(StateCache.as_json, state)
   end
 
   def self.push_status_update
