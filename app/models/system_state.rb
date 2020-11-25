@@ -1,6 +1,12 @@
 class SystemState < ApplicationRecord
   validates_uniqueness_of :variable
 
+  # Retrieves the value for a given state variable.
+  # @param [String] variable A valid SystemState variable name
+  def self.get_value(variable)
+    find_by(variable: variable)&.value
+  end
+
   # @param [String] variable A valid variable name
   # @param [String] key A key within the variable's value field.
   # @return [Object|nil] The value of the given key within value, nil if variable or key cannot be found.
