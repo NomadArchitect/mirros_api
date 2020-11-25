@@ -1,2 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+client_display:
+ variable: client_display
+ value:
+   orientation: landscape
+   width: 1080
+   height: 1920
+
