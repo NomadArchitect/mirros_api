@@ -80,7 +80,7 @@ class SystemController < ApplicationController
     Rufus::Scheduler.s.pause
     ref_time = params[:reference_time]
     user_time = begin
-                  ref_time.is_a?(Integer) ? ref_time/1000 : Time.strptime(ref_time, '%Q').to_i
+                  ref_time.is_a?(Integer) ? ref_time / 1000 : Time.strptime(ref_time, '%Q').to_i
                 rescue ArgumentError, TypeError => e
                   Rails.logger.warn "#{__method__} using current system time. #{ref_time}: #{e.message}"
                   Time.current.to_i
