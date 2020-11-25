@@ -99,6 +99,8 @@ class SystemController < ApplicationController
       sleep 2
       SettingExecution::Personal.send_setup_email
       if opts[:create_defaults]
+        load_defaults_file
+        create_widget_instances
         create_default_cal_instances
         create_default_feed_instances
       end
@@ -280,6 +282,18 @@ stack trace:
     end
   end
 
+  # Creates the default widget instances, based on the current display layout.
+  def create_widget_instances
+    orientation = SystemState.dig(variable: 'client_display', key: 'orientation') || 'portrait'
+    default_board = Board.find_by(title: 'default')
+    instances = []
+    @defaults['widget_instances'].each do |slug, config|
+      instances << config.merge(
+        { widget: Widget.find_by(slug: slug),  position: config['position'][orientation], board: default_board })
+    end
+    WidgetInstance.create(instances)
+  end
+
   def create_default_cal_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
     calendar_settings = default_holiday_calendar(locale)
@@ -369,6 +383,11 @@ stack trace:
       url: "https://calendar.google.com/calendar/ical/#{fragments[:url]}%23holiday%40group.v.calendar.google.com/public/basic.ics",
       title: "#{fragments[:title]} (Google)"
     }
+  # Loads the default extension configuration from a YAML file to reduce bloat here.
+  def load_defaults_file
+    return unless @defaults.nil?
+
+    @defaults = YAML.load_file(Rails.root.join('app/lib/default_extensions.yml'))
   end
 
   def jsonapi_error(title, msg, code)

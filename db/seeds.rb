@@ -167,69 +167,6 @@ MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   puts "Successfully ran #{extension} seed" if has_seed
 end
 
-WidgetInstance.create([
-                        {
-                          widget: Widget.find_by(slug: 'clock'),
-                          title: '',
-                          showtitle: false,
-                          configuration: {},
-                          position: { "x": 0, "y": 0, "width": 3, "height": 1 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'current_date'),
-                          title: '',
-                          showtitle: false,
-                          configuration: {},
-                          position: { "x": 0, "y": 1, "width": 3, "height": 1 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'text_field'),
-                          title: '',
-                          showtitle: false,
-                          configuration: {
-                            "alignment": 'center',
-                            "fontsize": '200',
-                            "content": ''
-                          },
-                          position: { "x": 4, "y": 12, "width": 4, "height": 4 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'calendar_event_list'),
-                          title: 'Holidays',
-                          showtitle: true,
-                          configuration: {},
-                          position: { "x": 8, "y": 0, "width": 5, "height": 4 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'ticker'),
-                          title: 'glancr News',
-                          showtitle: true,
-                          configuration: { "amount": 5, "showFeedIcon": true },
-                          position: { "x": 0, "y": 16, "width": 6, "height": 4 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'network'),
-                          title: '',
-                          showtitle: false,
-                          configuration: {},
-                          position: { "x": 8, "y": 16, "width": 4, "height": 2 },
-                          board: default_board
-                        },
-                        {
-                          widget: Widget.find_by(slug: 'qrcode'),
-                          title: '',
-                          showtitle: false,
-                          configuration: {},
-                          position: { "x": 8, "y": 18, "width": 2, "height": 2 },
-                          board: default_board
-                        }
-                      ])
-
 MirrOSApi::Application::DEFAULT_SOURCES.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke(extension)
