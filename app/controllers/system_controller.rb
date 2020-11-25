@@ -282,26 +282,23 @@ stack trace:
 
   def create_default_cal_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-    feed_settings = default_holiday_calendar(locale)
+    calendar_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
       calendar_source = SourceInstance.new(
         source: Source.find_by(slug: 'ical'),
-        configuration: { "url": feed_settings[:url] }
+        configuration: { "url": calendar_settings[:url] }
       )
       calendar_source.save!(validate: false)
       calendar_source.update(
         options: [
-          {
-            uid: calendar_source.options.first['uid'],
-            display: feed_settings[:title]
-          }
+          { uid: calendar_source.options.first['uid'], display: calendar_settings[:title] }
         ],
-        title: feed_settings[:title]
+        title: calendar_settings[:title]
       )
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
-      calendar_widget.update(title: feed_settings[:title])
+      calendar_widget.update(title: calendar_settings[:title])
       InstanceAssociation.create!(
         configuration: {
           "chosen": [calendar_source.options.first['uid']]
