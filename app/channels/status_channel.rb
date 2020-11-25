@@ -9,8 +9,12 @@ class StatusChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
   end
 
-  # @param [Object] data A hash containing fields `orientation`, `width` and `height`.
-  # @return [ActiveModel]
+  # Stores display layout from a connected client.
+  # @param [Object] data Display layout configuration
+  # @option data [String] :orientation The screen orientation, one of [portrait, landscape]. Defaults to `portrait`.
+  # @option data [Integer] :width The client's window width. Defaults to 1080.
+  # @option data [Integer] :height The client's window height. Defaults to 1920.
+  # @return [ActiveModel] The created or updated model.
   def client_display(data)
     SystemState
       .find_or_initialize_by(variable: 'client_display')
