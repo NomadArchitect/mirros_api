@@ -1,0 +1,74 @@
+widget_instances:
+  clock:
+    title: ''
+    showtitle: false
+    configuration: { }
+    position:
+      portrait: { "x": 0, "y": 0, "width": 3, "height": 1 }
+      landscape: { "x": 0, "y": 0, "width": 3, "height": 1 }
+  current_date:
+    title: ''
+    showtitle: false
+    configuration: { }
+    position:
+      portrait: { "x": 0, "y": 1, "width": 3, "height": 1 }
+      landscape: { "x": 0, "y": 1, "width": 3, "height": 1 }
+  calendar_event_list:
+    title: 'Holidays'
+    showtitle: true
+    configuration: { }
+    position:
+      portrait: { "x": 8, "y": 0, "width": 5, "height": 4 }
+      landscape: { "x": 16, "y": 0, "width": 5, "height": 4 }
+  text_field:
+    title: ''
+    showtitle: false
+    configuration: {
+      "alignment": 'center',
+      "fontsize": '200',
+      "content": ''
+    }
+    position:
+      portrait: { "x": 4, "y": 12, "width": 4, "height": 4 }
+      landscape: { "x": 9, "y": 5, "width": 4, "height": 4 }
+  ticker:
+    title: 'glancr News'
+    showtitle: true
+    configuration: { "amount": 5, "showFeedIcon": true }
+    position:
+      portrait: { "x": 0, "y": 16, "width": 6, "height": 4 }
+      landscape: { "x": 0, "y": 8, "width": 6, "height": 4 }
+  network:
+    title: ''
+    showtitle: false
+    configuration: { }
+    position:
+      portrait: { "x": 8, "y": 16, "width": 4, "height": 2 }
+      landscape: { "x": 17, "y": 8, "width": 4, "height": 2 }
+  qrcode:
+    title: ''
+    showtitle: false
+    configuration: { }
+    position:
+      portrait: { "x": 8, "y": 18, "width": 2, "height": 2 }
+      landscape: { "x": 17, "y": 10, "width": 2, "height": 2 }
+
+source_instances:
+  holiday_calendar:
+    locale_fragments:
+      enGb: 'en.uk'
+      deDe: 'de.german'
+      frFr: 'fr.french'
+      esEs: 'es.spain'
+      plPl: 'pl.polish'
+      koKr: 'ko.south_korea'
+    titles:
+      enGb: 'UK Holidays'
+      deDe: 'Deutsche Feiertage'
+      frFr: 'vacances en France'
+      esEs: 'Vacaciones en España'
+      plPl: 'Polskie święta'
+      koKr: '한국의 휴일'
+    configuration:
+      url: 'https://calendar.google.com/calendar/ical/%s%%23holiday%%40group.v.calendar.google.com/public/basic.ics'
+      title: '%s (Google)'
