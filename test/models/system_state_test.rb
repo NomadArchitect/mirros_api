@@ -26,4 +26,14 @@ class SystemStateTest < ActiveSupport::TestCase
       SystemState.create! variable: 'client_display', value: {}
     end
   end
+
+  test 'retrieves nested values' do
+    state = system_states(:client_display)
+    assert_equal state.value['orientation'], SystemState.dig(variable: 'client_display', key: 'orientation')
+  end
+
+  test 'retrieves single values' do
+    state = system_states(:simple_state)
+    assert_equal state.value, SystemState.get_value('simple_state')
+  end
 end

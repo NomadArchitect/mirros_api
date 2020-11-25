@@ -7,3 +7,6 @@ client_display:
    width: 1080
    height: 1920
 
+simple_state:
+  variable: simple_state
+  value: a string
