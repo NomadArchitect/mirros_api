@@ -80,7 +80,7 @@ class SystemController < ApplicationController
     Rufus::Scheduler.s.pause
     ref_time = params[:reference_time]
     user_time = begin
-                  ref_time.is_a?(Integer) ? ref_time/1000 : Time.strptime(ref_time, '%Q').to_i
+                  ref_time.is_a?(Integer) ? ref_time / 1000 : Time.strptime(ref_time, '%Q').to_i
                 rescue ArgumentError, TypeError => e
                   Rails.logger.warn "#{__method__} using current system time. #{ref_time}: #{e.message}"
                   Time.current.to_i
@@ -99,6 +99,8 @@ class SystemController < ApplicationController
       sleep 2
       SettingExecution::Personal.send_setup_email
       if opts[:create_defaults]
+        load_defaults_file
+        create_widget_instances
         create_default_cal_instances
         create_default_feed_instances
       end
@@ -280,28 +282,39 @@ stack trace:
     end
   end
 
+  # Creates the default widget instances, based on the current display layout.
+  def create_widget_instances
+    orientation = SystemState.dig(variable: 'client_display', key: 'orientation') || 'portrait'
+    default_board = Board.find_by(title: 'default')
+    instances = []
+    @defaults['widget_instances'].each do |slug, config|
+      instances << config.merge(
+        { widget: Widget.find_by(slug: slug),  position: config['position'][orientation], board: default_board })
+    end
+    WidgetInstance.create(instances)
+  end
+
+  # Creates the default holiday calendar configuration.
+  # @see SystemController.create_widget_instances must run before to create the widget instance.
   def create_default_cal_instances
     locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-    feed_settings = default_holiday_calendar(locale)
+    calendar_settings = default_holiday_calendar(locale)
 
     ActiveRecord::Base.transaction do
       calendar_source = SourceInstance.new(
         source: Source.find_by(slug: 'ical'),
-        configuration: { "url": feed_settings[:url] }
+        configuration: { "url": calendar_settings[:url] }
       )
       calendar_source.save!(validate: false)
       calendar_source.update(
         options: [
-          {
-            uid: calendar_source.options.first['uid'],
-            display: feed_settings[:title]
-          }
+          { uid: calendar_source.options.first['uid'], display: calendar_settings[:title] }
         ],
-        title: feed_settings[:title]
+        title: calendar_settings[:title]
       )
 
       calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
-      calendar_widget.update(title: feed_settings[:title])
+      calendar_widget.update(title: calendar_settings[:title])
       InstanceAssociation.create!(
         configuration: {
           "chosen": [calendar_source.options.first['uid']]
@@ -344,34 +357,21 @@ stack trace:
     Rails.logger.error "Error during calendar instance creation: #{e.message}"
   end
 
-  # noinspection SpellCheckingInspection
+  # Generates locale-dependent configuration for the default holiday calendar iCal source instance.
+  # @param [string] locale A valid system locale, @see app/lib/setting_options.yaml at system_language
   def default_holiday_calendar(locale)
-    fragments = {
-      url: {
-        enGb: 'en.uk',
-        deDe: 'de.german',
-        frFr: 'fr.french',
-        esEs: 'es.spain',
-        plPl: 'pl.polish',
-        koKr: 'ko.south_korea'
-      }[locale.to_sym],
-      title: {
-        enGb: 'UK Holidays',
-        deDe: 'Deutsche Feiertage',
-        frFr: 'vacances en France',
-        esEs: 'Vacaciones en España',
-        plPl: 'Polskie święta',
-        koKr: '한국의 휴일'
-      }[locale.to_sym]
+    yaml = @defaults['source_instances']['holiday_calendar']
+    {
+      url: yaml['configuration']['url'] % yaml['locale_fragments'][locale],
+      title: yaml['configuration']['title'] % yaml['titles'][locale]
     }
-    holiday_calendar_hash(fragments)
   end
 
-  def holiday_calendar_hash(fragments)
-    {
-      url: "https://calendar.google.com/calendar/ical/#{fragments[:url]}%23holiday%40group.v.calendar.google.com/public/basic.ics",
-      title: "#{fragments[:title]} (Google)"
-    }
+  # Loads the default extension configuration from a YAML file to reduce bloat here.
+  def load_defaults_file
+    return unless @defaults.nil?
+
+    @defaults = YAML.load_file(Rails.root.join('app/lib/default_extensions.yml'))
   end
 
   def jsonapi_error(title, msg, code)
