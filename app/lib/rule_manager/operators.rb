@@ -45,6 +45,16 @@ module RuleManager
       end
     end
 
+    class RangeBase < Base
+      def self.parse(value)
+        { start: Integer(value['start']), end: Integer(value['end']) }
+      end
+
+      def self.as_json
+        { type: :range, values: { start: :number, end: :number } }
+      end
+    end
+
     class Range < NumericBase
       def self.parse(value)
         { start: Integer(value['start']), end: Integer(value['end']) }
