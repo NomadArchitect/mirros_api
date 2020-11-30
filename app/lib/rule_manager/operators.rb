@@ -45,17 +45,25 @@ module RuleManager
       end
     end
 
-    class Range < NumericBase
+    class RangeBase < Base
       def self.parse(value)
         { start: Integer(value['start']), end: Integer(value['end']) }
       end
 
+      def self.as_json
+        { type: :range, values: { start: :number, end: :number } }
+      end
+    end
+
+    class Range < RangeBase
       def self.evaluate(field, value)
         field.between?(value[:start], value[:end])
       end
+    end
 
-      def self.as_json
-        { type: :range, values: { start: :number, end: :number } }
+    class RangeExcludingEnd < RangeBase
+      def self.evaluate(field, value)
+        field >= value[:start] && field < value[:end]
       end
     end
 
