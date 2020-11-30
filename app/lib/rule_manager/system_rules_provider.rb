@@ -6,7 +6,7 @@ module RuleManager
           operators: {
             before: Operators::LessThan,
             after: Operators::GreaterThanOrEqualTo,
-            between: Operators::Range
+            between: Operators::RangeExcludingEnd
           }
         },
         dateAndTime: {
