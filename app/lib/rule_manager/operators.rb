@@ -69,6 +69,12 @@ module RuleManager
       end
     end
 
+    class RangeExcludingEnd < RangeBase
+      def self.evaluate(field, value)
+        field >= value[:start] && field < value[:end]
+      end
+    end
+
     class BetweenDates
       def self.parse(value)
         { start: Time.parse(value['start']), end: Time.parse(value['end']) }
