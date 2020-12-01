@@ -58,7 +58,7 @@ if Rails.const_defined? 'Server'
     end
   end
 
-  Scheduler.start_reboot_job
+    Scheduler.start_browser_restart_job
 
   # Perform initial network status to determine if we need the AP right away
   System.check_network_status
