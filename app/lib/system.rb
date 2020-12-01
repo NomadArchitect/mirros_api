@@ -92,12 +92,13 @@ class System
     raise e
   end
 
+  # Quits a running cog instance, will be restarted by systemd.
   def self.reload_browser
     cog_s = DBus::ASystemBus.new['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
     # noinspection RubyResolve
-    cog_i.Activate('reload', [], {})
+    cog_i.Activate('quit', [], {})
   end
 
   # Restarts the Rails application.

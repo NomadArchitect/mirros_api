@@ -56,9 +56,9 @@ if Rails.const_defined? 'Server'
     s.every '30m', tag: 'system-fix-system-timezone', overlap: false do
       System.reset_timezone
     end
-  end
 
-  Scheduler.start_reboot_job
+    Scheduler.start_browser_restart_job
+  end
 
   # Perform initial network status to determine if we need the AP right away
   System.check_network_status
