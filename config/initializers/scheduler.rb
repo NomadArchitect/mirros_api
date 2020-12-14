@@ -62,6 +62,7 @@ if Rails.const_defined? 'Server'
 
   # Perform initial network status to determine if we need the AP right away
   System.check_network_status
+  SettingExecution::Network.open_ap unless System.no_offline_mode_required?
 
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
