@@ -91,8 +91,7 @@ class SystemController < ApplicationController
       raise ArgumentError, 'Missing required setting.'
     end
 
-    connect_to_network
-    online_or_raise
+    SettingExecution::Network.connect
 
     # TODO: Handle errors in thread and take action if required
     Thread.new(options) do |opts|
@@ -256,31 +255,6 @@ stack trace:
   end
 
   private
-
-  def connect_to_network
-    conn_type = SettingsCache.s[:network_connectiontype]
-    case conn_type
-    when 'wlan'
-      SettingExecution::Network.connect
-    when 'lan'
-      SettingExecution::Network.enable_lan
-      SettingExecution::Network.close_ap
-    else
-      raise ArgumentError, "invalid connection type #{conn_type}"
-    end
-  end
-
-  def online_or_raise
-    retries = 0
-    until retries > 24 || System.online?
-      sleep 5
-      retries += 1
-    end
-
-    if retries > 24
-      raise StandardError, 'Could not connect to the internet within two minutes'
-    end
-  end
 
   # Creates the default widget instances, based on the current display layout.
   def create_widget_instances

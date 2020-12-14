@@ -12,7 +12,7 @@ module SettingExecution
     # TODO: Support other authentication methods as well
     # @param [String] ssid
     # @param [String] password
-    def self.connect(ssid, password)
+    def self.connect_to_wifi(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
       remove_stale_connections
       Commands.instance.activate_new_wifi_connection(

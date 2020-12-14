@@ -33,12 +33,12 @@ namespace :mirros do
       # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
 
       # Test online status
-      ctrl = SystemController.new
-      ctrl.send(:online_or_raise)
+      SettingExecution::Network.send(:validate_connectivity)
 
       # System has internet connectivity, complete seed and send setup mail
       SettingExecution::Personal.send_setup_email
 
+      ctrl = SystemController.new
       ctrl.send(:load_defaults_file)
       ctrl.send(:create_widget_instances)
       ctrl.send(:create_default_cal_instances)

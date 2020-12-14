@@ -13,7 +13,19 @@ module SettingExecution
       end
 
       close_ap
-      os_subclass.connect(ssid, password)
+
+      conn_type = SettingsCache.s[:network_connectiontype]
+      case conn_type
+      when 'wlan'
+        os_subclass.connect_to_wifi(ssid, password)
+      when 'lan'
+        SettingExecution::Network.enable_lan
+      else
+        raise ArgumentError, "invalid connection type #{conn_type}"
+      end
+
+      validate_connectivity
+
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
       open_ap
@@ -127,5 +139,17 @@ module SettingExecution
     end
 
     private_class_method :toggle_lan
+
+    def self.validate_connectivity
+      retries = 0
+      until retries > 24 || ::System.online?
+        sleep 5
+        retries += 1
+      end
+
+      if retries > 24
+        raise StandardError, 'Could not connect to the internet within two minutes'
+      end
+    end
   end
 end
