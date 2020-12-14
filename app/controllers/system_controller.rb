@@ -263,7 +263,7 @@ stack trace:
     instances = []
     @defaults['widget_instances'].each do |slug, config|
       instances << config.merge(
-        { widget: Widget.find_by(slug: slug),  position: config['position'][orientation], board: default_board })
+        { widget: Widget.find_by(slug: slug), position: config['position'][orientation], board: default_board })
     end
     WidgetInstance.create(instances)
   end
