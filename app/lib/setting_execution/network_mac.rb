@@ -4,7 +4,7 @@ module SettingExecution
   # Apply network-related settings.
   class NetworkMac < Network
     # TODO: Support other authentication methods as well
-    def self.connect(ssid, password)
+    def self.connect_to_wifi(ssid, password)
       line = Terrapin::CommandLine.new('networksetup', '-setairportnetwork :iface :ssid :password')
       begin
         success = line.run(iface: ::System.current_interface,

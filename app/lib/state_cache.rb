@@ -160,7 +160,7 @@ class StateCache
     Rufus::Scheduler.singleton.in '10s', tags: 'check-nm_connectivity_state', overlap: false do
       StateCache.refresh_connectivity StateCache.connectivity_from_dns
     end
-    Rails.logger.error 'scheduled forced connectivity check in 10s'
+    Rails.logger.info 'scheduled forced connectivity check in 10s'
   end
 
   def init_primary_connection

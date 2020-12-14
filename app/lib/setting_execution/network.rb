@@ -13,7 +13,19 @@ module SettingExecution
       end
 
       close_ap
-      os_subclass.connect(ssid, password)
+
+      conn_type = SettingsCache.s[:network_connectiontype]
+      case conn_type
+      when 'wlan'
+        os_subclass.connect_to_wifi(ssid, password)
+      when 'lan'
+        SettingExecution::Network.enable_lan
+      else
+        raise ArgumentError, "invalid connection type #{conn_type}"
+      end
+
+      validate_connectivity
+
     rescue StandardError => e
       Rails.logger.error "Error joining WiFi: #{e.message}"
       open_ap
@@ -53,14 +65,14 @@ module SettingExecution
       Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
         open_ap
       end
-      Rails.logger.warn 'Scheduled AP opening in 15m'
+      Rails.logger.info 'Scheduled AP opening in 15m'
     end
 
     def self.cancel_ap_schedule
       Rufus::Scheduler.s.in_jobs.select do |job|
         job.tags.include? 'ap-timeout'
       end.each(&:unschedule)
-      Rails.logger.warn 'Unscheduled AP opening'
+      Rails.logger.info 'Unscheduled AP opening'
     end
 
     def self.open_ap
@@ -127,5 +139,17 @@ module SettingExecution
     end
 
     private_class_method :toggle_lan
+
+    def self.validate_connectivity
+      retries = 0
+      until retries > 24 || ::System.online?
+        sleep 5
+        retries += 1
+      end
+
+      if retries > 24
+        raise StandardError, 'Could not connect to the internet within two minutes'
+      end
+    end
   end
 end
