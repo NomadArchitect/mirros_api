@@ -8,6 +8,7 @@ module NetworkManager
     IP4_PROTOCOL = 4
     IP6_PROTOCOL = 6
     CONNECTION_ACTIVATION_TIMEOUT = 10 # seconds
+    VALID_CONNECTION_TYPES = %w[802-11-wireless 802-3-ethernet]
 
     def map_state(state)
       NmState.constants.select do |c|
@@ -72,6 +73,9 @@ module NetworkManager
     # @param [DBus::ProxyObjectInterface] iface a valid NetworkManager.Connection.Active proxy
     # @return [Boolean] whether the update was successful
     def persist_active_connection(object_path:, iface:)
+      # Don't sync tunnel/bridge connections that might pop up in network-manager.
+      return unless VALID_CONNECTION_TYPES.include?(iface['Type'])
+
       nm_network = NmNetwork.find_or_initialize_by(
         uuid: iface['Uuid']
       ) do |network|
@@ -92,6 +96,9 @@ module NetworkManager
 
     def persist_inactive_connection(settings_path:)
       settings = NetworkManager::Commands.instance.settings_for_connection_path(connection_path: settings_path)
+      # Don't sync tunnel/bridge connections that might pop up in network-manager.
+      return unless VALID_CONNECTION_TYPES.include?(settings.dig('connection', 'type'))
+
       model = NmNetwork.find_or_initialize_by(
         uuid: settings.dig('connection', 'uuid')
       ) do |network|

@@ -176,7 +176,6 @@ class System
   # activating an already-active connection.
   def self.check_network_status
     check_ip_change current_ip_address
-    start_offline_mode unless no_offline_mode_required?
   end
 
   # Tests whether all required parts of the initial setup are present.
@@ -295,51 +294,19 @@ class System
       SettingExecution::Network.ap_active?
   end
 
-  private_class_method :no_offline_mode_required?
-
-  def self.start_offline_mode
-    if setup_completed?
-      pause_background_jobs
-      start_reconnection_attempts
-    else
-      SettingExecution::Network.open_ap
-    end
-  rescue StandardError => e
-    Rails.logger.error e.message
-  end
-
-  private_class_method :start_offline_mode
-
-  def self.start_reconnection_attempts
-    Rufus::Scheduler.s.interval '3m',
-                                tag: 'network-reconnect-attempt',
-                                overlap: false,
-                                times: 3 do |job|
-      SettingExecution::Network.connect if SettingsCache.s.using_wifi?
-      sleep 5
-      if current_ip_address&.present?
-        job.unschedule
-        resume_background_jobs
-      elsif job.count.eql? 3
-        SettingExecution::Network.open_ap
-        resume_background_jobs
-      end
-    rescue StandardError => e
-      Rails.logger.error e.message
-    end
-  end
-
-  def self.pause_background_jobs
+  def self.pause_network_jobs
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
     Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:pause)
   end
 
-  private_class_method :pause_background_jobs
-
-  def self.resume_background_jobs
+  def self.resume_network_jobs
+    # NOTE: Passing an array of tags to Rufus only returns jobs that have BOTH. We want to run the same logic for each.
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:call)
     Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:call)
+  rescue StandardError => e
+    Rails.logger.error e.message
   end
 
-  private_class_method :resume_background_jobs
 end
