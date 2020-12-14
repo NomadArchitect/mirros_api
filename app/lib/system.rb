@@ -294,17 +294,14 @@ class System
       SettingExecution::Network.ap_active?
   end
 
-  def self.pause_background_jobs
+  def self.pause_network_jobs
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
     Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:pause)
   end
 
-  private_class_method :pause_background_jobs
-
-  def self.resume_background_jobs
+  def self.resume_network_jobs
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
     Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
   end
 
-  private_class_method :resume_background_jobs
 end
