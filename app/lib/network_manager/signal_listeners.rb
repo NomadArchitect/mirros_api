@@ -163,8 +163,10 @@ module NetworkManager
       Logger.debug "NmState update: #{map_state(nm_state)}"
       if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
+        System.pause_network_jobs
       else
         SettingExecution::Network.cancel_ap_schedule
+        System.resume_network_jobs
       end
       StateCache.refresh_nm_state nm_state
       StateCache.refresh_online nm_state
