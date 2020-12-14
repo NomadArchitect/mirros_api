@@ -176,7 +176,6 @@ class System
   # activating an already-active connection.
   def self.check_network_status
     check_ip_change current_ip_address
-    start_offline_mode unless no_offline_mode_required?
   end
 
   # Tests whether all required parts of the initial setup are present.
@@ -293,40 +292,6 @@ class System
       NmNetwork.exclude_ap.where(active: true).present? ||
       StateCache.nm_state.eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
-  end
-
-  private_class_method :no_offline_mode_required?
-
-  def self.start_offline_mode
-    if setup_completed?
-      pause_background_jobs
-      start_reconnection_attempts
-    else
-      SettingExecution::Network.open_ap
-    end
-  rescue StandardError => e
-    Rails.logger.error e.message
-  end
-
-  private_class_method :start_offline_mode
-
-  def self.start_reconnection_attempts
-    Rufus::Scheduler.s.interval '3m',
-                                tag: 'network-reconnect-attempt',
-                                overlap: false,
-                                times: 3 do |job|
-      SettingExecution::Network.connect if SettingsCache.s.using_wifi?
-      sleep 5
-      if current_ip_address&.present?
-        job.unschedule
-        resume_background_jobs
-      elsif job.count.eql? 3
-        SettingExecution::Network.open_ap
-        resume_background_jobs
-      end
-    rescue StandardError => e
-      Rails.logger.error e.message
-    end
   end
 
   def self.pause_background_jobs
