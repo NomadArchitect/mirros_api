@@ -300,8 +300,13 @@ class System
   end
 
   def self.resume_network_jobs
+    # NOTE: Passing an array of tags to Rufus only returns jobs that have BOTH. We want to run the same logic for each.
     Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:call)
     Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
+    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:call)
+  rescue StandardError => e
+    Rails.logger.error e.message
   end
 
 end
