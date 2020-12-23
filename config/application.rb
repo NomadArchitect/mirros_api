@@ -83,13 +83,8 @@ module MirrOSApi
     GEM_SERVER = 'extensions.glancr.net' # localhost:9292 for geminabox
     SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
-    DEFAULT_WIDGETS = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:widget) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
-
-    DEFAULT_SOURCES = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:source) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+    DEFAULT_WIDGETS = gems_in_extension_group(group: :widget)
+    DEFAULT_SOURCES = gems_in_extension_group(group: :source)
 
     config.action_cable.allowed_request_origins = [
       /localhost:\d{2,4}/,
