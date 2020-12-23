@@ -267,6 +267,10 @@ connection while searching for #{connection_id} #{e.message}
       end
     end
 
+    def nm_version
+      @nm_i['Version']
+    end
+
     private
 
     # @param [String] connection_id The given ID of a connection. Assumes that a
