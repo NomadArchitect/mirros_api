@@ -193,12 +193,12 @@ stack trace:
   end
 
   def generate_system_report
-    render json: DebugReport.installed_extensions.merge(DebugReport.active_instances)
+    render json: DebugReport.system_report
   end
 
   def send_debug_report
     report = DebugReport.new(params[:title].to_s, params[:description].to_s, params[:email].to_s)
-    res = report.send
+    res = report.send_mail
     head res.code
   rescue StandardError => e
     render json: jsonapi_error('Error while sending debug report', e.message, 500),

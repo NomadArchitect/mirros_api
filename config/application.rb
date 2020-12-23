@@ -24,6 +24,17 @@ Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
 
 module MirrOSApi
   class Application < Rails::Application
+
+    # Filters dependencies by bundler group and whether they were installed manually, i.e. not during build time.
+    # @param [Symbol] group The bundler group to filter by
+    # @param [TrueClass|FalseClass] manually_installed Return gems that were manually installed, default `false`
+    def gems_in_extension_group(group:, manually_installed: false)
+      filter_method = manually_installed ? :select : :reject
+      Bundler.load
+        .current_dependencies
+        .select { |dep| dep.groups.include?(group.to_sym) }.send(filter_method) { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+    end
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.2
 
@@ -72,13 +83,8 @@ module MirrOSApi
     GEM_SERVER = 'extensions.glancr.net' # localhost:9292 for geminabox
     SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
-    DEFAULT_WIDGETS = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:widget) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
-
-    DEFAULT_SOURCES = Bundler.load
-                        .current_dependencies
-                        .select { |dep| dep.groups.include?(:source) }.reject { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+    DEFAULT_WIDGETS = gems_in_extension_group(group: :widget)
+    DEFAULT_SOURCES = gems_in_extension_group(group: :source)
 
     config.action_cable.allowed_request_origins = [
       /localhost:\d{2,4}/,
