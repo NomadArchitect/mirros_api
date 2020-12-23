@@ -3,52 +3,143 @@
 # Data structure for debug reports.
 class DebugReport
   UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/
-  # @return [Hash] Installed extensions by type, each an array of name and
-  # version.
-  def self.installed_extensions
-    {
-      widgets: Widget.all.pluck(:name, :version),
-      sources: Source.all.pluck(:name, :version)
+
+  # Builds a system report structure with various debugging information.
+  # @return [Hash]
+  def self.system_report
+    report = {}
+    report[:source_instances] = SourceInstance.all.map do |si|
+      {
+        id: si.id,
+        source: si.source.name,
+        connected_widget_instances: {
+          total: si.widget_instances.count,
+          list: si.widget_instances.map { |wi| { id: wi.id, name: wi.widget.name } }
+        }
+
+      }
+    end
+    report[:widget_instances] = WidgetInstance.all.map do |wi|
+      info = {
+        id: wi.id,
+        widget: wi.widget.name,
+      }
+      unless wi.group.nil?
+        info[:connected_source_instances] = {
+          total: wi.source_instances.count,
+          list: wi.source_instances.map { |si| { id: si.id, name: si.source.name } }
+        }
+      end
+      info
+    end
+
+    report[:additional_extensions] = {
+      widgets: Rails.application.gems_in_extension_group(group: :widget, manually_installed: true),
+      sources: Rails.application.gems_in_extension_group(group: :source, manually_installed: true)
     }
+    begin
+      report[:uploads] = Upload.all.map do |upload|
+        {
+          type: upload.type,
+          content_type: upload.file.content_type,
+          file_size_mb: (upload.file.byte_size.to_f / 1048576).ceil(2) # 1048576 = 2**20, convert from byte to megabyte.
+        }
+      end
+    rescue StandardError => e
+      Rails.logger.error __method__ + e.message
+    end
+
+    report
   end
 
-  # @return [Hash] Metrics on currently active widget/source instances.
-  def self.active_instances
-    widget_instances = WidgetInstance.all
-    {
-      wi_count: widget_instances.count,
-      wi_outside_grid_boundaries: widget_instances.select { |wi| wi.position['y'] + wi.position['height'] > 21 },
-      si_count: SourceInstance.all.count
-    }
-  end
-
-  # @param [String] title
-  # @param [String] description
-  # @param [String] email
+  # @param [String] title The title of this report
+  # @param [String] description A user-provided text description of the error(s).
+  # @param [String] email Optional reply-to email address. Uses configured system email otherwise.
   def initialize(title, description, email = nil)
+    @file_handles = []
+
+    pictures_wi = Widget.find_by(name: 'pictures').widget_instances
     @body = {
       title: title,
       description: description,
       email: email.nil? ? SettingsCache.s[:personal_email] : email,
       # Use yes/no to avoid type conversions of booleans during transit and support scripts.
-      validProductKey: SettingsCache.s[:personal_productkey].match?(UUID_REGEX) ? :yes : :no
+      validProductKey: SettingsCache.s[:personal_productkey].match?(UUID_REGEX) ? :yes : :no,
+      debugging_info: "
+        pi_model: #{ENV['SNAP'].nil? ? 'not in snap env' : pi_model}
+        uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}
+        snap_version: #{SNAP_VERSION}
+        network_manager_version: #{ENV['SNAP'].nil? ? 'not in snap env' : nm_version}
+        service_status:
+            #{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
+        connection type: #{SettingsCache.s[:network_connectiontype]}
+        language: #{SettingsCache.s[:system_language]}
+        timezone:
+            configured: #{SettingsCache.s[:system_timezone]}
+            active for Rails: #{Time.zone.name}
+        multi-board:
+            active: #{SettingsCache.s[:system_multipleboards]}
+            rotation: #{SettingsCache.s[:system_boardrotation]}
+            interval: #{SettingsCache.s[:system_boardrotationinterval]}
+        IP Cam widget active (assuming an active stream): #{Widget.find_by(name: 'ip_cam').widget_instances.count > 0}
+        Pictures widget active: #{pictures_wi.count > 0}
+        Image Gallery – rotation / remote:
+            #{pictures_wi.map { |wi| wi.configuration } }
+        widget instances: #{WidgetInstance.count}
+        source instances: #{SourceInstance.count}
+      "
     }
   end
 
-  def send
-    @file_handles = []
+  # Appends log files to the report and sends it to the glancr API server.
+  # Separate method to include any errors during initialization in the logs.
+  # @return [HTTParty::Response]
+  def send_mail
+    append_system_report
     append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
     append_rails_log_files
-    append_debugging_info
 
     host = "https://#{System::API_HOST}/reports/new-one.php"
     res = HTTParty.post(host, body: @body)
     @file_handles.each(&:close)
+    @file_handles.select { |handle| handle.unlink if handle.class.eql? Tempfile }
 
     res
   end
 
   private
+
+  # Retrieves the Raspberry Pi model of this installation.
+  # @return [String (frozen)]
+  def pi_model
+    Terrapin::CommandLine.new('cat', '/proc/cpuinfo | grep Model').run&.split(':').last.strip!
+  rescue StandardError => e
+    "Could not determine Pi model: #{e.message}"
+  end
+
+  # Retrieves a snapshot of the current system load via `uptime`.
+  # @return [String (frozen)]
+  def uptime_snapshot
+    Terrapin::CommandLine.new('uptime').run.chomp
+  rescue StandardError => e
+    "Failed to run uptime: #{e.message}"
+  end
+
+  # Retrieves the current snap service status.
+  # @return [String (frozen), nil]
+  def service_status
+    Terrapin::CommandLine.new('snapctl', 'services mirros-one').run.chomp
+  rescue StandardError => e
+    "Failed to run service command: #{e.message}"
+  end
+
+  # Retrieves the installed network-manager version.
+  # @return [String (frozen)]
+  def nm_version
+    NetworkManager::Commands.instance.nm_version
+  rescue StandardError => e
+    "Failed to get NM version: #{e.message}"
+  end
 
   # Appends nginx log files to the @body instance variable if available.
   # @return [nil]
@@ -66,6 +157,8 @@ class DebugReport
     end
   end
 
+  # Appends all available rails log files to the @body instance variable.
+  # @return [nil]
   def append_rails_log_files
     %w[production scheduler clients].each do |log_file|
       log_path = Pathname(Rails.root.join('log', "#{log_file}.log"))
@@ -77,27 +170,24 @@ class DebugReport
     end
   end
 
-  def append_debugging_info
-    @body['debugging_info'] = "
-      snap_version: #{SNAP_VERSION}
-      extensions:
-      #{extensions_hash_to_string}
+  # Appends mysql error log file to the @body instance variable.
+  # @return [nil]
+  def append_mysql_log_files
+    mysql_log_path = Pathname("#{ENV['SNAP_COMMON']}/mysql/log/error.log")
+    return unless mysql_log_path.exist?
 
-
-      instances:
-      #{DebugReport.active_instances}"
+    file_ref = File.open(mysql_log_path)
+    @body['mysql_error_log'] = file_ref
+    @file_handles << file_ref
   end
 
-  def extensions_hash_to_string
-    # Use String.new since string literals are frozen in this file.
-    final = String.new('')
-    DebugReport.installed_extensions.each_pair do |type, value|
-      formatted_list = String.new('')
-      value.each do |ext|
-        formatted_list << "\t\t#{ext.first}: #{ext.last}\n"
-      end
-      final << "\t#{type}:\n#{formatted_list}"
-    end
-    final
+  # Appends the system report JSON file.
+  # @return [nil]
+  def append_system_report
+    tmpfile = Tempfile.open %w[system_report .json]
+    tmpfile.write JSON.pretty_generate(DebugReport.system_report)
+    @body['system_report'] = tmpfile.open
+    @file_handles << tmpfile
   end
+
 end
