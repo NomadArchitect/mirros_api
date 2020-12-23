@@ -99,8 +99,7 @@ class DebugReport
     append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
     append_rails_log_files
 
-    #host = "https://#{System::API_HOST}/reports/new-one.php"
-    host = "http://localhost:8090/reports/new-one.php"
+    host = "https://#{System::API_HOST}/reports/new-one.php"
     res = HTTParty.post(host, body: @body)
     @file_handles.each(&:close)
     @file_handles.select { |handle| handle.unlink if handle.class.eql? Tempfile }
