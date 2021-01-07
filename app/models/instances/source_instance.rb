@@ -17,7 +17,7 @@ class SourceInstance < Instance
   # serialize :options, Array if Rails.env.development?
 
   def refresh_interval
-    source.hooks_class.refresh_interval
+    @refresh_interval ||= source.hooks_class.refresh_interval
   end
 
   def set_meta
