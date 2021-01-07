@@ -69,6 +69,12 @@ class SourceInstance < Instance
 
   def add_to_scheduler
     DataRefresher.schedule(source_instance: self)
+  # Returns a unique Rufus scheduler tag for this instance. Instance variable is lazy as we don't need it
+  # for every SourceInstance instance.
+  # @return [String] The tag for this source instance's refresh job.
+  def interval_job_tag
+    @interval_job_tag ||= "#{source.name}--#{id}"
+  end
   end
 
   # Re-schedule the instance.
