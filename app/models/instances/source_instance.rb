@@ -8,9 +8,9 @@ class SourceInstance < Instance
   has_many :record_links, dependent: :destroy
   has_many :rules, dependent: :destroy
 
-  after_create :set_meta, :add_to_scheduler
+  after_create :set_meta, :schedule
   after_update :update_callbacks
-  before_destroy :remove_from_scheduler
+  before_destroy :unschedule
 
   validate :validate_configuration, if: :configuration_changed?
 
@@ -58,6 +58,62 @@ class SourceInstance < Instance
     errors.add(:configuration, e.message)
   end
 
+  # Schedules a periodic refresh for this source instance.
+  # @return [SourceInstance] The scheduled instance.
+  def schedule
+    validate_setup
+
+    job_instance = Rufus::Scheduler.s.schedule_interval refresh_interval,
+                                                        timeout: '5m',
+                                                        overlap: false,
+                                                        first_in: :now,
+                                                        tag: interval_job_tag do |job|
+      if System.online?
+        job_block(job: job)
+      else
+        Rails.logger.info("System offline, skipping #{source.name} instance #{id}")
+      end
+    end
+
+    # Refresh immediately to ensure we have fresh data, as schedule_interval does not have a first_in parameter.
+    #job_instance.call
+    # Save the refresh job ID.
+    update(job_id: job_instance.job_id)
+    Rails.logger.info "scheduled #{interval_job_tag}"
+    self
+  rescue RuntimeError, ArgumentError => e
+    Rails.logger.error e.message
+  end
+
+  # Removes the refresh job for this instance from the central schedule.
+  # @return [Object]
+  def unschedule
+    Rufus::Scheduler.s.jobs(tag: interval_job_tag).each(&:unschedule)
+    Rails.logger.info "unscheduled job with tag #{interval_job_tag}"
+  end
+
+  # Fetch and save data for given group schema and sub-resource(s) of this instance.
+  # @param [String] group_id The group schema to fetch.
+  # @param [Array<String>] sub_resources UIDs of the sub-resources that should be fetched.
+  def update_data(group_id:, sub_resources:)
+    validate_fetch_arguments(group_id: group_id, sub_resources: sub_resources)
+
+    ActiveRecord::Base.transaction do
+      recordables = hook_instance.fetch_data(group_id, sub_resources)
+      recordables.each do |recordable|
+        recordable.save!
+        next unless recordable.record_link.nil?
+
+        # New recordable, create the link.
+        record_links << RecordLink.new(recordable: recordable, group: Group.find(group_id))
+      end
+      update!(last_refresh: Time.now.utc)
+    end
+  rescue StandardError => e
+    ActiveRecord::Base.connection_pool.connections.select { |conn| conn.owner.eql? Thread.current }.first.disconnect!
+    raise e
+  end
+
   private
 
   # Instantiates the Hooks class for this instance's source.
@@ -67,24 +123,52 @@ class SourceInstance < Instance
     source.hooks_class.new(id, configuration)
   end
 
-  def add_to_scheduler
-    DataRefresher.schedule(source_instance: self)
   # Returns a unique Rufus scheduler tag for this instance. Instance variable is lazy as we don't need it
   # for every SourceInstance instance.
   # @return [String] The tag for this source instance's refresh job.
   def interval_job_tag
     @interval_job_tag ||= "#{source.name}--#{id}"
   end
+
+  # Refreshes all active sub-resources for this instance.
+  # @param [Rufus::Scheduler::IntervalJob] job The job that calls this block
+  def job_block(job:)
+    # Ensure we're not working with a stale connection
+    unless ActiveRecord::Base.connected?
+      ActiveRecord::Base.connection.verify!(0)
+    end
+
+    groups = instance_associations.reduce(Hash.new) do |memo, assoc|
+      memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
+      memo[assoc.group_id].add *assoc.configuration['chosen']
+      memo
+    end
+
+    groups.each do |group_id, sub_resources|
+      # TODO: Specify should_update hook to determine if a SourceInstance needs
+      #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+      # source_hooks_instance.should_update(group, sub_resources)
+      update_data(group_id: group_id, sub_resources: sub_resources.to_a)
+    rescue StandardError => e
+      Rails.logger.error "Error during refresh of #{source} instance #{id}:
+            #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
+
+      # Delay the next run on failures
+      job.next_time = EtOrbi::EoTime.now + (job.interval * 2)
+      next
+    end
+  rescue StandardError => e
+    Rails.logger.error e.message
+  ensure
+    ActiveRecord::Base.connection_pool.release_connection
   end
 
   # Re-schedule the instance.
   def update_scheduler
-    DataRefresher.unschedule(self)
-    DataRefresher.schedule(source_instance: self)
+    unschedule
+    schedule
   end
 
-  def remove_from_scheduler
-    DataRefresher.unschedule(self)
   # Check for runtime issues that would prevent a refresh.
   # Unlikely that these occur, but in case the user meddles with the database, or for DX during development.
   # @return [Integer] The parsed refresh_interval
