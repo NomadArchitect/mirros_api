@@ -37,9 +37,10 @@ class SourceInstance < Instance
   # Run updates for metadata and re-schedule the instance.
   # @return [SourceInstance]
   def update_callbacks
-    config_changed = saved_change_to_attribute?('configuration')
-    set_meta if config_changed
-    update_scheduler if config_changed
+    return unless saved_change_to_attribute?('configuration')
+
+    set_meta
+    update_scheduler
   end
 
   # Validate the current configuration against the source's `validate_configuration` hook.
