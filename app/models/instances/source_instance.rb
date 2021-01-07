@@ -14,8 +14,6 @@ class SourceInstance < Instance
 
   validate :validate_configuration, if: :configuration_changed?
 
-  # serialize :options, Array if Rails.env.development?
-
   # Retrieves the refresh interval from this instance's source Hooks class.
   # @return [String] The refresh interval as a time duration string
   def refresh_interval
