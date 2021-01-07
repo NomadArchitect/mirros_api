@@ -78,5 +78,17 @@ class SourceInstance < Instance
 
   def remove_from_scheduler
     DataRefresher.unschedule(self)
+  # Check for runtime issues that would prevent a refresh.
+  # Unlikely that these occur, but in case the user meddles with the database, or for DX during development.
+  # @return [Integer] The parsed refresh_interval
+  # @raise [RuntimeError] If any of the preconditions fail.
+  def validate_setup
+    raise RuntimeError, "instance #{id} does not have an associated source, aborting." if source.nil?
+    raise RuntimeError, "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
+
+    Rufus::Scheduler.parse(refresh_interval)
+  rescue ArgumentError => e
+    raise RuntimeError, "Faulty refresh interval of #{source.name}: #{e.message}"
+  end
   end
 end
