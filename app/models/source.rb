@@ -26,7 +26,7 @@ class Source < ApplicationRecord
   end
 
   def hooks_class
-    find_source_class('Hooks')
+    @hooks_class ||= find_source_class('Hooks')
   end
 
   private
