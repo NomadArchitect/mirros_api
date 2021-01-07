@@ -16,10 +16,14 @@ class SourceInstance < Instance
 
   # serialize :options, Array if Rails.env.development?
 
+  # Retrieves the refresh interval from this instance's source Hooks class.
+  # @return [String] The refresh interval as a time duration string
   def refresh_interval
     @refresh_interval ||= source.hooks_class.refresh_interval
   end
 
+  # Sets the `title` and `options` metadata for this instance.
+  # @return [Object]
   def set_meta
     # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
     hooks = hook_instance
@@ -30,12 +34,16 @@ class SourceInstance < Instance
     errors.add(:configuration, e.message)
   end
 
+  # Run updates for metadata and re-schedule the instance.
+  # @return [SourceInstance]
   def update_callbacks
     config_changed = saved_change_to_attribute?('configuration')
     set_meta if config_changed
     update_scheduler if config_changed
   end
 
+  # Validate the current configuration against the source's `validate_configuration` hook.
+  # @return [Object] Whatever the source returns on successful validation.
   def validate_configuration
     hook_instance.validate_configuration
     # FIXME: Remove once all source have migrated to raising on errors so that they can provide user feedback
@@ -51,7 +59,10 @@ class SourceInstance < Instance
 
   private
 
+  # Instantiates the Hooks class for this instance's source.
+  # @return [Object] A new instance of the corresponding source's Hooks class.
   def hook_instance
+    # TODO: Use memoization here, or possible stale issues?
     source.hooks_class.new(id, configuration)
   end
 
@@ -59,6 +70,7 @@ class SourceInstance < Instance
     DataRefresher.schedule(source_instance: self)
   end
 
+  # Re-schedule the instance.
   def update_scheduler
     DataRefresher.unschedule(self)
     DataRefresher.schedule(source_instance: self)
