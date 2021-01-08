@@ -10,7 +10,12 @@ class InstanceAssociation < ApplicationRecord
   after_commit :fetch_data, on: %i[create update]
 
   def fetch_data
-    source_instance.update_data(group_id: group_id, sub_resources: configuration['chosen'])
+    # We're already validating the fetch arguments in the validation callback.
+    source_instance.update_data(
+      group_id: group_id,
+      sub_resources: configuration['chosen'],
+      validate: false
+    )
   rescue ArgumentError => e
     Rails.logger.warn error_with_backtrace e
   rescue StandardError => e
