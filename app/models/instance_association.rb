@@ -6,6 +6,7 @@ class InstanceAssociation < ApplicationRecord
   belongs_to :widget_instance
   belongs_to :source_instance
 
+  validates :group, :configuration, presence: true
   after_commit :fetch_data, on: %i[create update]
 
   def fetch_data
