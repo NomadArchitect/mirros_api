@@ -7,6 +7,7 @@ class InstanceAssociation < ApplicationRecord
   belongs_to :source_instance
 
   validates :group, :configuration, presence: true
+  validate :config_valid_for_si
   after_commit :fetch_data, on: %i[create update]
 
   def fetch_data
@@ -25,6 +26,18 @@ class InstanceAssociation < ApplicationRecord
   end
 
   private
+
+  # Validates if the configured group_id and sub-resources are valid for the SourceInstance.
+  def config_valid_for_si
+    source_instance.validate_fetch_arguments(
+      group_id: group_id,
+      sub_resources: configuration['chosen']
+    )
+  rescue SourceInstanceArgumentError => e
+    errors.add e.field, e.message
+  rescue ArgumentError => e
+    errors.add 'source_instance', e.message
+  end
 
   # Returns an error message along with the first three backtrace lines.
   # @param [StandardError] error
