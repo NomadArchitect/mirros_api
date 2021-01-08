@@ -112,6 +112,29 @@ class SourceInstance < Instance
     raise e
   end
 
+  # Validates if the given group and sub-resources are present on this instance.
+  # @param [String] group_id  Requested group schema, must be implemented by this instance's source.
+  # @param [Array<String>] sub_resources Requested sub-resources within the given group schema.
+  def validate_fetch_arguments(group_id:, sub_resources:)
+    unless source.groups.pluck('slug').include? group_id
+      raise IAConfigError.new 'group_id', "Invalid group_id #{group_id} for #{source.name}"
+    end
+
+    # TODO: Refactor to SourceInstanceOption class or similar.
+    # FIXME: Add check to validate that a sub-resource is in the given group.
+    # Requires sources to add a `group` key to their `list_sub_resources` implementation.
+    # TODO: Remove to_s once all source instance option returns are validated to be string pairs.
+    invalid_options = sub_resources.difference(options.map { |opt| opt['uid'].to_s })
+    unless invalid_options.empty?
+      raise IAConfigError.new 'configuration',
+                              "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
+    end
+
+    return if configuration.present?
+
+    raise ArgumentError "Empty configuration for #{source.name} instance #{id}, aborting."
+  end
+
   private
 
   # Instantiates the Hooks class for this instance's source.
@@ -175,27 +198,5 @@ class SourceInstance < Instance
     Rufus::Scheduler.parse(refresh_interval)
   rescue ArgumentError => e
     raise "Faulty refresh interval of #{source.name}: #{e.message}"
-  end
-
-  # Validates if the given group and sub-resources are present on this instance.
-  # @param [String] group_id  Requested group schema, must be implemented by this instance's source.
-  # @param [Array<String>] sub_resources Requested sub-resources of this instance, within the given group schema.
-  def validate_fetch_arguments(group_id:, sub_resources:)
-    unless source.groups.pluck('slug').include? group_id
-      raise ArgumentError, "Invalid group_id #{group_id} for #{source.name}"
-    end
-
-    # TODO: Refactor to SourceInstanceOption class or similar.
-    # FIXME: Add check to validate that a sub-resource is in the given group.
-    # Requires sources to add a `group` key to their `list_sub_resources` implementation.
-    # TODO: Remove to_s call once all source instance option returns are validated to be string pairs.
-    invalid_options = sub_resources.difference(options.map { |opt| opt['uid'] })
-    unless invalid_options.empty?
-      raise ArgumentError, "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
-    end
-
-    return if configuration.present?
-
-    raise ArgumentError "Empty configuration for #{source.name} instance #{id}, aborting."
   end
 end
