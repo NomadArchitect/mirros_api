@@ -23,7 +23,8 @@ class SourceInstance < Instance
   # Sets the `title` and `options` metadata for this instance.
   # @return [Object]
   def set_meta
-    # FIXME: Fetching title and options in different methods prevents data reuse. Add new hook metadata for sources.
+    # FIXME: Fetching title and options in different methods prevents data reuse.
+    # Add new hook metadata for sources.
     hooks = hook_instance
     self.options = hooks.list_sub_resources.map { |option| { uid: option[0], display: option[1] } }
     self.title = hooks.default_title
@@ -47,10 +48,10 @@ class SourceInstance < Instance
     hook_instance.validate_configuration
     # FIXME: Remove once all source have migrated to raising on errors so that they can provide user feedback
   rescue NoMethodError => _e
-    Rails.logger.warn ActiveSupport::Deprecation.warn("Please implement a `validate_configuration` hook for #{source.name}")
-    unless hook_instance.configuration_valid?
-      errors.add(:configuration, 'invalid parameters')
-    end
+    Rails.logger.warn ActiveSupport::Deprecation.warn(
+      "Please implement a `validate_configuration` hook for #{source.name}"
+    )
+    errors.add(:configuration, 'invalid parameters') unless hook_instance.configuration_valid?
   rescue StandardError => e
     Rails.logger.error "[#{__method__} #{source_id}] #{e.message}"
     errors.add(:configuration, e.message)
@@ -73,9 +74,6 @@ class SourceInstance < Instance
       end
     end
 
-    # Refresh immediately to ensure we have fresh data, as schedule_interval does not have a first_in parameter.
-    #job_instance.call
-    # Save the refresh job ID.
     update(job_id: job_instance.job_id)
     Rails.logger.info "scheduled #{interval_job_tag}"
     self
@@ -108,7 +106,9 @@ class SourceInstance < Instance
       update!(last_refresh: Time.now.utc)
     end
   rescue StandardError => e
-    ActiveRecord::Base.connection_pool.connections.select { |conn| conn.owner.eql? Thread.current }.first.disconnect!
+    ActiveRecord::Base.connection_pool
+                      .connections
+                      .select { |conn| conn.owner.eql? Thread.current }.first.disconnect!
     raise e
   end
 
@@ -132,9 +132,7 @@ class SourceInstance < Instance
   # @param [Rufus::Scheduler::IntervalJob] job The job that calls this block
   def job_block(job:)
     # Ensure we're not working with a stale connection
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.connection.verify!(0)
-    end
+    ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
 
     groups = instance_associations.reduce(Hash.new) do |memo, assoc|
       memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
@@ -191,7 +189,7 @@ class SourceInstance < Instance
     # TODO: Refactor to SourceInstanceOption class or similar.
     # FIXME: Add check to validate that a sub-resource is in the given group.
     # Requires sources to add a `group` key to their `list_sub_resources` implementation.
-    invalid_options = sub_resources.difference options.map { |opt| opt['uid'] }
+    invalid_options = sub_resources.difference(options.map { |opt| opt['uid'] })
     unless invalid_options.empty?
       raise ArgumentError, "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
     end
