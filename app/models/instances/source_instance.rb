@@ -46,7 +46,7 @@ class SourceInstance < Instance
   # @return [Object] Whatever the source returns on successful validation.
   def validate_configuration
     hook_instance.validate_configuration
-    # FIXME: Remove once all source have migrated to raising on errors so that they can provide user feedback
+    # FIXME: Remove once all sources are migrated to this hook so they can provide user feedback
   rescue NoMethodError => _e
     Rails.logger.warn ActiveSupport::Deprecation.warn(
       "Please implement a `validate_configuration` hook for #{source.name}"
@@ -121,7 +121,7 @@ class SourceInstance < Instance
     source.hooks_class.new(id, configuration)
   end
 
-  # Returns a unique Rufus scheduler tag for this instance. Instance variable is lazy as we don't need it
+  # Returns a unique Rufus scheduler tag for this instance. Instance variable is lazy on purpose.
   # for every SourceInstance instance.
   # @return [String] The tag for this source instance's refresh job.
   def interval_job_tag
@@ -134,10 +134,9 @@ class SourceInstance < Instance
     # Ensure we're not working with a stale connection
     ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
 
-    groups = instance_associations.reduce(Hash.new) do |memo, assoc|
+    groups = instance_associations.each_with_object({}) do |assoc, memo|
       memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
-      memo[assoc.group_id].add *assoc.configuration['chosen']
-      memo
+      memo[assoc.group_id].add(*assoc.configuration['chosen'])
     end
 
     groups.each do |group_id, sub_resources|
@@ -166,16 +165,16 @@ class SourceInstance < Instance
   end
 
   # Check for runtime issues that would prevent a refresh.
-  # Unlikely that these occur, but in case the user meddles with the database, or for DX during development.
+  # Unlikely that these occur, but in case the user meddles with the database, or for DX.
   # @return [Integer] The parsed refresh_interval
   # @raise [RuntimeError] If any of the preconditions fail.
   def validate_setup
-    raise RuntimeError, "instance #{id} does not have an associated source, aborting." if source.nil?
-    raise RuntimeError, "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
+    raise "instance #{id} does not have an associated source, aborting." if source.nil?
+    raise "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
 
     Rufus::Scheduler.parse(refresh_interval)
   rescue ArgumentError => e
-    raise RuntimeError, "Faulty refresh interval of #{source.name}: #{e.message}"
+    raise "Faulty refresh interval of #{source.name}: #{e.message}"
   end
 
   # Validates if the given group and sub-resources are present on this instance.
@@ -195,8 +194,8 @@ class SourceInstance < Instance
       raise ArgumentError, "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
     end
 
-    if configuration.empty?
-      raise ArgumentError, "Configuration for instance #{id} of #{source.name} is empty, aborting."
-    end
+    return if configuration.present?
+
+    raise ArgumentError "Empty configuration for #{source.name} instance #{id}, aborting."
   end
 end

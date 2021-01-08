@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Intermediary model for 1-1 associations between a WidgetInstance and a SourceInstance.
 class InstanceAssociation < ApplicationRecord
   belongs_to :group
   belongs_to :widget_instance
@@ -12,7 +13,7 @@ class InstanceAssociation < ApplicationRecord
   rescue ArgumentError => e
     Rails.logger.warn error_with_backtrace e
   rescue StandardError => e
-    Rails.logger.error "Error during initial data fetch of #{source_instance.source} instance #{source_instance}:
+    Rails.logger.error "Initial data fetch of #{source_instance.source} instance #{source_instance}:
             #{error_with_backtrace e}"
     raise e
   end
@@ -20,8 +21,8 @@ class InstanceAssociation < ApplicationRecord
   private
 
   # Returns an error message along with the first three backtrace lines.
-  # @param [StandardError] e
-  def error_with_backtrace(e)
-    "#{e.message}\n #{e.backtrace[0, 3]&.join("\n")}"
+  # @param [StandardError] error
+  def error_with_backtrace(error)
+    "#{error.message}\n #{error.backtrace[0, 3]&.join("\n")}"
   end
 end
