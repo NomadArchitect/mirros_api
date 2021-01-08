@@ -57,7 +57,7 @@ class SourceInstance < Instance
     errors.add(:configuration, e.message)
   end
 
-  # Schedules a periodic refresh for this source instance.
+  # Schedules a periodic refresh for this source instance and saves the job's id.
   # @return [SourceInstance] The scheduled instance.
   def schedule
     validate_setup
@@ -189,6 +189,7 @@ class SourceInstance < Instance
     # TODO: Refactor to SourceInstanceOption class or similar.
     # FIXME: Add check to validate that a sub-resource is in the given group.
     # Requires sources to add a `group` key to their `list_sub_resources` implementation.
+    # TODO: Remove to_s call once all source instance option returns are validated to be string pairs.
     invalid_options = sub_resources.difference(options.map { |opt| opt['uid'] })
     unless invalid_options.empty?
       raise ArgumentError, "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
