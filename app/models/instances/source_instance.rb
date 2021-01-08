@@ -115,6 +115,9 @@ class SourceInstance < Instance
   # Validates if the given group and sub-resources are present on this instance.
   # @param [String] group_id  Requested group schema, must be implemented by this instance's source.
   # @param [Array<String>] sub_resources Requested sub-resources within the given group schema.
+  # @raise [SIArgumentError] given group or sub-resources are invalid
+  # @raise [ArgumentError] The instance has no configuration.
+  # @return [nil]
   def validate_fetch_arguments(group_id:, sub_resources:)
     unless source.groups.pluck('slug').include? group_id
       raise SourceInstanceArgumentError.new 'group_id',
