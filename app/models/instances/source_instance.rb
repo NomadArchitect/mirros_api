@@ -157,12 +157,7 @@ class SourceInstance < Instance
     # Ensure we're not working with a stale connection
     ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
 
-    groups = instance_associations.each_with_object({}) do |assoc, memo|
-      memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
-      memo[assoc.group_id].add(*assoc.configuration['chosen'])
-    end
-
-    groups.each do |group_id, sub_resources|
+    build_group_map.each do |group_id, sub_resources|
       # TODO: Specify should_update hook to determine if a SourceInstance needs
       #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
       # source_hooks_instance.should_update(group, sub_resources)
@@ -179,6 +174,15 @@ class SourceInstance < Instance
     Rails.logger.error e.message
   ensure
     ActiveRecord::Base.connection_pool.release_connection
+  end
+
+  # Builds a map of all sub-resources currently selected in this instance's InstanceAssociations.
+  # @return [Hash{String => Set}] All selected sub-resources of this instance, keyed by group_id.
+  def build_group_map
+    instance_associations.each_with_object({}) do |assoc, memo|
+      memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
+      memo[assoc.group_id].add(*assoc.configuration['chosen'])
+    end
   end
 
   # Re-schedule the instance.
