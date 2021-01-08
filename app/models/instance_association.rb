@@ -19,6 +19,7 @@ class InstanceAssociation < ApplicationRecord
     )
   rescue ArgumentError => e
     Rails.logger.warn error_with_backtrace e
+    raise e
   rescue StandardError => e
     Rails.logger.error "Initial data fetch of #{source_instance.source} instance #{source_instance}:
             #{error_with_backtrace e}"
