@@ -91,8 +91,9 @@ class SourceInstance < Instance
   # Fetch and save data for given group schema and sub-resource(s) of this instance.
   # @param [String] group_id The group schema to fetch.
   # @param [Array<String>] sub_resources UIDs of the sub-resources that should be fetched.
-  def update_data(group_id:, sub_resources:)
-    validate_fetch_arguments(group_id: group_id, sub_resources: sub_resources)
+  # @param [TrueClass|FalseClass] validate Whether group and sub_resources should be validated.
+  def update_data(group_id:, sub_resources:, validate: true)
+    validate_fetch_arguments(group_id: group_id, sub_resources: sub_resources) if validate
 
     ActiveRecord::Base.transaction do
       recordables = hook_instance.fetch_data(group_id, sub_resources)
