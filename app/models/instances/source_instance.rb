@@ -186,7 +186,7 @@ class SourceInstance < Instance
   def build_group_map
     instance_associations.each_with_object({}) do |assoc, memo|
       memo[assoc.group_id] = Set.new if memo[assoc.group_id].nil?
-      memo[assoc.group_id].add(*assoc.configuration['chosen'])
+      memo[assoc.group_id].merge assoc.configuration['chosen']
     end
   end
 
