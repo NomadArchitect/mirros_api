@@ -66,11 +66,11 @@ if Rails.const_defined? 'Server'
 
   # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
   Thread.new do
-    sleep 10
-    DataRefresher.run_all_once
-    DataRefresher.schedule_all
-    ActiveRecord::Base.connection.close
-
+    sleep 10 # Ensure ActionCable is running.
+    SourceInstance.all.each do |source_instance|
+      source_instance.schedule
+      sleep 5 # avoid parallel refreshes when called on multiple instances.
+    end
     RuleManager::BoardScheduler.manage_jobs(
       rotation_active: SettingsCache.s[:system_boardrotation].eql?('on')
     )

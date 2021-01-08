@@ -1,49 +1,48 @@
 # frozen_string_literal: true
 
+# Intermediary model for 1-1 associations between a WidgetInstance and a SourceInstance.
 class InstanceAssociation < ApplicationRecord
   belongs_to :group
   belongs_to :widget_instance
   belongs_to :source_instance
 
+  validates :group, :configuration, presence: true
+  validate :config_valid_for_si
   after_commit :fetch_data, on: %i[create update]
 
   def fetch_data
-    source_instance = self.source_instance
-    source = source_instance.source
+    # We're already validating the fetch arguments in the validation callback.
+    source_instance.update_data(
+      group_id: group_id,
+      sub_resources: configuration['chosen'],
+      validate: false
+    )
+  rescue ArgumentError => e
+    Rails.logger.warn error_with_backtrace e
+    raise e
+  rescue StandardError => e
+    Rails.logger.error "Initial data fetch of #{source_instance.source} instance #{source_instance}:
+            #{error_with_backtrace e}"
+    raise e
+  end
 
-    if source_instance.configuration.empty?
-      Rails.logger.info "Configuration for instance #{source_instance.id} of #{source.name} is empty, aborting initial fetch."
-      return
-    end
+  private
 
-    source_hooks = source.hooks_class
-    if source_hooks.nil?
-      Rails.logger.error "Could not instantiate hooks class of engine #{source.name}"
-      return
-    end
+  # Validates if the configured group_id and sub-resources are valid for the SourceInstance.
+  def config_valid_for_si
+    source_instance.validate_fetch_arguments(
+      group_id: group_id,
+      sub_resources: configuration['chosen']
+    )
+  rescue SourceInstanceArgumentError => e
+    errors.add e.field, e.message
+  rescue ArgumentError => e
+    errors.add 'source_instance', e.message
+  end
 
-    sub_resources = configuration['chosen']
-    source_hooks_instance = source_hooks.new(source_instance.id,
-                                             source_instance.configuration)
-
-    ActiveRecord::Base.transaction do
-      begin
-        recordables = source_hooks_instance.fetch_data(group_id, sub_resources)
-      rescue StandardError => e
-        Rails.logger.error "Error during initial data fetch of #{source_instance.source} instance #{source_instance.id}:
-            #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
-        return
-      end
-
-      recordables.each do |recordable|
-        recordable.save!
-        next unless recordable.record_link.nil?
-
-        source_instance.record_links <<
-          RecordLink.new(recordable: recordable, group: Group.find(group_id))
-      end
-      source_instance.save
-      source_instance.update(last_refresh: Time.now.utc)
-    end
+  # Returns an error message along with the first three backtrace lines.
+  # @param [StandardError] error
+  def error_with_backtrace(error)
+    "#{error.message}\n #{error.backtrace[0, 3]&.join("\n")}"
   end
 end
