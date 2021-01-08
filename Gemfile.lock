@@ -71,7 +71,7 @@ GEM
     current_date (0.1.6)
     debug_inspector (0.0.3)
     easy_enum (0.1.4)
-    erubi (1.9.0)
+    erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
     ethon (0.12.0)
