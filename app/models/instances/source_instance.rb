@@ -117,7 +117,8 @@ class SourceInstance < Instance
   # @param [Array<String>] sub_resources Requested sub-resources within the given group schema.
   def validate_fetch_arguments(group_id:, sub_resources:)
     unless source.groups.pluck('slug').include? group_id
-      raise IAConfigError.new 'group_id', "Invalid group_id #{group_id} for #{source.name}"
+      raise SourceInstanceArgumentError.new 'group_id',
+                                            "Invalid group_id #{group_id} for #{source.name}"
     end
 
     # TODO: Refactor to SourceInstanceOption class or similar.
@@ -126,8 +127,8 @@ class SourceInstance < Instance
     # TODO: Remove to_s once all source instance option returns are validated to be string pairs.
     invalid_options = sub_resources.difference(options.map { |opt| opt['uid'].to_s })
     unless invalid_options.empty?
-      raise IAConfigError.new 'configuration',
-                              "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
+      raise SourceInstanceArgumentError.new 'configuration',
+                                            "Invalid sub-resources for #{source.name} instance #{id}: #{invalid_options}"
     end
 
     return if configuration.present?
