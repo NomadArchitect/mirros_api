@@ -48,14 +48,10 @@ if Rails.const_defined? 'Server'
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
 
-
   if ENV['SNAP']
-    # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the proper timezone is set at all times.
+    # FIXME: Ubuntu Core may loose timezone settings after reboot. Force a reset at startup.
     # Remove once https://bugs.launchpad.net/snappy/+bug/1650688 is resolved.
     System.reset_timezone
-    s.every '30m', tag: 'system-fix-system-timezone', overlap: false do
-      System.reset_timezone
-    end
 
     Scheduler.start_browser_restart_job
   end
@@ -64,7 +60,7 @@ if Rails.const_defined? 'Server'
   System.check_network_status
   SettingExecution::Network.open_ap unless System.no_offline_mode_required?
 
-  # Required to run in separate thread because scheduler triggers ActionCable, which is not fully up until here
+  # Separate thread because scheduler triggers ActionCable, which is not fully up at this point.
   Thread.new do
     sleep 10 # Ensure ActionCable is running.
     SourceInstance.all.each do |source_instance|
