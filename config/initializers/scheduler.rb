@@ -50,7 +50,7 @@ if Rails.const_defined? 'Server'
 
 
   if ENV['SNAP']
-    # FIXME: Ubuntu Core keeps losing system timezone settings. This ensures the proper timezone is set at all times.
+    # FIXME: Ubuntu Core may loose timezone settings after reboot. Force a reset at startup.
     # Remove once https://bugs.launchpad.net/snappy/+bug/1650688 is resolved.
     System.reset_timezone
 
