@@ -9,9 +9,9 @@ class Scheduler
   def self.start_browser_restart_job
     return if job_running? RESTART_BROWSER_JOB_TAG
 
-    tz = SettingsCache.s[:system_timezone].present? ? SettingsCache.s[:system_timezone] : 'UTC'
     Rufus::Scheduler.singleton.cron "0 2 * * * #{tz}", tag: RESTART_BROWSER_JOB_TAG do
       Rails.logger.info "Scheduled reboot from #{RESTART_BROWSER_JOB_TAG}"
+    tz = SettingsCache.s[:system_timezone].presence || 'UTC'
       System.reload_browser
     end
     Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every day at 02:00 in #{tz}."\
