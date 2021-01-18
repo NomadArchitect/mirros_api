@@ -15,24 +15,18 @@ mysql: &mysql
   encoding: utf8mb4
   socket: <%= ENV.fetch("RAILS_DATABASE_SOCKET") { '/tmp/mysql.sock' } %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 15 } %>
+  username: <%= ENV.fetch("RAILS_DATABASE_USERNAME") { 'root' } %>
+  password: <%= ENV.fetch("RAILS_DATABASE_PASSWORD") { 'glancr' } %>
 
 development:
   <<: *mysql
   database: mirrOS_api_development
-  username: root
-  password: glancr
 
 test:
   <<: *mysql
   host: <%= ENV.fetch("RAILS_DATABASE_HOST") { 'localhost' } %>
   database: mirrOS_api_test
-  username: root
-  password: glancr
 
-# NOTE: password provided in cleartext since the snap with env variables is open source as well, so using env
-# variables is really a vain attempt at security by obscurity.
 production:
   <<: *mysql
   database: mirrOS_api_production
-  username: root
-  password: glancr
