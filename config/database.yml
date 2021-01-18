@@ -14,6 +14,7 @@ mysql: &mysql
   adapter: mysql2
   encoding: utf8mb4
   socket: <%= ENV.fetch("RAILS_DATABASE_SOCKET") { '/tmp/mysql.sock' } %>
+  host: <%= ENV.fetch("RAILS_DATABASE_HOST") { '127.0.0.1' } %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 15 } %>
   username: <%= ENV.fetch("RAILS_DATABASE_USERNAME") { 'root' } %>
   password: <%= ENV.fetch("RAILS_DATABASE_PASSWORD") { 'glancr' } %>
@@ -24,7 +25,6 @@ development:
 
 test:
   <<: *mysql
-  host: <%= ENV.fetch("RAILS_DATABASE_HOST") { 'localhost' } %>
   database: mirrOS_api_test
 
 production:
