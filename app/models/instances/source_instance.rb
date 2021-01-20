@@ -95,22 +95,14 @@ class SourceInstance < Instance
   def update_data(group_id:, sub_resources:, validate: true)
     validate_fetch_arguments(group_id: group_id, sub_resources: sub_resources) if validate
 
-    ActiveRecord::Base.transaction do
-      recordables = hook_instance.fetch_data(group_id, sub_resources)
-      recordables.each do |recordable|
-        recordable.save!
-        next unless recordable.record_link.nil?
+    recordables = hook_instance.fetch_data(group_id, sub_resources)
+    recordables.each do |recordable|
+      recordable.save!
+      next unless recordable.record_link.nil?
 
-        # New recordable, create the link.
-        record_links << RecordLink.new(recordable: recordable, group: Group.find(group_id))
-      end
-      update!(last_refresh: Time.now.utc)
+      # New recordable, create the link.
+      record_links << RecordLink.new(recordable: recordable, group: Group.find(group_id))
     end
-  rescue StandardError => e
-    ActiveRecord::Base.connection_pool
-                      .connections
-                      .select { |conn| conn.owner.eql? Thread.current }.first.disconnect!
-    raise e
   end
 
   # Validates if the given group and sub-resources are present on this instance.
@@ -162,18 +154,21 @@ class SourceInstance < Instance
     # Ensure we're not working with a stale connection
     ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
 
-    build_group_map.each do |group_id, sub_resources|
-      # TODO: Specify should_update hook to determine if a SourceInstance needs
-      #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-      # source_hooks_instance.should_update(group, sub_resources)
-      update_data(group_id: group_id, sub_resources: sub_resources.to_a)
-    rescue StandardError => e
-      Rails.logger.error "Error during refresh of #{source} instance #{id}:
+    ActiveRecord::Base.transaction do
+      build_group_map.each do |group_id, sub_resources|
+        # TODO: Specify should_update hook to determine if a SourceInstance needs
+        #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+        # source_hooks_instance.should_update(group, sub_resources)
+        update_data(group_id: group_id, sub_resources: sub_resources.to_a)
+      rescue StandardError => e
+        Rails.logger.error "Error during refresh of #{source} instance #{id} for schema #{group_id}:
             #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
 
-      # Delay the next run on failures
-      job.next_time = EtOrbi::EoTime.now + (job.interval * 2)
-      next
+        # Delay the next run on failures
+        job.next_time = EtOrbi::EoTime.now + (job.interval * 2)
+        next
+      end
+      update!(last_refresh: Time.now.utc)
     end
   rescue StandardError => e
     Rails.logger.error e.message
