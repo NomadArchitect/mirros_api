@@ -170,8 +170,6 @@ class SourceInstance < Instance
       end
       update!(last_refresh: Time.now.utc)
     end
-  rescue StandardError => e
-    Rails.logger.error e.message
   ensure
     ActiveRecord::Base.connection_pool.release_connection
   end
