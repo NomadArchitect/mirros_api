@@ -34,7 +34,7 @@ widget_instances:
   ticker:
     title: 'glancr News'
     showtitle: true
-    configuration: { "amount": 5, "showFeedIcon": true }
+    configuration: { "amount": 5, "showFeedIcon": true, showTimestamp: false, rotationInterval: "10" }
     position:
       portrait: { "x": 0, "y": 16, "width": 6, "height": 4 }
       landscape: { "x": 0, "y": 8, "width": 6, "height": 4 }
