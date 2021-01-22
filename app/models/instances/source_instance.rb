@@ -67,10 +67,10 @@ class SourceInstance < Instance
                                                         overlap: false,
                                                         first_in: :now,
                                                         tag: interval_job_tag do |job|
-      if System.online?
+      if System.online? && instance_associations.any?
         job_block(job: job)
       else
-        Rails.logger.info("System offline, skipping #{source.name} instance #{id}")
+        Rails.logger.info("Skipped refresh for #{interval_job_tag}: System offline or no associated WidgetInstance")
       end
     end
 
