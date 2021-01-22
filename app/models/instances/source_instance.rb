@@ -151,19 +151,19 @@ class SourceInstance < Instance
   # Refreshes all active sub-resources for this instance.
   # @param [Rufus::Scheduler::IntervalJob] job The job that calls this block
   def job_block(job:)
+    # TODO: Specify should_update hook to determine if a SourceInstance needs
+    #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+    # source_hooks_instance.should_update(group, sub_resources)
+
     # Ensure we're not working with a stale connection
     ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
 
     ActiveRecord::Base.transaction do
       build_group_map.each do |group_id, sub_resources|
-        # TODO: Specify should_update hook to determine if a SourceInstance needs
-        #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-        # source_hooks_instance.should_update(group, sub_resources)
         update_data(group_id: group_id, sub_resources: sub_resources.to_a)
       rescue StandardError => e
         Rails.logger.error "Error during refresh of #{source} instance #{id} for schema #{group_id}:
             #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
-
         # Delay the next run on failures
         job.next_time = EtOrbi::EoTime.now + (job.interval * 2)
         next
