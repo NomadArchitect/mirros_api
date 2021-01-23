@@ -3,6 +3,7 @@ class SettingResource < JSONAPI::Resource
   key_type :string
 
   filter :category
+  filter :slug
 
   attributes :category, :key, :value
   attribute :options
