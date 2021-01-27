@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Setting < ApplicationRecord
+  ALLOW_WHITESPACE = %w[network_ssid network_password system_adminpassword].freeze
+
   extend FriendlyId
   friendly_id :category_and_key, use: :slugged
 
@@ -9,6 +11,7 @@ class Setting < ApplicationRecord
   after_update :reset_premium_settings, if: :changes_product_key?
   after_update :restart_application, if: -> { slug.eql?('system_timezone') }
   before_validation :check_license_status, unless: :changes_product_key?
+  before_validation :strip_whitespace, unless: -> { ALLOW_WHITESPACE.include?(slug) }
 
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
@@ -147,5 +150,13 @@ class Setting < ApplicationRecord
   # Currently only used for system_timezone, @see https://github.com/rails/rails/issues/24748 issue details.
   def restart_application
     ::System.restart_application if Rails.const_defined?('Server')
+  end
+
+  private
+
+  # Strips left/right whitespace from the `value` attribute.
+  # @return [String, nil]
+  def strip_whitespace
+    value.strip!
   end
 end
