@@ -82,6 +82,8 @@ class Setting < ApplicationRecord
     end
   end
 
+  # Checks if the model represents the personal_productkey setting.
+  # @return [TrueClass, FalseClass] Whether the request changes personal_productkey
   def changes_product_key?
     slug.eql? 'personal_productkey'
   end
@@ -92,6 +94,7 @@ class Setting < ApplicationRecord
     RegistrationHandler.reset_premium_to_default
   end
 
+  # Checks if the configured license key is valid.
   def check_license_status
     return unless RegistrationHandler.setting_requires_license?(slug)
 
@@ -100,6 +103,8 @@ class Setting < ApplicationRecord
     errors.add(slug, 'this setting requires a valid product key.')
   end
 
+  # Builds the slug for this setting.
+  # @return [String (frozen)] category_key
   def category_and_key
     "#{category}_#{key}"
   end
