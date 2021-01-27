@@ -2,21 +2,37 @@ widget_instances:
   clock:
     title: ''
     showtitle: false
-    configuration: { }
+    configuration: {
+      hourFormat: "24",
+      showSeconds: true,
+      useCustomTimezone: false,
+      customTimezone: ""
+    }
     position:
       portrait: { "x": 0, "y": 0, "width": 3, "height": 1 }
       landscape: { "x": 0, "y": 0, "width": 3, "height": 1 }
   current_date:
     title: ''
     showtitle: false
-    configuration: { }
+    configuration: {
+      weekday: "short",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
     position:
       portrait: { "x": 0, "y": 1, "width": 3, "height": 1 }
       landscape: { "x": 0, "y": 1, "width": 3, "height": 1 }
   calendar_event_list:
     title: 'Holidays'
     showtitle: true
-    configuration: { }
+    configuration: {
+      showLocation: false,
+      showCurrentEvents: false,
+      hour12: false,
+      displaymode: "amount",
+      eventAmount: 5
+    }
     position:
       portrait: { "x": 8, "y": 0, "width": 5, "height": 4 }
       landscape: { "x": 16, "y": 0, "width": 5, "height": 4 }
@@ -48,7 +64,10 @@ widget_instances:
   qrcode:
     title: ''
     showtitle: false
-    configuration: { }
+    configuration: {
+      content: "",
+      inputType: "text"
+    }
     position:
       portrait: { "x": 8, "y": 18, "width": 2, "height": 2 }
       landscape: { "x": 17, "y": 10, "width": 2, "height": 2 }
