@@ -129,7 +129,7 @@ class StateCache
   def self.as_json
     hash = {}
     instance.instance_variables.map do |iv|
-      hash[iv[1..-1].to_sym] = instance.instance_variable_get(iv)
+      hash[iv[1..].to_sym] = instance.instance_variable_get(iv)
     end
     hash
   end

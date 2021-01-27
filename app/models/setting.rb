@@ -119,7 +119,7 @@ class Setting < ApplicationRecord
       options_file = File.read(Rails.root.join('app/lib/setting_options.yml'))
       # TODO: If we require Ruby logic in the YAML file, use ERB.new(options_file).result instead of options_file
       o = YAML.safe_load(options_file).with_indifferent_access[slug.to_sym]
-      o.nil? ? {} : o
+      o || {}
     end
   end
 
