@@ -11,6 +11,7 @@ class StateCache
               :configured_at_boot, :online, :connectivity,
               :connectivity_check_available,
               :network_status, :registered
+
   validates :resetting, inclusion: [true, false]
 
   class << self
@@ -129,7 +130,7 @@ class StateCache
   def self.as_json
     hash = {}
     instance.instance_variables.map do |iv|
-      hash[iv[1..-1].to_sym] = instance.instance_variable_get(iv)
+      hash[iv[1..].to_sym] = instance.instance_variable_get(iv)
     end
     hash
   end
