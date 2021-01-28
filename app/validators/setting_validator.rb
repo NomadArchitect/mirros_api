@@ -14,6 +14,10 @@ class SettingValidator < ActiveModel::EachValidator
           when 'system_activeboard'
             "Cannot find board with ID #{value}" unless Board.exists?(value)
 
+          when 'personal_email'
+            unless value =~ /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+              "#{value} is not a valid email address"
+            end
           when 'personal_productkey'
             handler = RegistrationHandler.new(value)
             "#{value} is not a valid product key." unless handler.product_key_valid? || handler.deregister?
