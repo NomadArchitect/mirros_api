@@ -11,6 +11,7 @@ class StateCache
               :configured_at_boot, :online, :connectivity,
               :connectivity_check_available,
               :network_status, :registered
+
   validates :resetting, inclusion: [true, false]
 
   class << self
