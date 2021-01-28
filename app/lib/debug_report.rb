@@ -70,8 +70,7 @@ class DebugReport
         uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}
         snap_version: #{SNAP_VERSION}
         network_manager_version: #{ENV['SNAP'].nil? ? 'not in snap env' : nm_version}
-        service_status:
-            #{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
+        service_status:\n#{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
         connection type: #{SettingsCache.s[:network_connectiontype]}
         language: #{SettingsCache.s[:system_language]}
         timezone:
@@ -130,7 +129,14 @@ class DebugReport
   # Retrieves the current snap service status.
   # @return [String (frozen), nil]
   def service_status
-    Terrapin::CommandLine.new('snapctl', 'services mirros-one').run.chomp
+    Terrapin::CommandLine.new(
+      'snapctl',
+      'services mirros-one'
+    )
+                         .run
+                         .chomp
+                         .each_line.map { |line| line.squish!.prepend('            ') }
+                         .join("\n")
   rescue StandardError => e
     "Failed to run service command: #{e.message}"
   end
