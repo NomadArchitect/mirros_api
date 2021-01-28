@@ -15,72 +15,7 @@ class Setting < ApplicationRecord
 
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
-
-  # FIXME: Refactor with custom validator class to avoid condition bloat.
-  validates_each :value do |record, attr, value|
-    case record.slug
-    when 'system_timezone'
-      next unless ActiveSupport::TimeZone[value.to_s].nil?
-
-      record.errors.add(attr, "#{value} is not a valid timezone!")
-
-    when /system_backgroundcolor|system_fontcolor/
-      next if value.match?(/^#[0-9A-F]{6}$/i) # Check for valid hex color values.
-
-      record.errors.add(attr, "#{value} is not a valid CSS color!")
-
-    when 'system_activeboard'
-      next if Board.exists?(value)
-
-      record.errors.add(attr, "Cannot find board with ID #{value}")
-
-    when 'personal_productkey'
-      handler = RegistrationHandler.new(value)
-      next if handler.product_key_valid? || handler.deregister?
-
-      record.errors.add(attr, "#{value} is not a valid product key.")
-
-    when 'system_boardrotation'
-      unless Setting.find_by(slug: 'system_multipleboards')&.value.eql?('on')
-        record.errors.add(attr, 'Please enable `multiple boards` first')
-        next
-      end
-
-      opts = record.options
-      next if opts.key?(value)
-
-      record.errors.add(
-        attr,
-        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
-      )
-
-    when 'system_boardrotationinterval'
-      begin
-        Rufus::Scheduler.parse_in value
-      rescue ArgumentError
-        record.errors.add(
-          attr,
-          "#{value} is not a valid interval expression. Schema is `<integer>m`"
-        )
-      end
-    when 'system_scheduleshutdown'
-      begin
-        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`") if value.present? && value.to_time.blank?
-      rescue StandardError
-        record.errors.add(attr, "#{value} is not a valid time of day. Schema is `hh:mm`")
-      end
-
-    else
-      opts = record.options
-      # Check for empty options in case this setting has no options (free-form)
-      next if opts.key?(value) || opts.empty?
-
-      record.errors.add(
-        attr,
-        "#{value} is not a valid option for #{attr}, options are: #{opts.keys}"
-      )
-    end
-  end
+  validates :value, setting: true
 
   # Checks if the model represents the personal_productkey setting.
   # @return [TrueClass, FalseClass] Whether the request changes personal_productkey
