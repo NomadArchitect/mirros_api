@@ -96,9 +96,11 @@ class DebugReport
   # @return [HTTParty::Response]
   def send_mail
     append_system_report
-    append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
     append_rails_log_files
-
+    unless ENV['SNAP_COMMON'].nil?
+      append_nginx_log_files
+      append_mysql_log_files
+    end
     host = "https://#{System::API_HOST}/reports/new-one.php"
     res = HTTParty.post(host, body: @body)
     @file_handles.each(&:close)
