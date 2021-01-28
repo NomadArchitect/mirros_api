@@ -2,7 +2,7 @@
 
 # Data structure for debug reports.
 class DebugReport
-  UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/
+  UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/.freeze
 
   # Builds a system report structure with various debugging information.
   # @return [Hash]
@@ -22,7 +22,7 @@ class DebugReport
     report[:widget_instances] = WidgetInstance.all.map do |wi|
       info = {
         id: wi.id,
-        widget: wi.widget.name,
+        widget: wi.widget.name
       }
       unless wi.group.nil?
         info[:connected_source_instances] = {
@@ -42,7 +42,7 @@ class DebugReport
         {
           type: upload.type,
           content_type: upload.file.content_type,
-          file_size_mb: (upload.file.byte_size.to_f / 1048576).ceil(2) # 1048576 = 2**20, convert from byte to megabyte.
+          file_size_mb: (upload.file.byte_size.to_f / 1_048_576).ceil(2) # 1048576 = 2**20, convert from byte to megabyte.
         }
       end
     rescue StandardError => e
@@ -70,8 +70,7 @@ class DebugReport
         uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}
         snap_version: #{SNAP_VERSION}
         network_manager_version: #{ENV['SNAP'].nil? ? 'not in snap env' : nm_version}
-        service_status:
-            #{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
+        service_status:\n#{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
         connection type: #{SettingsCache.s[:network_connectiontype]}
         language: #{SettingsCache.s[:system_language]}
         timezone:
@@ -81,10 +80,10 @@ class DebugReport
             active: #{SettingsCache.s[:system_multipleboards]}
             rotation: #{SettingsCache.s[:system_boardrotation]}
             interval: #{SettingsCache.s[:system_boardrotationinterval]}
-        IP Cam widget active (assuming an active stream): #{Widget.find_by(name: 'ip_cam').widget_instances.count > 0}
-        Pictures widget active: #{pictures_wi.count > 0}
+        IP Cam widget active (assuming an active stream): #{Widget.find_by(name: 'ip_cam').widget_instances.count.positive?}
+        Pictures widget active: #{pictures_wi.count.positive?}
         Image Gallery – rotation / remote:
-            #{pictures_wi.map { |wi| wi.configuration } }
+            #{pictures_wi.map(&:configuration)}
         widget instances: #{WidgetInstance.count}
         source instances: #{SourceInstance.count}
       "
@@ -96,13 +95,15 @@ class DebugReport
   # @return [HTTParty::Response]
   def send_mail
     append_system_report
-    append_nginx_log_files unless ENV['SNAP_COMMON'].nil?
     append_rails_log_files
-
+    unless ENV['SNAP_COMMON'].nil?
+      append_nginx_log_files
+      append_mysql_log_files
+    end
     host = "https://#{System::API_HOST}/reports/new-one.php"
     res = HTTParty.post(host, body: @body)
     @file_handles.each(&:close)
-    @file_handles.select { |handle| handle.unlink if handle.class.eql? Tempfile }
+    @file_handles.select { |handle| handle.unlink if handle.instance_of?(Tempfile) }
 
     res
   end
@@ -128,7 +129,14 @@ class DebugReport
   # Retrieves the current snap service status.
   # @return [String (frozen), nil]
   def service_status
-    Terrapin::CommandLine.new('snapctl', 'services mirros-one').run.chomp
+    Terrapin::CommandLine.new(
+      'snapctl',
+      'services mirros-one'
+    )
+                         .run
+                         .chomp
+                         .each_line.map { |line| line.squish!.prepend('            ') }
+                         .join("\n")
   rescue StandardError => e
     "Failed to run service command: #{e.message}"
   end
@@ -189,5 +197,4 @@ class DebugReport
     @body['system_report'] = tmpfile.open
     @file_handles << tmpfile
   end
-
 end
