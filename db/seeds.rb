@@ -73,7 +73,7 @@ settings = [
   {
     category: 'system',
     key: 'multipleBoards',
-    value: 'no'
+    value: 'off'
   },
   {
     category: 'system',

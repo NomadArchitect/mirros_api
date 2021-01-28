@@ -65,7 +65,7 @@ namespace :db do
     Setting.find_or_create_by(slug: 'system_multipleboards') do |entry|
       entry.category = 'system'
       entry.key = 'multipleBoards'
-      entry.value = 'no'
+      entry.value = 'off'
     end
 
     Setting.find_or_create_by(slug: 'system_activeboard') do |entry|

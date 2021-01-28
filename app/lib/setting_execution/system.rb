@@ -51,15 +51,15 @@ module SettingExecution
       # Uses Rails' String.to_time, will throw ArgumentError if input doesn't contain *any* valid DateTime part.
       # For partially valid strings like "12:aa" it will just omit the minutes.
       parsed = time_of_day.to_time
-      #noinspection LongLine
-      login_iface = DBus::ASystemBus.new['org.freedesktop.login1']['/org/freedesktop/login1']['org.freedesktop.login1.Manager']
+      # noinspection LongLine
+      login_iface = DBus::ASystemBus.new['org.freedesktop.login1']['/org/freedesktop/login1']['org.freedesktop.login1.Manager'] # rubocop:disable Layout/LineLength
 
       if parsed.blank?
         # noinspection RubyResolve
         login_iface.CancelScheduledShutdown
       else
         # Check if the current time is already past the given time of day,prevents immediate shutdown.
-        usec = (parsed.past? ? parsed.next_day(1) : parsed).to_i * 1000000 # shutdown expects microseconds
+        usec = (parsed.past? ? parsed.next_day(1) : parsed).to_i * 1_000_000 # shutdown expects microseconds
         # noinspection RubyResolve
         login_iface.ScheduleShutdown('poweroff', usec)
       end
