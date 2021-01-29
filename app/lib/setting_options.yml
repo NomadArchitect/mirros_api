@@ -10,6 +10,9 @@ display_orientation:
 network_connectiontype:
   wlan: WLAN
   lan: LAN
+network_ssidinvisible:
+  "no": "no"
+  "yes": "yes"
 system_language:
   enGb: English (United Kingdom)
   deDe: Deutsch (Deutschland)
@@ -19,6 +22,9 @@ system_language:
   koKr: 한국어(대한민국)
   # jaJp: 日本語
 system_showerrornotifications:
+  "on": "on"
+  "off": "off"
+system_multipleboards:
   "on": "on"
   "off": "off"
 system_boardrotation:
