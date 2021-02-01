@@ -235,6 +235,7 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.2.5)
     regexp_parser (2.0.3)
     rexml (3.2.4)
     rss_feeds (1.0.4)
@@ -345,6 +346,7 @@ DEPENDENCIES
   rack-cors!
   rails (~> 5.2.3)!
   rails-erd (~> 1.6.0)!
+  redis!
   rss_feeds!
   rubocop!
   rubocop-rails!
