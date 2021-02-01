@@ -43,8 +43,6 @@ if Rails.const_defined? 'Server'
   s.every '2m', tag: 'network-signal-check', overlap: false do
     next unless SettingsCache.s.using_wifi?
 
-    next unless StateCache.connectivity >= NetworkManager::Constants::NmConnectivityState::LIMITED
-
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
 
