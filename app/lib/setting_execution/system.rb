@@ -42,10 +42,8 @@ module SettingExecution
     # Schedules a system shutdown at a given time of day.
     # @param [String] time_of_day when passed 'hh:mm', will use Rails' String.to_time
     def self.schedule_shutdown(time_of_day)
-      if Rails.env.development?
-        Rails.logger.info "Called #{__method__} with #{time_of_day}, no-op in development environment :-)"
-        return
-      end
+      return Rails.logger.info "#{__method__}: no-op in development." if Rails.env.development?
+
       raise NotImplementedError, "#{__method__} only implemented for Linux hosts" unless OS.linux?
 
       # Uses Rails' String.to_time, will throw ArgumentError if input doesn't contain *any* valid DateTime part.
