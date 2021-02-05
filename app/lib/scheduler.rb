@@ -14,11 +14,11 @@ class Scheduler
       Rails.logger.info "Scheduled browser reload from #{RESTART_BROWSER_JOB_TAG}"
       System.reload_browser
     end
-    Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every 3h (0, ..., 21) in #{tz}."\
+    Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every 2h (0, ..., 22) in #{tz}."\
                       "\t\nnext: #{Rufus::Scheduler.parse_cron("0 2 * * * #{tz}", {})&.next_time&.to_s}"
   end
 
-  # Stop the reboot job.
+  # Stop the browser restart job.
   def self.stop_browser_restart_job
     stop_job RESTART_BROWSER_JOB_TAG
   end
