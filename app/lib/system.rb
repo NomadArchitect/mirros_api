@@ -72,9 +72,7 @@ class System
     # macOS requires sudoers file manipulation without tty/askpass, see
     # https://www.sudo.ws/man/sudoers.man.html
     return if Rails.env.development? # Don't reboot a running dev system
-    unless OS.linux?
-      raise NotImplementedError, 'Reboot only implemented for Linux hosts'
-    end
+    raise NotImplementedError, 'Reboot only implemented for Linux hosts' unless OS.linux?
 
     # TODO: Refactor with ruby-dbus for consistency
     line = Terrapin::CommandLine.new(
@@ -193,12 +191,11 @@ class System
 
   def self.toggle_timesyncd_ntp(bool)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-    unless OS.linux?
-      raise NotImplementedError, 'timedate control only implemented for Linux hosts'
-    end
+    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+    # Ruby has no Boolean superclass
     unless [true, false].include? bool
       raise ArgumentError, "not a valid boolean: #{bool}"
-    end # Ruby has no Boolean superclass
+    end
 
     timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
     timedated_object = timedated_service['/org/freedesktop/timedate1']
@@ -213,10 +210,8 @@ class System
   # @return [Array] Return messages from DBus call, if any
   def self.change_system_time(epoch_timestamp)
     return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-    unless OS.linux?
-      raise NotImplementedError, 'timedate control only implemented for Linux hosts'
-    end
-    unless epoch_timestamp.class.eql? Integer
+    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
+    unless epoch_timestamp.instance_of?(Integer)
       raise ArgumentError, "not an integer: #{epoch_timestamp}"
     end
 
@@ -226,7 +221,7 @@ class System
     # noinspection RubyResolve
     timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
     # noinspection RubyResolve
-    timedated_interface.SetTime(epoch_timestamp * 1000000, false, false) # timedated requires microseconds
+    timedated_interface.SetTime(epoch_timestamp * 1_000_000, false, false) # timedated requires microseconds
     # noinspection RubyResolve
     timedated_interface.SetNTP(true, false) # Re-enable NTP
   rescue DBus::Error => e
