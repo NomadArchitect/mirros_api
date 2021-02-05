@@ -4,7 +4,6 @@ module RuleManager
   class BoardScheduler
     RULE_EVALUATION_TAG = 'system-board-rule-evaluation'
     ROTATION_INTERVAL_TAG = 'system-board-rotation'
-    ROTATION_INTERVAL_RELOAD_TAG = 'system-board-rotation-reload'
 
     # Schedules an hourly job that evaluates current board rules.
     # The first matched rule determines the new active board.
@@ -62,17 +61,6 @@ module RuleManager
         active_board_setting.update(value: new_board_id)
       end
       Rails.logger.info "scheduled job #{ROTATION_INTERVAL_TAG} every #{parsed} seconds"
-
-      # FIXME: Workaround for WPE crashes, check if this is necessary once we have 2.30.2 running
-      # Definitely remove once https://github.com/Igalia/cog/issues/230 is in stable
-      return if job_running? ROTATION_INTERVAL_RELOAD_TAG
-
-      Rufus::Scheduler.singleton.every '1h', tag: ROTATION_INTERVAL_RELOAD_TAG do
-        System.reload_browser if ENV['SNAP'] # only do something when in snap env
-        Rails.logger.info 'Reloaded the attached browser via DBus'
-      end
-      Rails.logger.info "scheduled job #{ROTATION_INTERVAL_RELOAD_TAG} every hour"
-
     rescue ArgumentError => e
       Rails.logger.error "failed to start rotation job: #{e.message}"
     end
@@ -81,11 +69,10 @@ module RuleManager
     #
     # @return [Boolean] whether the log entry succeeded.
     def self.stop_rotation_interval
-      [ROTATION_INTERVAL_TAG, ROTATION_INTERVAL_RELOAD_TAG].each do |tag|
-        next unless job_running? tag
-        Rufus::Scheduler.s.every_jobs(tag: tag).each(&:unschedule)
-        Rails.logger.info "stopped job #{tag}"
-        end
+      return unless job_running? ROTATION_INTERVAL_TAG
+
+      Rufus::Scheduler.s.every_jobs(tag: ROTATION_INTERVAL_TAG).each(&:unschedule)
+      Rails.logger.info "stopped job #{ROTATION_INTERVAL_TAG}"
     end
 
     def self.manage_jobs(rotation_active: false)
