@@ -103,6 +103,7 @@ class SystemController < ApplicationController
         create_default_cal_instances
         create_default_feed_instances
       end
+      Scheduler.daily_reboot
       ActiveRecord::Base.clear_active_connections!
     end
 
