@@ -103,7 +103,6 @@ class SystemController < ApplicationController
         create_default_cal_instances
         create_default_feed_instances
       end
-      Scheduler.daily_reboot
       ActiveRecord::Base.clear_active_connections!
     end
 
@@ -116,6 +115,7 @@ class SystemController < ApplicationController
            status: :internal_server_error
   ensure
     Rufus::Scheduler.s.resume
+    Scheduler.daily_reboot
   end
 
   # TODO: Respond with appropriate status codes in addition to success
