@@ -47,6 +47,7 @@ class Scheduler
     login_iface = DBus::ASystemBus.new['org.freedesktop.login1']['/org/freedesktop/login1']['org.freedesktop.login1.Manager'] # rubocop:disable Layout/LineLength
     # noinspection RubyResolve
     login_iface.ScheduleShutdown('reboot', next_day_2am.to_i * 1_000_000)
+    Rails.logger.info "Scheduled reboot at #{next_day_2am}"
   rescue DBus::Error => e
     Rails.logger.error "[#{__method__}]: #{e.message}"
     raise e

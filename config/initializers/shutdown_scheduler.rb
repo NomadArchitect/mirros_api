@@ -7,6 +7,5 @@ if Rails.const_defined? 'Server'
     Rails.logger.info "Scheduled shutdown at #{shutdown_time.to_time}"
   else
     Scheduler.daily_reboot
-    Rails.logger.info 'Scheduled reboot at 2am tomorrow'
   end
 end
