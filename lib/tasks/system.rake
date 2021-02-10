@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 namespace :system do
+  desc 'Reload the browser snap'
+  task reload_browser: [:environment] do |_task, _args|
+    next unless ENV['SNAP']
+
+    System.reload_browser
+  end
+
   desc 'Set the StateCache.updating attribute'
   task :set_snap_update_status, %i[snap_update_status] => [:environment] do |_task, args|
     next unless ENV['SNAP']

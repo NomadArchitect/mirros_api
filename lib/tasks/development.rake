@@ -48,13 +48,4 @@ namespace :mirros do
       puts 'Setup complete'
     end
   end
-
-  namespace :system do
-    desc 'Reload the browser snap'
-    task reload_browser: [:environment] do |_task, _args|
-      next unless ENV['SNAP']
-
-      System.reload_browser
-    end
-  end
 end
