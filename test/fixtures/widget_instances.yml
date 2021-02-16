@@ -1,12 +1,33 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-calendar_event_list:
+_fixture:
+  ignore: BASE
+
+BASE: &BASE
   widget: calendar_event_list
+  board: one
   title: UK Holidays (Google)
   showtitle: true
-  configuration: {}
+  configuration: { }
   position:
     x: 8
     y: 0
     width: 4
     height: 4
+
+calendar_event_list:
+  <<: *BASE
+
+valid_styles:
+  <<: *BASE
+  styles:
+    font_color: '#ff0000'
+    font_size: 200
+    background_blur: true
+
+invalid_styles:
+  <<: *BASE
+  styles:
+    font_color: invalid
+    font_size: 5
+    background_blur: null
