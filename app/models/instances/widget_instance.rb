@@ -14,6 +14,8 @@ class WidgetInstance < Instance
   validates :styles, store_model: { merge_errors: true }
   after_commit :update_board
 
+  private
+
   # Updates the parent board to ensure the new instance is included in relationships.
   # @return [TrueClass]
   def update_board
