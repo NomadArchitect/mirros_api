@@ -10,6 +10,8 @@ class WidgetInstance < Instance
   has_many :instance_associations, dependent: :destroy
   has_many :source_instances, through: :instance_associations
 
+  attribute :styles, WidgetInstanceStyles.to_type, default: WidgetInstanceStyles.new
+  validates :styles, store_model: { merge_errors: true }
   after_commit :update_board
 
   # Updates the parent board to ensure the new instance is included in relationships.
