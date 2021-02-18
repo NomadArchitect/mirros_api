@@ -4,7 +4,7 @@
 class WidgetInstanceStyles
   include StoreModel::Model
 
-  attribute :font_color, :string, default: ''
+  attribute :font_color, :string, default: SettingsCache.s[:system_fontcolor] || '#ffffff'
   attribute :background_blur, :boolean, default: false
   attribute :font_size, :integer, default: 100
 
