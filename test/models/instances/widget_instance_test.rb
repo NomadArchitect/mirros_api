@@ -21,6 +21,7 @@ WidgetInstanceTest < ActiveSupport::TestCase
     assert_invalid invalid_wi,
                    font_color: 'must be a hex value, e.g. #ff0000',
                    font_size: 'must be greater than or equal to 100',
+                   text_align: 'must be one of ["left", "right", "center", "justify"]',
                    background_blur: 'must be one of [true, false]'
   end
 end

@@ -24,6 +24,7 @@ valid_styles:
     font_color: '#ff0000'
     font_size: 200
     background_blur: true
+    text_align: center
 
 invalid_styles:
   <<: *BASE
@@ -31,3 +32,4 @@ invalid_styles:
     font_color: invalid
     font_size: 5
     background_blur: null
+    text_align: fnord
