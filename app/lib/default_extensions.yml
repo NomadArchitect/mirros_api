@@ -40,13 +40,14 @@ widget_instances:
     title: ''
     showtitle: false
     configuration: {
-      "alignment": 'center',
-      "fontsize": '200',
       "content": ''
     }
     position:
       portrait: { "x": 4, "y": 12, "width": 4, "height": 4 }
       landscape: { "x": 9, "y": 5, "width": 4, "height": 4 }
+    styles:
+      text_align: 'center'
+      font_size: 200
   ticker:
     title: 'glancr News'
     showtitle: true
