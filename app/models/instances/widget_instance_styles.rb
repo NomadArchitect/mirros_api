@@ -7,7 +7,8 @@ class WidgetInstanceStyles
   attribute :font_color, :string, default: SettingsCache.s[:system_fontcolor] || '#ffffff'
   attribute :background_blur, :boolean, default: false
   attribute :font_size, :integer, default: 100
-  attribute :text_align, :string, default: 'left'
+  attribute :horizontal_align, :string, default: 'left'
+  attribute :vertical_align, :string, default: 'top'
 
   validates :font_color,
             allow_blank: true,
@@ -16,9 +17,13 @@ class WidgetInstanceStyles
               message: 'must be a hex value, e.g. #ff0000'
             }
   validates :font_size, numericality: { only_integer: true, greater_than_or_equal_to: 100 }
-  validates :text_align, inclusion: {
+  validates :horizontal_align, inclusion: {
     in: %w[left right center justify],
     message: 'must be one of ["left", "right", "center", "justify"]'
+  }
+  validates :vertical_align, inclusion: {
+    in: %w[top bottom center stretch],
+    message: 'must be one of ["top", "bottom", "center", "stretch"]'
   }
   validates :background_blur,
             inclusion: {
