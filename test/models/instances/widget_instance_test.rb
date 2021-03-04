@@ -25,4 +25,22 @@ WidgetInstanceTest < ActiveSupport::TestCase
                    vertical_align: 'must be one of ["top", "bottom", "center", "stretch"]',
                    background_blur: 'must be one of [true, false]'
   end
+
+  test 'rejects style changes if no license is present' do
+    wi = widget_instances(:valid_styles)
+    wi.save
+
+    wi.update(styles: { horizontal_align: 'left' })
+    assert_invalid wi, styles: 'this requires a valid product key.'
+  end
+
+  test 'allows style changes if a license is present' do
+    wi = widget_instances(:valid_styles)
+    wi.save
+
+    save_valid_product_key
+
+    wi.update(styles: { horizontal_align: 'left' })
+    assert wi.valid?
+  end
 end
