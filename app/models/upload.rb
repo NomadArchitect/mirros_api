@@ -5,6 +5,17 @@ class Upload < ApplicationRecord
 
   delegate :content_type, to: :file
 
+  validate :test_if_processable, if: :attached_file_is_image?
+
+  # Validates if the given file can be processed properly.
+  # Prevents runtime errors from broken or otherwise unprocessable files.
+  def test_if_processable
+    file.variant(resize: '1920x1920').processed
+  rescue StandardError => e
+    Rails.logger.warn e.message
+    errors.add :file, e.message
+  end
+
   # Checks if the attached file is an image (excluding SVG).
   # @return [TrueClass, FalseClass] True if file is a raster graphics image
   def attached_file_is_image?
