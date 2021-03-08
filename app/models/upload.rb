@@ -11,6 +11,7 @@ class Upload < ApplicationRecord
     file.image? && !file.content_type.include?('svg')
   end
 
+  # Generates the URL to the processed variant representation for the attached file.
   # @return [String] The complete URL to the file attachment
   def file_url
     return unless file.attached?
