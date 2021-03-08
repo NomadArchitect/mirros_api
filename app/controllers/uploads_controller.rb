@@ -7,6 +7,8 @@ class UploadsController < ApplicationController
   # include JSONAPI::ActsAsResourceController
   before_action :set_upload_type, :set_host
 
+  rescue_from StandardError, with: :render_error
+
   def index
     render json: @type.all, methods: %i[file_url content_type]
   end
@@ -43,5 +45,11 @@ class UploadsController < ApplicationController
 
   def set_host
     ActiveStorage::Current.host = request.base_url
+  end
+
+  # Renders a generic exception as JSON with status code 422.
+  # @param [Exception] exception The exception object raised during operations.
+  def render_error(exception)
+    render json: exception, status: :unprocessable_entity
   end
 end

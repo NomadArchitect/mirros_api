@@ -5,11 +5,29 @@ class Upload < ApplicationRecord
 
   delegate :content_type, to: :file
 
+  validate :test_if_processable, if: :attached_file_is_image?
+
+  # Validates if the given file can be processed properly.
+  # Prevents runtime errors from broken or otherwise unprocessable files.
+  def test_if_processable
+    file.variant(resize: '1920x1920').processed
+  rescue StandardError => e
+    Rails.logger.warn e.message
+    errors.add :file, e.message
+  end
+
+  # Checks if the attached file is an image (excluding SVG).
+  # @return [TrueClass, FalseClass] True if file is a raster graphics image
+  def attached_file_is_image?
+    file.image? && !file.content_type.include?('svg')
+  end
+
+  # Generates the URL to the processed variant representation for the attached file.
   # @return [String] The complete URL to the file attachment
   def file_url
     return unless file.attached?
 
-    if file.image? && !file.content_type.include?('svg')
+    if attached_file_is_image?
       Rails.application.routes.url_helpers.rails_representation_url(
         file.variant(resize: '1920x1920').processed,
         host: ActiveStorage::Current.host
@@ -20,6 +38,9 @@ class Upload < ApplicationRecord
         host: ActiveStorage::Current.host
       )
     end
+  rescue SystemCallError => e
+    Rails.logger.warn "#{__method__}: #{e.message}"
+    ''
   end
 
   def purge_and_destroy
