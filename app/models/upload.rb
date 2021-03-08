@@ -27,6 +27,9 @@ class Upload < ApplicationRecord
         host: ActiveStorage::Current.host
       )
     end
+  rescue SystemCallError => e
+    Rails.logger.warn "#{__method__}: #{e.message}"
+    ''
   end
 
   def purge_and_destroy
