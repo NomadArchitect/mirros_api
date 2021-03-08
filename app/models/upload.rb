@@ -5,6 +5,12 @@ class Upload < ApplicationRecord
 
   delegate :content_type, to: :file
 
+  # Checks if the attached file is an image (excluding SVG).
+  # @return [TrueClass, FalseClass] True if file is a raster graphics image
+  def attached_file_is_image?
+    file.image? && !file.content_type.include?('svg')
+  end
+
   # @return [String] The complete URL to the file attachment
   def file_url
     return unless file.attached?
