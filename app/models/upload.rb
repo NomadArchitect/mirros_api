@@ -16,7 +16,7 @@ class Upload < ApplicationRecord
   def file_url
     return unless file.attached?
 
-    if file.image? && !file.content_type.include?('svg')
+    if attached_file_is_image?
       Rails.application.routes.url_helpers.rails_representation_url(
         file.variant(resize: '1920x1920').processed,
         host: ActiveStorage::Current.host
