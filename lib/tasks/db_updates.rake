@@ -131,6 +131,13 @@ namespace :db do
       entry.value = ''
     end
     setting_schedule_shutdown.save(validate: false) if setting_schedule_shutdown.new_record?
+
+    # Add WidgetInstanceStyles defaults. Though the model creates a default, this lessens compute time.
+    WidgetInstance.update_all styles: WidgetInstanceStyles.new # rubocop:disable Rails/SkipsModelValidations
+    WidgetInstance.all.each do |wi|
+      wi.send(:override_default_styles)
+      wi.save(validate: false) if wi.changed?
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
