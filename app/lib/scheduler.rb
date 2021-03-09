@@ -10,12 +10,12 @@ class Scheduler
     return if job_running? RESTART_BROWSER_JOB_TAG
 
     tz = SettingsCache.s[:system_timezone].presence || 'UTC'
-    Rufus::Scheduler.singleton.cron "0 */2 * * * #{tz}", tag: RESTART_BROWSER_JOB_TAG do
+    Rufus::Scheduler.singleton.cron "0 */8 * * * #{tz}", tag: RESTART_BROWSER_JOB_TAG do
       Rails.logger.info "Scheduled browser reload from #{RESTART_BROWSER_JOB_TAG}"
       System.reload_browser
     end
-    Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every 2h (0, ..., 22) in #{tz}."\
-                      "\t\nnext: #{Rufus::Scheduler.parse_cron("0 2 * * * #{tz}", {})&.next_time&.to_s}"
+    Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every 8h in #{tz}."\
+                      "\t\nnext: #{Rufus::Scheduler.parse_cron("0 */8 * * * #{tz}", {})&.next_time&.to_s}"
   end
 
   # Stop the browser restart job.
