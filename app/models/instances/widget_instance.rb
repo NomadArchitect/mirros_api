@@ -11,6 +11,7 @@ class WidgetInstance < Instance
   has_many :source_instances, through: :instance_associations
 
   attribute :styles, WidgetInstanceStyles.to_type, default: WidgetInstanceStyles.new
+  before_create :override_default_styles
   validates :styles, store_model: { merge_errors: true }
   before_validation :check_license_status,
                     if: -> { persisted? && changed_attributes.key?('styles') }
@@ -31,5 +32,13 @@ class WidgetInstance < Instance
     return if RegistrationHandler.new.product_key_valid?
 
     errors.add('styles', 'this requires a valid product key.')
+  end
+
+  # Overrides the style defaults if the widget specifies its own.
+  def override_default_styles
+    engine = widget.engine_class
+    return unless engine&.const_defined?(:DEFAULT_STYLES, false)
+
+    self.styles = engine.const_get(:DEFAULT_STYLES)
   end
 end
