@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Controller for WidgetInstance models.
 class WidgetInstancesController < ApplicationController
   include JSONAPI::ActsAsResourceController
 

@@ -131,13 +131,20 @@ namespace :db do
       entry.value = ''
     end
     setting_schedule_shutdown.save(validate: false) if setting_schedule_shutdown.new_record?
+
+    # Add WidgetInstanceStyles defaults. Though the model creates a default, this lessens compute time.
+    WidgetInstance.update_all styles: WidgetInstanceStyles.new # rubocop:disable Rails/SkipsModelValidations
+    WidgetInstance.all.each do |wi|
+      wi.send(:override_default_styles)
+      wi.save(validate: false) if wi.changed?
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
   task update_default_gems: [:environment] do |_task, _args|
     manually_installed = Bundler.load
-      .current_dependencies
-      .select { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+                                .current_dependencies
+                                .select { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
     Widget.pluck('name').difference(MirrOSApi::Application::DEFAULT_WIDGETS, manually_installed).each do |widget_name|
       next if MirrOSApi::Application::DEFAULT_WIDGETS.include?("mirros-widget-#{widget_name}")

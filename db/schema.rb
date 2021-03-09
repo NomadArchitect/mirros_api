@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_27_092224) do
+ActiveRecord::Schema.define(version: 2021_02_11_122753) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -332,6 +332,7 @@ ActiveRecord::Schema.define(version: 2021_01_27_092224) do
     t.string "widget_id"
     t.string "title"
     t.boolean "showtitle", default: false
+    t.json "styles"
     t.json "configuration"
     t.json "position"
     t.datetime "created_at", null: false
