@@ -136,8 +136,8 @@ namespace :db do
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
   task update_default_gems: [:environment] do |_task, _args|
     manually_installed = Bundler.load
-      .current_dependencies
-      .select { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
+                                .current_dependencies
+                                .select { |dep| dep.groups.include?(:manual) }.map(&:name).freeze
 
     Widget.pluck('name').difference(MirrOSApi::Application::DEFAULT_WIDGETS, manually_installed).each do |widget_name|
       next if MirrOSApi::Application::DEFAULT_WIDGETS.include?("mirros-widget-#{widget_name}")
