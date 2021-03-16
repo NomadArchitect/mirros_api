@@ -68,7 +68,7 @@ GEM
     concurrent-ruby (1.1.7)
     countdown (1.0.3)
     crass (1.0.6)
-    current_date (0.1.7)
+    current_date (0.2.0)
     debug_inspector (0.0.3)
     easy_enum (0.1.4)
     erubi (1.10.0)
