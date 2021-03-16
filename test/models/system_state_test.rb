@@ -17,7 +17,7 @@ class SystemStateTest < ActiveSupport::TestCase
 
   test 'saves value column as JSON' do
     system_states(:client_display)
-    assert SystemState.find_by(variable: 'client_display').value.class.eql? Hash
+    assert SystemState.find_by(variable: 'client_display').value.instance_of?(Hash)
   end
 
   test 'validates uniqueness of variable field' do
@@ -29,7 +29,11 @@ class SystemStateTest < ActiveSupport::TestCase
 
   test 'retrieves nested values' do
     state = system_states(:client_display)
-    assert_equal state.value['orientation'], SystemState.dig(variable: 'client_display', key: 'orientation')
+    # RuboCop mistakes custom SystemState.dig call with Hash.dig, disable rule.
+    # rubocop:disable Style/SingleArgumentDig
+    assert_equal state.value['orientation'],
+                 SystemState.dig(variable: 'client_display', key: 'orientation')
+    # rubocop:enable Style/SingleArgumentDig
   end
 
   test 'retrieves single values' do

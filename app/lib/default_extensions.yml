@@ -11,6 +11,8 @@ widget_instances:
     position:
       portrait: { "x": 0, "y": 0, "width": 3, "height": 1 }
       landscape: { "x": 0, "y": 0, "width": 3, "height": 1 }
+    styles:
+      font_size: 400
   current_date:
     title: ''
     showtitle: false
@@ -23,6 +25,8 @@ widget_instances:
     position:
       portrait: { "x": 0, "y": 1, "width": 3, "height": 1 }
       landscape: { "x": 0, "y": 1, "width": 3, "height": 1 }
+    styles:
+      font_size: 130
   calendar_event_list:
     title: 'Holidays'
     showtitle: true
@@ -40,13 +44,14 @@ widget_instances:
     title: ''
     showtitle: false
     configuration: {
-      "alignment": 'center',
-      "fontsize": '200',
       "content": ''
     }
     position:
       portrait: { "x": 4, "y": 12, "width": 4, "height": 4 }
       landscape: { "x": 9, "y": 5, "width": 4, "height": 4 }
+    styles:
+      horizontal_align: 'center'
+      font_size: 200
   ticker:
     title: 'glancr News'
     showtitle: true

@@ -58,17 +58,17 @@ GEM
       msgpack (~> 1.0)
     builder (3.2.4)
     byebug (11.1.3)
-    calendar_event_list (1.1.4)
-    calendar_upcoming_event (1.0.5)
+    calendar_event_list (1.2.0)
+    calendar_upcoming_event (1.0.7)
     calendar_week_overview (1.0.4)
     choice (0.2.0)
     climate_control (0.2.0)
-    clock (1.0.0)
+    clock (1.0.1)
     coderay (1.1.3)
     concurrent-ruby (1.1.7)
-    countdown (1.0.2)
+    countdown (1.0.3)
     crass (1.0.6)
-    current_date (0.1.6)
+    current_date (0.2.0)
     debug_inspector (0.0.3)
     easy_enum (0.1.4)
     erubi (1.10.0)
@@ -87,7 +87,7 @@ GEM
     ffi (1.14.2)
     friendly_id (5.2.5)
       activerecord (>= 4.0.0)
-    fuel_prices (0.2.2)
+    fuel_prices (0.2.3)
     fugit (1.4.2)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.4)
@@ -116,7 +116,7 @@ GEM
     image_processing (1.12.1)
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
-    ip_cam (0.1.5)
+    ip_cam (0.1.6)
     jsonapi-resources (0.9.11)
       activerecord (>= 4.1)
       concurrent-ruby
@@ -182,15 +182,15 @@ GEM
     openweathermap (1.1.7)
       httparty (~> 0.18)
     os (1.0.1)
-    owm_current_weather (1.0.0)
-    owm_daily_values (0.2.5)
+    owm_current_weather (1.0.1)
+    owm_daily_values (0.2.6)
     owm_forecast (1.0.0)
     parallel (1.20.1)
     parser (3.0.0.0)
       ast (~> 2.4.1)
-    pictures (1.0.1)
+    pictures (1.0.2)
     public_suffix (4.0.6)
-    public_transport_departures (0.2.4)
+    public_transport_departures (0.2.5)
     puma (4.0.1)
       nio4r (~> 2.0)
     qrcode (0.2.5)
@@ -235,6 +235,7 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.2.5)
     regexp_parser (2.0.3)
     rexml (3.2.4)
     rss_feeds (1.0.4)
@@ -279,10 +280,12 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    styling (0.3.1)
+    store_model (0.8.2)
+      activerecord (>= 5.2)
+    styling (0.3.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
-    text_field (1.0.0)
+    text_field (2.0.1)
     thor (1.0.1)
     thread_safe (0.3.6)
     ticker (0.2.2)
@@ -296,7 +299,7 @@ GEM
     unicode-display_width (2.0.0)
     vbb (0.1.13)
       httparty (~> 0.18)
-    video_player (1.0.3)
+    video_player (1.0.4)
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -345,6 +348,7 @@ DEPENDENCIES
   rack-cors!
   rails (~> 5.2.3)!
   rails-erd (~> 1.6.0)!
+  redis!
   rss_feeds!
   rubocop!
   rubocop-rails!
@@ -353,6 +357,7 @@ DEPENDENCIES
   sbb!
   spring!
   spring-watcher-listen (~> 2.0.0)!
+  store_model (~> 0.8)!
   styling!
   terrapin (~> 0.6.0)!
   text_field!
