@@ -33,7 +33,7 @@ if Rails.const_defined? 'Server'
     # On other hosts, we schedule network status check jobs.
     s.every '30s', tag: 'network-status-check', overlap: false do
       System.check_network_status
-      ActionCable.server.broadcast 'status', payload: System.info
+      System.push_status_update
     end
   end
 
