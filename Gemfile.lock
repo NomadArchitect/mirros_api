@@ -146,7 +146,7 @@ GEM
     mime-types-data (3.2021.0225)
     mini_magick (4.11.0)
     mini_mime (1.1.0)
-    mini_portile2 (2.5.0)
+    mini_portile2 (2.5.1)
     minitest (5.14.4)
     mirros-source-microsoft_todo (1.0.4)
       omniauth (~> 1.9)
