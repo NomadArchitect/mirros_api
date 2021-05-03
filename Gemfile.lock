@@ -92,7 +92,7 @@ GEM
     friendly_id (5.2.5)
       activerecord (>= 4.0.0)
     fuel_prices (0.2.3)
-    fugit (1.4.2)
+    fugit (1.4.5)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.4)
     geocoder (1.6.7)
