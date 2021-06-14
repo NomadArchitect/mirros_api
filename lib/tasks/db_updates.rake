@@ -138,6 +138,8 @@ namespace :db do
       wi.styles = WidgetInstanceStyles.new if wi.send(:override_default_styles).nil?
       wi.save(validate: false)
     end
+
+    SystemState.create_with(value: false).find_or_create_by(variable: :welcome_mail_sent)
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'

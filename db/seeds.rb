@@ -159,6 +159,8 @@ Group.create(
   ]
 )
 
+SystemState.create(variable: :welcome_mail_sent, value: false)
+
 MirrOSApi::Application::DEFAULT_WIDGETS.each do |extension|
   Rake::Task['extension:insert'].reenable
   Rake::Task['extension:insert'].invoke(extension)

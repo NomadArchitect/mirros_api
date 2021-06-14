@@ -24,8 +24,9 @@ module SettingExecution
         headers: { 'Content-Type': 'application/json' },
         body: body.to_json
       )
-      # TODO: Add error handling
-      res.body unless res.code != 200
+      raise "#{res.code}: #{res.parsed_response}" unless res.code.eql? 200
+
+      res.body
     end
 
     private_class_method :send_email

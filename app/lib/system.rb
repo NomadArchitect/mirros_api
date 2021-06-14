@@ -304,4 +304,28 @@ class System
     Rails.logger.error e.message
   end
 
+  # Schedules sending the welcome email.
+  # @return [Object,nil] The scheduled job, or nil if email was already sent.
+  def self.schedule_welcome_mail
+    return if SystemState.find_by(variable: :welcome_mail_sent)&.value.eql? true
+
+    Rufus::Scheduler.s.every '10s' do |job|
+      SettingExecution::Personal.send_setup_email
+      SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
+      job.unschedule
+    end
+  end
+
+  # Schedules creating the default board.
+  # @return [Object] The scheduled job, or nil if widgets already exist.
+  def self.schedule_defaults_creation
+    return if WidgetInstance.count.positive?
+
+    Rufus::Scheduler.s.every '10s' do |job|
+      raise 'System not online' unless System.online?
+
+      Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
+      job.unschedule
+    end
+  end
 end
