@@ -86,25 +86,18 @@ class SystemController < ApplicationController
                   Time.current.to_i
                 end
     System.change_system_time(user_time)
+
     unless System.setup_completed?
       Rails.logger.error 'Aborting setup, missing a value'
       raise ArgumentError, 'Missing required setting.'
     end
 
+    # TODO: Refactor to repeatable job in case of connection failures.
     SettingExecution::Network.connect
 
-    # TODO: Handle errors in thread and take action if required
-    Thread.new(options) do |opts|
-      sleep 2
-      SettingExecution::Personal.send_setup_email
-      if opts[:create_defaults]
-        load_defaults_file
-        create_widget_instances
-        create_default_cal_instances
-        create_default_feed_instances
-      end
-      ActiveRecord::Base.clear_active_connections!
-    end
+    sleep 2
+    System.schedule_welcome_mail
+    System.schedule_defaults_creation if options[:create_defaults]
 
     render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
@@ -256,98 +249,6 @@ stack trace:
   end
 
   private
-
-  # Creates the default widget instances, based on the current display layout.
-  def create_widget_instances
-    orientation = SystemState.dig(variable: 'client_display', key: 'orientation') || 'portrait'
-    default_board = Board.find_by(title: 'default')
-    instances = []
-    @defaults['widget_instances'].each do |slug, config|
-      instances << config.merge(
-        { widget: Widget.find_by(slug: slug), position: config['position'][orientation], board: default_board })
-    end
-    WidgetInstance.create(instances)
-  end
-
-  # Creates the default holiday calendar configuration.
-  # @see SystemController.create_widget_instances must run before to create the widget instance.
-  def create_default_cal_instances
-    locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-    calendar_settings = default_holiday_calendar(locale)
-
-    ActiveRecord::Base.transaction do
-      calendar_source = SourceInstance.new(
-        source: Source.find_by(slug: 'ical'),
-        configuration: { "url": calendar_settings[:url] }
-      )
-      calendar_source.save!(validate: false)
-      calendar_source.update(
-        options: [
-          { uid: calendar_source.options.first['uid'], display: calendar_settings[:title] }
-        ],
-        title: calendar_settings[:title]
-      )
-
-      calendar_widget = WidgetInstance.find_by(widget_id: 'calendar_event_list')
-      calendar_widget.update(title: calendar_settings[:title])
-      InstanceAssociation.create!(
-        configuration: {
-          "chosen": [calendar_source.options.first['uid']]
-        },
-        group: Group.find_by(slug: 'calendar'),
-        widget_instance: calendar_widget,
-        source_instance: calendar_source
-      )
-    end
-  rescue StandardError => e
-    Rails.logger.error "Error during calendar instance creation: #{e.message}"
-  end
-
-  def create_default_feed_instances
-    locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-    ActiveRecord::Base.transaction do
-      SourceInstance.skip_callback :create, :after, :set_meta
-      newsfeed_source = SourceInstance.new(
-        source: Source.find_by(slug: 'rss_feeds'),
-        title: 'glancr: Welcome Screen',
-        configuration: {
-          "feedUrl": "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"
-        },
-        options: [
-          { uid: "https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml",
-            display: 'glancr: Welcome Screen' }
-        ]
-      )
-      newsfeed_source.save!(validate: false)
-      SourceInstance.set_callback :create, :after, :set_meta
-
-      InstanceAssociation.create!(
-        configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
-        group: Group.find_by(slug: 'newsfeed'),
-        widget_instance: WidgetInstance.find_by(widget_id: 'ticker'),
-        source_instance: SourceInstance.find_by(source_id: 'rss_feeds')
-      )
-    end
-  rescue StandardError => e
-    Rails.logger.error "Error during calendar instance creation: #{e.message}"
-  end
-
-  # Generates locale-dependent configuration for the default holiday calendar iCal source instance.
-  # @param [string] locale A valid system locale, @see app/lib/setting_options.yaml at system_language
-  def default_holiday_calendar(locale)
-    yaml = @defaults['source_instances']['holiday_calendar']
-    {
-      url: yaml['configuration']['url'] % yaml['locale_fragments'][locale],
-      title: yaml['configuration']['title'] % yaml['titles'][locale]
-    }
-  end
-
-  # Loads the default extension configuration from a YAML file to reduce bloat here.
-  def load_defaults_file
-    return unless @defaults.nil?
-
-    @defaults = YAML.load_file(Rails.root.join('app/lib/default_extensions.yml'))
-  end
 
   def jsonapi_error(title, msg, code)
     # FIXME: Can we reuse something for this mapping?
