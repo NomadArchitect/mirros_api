@@ -61,6 +61,10 @@ if Rails.const_defined? 'Server'
   # Separate thread because scheduler triggers ActionCable, which is not fully up at this point.
   Thread.new do
     sleep 10 # Ensure ActionCable is running.
+
+    System.schedule_welcome_mail
+    System.schedule_defaults_creation
+
     SourceInstance.all.each do |source_instance|
       source_instance.schedule
       sleep 5 # avoid parallel refreshes when called on multiple instances.
