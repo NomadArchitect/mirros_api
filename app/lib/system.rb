@@ -313,6 +313,8 @@ class System
       SettingExecution::Personal.send_setup_email
       SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
       job.unschedule
+    ensure
+      ActiveRecord::Base.clear_active_connections!
     end
   end
 
@@ -326,6 +328,8 @@ class System
 
       Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
       job.unschedule
+    ensure
+      ActiveRecord::Base.clear_active_connections!
     end
   end
 end
