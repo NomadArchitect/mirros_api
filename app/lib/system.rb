@@ -178,14 +178,14 @@ class System
 
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
-    network_configured = case SettingsCache.s[:network_connectiontype]
+    network_configured = case Setting.value_for :network_connectiontype
                          when 'wlan'
-                           SettingsCache.s[:network_ssid].present? &&
-                             SettingsCache.s[:network_password].present?
+                           Setting.value_for(:network_ssid).present? &&
+                             Setting.value_for(:network_password).present?
                          else
                            true
                          end
-    email_configured = SettingsCache.s[:personal_email].present?
+    email_configured = Setting.value_for(:personal_email).present?
     network_configured && email_configured
   end
 
