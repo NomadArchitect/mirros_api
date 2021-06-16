@@ -314,7 +314,6 @@ class System
 
     Rufus::Scheduler.s.every '30s', tag: tag, overlap: false do |job|
       SettingExecution::Personal.send_setup_email
-      SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
       job.unschedule
     ensure
       ActiveRecord::Base.clear_active_connections!
