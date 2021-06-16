@@ -17,6 +17,13 @@ class Setting < ApplicationRecord
   validates :slug, uniqueness: true
   validates :value, setting: true
 
+  # Get the value attribute for a given setting slug.
+  # @param [String|Symbol] slug The setting's slug, defined by self.category_and_key
+  # @return [String, nil]
+  def self.value_for(slug)
+    find_by(slug: slug)&.value
+  end
+
   # Checks if the model represents the personal_productkey setting.
   # @return [TrueClass, FalseClass] Whether the request changes personal_productkey
   def changes_product_key?
