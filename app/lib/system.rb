@@ -309,7 +309,10 @@ class System
   def self.schedule_welcome_mail
     return if SystemState.find_by(variable: :welcome_mail_sent)&.value.eql? true
 
-    Rufus::Scheduler.s.every '10s' do |job|
+    tag = 'send-welcome-mail'
+    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
+
+    Rufus::Scheduler.s.every '30s', tag: tag, overlap: false do |job|
       SettingExecution::Personal.send_setup_email
       SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
       job.unschedule
@@ -323,7 +326,10 @@ class System
   def self.schedule_defaults_creation
     return if WidgetInstance.count.positive?
 
-    Rufus::Scheduler.s.every '10s' do |job|
+    tag = 'create-default-board'
+    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
+
+    Rufus::Scheduler.s.in '1s', tag: tag, overlap: false do |job|
       raise 'System not online' unless System.online?
 
       Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
