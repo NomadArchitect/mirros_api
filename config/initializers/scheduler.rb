@@ -62,8 +62,10 @@ if Rails.const_defined? 'Server'
   Thread.new do
     sleep 10 # Ensure ActionCable is running.
 
-    System.schedule_welcome_mail
-    System.schedule_defaults_creation
+    if System.setup_completed? # Prevent scheduling before setup is finished.
+      System.schedule_welcome_mail
+      System.schedule_defaults_creation
+    end
 
     SourceInstance.all.each do |source_instance|
       source_instance.schedule

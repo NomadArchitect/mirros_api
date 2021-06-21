@@ -48,6 +48,7 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     unless OS.linux?
       raise NotImplementedError, 'Reboot only implemented for Linux hosts' if Rails.env.production?
+
       Rails.logger.warn "#{__method__} not implemented for #{OS.config['host_os']}"
       return
     end
@@ -178,14 +179,14 @@ class System
 
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
-    network_configured = case SettingsCache.s[:network_connectiontype]
+    network_configured = case Setting.value_for :network_connectiontype
                          when 'wlan'
-                           SettingsCache.s[:network_ssid].present? &&
-                             SettingsCache.s[:network_password].present?
+                           Setting.value_for(:network_ssid).present? &&
+                             Setting.value_for(:network_password).present?
                          else
                            true
                          end
-    email_configured = SettingsCache.s[:personal_email].present?
+    email_configured = Setting.value_for(:personal_email).present?
     network_configured && email_configured
   end
 
@@ -309,10 +310,14 @@ class System
   def self.schedule_welcome_mail
     return if SystemState.find_by(variable: :welcome_mail_sent)&.value.eql? true
 
-    Rufus::Scheduler.s.every '10s' do |job|
+    tag = 'send-welcome-mail'
+    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
+
+    Rufus::Scheduler.s.every '30s', tag: tag, overlap: false do |job|
       SettingExecution::Personal.send_setup_email
-      SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
       job.unschedule
+    ensure
+      ActiveRecord::Base.clear_active_connections!
     end
   end
 
@@ -321,11 +326,16 @@ class System
   def self.schedule_defaults_creation
     return if WidgetInstance.count.positive?
 
-    Rufus::Scheduler.s.every '10s' do |job|
+    tag = 'create-default-board'
+    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
+
+    Rufus::Scheduler.s.in '1s', tag: tag, overlap: false do |job|
       raise 'System not online' unless System.online?
 
       Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
       job.unschedule
+    ensure
+      ActiveRecord::Base.clear_active_connections!
     end
   end
 end
