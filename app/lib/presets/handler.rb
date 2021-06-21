@@ -65,7 +65,6 @@ module Presets
 
     def create_default_feed_instances
       locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-      SourceInstance.skip_callback :create, :after, :set_meta
       newsfeed_source = SourceInstance.new(
         source: Source.find_by(slug: 'rss_feeds'),
         title: 'glancr: Welcome Screen',
@@ -78,7 +77,6 @@ module Presets
         ]
       )
       newsfeed_source.save!(validate: false)
-      SourceInstance.set_callback :create, :after, :set_meta
 
       InstanceAssociation.create!(
         configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },
