@@ -48,6 +48,7 @@ class System
     # https://www.sudo.ws/man/sudoers.man.html
     unless OS.linux?
       raise NotImplementedError, 'Reboot only implemented for Linux hosts' if Rails.env.production?
+
       Rails.logger.warn "#{__method__} not implemented for #{OS.config['host_os']}"
       return
     end
