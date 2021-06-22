@@ -168,8 +168,8 @@ module NetworkManager
         SettingExecution::Network.cancel_ap_schedule
         System.resume_network_jobs
       end
-      StateCache.refresh_nm_state nm_state
-      StateCache.refresh_online nm_state
+      StateCache.put :nm_state, nm_state
+      StateCache.put :online, nm_state
     end
 
     # React to changes in NetworkManager's overall connectivity state.
@@ -177,7 +177,7 @@ module NetworkManager
     # @return [nil]
     def handle_connectivity_change(connectivity_state)
       Logger.debug "Connectivity update: #{map_connectivity(connectivity_state)}"
-      StateCache.refresh_connectivity connectivity_state
+      StateCache.put :connectivity, connectivity_state
     end
 
     # @param [String] ac_path DBus object path to an active connection.
@@ -235,9 +235,8 @@ module NetworkManager
     def handle_ap_props_change(ap_if:, props:)
       props.each do |key, value|
         if key.eql?('Strength')
-          StateCache.refresh_network_status(
-            ssid: ap_if['Ssid'].pack('U*'), signal: value.to_i
-          )
+          StateCache.put :network_status, ssid: ap_if['Ssid'].pack('U*'), signal: value.to_i
+
         end
       rescue DBus::Error => e
         Rails.logger.error e.message

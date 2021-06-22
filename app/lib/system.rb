@@ -287,9 +287,9 @@ class System
   private_class_method :last_known_ip_was_different
 
   def self.no_offline_mode_required?
-    StateCache.online ||
+    StateCache.get :online ||
       NmNetwork.exclude_ap.where(active: true).present? ||
-      StateCache.nm_state.eql?(NmState::CONNECTING) ||
+      StateCache.get(:nm_state).eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
   end
 

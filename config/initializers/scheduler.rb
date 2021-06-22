@@ -10,8 +10,8 @@ if Rails.const_defined? 'Server'
   )
   s.stderr = File.open(Rails.root.join('log/scheduler.log'), 'wb')
 
-  # Initialize StateCache so that signal listeners have it available
-  StateCache.instance
+  # Reset StateCache so everything has the latest values.
+  StateCache.refresh
 
   if OS.linux?
     # On linux hosts, we utilize NetworkManager signal listeners.
@@ -26,7 +26,7 @@ if Rails.const_defined? 'Server'
     # TODO: Revisit once we can use 1.16 or later on Core.
     if NetworkManager::Commands.instance.connectivity_check_available?
       s.every '60s', tag: 'network-connectivity-check', overlap: false do
-        StateCache.refresh_connectivity NetworkManager::Commands.instance.connectivity
+        StateCache.put :connectivity, NetworkManager::Commands.instance.connectivity
       end
     end
   else
@@ -43,7 +43,7 @@ if Rails.const_defined? 'Server'
   s.every '2m', tag: 'network-signal-check', overlap: false do
     next unless System.using_wifi?
 
-    StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
+    StateCache.put :network_status, SettingExecution::Network.wifi_signal_status
   end
 
   if ENV['SNAP']

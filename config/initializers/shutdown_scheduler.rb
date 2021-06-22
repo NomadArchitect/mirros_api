@@ -5,7 +5,7 @@ if Rails.const_defined? 'Server'
   if shutdown_time.present?
     SettingExecution::System.schedule_shutdown shutdown_time
     Rails.logger.info "Scheduled shutdown at #{shutdown_time.to_time}"
-  elsif StateCache.configured_at_boot || System.setup_completed?
+  elsif StateCache.get(:configured_at_boot) || System.setup_completed?
     Scheduler.daily_reboot
   end
 end

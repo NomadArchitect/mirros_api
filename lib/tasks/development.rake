@@ -28,7 +28,7 @@ namespace :mirros do
                    }
                  )
 
-      StateCache.refresh_configured_at_boot true
+      StateCache.put :configured_at_boot, true
       # FIXME: This is a temporary workaround to differentiate between
       # initial setup before first connection attempt and subsequent network problems.
       # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands

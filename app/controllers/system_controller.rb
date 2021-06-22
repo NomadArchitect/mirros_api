@@ -10,7 +10,7 @@ class SystemController < ApplicationController
 
   def reset
     # FIXME: Temporary workaround for Display app
-    StateCache.refresh_resetting true
+    StateCache.put :refresh_resetting, true
     ActionCable.server.broadcast 'status', payload: ::System.info
 
     # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
@@ -40,7 +40,7 @@ class SystemController < ApplicationController
 
     head :no_content
   rescue StandardError => e
-    StateCache.refresh_resetting false
+    StateCache.put :resetting, false
     Rails.logger.error e.message
     render json: jsonapi_error('Error during reset', e.message, 500),
            status: :internal_server_error
@@ -218,7 +218,7 @@ stack trace:
     return if ENV['SNAP_DATA'].nil?
 
     Rufus::Scheduler.s.stop
-    StateCache.refresh_resetting true
+    StateCache.put :resetting, true
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
 
     # TODO: Create backup of current state to roll back if necessary

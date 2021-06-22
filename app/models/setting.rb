@@ -69,13 +69,13 @@ class Setting < ApplicationRecord
   # Forces the StateCache singleton to re-evaluate if the setup has been completed.
   # @return [nil]
   def check_setup_status
-    StateCache.refresh_setup_complete System.setup_completed?
+    StateCache.put :setup_complete, System.setup_completed?
   end
 
   # Update the StateCache registered value
   # @return [String] The updated value
   def update_cache
-    StateCache.refresh_registered(RegistrationHandler.new.product_key_valid?)
+    StateCache.put :registered, RegistrationHandler.new.product_key_valid?
   end
 
   # Check whether a setting can and should be applied automatically by `apply_setting`.
