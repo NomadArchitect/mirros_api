@@ -14,7 +14,7 @@ module SettingExecution
 
       close_ap
 
-      conn_type = SettingsCache.s[:network_connectiontype]
+      conn_type = Setting.value_for(:network_connectiontype)
       case conn_type
       when 'wlan'
         os_subclass.connect_to_wifi(ssid, password)

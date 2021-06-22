@@ -41,7 +41,7 @@ if Rails.const_defined? 'Server'
   # way to have only one listener for the active access point. ruby-dbus doesn't
   # seem to allow removing listeners, but the AP might still be active in NM.
   s.every '2m', tag: 'network-signal-check', overlap: false do
-    next unless SettingsCache.s.using_wifi?
+    next unless System.using_wifi?
 
     StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
   end
@@ -72,7 +72,7 @@ if Rails.const_defined? 'Server'
       sleep 5 # avoid parallel refreshes when called on multiple instances.
     end
     RuleManager::BoardScheduler.manage_jobs(
-      rotation_active: SettingsCache.s[:system_boardrotation].eql?('on')
+      rotation_active: Setting.value_for(:system_boardrotation).eql?('on')
     )
   end
 end

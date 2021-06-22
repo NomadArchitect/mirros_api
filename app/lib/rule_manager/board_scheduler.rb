@@ -53,7 +53,7 @@ module RuleManager
     def self.start_rotation_interval(interval = nil)
       return if job_running? ROTATION_INTERVAL_TAG
 
-      parsed = Rufus::Scheduler.parse(interval || SettingsCache.s[:system_boardrotationinterval])
+      parsed = Rufus::Scheduler.parse(interval || Setting.value_for(:system_boardrotationinterval))
       Rufus::Scheduler.singleton.every parsed, tag: ROTATION_INTERVAL_TAG do
         active_board_setting = Setting.find_by(slug: :system_activeboard)
         boards = Board.ids

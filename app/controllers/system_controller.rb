@@ -234,7 +234,6 @@ stack trace:
     )
     line.run(backup_file: "#{ENV['SNAP_DATA']}/#{backup_file.original_filename}")
 
-    # Forces SettingsCache updates to satisfy `System.setup_completed?` check. TODO: Brittle, should be refactored
     Setting.find_by(slug: 'personal_email').save!
     Setting.find_by(slug: 'network_connectiontype').save!
     Setting.find_by(slug: 'network_ssid').save!

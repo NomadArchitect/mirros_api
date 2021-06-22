@@ -62,24 +62,24 @@ class DebugReport
     @body = {
       title: title,
       description: description,
-      email: email.nil? ? SettingsCache.s[:personal_email] : email,
+      email: email.nil? ? Setting.value_for(:personal_email) : email,
       # Use yes/no to avoid type conversions of booleans during transit and support scripts.
-      validProductKey: SettingsCache.s[:personal_productkey].match?(UUID_REGEX) ? :yes : :no,
+      validProductKey: Setting.value_for(:personal_productkey).match?(UUID_REGEX) ? :yes : :no,
       debugging_info: "
         pi_model: #{ENV['SNAP'].nil? ? 'not in snap env' : pi_model}
         uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}
         snap_version: #{SNAP_VERSION}
         network_manager_version: #{ENV['SNAP'].nil? ? 'not in snap env' : nm_version}
         service_status:\n#{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
-        connection type: #{SettingsCache.s[:network_connectiontype]}
-        language: #{SettingsCache.s[:system_language]}
+        connection type: #{Setting.value_for(:network_connectiontype)}
+        language: #{Setting.value_for(:system_language)}
         timezone:
-            configured: #{SettingsCache.s[:system_timezone]}
+            configured: #{Setting.value_for(:system_timezone)}
             active for Rails: #{Time.zone.name}
         multi-board:
-            active: #{SettingsCache.s[:system_multipleboards]}
-            rotation: #{SettingsCache.s[:system_boardrotation]}
-            interval: #{SettingsCache.s[:system_boardrotationinterval]}
+            active: #{Setting.value_for(:system_multipleboards)}
+            rotation: #{Setting.value_for(:system_boardrotation)}
+            interval: #{Setting.value_for(:system_boardrotationinterval)}
         IP Cam widget active (assuming an active stream): #{Widget.find_by(name: 'ip_cam').widget_instances.count.positive?}
         Pictures widget active: #{pictures_wi.count.positive?}
         Image Gallery – rotation / remote:
