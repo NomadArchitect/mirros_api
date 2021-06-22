@@ -38,13 +38,7 @@ namespace :mirros do
 
       # System has internet connectivity, complete seed and send setup mail
       SettingExecution::Personal.send_setup_email
-
-      ctrl = SystemController.new
-      ctrl.send(:load_defaults_file)
-      ctrl.send(:create_widget_instances)
-      ctrl.send(:create_default_cal_instances)
-      ctrl.send(:create_default_feed_instances)
-
+      Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
       puts 'Setup complete'
     end
   end
