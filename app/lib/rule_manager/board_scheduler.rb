@@ -14,22 +14,22 @@ module RuleManager
 
       Rufus::Scheduler.singleton.cron '* * * * *', tag: RULE_EVALUATION_TAG do
         rule_applied = false
-          Board.all.each do |board|
-          # TODO: Extend logic for rule sets in each board.
+        Board.all.each do |board|
+        # TODO: Extend logic for rule sets in each board.
 
-          # Date-based rules take precedence over recurring rules.
-          if board.rules.where(provider: 'system', field: 'dateAndTime').any?(&:evaluate)
-            Setting.find_by(slug: :system_activeboard).update(value: board.id)
-            rule_applied = true
-            break
-          end
-          # TODO: this only gets time-based rules for the board and runs them in sequential order.
-          if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
-            Setting.find_by(slug: :system_activeboard).update(value: board.id)
-            rule_applied = true
-            break
-          end
+        # Date-based rules take precedence over recurring rules.
+        if board.rules.where(provider: 'system', field: 'dateAndTime').any?(&:evaluate)
+          Setting.find_by(slug: :system_activeboard).update(value: board.id)
+          rule_applied = true
+          break
         end
+        # TODO: this only gets time-based rules for the board and runs them in sequential order.
+        if board.rules.where(provider: 'system', field: 'timeOfDay').any?(&:evaluate)
+          Setting.find_by(slug: :system_activeboard).update(value: board.id)
+          rule_applied = true
+          break
+        end
+      end
 
         Setting.find_by(slug: :system_activeboard).update(value: Board.first.id) unless rule_applied
       end
@@ -53,7 +53,7 @@ module RuleManager
     def self.start_rotation_interval(interval = nil)
       return if job_running? ROTATION_INTERVAL_TAG
 
-      parsed = Rufus::Scheduler.parse(interval || SettingsCache.s[:system_boardrotationinterval])
+      parsed = Rufus::Scheduler.parse(interval || Setting.value_for(:system_boardrotationinterval))
       Rufus::Scheduler.singleton.every parsed, tag: ROTATION_INTERVAL_TAG do
         active_board_setting = Setting.find_by(slug: :system_activeboard)
         boards = Board.ids

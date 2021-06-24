@@ -34,7 +34,7 @@ module Presets
     # Creates the default holiday calendar configuration.
     # @see SystemController.create_widget_instances must run before to create the widget instance.
     def create_default_cal_instances
-      locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
+      locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
       calendar_settings = default_holiday_calendar(locale)
 
       calendar_source = SourceInstance.new(
@@ -64,8 +64,7 @@ module Presets
     end
 
     def create_default_feed_instances
-      locale = SettingsCache.s[:system_language].empty? ? 'enGb' : SettingsCache.s[:system_language]
-      SourceInstance.skip_callback :create, :after, :set_meta
+      locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
       newsfeed_source = SourceInstance.new(
         source: Source.find_by(slug: 'rss_feeds'),
         title: 'glancr: Welcome Screen',
@@ -78,7 +77,6 @@ module Presets
         ]
       )
       newsfeed_source.save!(validate: false)
-      SourceInstance.set_callback :create, :after, :set_meta
 
       InstanceAssociation.create!(
         configuration: { "chosen": ["https://api.glancr.de/welcome/mirros-welcome-#{locale}.xml"] },

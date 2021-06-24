@@ -37,8 +37,8 @@ class Rule < ApplicationRecord
 
   def normalize_timestamp
     normalized = ->(value) { Time.zone.parse(value).utc.iso8601 }
-    tz = SettingsCache.s[:system_timezone]
-    Time.zone = tz unless tz.empty?
+    tz = Setting.value_for(:system_timezone)
+    Time.zone = tz unless tz.nil?
     self.value = { start: normalized.call(value['start']), end: normalized.call(value['end']) }
   end
 end
