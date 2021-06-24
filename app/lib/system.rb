@@ -332,7 +332,7 @@ class System
     tag = 'create-default-board'
     return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
 
-    Rufus::Scheduler.s.in '1s', tag: tag, overlap: false do |job|
+    Rufus::Scheduler.s.every '15s', tag: tag, overlap: false, first_in: '5s' do |job|
       raise 'System not online' unless System.online?
 
       Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
