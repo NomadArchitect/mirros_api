@@ -9,7 +9,7 @@ class Scheduler
   def self.start_browser_restart_job
     return if job_running? RESTART_BROWSER_JOB_TAG
 
-    tz = SettingsCache.s[:system_timezone].presence || 'UTC'
+    tz = Setting.value_for(:system_timezone).presence || 'UTC'
     Rufus::Scheduler.singleton.cron "0 */8 * * * #{tz}", tag: RESTART_BROWSER_JOB_TAG do
       Rails.logger.info "Scheduled browser reload from #{RESTART_BROWSER_JOB_TAG}"
       System.reload_browser

@@ -3,6 +3,16 @@
 # Data structure for debug reports.
 class DebugReport
   UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/.freeze
+  REQUIRED_SETTINGS = %i[
+      personal_email
+      personal_productkey
+      network_connectiontype
+      system_language
+      system_timezone
+      system_multipleboards
+      system_boardrotation
+      system_boardrotationinterval
+    ].freeze
 
   # Builds a system report structure with various debugging information.
   # @return [Hash]
@@ -57,29 +67,33 @@ class DebugReport
   # @param [String] email Optional reply-to email address. Uses configured system email otherwise.
   def initialize(title, description, email = nil)
     @file_handles = []
-
     pictures_wi = Widget.find_by(name: 'pictures').widget_instances
+
+    settings = Setting.where(slug: REQUIRED_SETTINGS).each_with_object({}) do |setting, memo|
+      memo.store setting.slug.to_sym, setting.value
+    end
+
     @body = {
       title: title,
       description: description,
-      email: email.nil? ? SettingsCache.s[:personal_email] : email,
+      email: email.nil? ? settings[:personal_email] : email,
       # Use yes/no to avoid type conversions of booleans during transit and support scripts.
-      validProductKey: SettingsCache.s[:personal_productkey].match?(UUID_REGEX) ? :yes : :no,
+      validProductKey: settings[:personal_productkey].match?(UUID_REGEX) ? :yes : :no,
       debugging_info: "
         pi_model: #{ENV['SNAP'].nil? ? 'not in snap env' : pi_model}
         uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}
         snap_version: #{SNAP_VERSION}
         network_manager_version: #{ENV['SNAP'].nil? ? 'not in snap env' : nm_version}
         service_status:\n#{ENV['SNAP'].nil? ? 'not in snap env' : service_status}
-        connection type: #{SettingsCache.s[:network_connectiontype]}
-        language: #{SettingsCache.s[:system_language]}
+        connection type: #{settings[:network_connectiontype]}
+        language: #{settings[:system_language]}
         timezone:
-            configured: #{SettingsCache.s[:system_timezone]}
+            configured: #{settings[:system_timezone]}
             active for Rails: #{Time.zone.name}
         multi-board:
-            active: #{SettingsCache.s[:system_multipleboards]}
-            rotation: #{SettingsCache.s[:system_boardrotation]}
-            interval: #{SettingsCache.s[:system_boardrotationinterval]}
+            active: #{settings[:system_multipleboards]}
+            rotation: #{settings[:system_boardrotation]}
+            interval: #{settings[:system_boardrotationinterval]}
         IP Cam widget active (assuming an active stream): #{Widget.find_by(name: 'ip_cam').widget_instances.count.positive?}
         Pictures widget active: #{pictures_wi.count.positive?}
         Image Gallery – rotation / remote:

@@ -68,7 +68,7 @@ module SettingExecution
       end
 
       # TODO: Implement this if possible through /usr/sbin/networksetup
-      !StateCache.setup_complete
+      !StateCache.get :setup_complete
     end
 
     def self.close_ap

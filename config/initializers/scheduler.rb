@@ -10,8 +10,8 @@ if Rails.const_defined? 'Server'
   )
   s.stderr = File.open(Rails.root.join('log/scheduler.log'), 'wb')
 
-  # Initialize StateCache so that signal listeners have it available
-  StateCache.instance
+  # Reset StateCache so everything has the latest values.
+  StateCache.refresh
 
   if OS.linux?
     # On linux hosts, we utilize NetworkManager signal listeners.
@@ -26,7 +26,7 @@ if Rails.const_defined? 'Server'
     # TODO: Revisit once we can use 1.16 or later on Core.
     if NetworkManager::Commands.instance.connectivity_check_available?
       s.every '60s', tag: 'network-connectivity-check', overlap: false do
-        StateCache.refresh_connectivity NetworkManager::Commands.instance.connectivity
+        StateCache.put :connectivity, NetworkManager::Commands.instance.connectivity
       end
     end
   else
@@ -41,9 +41,9 @@ if Rails.const_defined? 'Server'
   # way to have only one listener for the active access point. ruby-dbus doesn't
   # seem to allow removing listeners, but the AP might still be active in NM.
   s.every '2m', tag: 'network-signal-check', overlap: false do
-    next unless SettingsCache.s.using_wifi?
+    next unless System.using_wifi?
 
-    StateCache.refresh_network_status SettingExecution::Network.wifi_signal_status
+    StateCache.put :network_status, SettingExecution::Network.wifi_signal_status
   end
 
   if ENV['SNAP']
@@ -72,7 +72,7 @@ if Rails.const_defined? 'Server'
       sleep 5 # avoid parallel refreshes when called on multiple instances.
     end
     RuleManager::BoardScheduler.manage_jobs(
-      rotation_active: SettingsCache.s[:system_boardrotation].eql?('on')
+      rotation_active: Setting.value_for(:system_boardrotation).eql?('on')
     )
   end
 end

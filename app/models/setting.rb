@@ -7,7 +7,8 @@ class Setting < ApplicationRecord
   friendly_id :category_and_key, use: :slugged
 
   before_update :apply_setting, if: :auto_applicable?
-  after_update :update_cache, :check_setup_status
+  after_update :check_setup_status
+  after_update :update_cache, if: :changes_product_key?
   after_update :reset_premium_settings, if: :changes_product_key?
   after_update :restart_application, if: -> { slug.eql?('system_timezone') }
   before_validation :check_license_status, unless: :changes_product_key?
@@ -68,14 +69,13 @@ class Setting < ApplicationRecord
   # Forces the StateCache singleton to re-evaluate if the setup has been completed.
   # @return [nil]
   def check_setup_status
-    StateCache.refresh_setup_complete System.setup_completed?
+    StateCache.put :setup_complete, System.setup_completed?
   end
 
-  # Update the SettingsCache singleton for this setting.
+  # Update the StateCache registered value
   # @return [String] The updated value
   def update_cache
-    SettingsCache.s[slug.to_sym] = value
-    StateCache.refresh_registered(RegistrationHandler.new.product_key_valid?) if slug.eql? 'personal_productkey'
+    StateCache.put :registered, RegistrationHandler.new.product_key_valid?
   end
 
   # Check whether a setting can and should be applied automatically by `apply_setting`.
