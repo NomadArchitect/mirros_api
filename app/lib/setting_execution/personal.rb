@@ -33,10 +33,10 @@ module SettingExecution
     private_class_method :send_email
 
     def self.compose_body
-      language = SettingsCache.s[:system_language].presence || 'enGb'
+      language = Setting.value_for(:system_language).presence || 'enGb'
       {
-        name: SettingsCache.s[:personal_name],
-        email: SettingsCache.s[:personal_email],
+        name: Setting.value_for(:personal_name),
+        email: Setting.value_for(:personal_email),
         language: convert_language_tag(language),
         localip: ::System.current_ip_address,
         os_version: API_VERSION

@@ -26,8 +26,7 @@ class System
       api_version: API_VERSION,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
-      # TODO: Maybe add more settings here as well; define a read_public_settings on SettingsCache
-      connection_type: SettingsCache.s[:network_connectiontype]
+      connection_type: Setting.value_for(:network_connectiontype)
     }.merge(StateCache.as_json, state)
   end
 
@@ -41,6 +40,10 @@ class System
 
       Rails.logger.error "Failed to push status update: #{e.message} #{e.backtrace_locations}"
     end
+  end
+
+  def self.using_wifi?
+    Setting.value_for(:network_connectiontype).eql? 'wlan'
   end
 
   def self.reboot
@@ -107,7 +110,7 @@ class System
   end
 
   def self.current_interface
-    conn_type = SettingsCache.s[:network_connectiontype]
+    conn_type = Setting.value_for(:network_connectiontype)
 
     if OS.linux?
       map_interfaces(:linux, conn_type)
@@ -125,12 +128,12 @@ class System
   # TODO: Add support for IPv6.
   # FIXME: Needlessly complex due to OS specifics, split up.
   def self.current_ip_address
-    conn_type = SettingsCache.s[:network_connectiontype]
+    conn_type = Setting.value_for(:network_connectiontype)
     return nil if conn_type.blank?
 
     begin
       ip_address = if OS.linux?
-                     connection_id = SettingsCache.s.using_wifi? ? SettingsCache.s[:network_ssid] : :glancrlan
+                     connection_id = System.using_wifi? ? Setting.value_for(:network_ssid) : :glancrlan
                      NmNetwork.find_by(connection_id: connection_id)&.ip4_address
                    elsif OS.mac?
                      # FIXME: This command returns only the IPv4.
@@ -230,8 +233,8 @@ class System
   end
 
   def self.reset_timezone
-    tz = SettingsCache.s[:system_timezone]
-    SettingExecution::System.timezone(tz) unless tz.empty?
+    tz = Setting.value_for(:system_timezone)
+    SettingExecution::System.timezone(tz) unless tz.nil?
   rescue StandardError => e
     Rails.logger.error "#{__method__} #{e.message}"
   end
@@ -284,9 +287,9 @@ class System
   private_class_method :last_known_ip_was_different
 
   def self.no_offline_mode_required?
-    StateCache.online ||
+    StateCache.get :online ||
       NmNetwork.exclude_ap.where(active: true).present? ||
-      StateCache.nm_state.eql?(NmState::CONNECTING) ||
+      StateCache.get(:nm_state).eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
   end
 

@@ -8,13 +8,11 @@ module SettingExecution
     def self.connect
       ssid = Setting.find_by(slug: :network_ssid).value
       password = Setting.find_by(slug: :network_password).value
-      unless ssid.present? && password.present?
-        raise ArgumentError, 'SSID and password must be set'
-      end
+      raise ArgumentError, 'SSID and password must be set' unless ssid.present? && password.present?
 
       close_ap
 
-      conn_type = SettingsCache.s[:network_connectiontype]
+      conn_type = Setting.value_for(:network_connectiontype)
       case conn_type
       when 'wlan'
         os_subclass.connect_to_wifi(ssid, password)
@@ -34,7 +32,7 @@ module SettingExecution
       # FIXME: This is a temporary workaround to differentiate between
       # initial setup before first connection attempt and subsequent network problems.
       # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-      StateCache.refresh_configured_at_boot true
+      StateCache.put :configured_at_boot, true
     end
 
     def self.enable_lan
@@ -51,9 +49,7 @@ module SettingExecution
 
     def self.list
       available_networks = os_subclass.list
-      if available_networks.empty?
-        Rails.logger.error 'Could not retrieve WiFi list'
-      end
+      Rails.logger.error 'Could not retrieve WiFi list' if available_networks.empty?
       available_networks
     end
 
@@ -125,9 +121,7 @@ module SettingExecution
     private_class_method :os_subclass
 
     def self.toggle_lan(state)
-      unless %w[on off].include? state
-        raise ArgumentError, 'valid args are "on" or "off"'
-      end
+      raise ArgumentError, 'valid args are "on" or "off"' unless %w[on off].include? state
 
       begin
         success = os_subclass.toggle_lan(state)
@@ -147,9 +141,7 @@ module SettingExecution
         retries += 1
       end
 
-      if retries > 24
-        raise StandardError, 'Could not connect to the internet within two minutes'
-      end
+      raise StandardError, 'Could not connect to the internet within two minutes' if retries > 24
     end
   end
 end
