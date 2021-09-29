@@ -71,6 +71,7 @@ GEM
     crass (1.0.6)
     current_date (0.2.1)
     debug_inspector (1.1.0)
+    e2mmap (0.1.0)
     easy_enum (0.1.4)
     erubi (1.10.0)
     et-orbi (1.2.4)
@@ -276,6 +277,13 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
+    sidekiq-scheduler (3.1.0)
+      e2mmap
+      redis (>= 3, < 5)
+      rufus-scheduler (~> 3.2)
+      sidekiq (>= 3)
+      thwait
+      tilt (>= 1.4.0)
     spring (2.1.1)
     spring-watcher-listen (2.0.1)
       listen (>= 2.7, < 4.0)
@@ -295,7 +303,10 @@ GEM
     text_field (2.0.1)
     thor (1.1.0)
     thread_safe (0.3.6)
+    thwait (0.2.0)
+      e2mmap
     ticker (0.2.2)
+    tilt (2.0.10)
     todoist (0.1.7)
       httparty (~> 0.18)
     todos (0.1.9)
@@ -363,6 +374,7 @@ DEPENDENCIES
   rufus-scheduler (~> 3.6.0)!
   sbb!
   sidekiq (< 7)!
+  sidekiq-scheduler (~> 3.1)!
   spring!
   spring-watcher-listen (~> 2.0.0)!
   store_model (~> 0.8)!

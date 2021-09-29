@@ -45,6 +45,7 @@ source 'https://rubygems.org' do
   gem 'image_processing', '~> 1.9'
   gem 'store_model', '~> 0.8'
   gem 'sidekiq', '< 7'
+  gem 'sidekiq-scheduler', '~> 3.1'
 end
 
 ### mirr.OS bundled extensions ###
