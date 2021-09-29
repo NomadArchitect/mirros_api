@@ -44,6 +44,7 @@ source 'https://rubygems.org' do
   gem 'ruby-dbus', '~> 0.16.0'
   gem 'image_processing', '~> 1.9'
   gem 'store_model', '~> 0.8'
+  gem 'sidekiq', '< 7'
 end
 
 ### mirr.OS bundled extensions ###
