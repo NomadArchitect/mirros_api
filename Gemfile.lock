@@ -71,6 +71,10 @@ GEM
     crass (1.0.6)
     current_date (0.2.1)
     debug_inspector (1.1.0)
+    dotenv (2.7.6)
+    dotenv-rails (2.7.6)
+      dotenv (= 2.7.6)
+      railties (>= 3.2)
     e2mmap (0.1.0)
     easy_enum (0.1.4)
     erubi (1.10.0)
@@ -339,6 +343,7 @@ DEPENDENCIES
   clock!
   countdown!
   current_date!
+  dotenv-rails!
   friendly_id (~> 5.2.5)!
   fuel_prices!
   git (~> 1.5.0)!
