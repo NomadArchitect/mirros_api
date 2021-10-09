@@ -12,6 +12,10 @@ class System
   API_HOST = 'api.glancr.de'
   SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
+  def self.running_in_snap?
+    ENV['SNAP'].present?
+  end
+
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
@@ -96,6 +100,8 @@ class System
 
   # Quits a running cog instance, will be restarted by systemd.
   def self.reload_browser
+    return unless running_in_snap?
+
     cog_s = DBus::ASystemBus.new['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
