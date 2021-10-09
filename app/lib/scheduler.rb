@@ -2,27 +2,6 @@
 
 # Generic system-wide scheduling tasks.
 class Scheduler
-  RESTART_BROWSER_JOB_TAG = 'system-browser-restart'
-
-  # Schedules a browser restart job.
-  # FIXME: Workaround for system hangups, mostly when rotation is active. Revisit when WPE 2.30.2 is working on armhf.
-  def self.start_browser_restart_job
-    return if job_running? RESTART_BROWSER_JOB_TAG
-
-    tz = Setting.value_for(:system_timezone).presence || 'UTC'
-    Rufus::Scheduler.singleton.cron "0 */8 * * * #{tz}", tag: RESTART_BROWSER_JOB_TAG do
-      Rails.logger.info "Scheduled browser reload from #{RESTART_BROWSER_JOB_TAG}"
-      System.reload_browser
-    end
-    Rails.logger.info "scheduled job #{RESTART_BROWSER_JOB_TAG} every 8h in #{tz}."\
-                      "\t\nnext: #{Rufus::Scheduler.parse_cron("0 */8 * * * #{tz}", {})&.next_time&.to_s}"
-  end
-
-  # Stop the browser restart job.
-  def self.stop_browser_restart_job
-    stop_job RESTART_BROWSER_JOB_TAG
-  end
-
   # Stops a given Rufus::Scheduler job tag.
   # @param [string] job_tag a Rufus::Scheduler job tag.
   def self.stop_job(job_tag)

@@ -50,8 +50,6 @@ if Rails.const_defined? 'Server'
     # FIXME: Ubuntu Core may loose timezone settings after reboot. Force a reset at startup.
     # Remove once https://bugs.launchpad.net/snappy/+bug/1650688 is resolved.
     System.reset_timezone
-
-    Scheduler.start_browser_restart_job
   end
 
   # Perform initial network status to determine if we need the AP right away
