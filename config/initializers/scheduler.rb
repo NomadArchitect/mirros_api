@@ -61,7 +61,6 @@ if Rails.const_defined? 'Server'
     sleep 10 # Ensure ActionCable is running.
 
     if System.setup_completed? # Prevent scheduling before setup is finished.
-      System.schedule_welcome_mail
       System.schedule_defaults_creation
     end
 

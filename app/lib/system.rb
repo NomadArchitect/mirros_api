@@ -314,22 +314,6 @@ class System
     Rails.logger.error e.message
   end
 
-  # Schedules sending the welcome email.
-  # @return [Object,nil] The scheduled job, or nil if email was already sent.
-  def self.schedule_welcome_mail
-    return if SystemState.find_by(variable: :welcome_mail_sent)&.value.eql? true
-
-    tag = 'send-welcome-mail'
-    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
-
-    Rufus::Scheduler.s.every '30s', tag: tag, overlap: false do |job|
-      SettingExecution::Personal.send_setup_email
-      job.unschedule
-    ensure
-      ActiveRecord::Base.clear_active_connections!
-    end
-  end
-
   # Schedules creating the default board.
   # @return [Object] The scheduled job, or nil if widgets already exist.
   def self.schedule_defaults_creation
