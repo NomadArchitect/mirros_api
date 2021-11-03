@@ -2,7 +2,8 @@
 :schedule:
   CheckWiFiSignalJob:
     every: '2m'
+    queue: system
   RestartBrowserJob:
     # TODO: This relies on a correct Rails.configuration.timezone
     cron: '0 */8 * * *'
-
+    queue: system
