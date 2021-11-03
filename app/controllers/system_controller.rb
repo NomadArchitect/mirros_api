@@ -96,7 +96,7 @@ class SystemController < ApplicationController
     SettingExecution::Network.connect
 
     sleep 2
-    System.schedule_welcome_mail
+    SendWelcomeMailJob.perform_now
     System.schedule_defaults_creation if options[:create_defaults]
 
     render json: { meta: System.info }, status: :accepted
