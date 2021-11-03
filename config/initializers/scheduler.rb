@@ -37,14 +37,7 @@ if Rails.const_defined? 'Server'
     end
   end
 
-  # TODO: Move this to NetworkManager SignalListeners once we figure out a reliable
-  # way to have only one listener for the active access point. ruby-dbus doesn't
-  # seem to allow removing listeners, but the AP might still be active in NM.
-  s.every '2m', tag: 'network-signal-check', overlap: false do
-    next unless System.using_wifi?
 
-    StateCache.put :network_status, SettingExecution::Network.wifi_signal_status
-  end
 
   if ENV['SNAP']
     # FIXME: Ubuntu Core may loose timezone settings after reboot. Force a reset at startup.

@@ -1,5 +1,7 @@
 :dynamic: true
 :schedule:
+  CheckWiFiSignalJob:
+    every: '2m'
   RestartBrowserJob:
     # TODO: This relies on a correct Rails.configuration.timezone
     cron: '0 */8 * * *'
