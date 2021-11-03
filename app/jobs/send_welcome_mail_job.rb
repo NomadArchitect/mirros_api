@@ -11,6 +11,6 @@ class SendWelcomeMailJob < ApplicationJob
 
     SettingExecution::Personal.send_setup_email
 
-    SystemState.find_or_create_by(variable: :welcome_mail_sent).update(value: true)
+    SystemState.find_or_initialize_by(variable: :welcome_mail_sent).update(value: true)
   end
 end
