@@ -142,7 +142,7 @@ module NetworkManager
     end
 
     # Assumes that the Access Point does not change for the given SSID.
-    # TODO: Currently not called, see config/initializers/scheduler.rb:33
+    # TODO: Currently not called, see CheckWifiSignalJob
     def listen_ap_signal
       Logger.warn "Called #{__method__} which is not ready yet"
       pc_path = @nm_i['PrimaryConnection']
