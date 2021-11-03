@@ -1,42 +1,49 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 network_connectiontype:
+  slug: network_connectiontype
   category: network
   key: connectionType
   value: wlan
 
 network_ssid:
+  slug: network_ssid
   category: network
   key: ssid
   value: nil
 
 network_ssidinvisible:
+  slug: network_ssidinvisible
   category: network
   key: ssidInvisible
   value: no # Requires frontend to specify checkbox values.
 
 network_password:
+  slug: network_password
   category: network
   key: password
   value:
 
 system_language:
+  slug: system_language
   category: system
   key: language
   value:
 
-
 personal_email:
+  slug: personal_email
   category: personal
   key: email
   value:
 
 personal_name:
+  slug: personal_name
   category: personal
   key: name
   value:
 
 personal_privacyconsent:
+  slug: personal_privacyconsent
   category: personal
   key: privacyConsent
   value: no # Requires frontend to specify checkbox values.
