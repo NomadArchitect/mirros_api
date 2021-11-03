@@ -1,5 +1,5 @@
 class RefreshSourceInstanceJob < ApplicationJob
-  queue_as :default
+  queue_as :sources
 
   # @param [Integer] source_instance_id
   def perform(source_instance_id)
