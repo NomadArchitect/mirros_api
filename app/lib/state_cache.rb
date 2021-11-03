@@ -133,7 +133,6 @@ class StateCache
   def self.as_json
     Rails
       .cache
-      .read_multi(*VALID_STATE_KEYS.map { |key| "state/#{key}" })
-      .transform_keys { |k| k.slice 6, k.length }
+      .read_multi(*VALID_STATE_KEYS, namespace: :state)
   end
 end
