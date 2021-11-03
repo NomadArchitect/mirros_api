@@ -20,18 +20,18 @@ class StateCache
 
   def self.refresh
     init = {}
-    VALID_STATE_KEYS.each { |k| init.store k.to_s.prepend('state/'), initial_value(k) }
-    Rails.cache.write_multi init
+    VALID_STATE_KEYS.each { |k| init.store k.to_s, initial_value(k) }
+    Rails.cache.write_multi init, namespace: :state
   end
 
   def self.get(key)
-    Rails.cache.fetch "state/#{key}" do
+    Rails.cache.fetch key, namespace: :state do
       initial_value(key)
     end
   end
 
   def self.put(key, value)
-    Rails.cache.write "state/#{key}", value
+    Rails.cache.write key, value, namespace: :state
     ::System.push_status_update
 
     if key.to_sym.eql?(:nm_state) && value.eql?(NmState::CONNECTING)
