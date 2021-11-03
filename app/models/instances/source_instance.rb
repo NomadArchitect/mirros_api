@@ -98,8 +98,7 @@ class SourceInstance < Instance
   # Removes the refresh job for this instance from the central schedule.
   # @return [Object]
   def unschedule
-    Rufus::Scheduler.s.jobs(tag: interval_job_tag).each(&:unschedule)
-    Rails.logger.info "unscheduled job with tag #{interval_job_tag}"
+    Sidekiq.remove_schedule "refresh_#{interval_job_tag}"
   end
 
   # Fetch and save data for given group schema and sub-resource(s) of this instance.
