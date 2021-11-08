@@ -12,7 +12,9 @@ if OS.linux?
   # over DBus. This ensures the StateCache is updated at least every minute.
   # TODO: Revisit once we can use 1.16 or later on Core.
   Sidekiq.set_schedule UpdateConnectivityStatusJob.name,
-                       interval: '30s',
-                       overlap: false,
-                       class: UpdateConnectivityStatusJob
+                       {
+                         interval: '30s',
+                         overlap: false,
+                         class: UpdateConnectivityStatusJob
+                       }
 end
