@@ -12,7 +12,9 @@ class Rule < ApplicationRecord
   before_validation :setup
   after_validation :normalize_timestamp, if: -> { errors.blank? && operator.eql?('betweenDates') }
 
-  validates_exclusion_of :board_id, in: ->(rule) { [Board.first.id] }, message: I18n.t('rule.errors.messages.no_default_board')
+  validates_exclusion_of :board_id,
+                         in: ->(_rule) { [Board.first.id] },
+                         message: I18n.t('rule.errors.messages.no_default_board')
   validates_each :value do |record, attr, value|
     record.operator_class.parse(value)
   rescue StandardError => e
