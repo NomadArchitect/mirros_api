@@ -13,6 +13,4 @@ end
 # Schedule all source instances for refresh.
 SourceInstance.all.each(&:schedule)
 
-RuleManager::BoardScheduler.manage_jobs(
-  rotation_active: Setting.value_for(:system_boardrotation).eql?('on')
-)
+RuleManager::BoardScheduler.init_jobs Setting.value_for(:system_boardrotation)
