@@ -49,16 +49,14 @@ module RuleManager
 
     def self.init_jobs(rotation_state = nil)
       if rotation_state.eql?('on') || Setting.value_for(:system_boardrotation)
-        stop_rule_evaluation
         start_rotation_interval
-      else
-        stop_rotation_interval
-        start_rule_evaluation if rule_evaluation_useful?
+      elsif should_evaluate_rules?
+        start_rule_evaluation
       end
     end
 
-    def self.rule_evaluation_useful?
-      Board.count.positive? && Rule.count.positive?
+    def self.should_evaluate_rules?
+      Board.count.positive? && Rule.count.positive? && !System.board_rotation_enabled?
     end
   end
 end
