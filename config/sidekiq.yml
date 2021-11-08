@@ -1,3 +1,7 @@
+:queues:
+  - system
+  - sources
+  - default
 :dynamic: true
 :schedule:
   CheckWiFiSignalJob:
