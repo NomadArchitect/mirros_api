@@ -108,7 +108,7 @@ class SystemController < ApplicationController
            status: :internal_server_error
   ensure
     Rufus::Scheduler.s.resume
-    Scheduler.daily_reboot
+    System.daily_reboot
   end
 
   # TODO: Respond with appropriate status codes in addition to success

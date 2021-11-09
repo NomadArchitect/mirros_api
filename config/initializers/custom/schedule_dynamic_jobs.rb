@@ -7,7 +7,7 @@ if shutdown_time.present?
   SettingExecution::System.schedule_shutdown shutdown_time
   Rails.logger.info "Scheduled shutdown at #{shutdown_time.to_time}"
 elsif StateCache.get(:configured_at_boot) || System.setup_completed?
-  Scheduler.daily_reboot
+  System.daily_reboot
 end
 
 # Schedule all source instances for refresh.
