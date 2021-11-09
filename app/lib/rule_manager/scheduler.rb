@@ -2,7 +2,7 @@
 
 module RuleManager
   # Dispatches rule processing and rotation interval jobs to set the active board.
-  class BoardScheduler
+  class Scheduler
 
     # Stops interval-based rotation and schedules an hourly job that evaluates current board rules.
     # The first matched rule determines the new active board.

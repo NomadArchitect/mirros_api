@@ -34,11 +34,15 @@ module SettingExecution
     # @param [String] state the currently active setting state
     # @return [Hash] the scheduled config
     def self.board_rotation(state)
-      if state.eql?('on') ? RuleManager::BoardScheduler.start_rotation_interval : RuleManager::BoardScheduler.stop_rotation_interval
+      if state.eql? 'on'
+        RuleManager::Scheduler.start_rotation_interval
+      else
+        RuleManager::Scheduler.start_rule_evaluation if RuleManager::Scheduler.should_evaluate_rules?
+      end
     end
 
     def self.board_rotation_interval(interval)
-      RuleManager::BoardScheduler.start_rotation_interval interval
+      RuleManager::Scheduler.start_rotation_interval interval
     end
 
     # Schedules a system shutdown at a given time of day.
