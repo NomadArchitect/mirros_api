@@ -48,7 +48,7 @@ module RuleManager
     end
 
     def self.init_jobs(rotation_state = nil)
-      if rotation_state.eql?('on') || Setting.value_for(:system_boardrotation)
+      if rotation_state.eql?('on') || System.board_rotation_enabled?
         start_rotation_interval
       elsif should_evaluate_rules?
         start_rule_evaluation

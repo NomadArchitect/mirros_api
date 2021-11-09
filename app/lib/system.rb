@@ -46,8 +46,14 @@ class System
     end
   end
 
+  # @return [TrueClass, FalseClass] Returns true if selected connection type is WiFi, false otherwise.
   def self.using_wifi?
     Setting.value_for(:network_connectiontype).eql? 'wlan'
+  end
+
+  # @return [TrueClass, FalseClass] True if board rotation is currently enabled, false otherwise.
+  def self.board_rotation_enabled?
+    Setting.value_for(:system_boardrotation).eql? 'on'
   end
 
   def self.reboot
