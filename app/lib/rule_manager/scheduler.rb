@@ -13,7 +13,7 @@ module RuleManager
 
       Sidekiq.set_schedule EvaluateBoardRulesJob.name,
                            {
-                             interval: 1.second,
+                             interval: 1.minute,
                              class: EvaluateBoardRulesJob
                            }
     end
