@@ -35,7 +35,7 @@ module RuleManager
       interval ||= Setting.value_for(:system_boardrotationinterval)
       Sidekiq.set_schedule RotateActiveBoardJob.name,
                            {
-                             every: interval,
+                             every: interval.to_i * 60,
                              class: RotateActiveBoardJob
                            }
     end
