@@ -6,4 +6,5 @@ de:
   board:
     errors:
       messages:
-        default_board_deletion: 'Cannot delete default board'
+        default_board_deletion: 'Das Default-Board kann nicht gelöscht werden'
+        cannot_delete_active_board: 'Das gerade aktive Board kann nicht gelöscht werden'

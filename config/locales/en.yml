@@ -38,3 +38,4 @@ en:
     errors:
       messages:
         default_board_deletion: 'Cannot delete default board'
+        cannot_delete_active_board: 'Cannot delete currently active board'
