@@ -56,7 +56,7 @@ module RuleManager
     end
 
     def self.should_evaluate_rules?
-      Board.count.positive? && Rule.count.positive? && !System.board_rotation_enabled?
+      !System.board_rotation_enabled? && Board.count > 1 && Rule.count.positive?
     end
   end
 end
