@@ -305,15 +305,6 @@ class System
       SettingExecution::Network.ap_active?
   end
 
-  # Schedules creating the default board.
-  # @return [Object] The scheduled job, or nil if widgets already exist.
-  def self.schedule_defaults_creation
-    Sidekiq.set_schedule CreateDefaultBoardJob.name, {
-      in: '15s',
-      class: CreateDefaultBoardJob
-    }
-  end
-
   def self.daily_reboot
     return Rails.logger.info "#{__method__}: no-op in development." if Rails.env.development?
 

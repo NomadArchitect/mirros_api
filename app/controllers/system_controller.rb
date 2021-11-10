@@ -92,10 +92,8 @@ class SystemController < ApplicationController
     end
 
     # Schedule before connecting to network, so the job is scheduled before a potential refresh.
-    System.schedule_defaults_creation if options[:create_defaults]
-
+    CreateDefaultBoardJob.set(wait: 15.seconds).perform_later if options[:create_defaults]
     ConnectToNetworkJob.perform_now
-
     sleep 2
     SendWelcomeMailJob.perform_now
 
