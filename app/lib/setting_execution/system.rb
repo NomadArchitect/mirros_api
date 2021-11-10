@@ -32,13 +32,8 @@ module SettingExecution
 
     # Instructs the scheduler to start/stop the rotation job and start/stop rule evaluation.
     # @param [String] state the currently active setting state
-    # @return [Hash] the scheduled config
     def self.board_rotation(state)
-      if state.eql? 'on'
-        RuleManager::Scheduler.start_rotation_interval
-      else
-        RuleManager::Scheduler.start_rule_evaluation if RuleManager::Scheduler.should_evaluate_rules?
-      end
+      RuleManager::Scheduler.init_jobs rotation_enabled: state.eql?('on')
     end
 
     def self.board_rotation_interval(interval)

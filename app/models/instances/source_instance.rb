@@ -81,7 +81,7 @@ class SourceInstance < Instance
   end
 
   # Schedules a periodic refresh for this source instance and saves the job's id.
-  # @return [Hash<String, Array<String>] The schedule configuration.
+  # @return [Hash] The scheduled configuration
   def schedule
     validate_setup
 

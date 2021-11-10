@@ -4,13 +4,11 @@ module RuleManager
   # Dispatches rule processing and rotation interval jobs to set the active board.
   class Scheduler
 
-    # Stops interval-based rotation and schedules an hourly job that evaluates current board rules.
+    # Schedules a job each minute that evaluates current board rules.
     # The first matched rule determines the new active board.
     #
-    # @return [Hash] the scheduled configuration
+    # @return [Hash] The scheduled configuration
     def self.start_rule_evaluation
-      stop_rotation_interval
-
       Sidekiq.set_schedule EvaluateBoardRulesJob.name,
                            {
                              interval: 1.minute,
@@ -18,20 +16,15 @@ module RuleManager
                            }
     end
 
-    # Stops the rule evaluation job.
-    #
-    # @return [Boolean] whether the log entry succeeded.
     def self.stop_rule_evaluation
-      Rails.logger.info "Removed the schedule #{Sidekiq.remove_schedule EvaluateBoardRulesJob.name}"
+      Sidekiq.remove_schedule EvaluateBoardRulesJob.name
     end
 
-    # Stops the rule evaluation job and starts the interval-based board rotation.
+    # Starts the interval-based board rotation.
     #
     # @param interval [String]
-    # @return [Hash] the scheduled configuration
+    # @return [Hash] The scheduled configuration
     def self.start_rotation_interval(interval = nil)
-      stop_rule_evaluation
-
       interval ||= Setting.value_for(:system_boardrotationinterval)
       Sidekiq.set_schedule RotateActiveBoardJob.name,
                            {
@@ -40,23 +33,24 @@ module RuleManager
                            }
     end
 
-    # Stops the rotation job.
-    #
     def self.stop_rotation_interval
-      config = Sidekiq.remove_schedule RotateActiveBoardJob.name
-      Rails.logger.info "Removed the schedule #{config}"
+      Sidekiq.remove_schedule RotateActiveBoardJob.name
     end
 
-    def self.init_jobs(rotation_state = nil)
-      if rotation_state.eql?('on') || System.board_rotation_enabled?
+    # Determines whether the rule evaluation or the board rotation job should run.
+    #
+    # @param [String] rotation_state  value of the system_boardrotation setting. Queries the database if omitted.
+    def self.init_jobs(rotation_enabled:)
+      if rotation_enabled
+        stop_rule_evaluation
         start_rotation_interval
-      elsif should_evaluate_rules?
+      elsif Board.count > 1 && Rule.count.positive?
+        stop_rotation_interval
         start_rule_evaluation
+      else
+        stop_rule_evaluation
+        stop_rotation_interval
       end
-    end
-
-    def self.should_evaluate_rules?
-      !System.board_rotation_enabled? && Board.count > 1 && Rule.count.positive?
     end
   end
 end
