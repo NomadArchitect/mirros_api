@@ -305,37 +305,13 @@ class System
       SettingExecution::Network.ap_active?
   end
 
-  def self.pause_network_jobs
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:pause)
-  end
-
-  def self.resume_network_jobs
-    # NOTE: Passing an array of tags to Rufus only returns jobs that have BOTH. We want to run the same logic for each.
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:call)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:call)
-  rescue StandardError => e
-    Rails.logger.error e.message
-  end
-
   # Schedules creating the default board.
   # @return [Object] The scheduled job, or nil if widgets already exist.
   def self.schedule_defaults_creation
-    return if WidgetInstance.count.positive?
-
-    tag = 'create-default-board'
-    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
-
-    Rufus::Scheduler.s.every '15s', tag: tag, overlap: false, first_in: '5s' do |job|
-      raise 'System not online' unless System.online?
-
-      Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
-      job.unschedule
-    ensure
-      ActiveRecord::Base.clear_active_connections!
-    end
+    Sidekiq.set_schedule CreateDefaultBoardJob.name, {
+      in: '15s',
+      class: CreateDefaultBoardJob
+    }
   end
 
   def self.daily_reboot
