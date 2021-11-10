@@ -38,7 +38,6 @@ source 'https://rubygems.org' do
   gem 'bundler', '>= 1.17.1' # extension management
   gem 'httparty', '~> 0.18'
   gem 'jsonapi-resources', '~> 0.9.10'
-  gem 'rufus-scheduler', '~> 3.6.0'
   gem 'friendly_id', '~> 5.2.5'
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
