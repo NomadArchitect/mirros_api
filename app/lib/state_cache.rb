@@ -105,10 +105,8 @@ class StateCache
   end
 
   def self.force_connectivity_check
-    Rufus::Scheduler.singleton.in '10s', tags: 'check-nm_connectivity_state', overlap: false do
-      StateCache.put :connectivity, StateCache.connectivity_from_dns
-    end
-    Rails.logger.info 'scheduled forced connectivity check in 10s'
+    job = UpdateConnectivityStatusJob.set(wait: 10.seconds).perform_later check_via_dns: true
+    Rails.logger.info "scheduled UpdateConnectivityStatusJob job #{job.provider_job_id} in 10s"
   end
 
   # @param [Object] ac_path
