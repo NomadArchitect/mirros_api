@@ -38,13 +38,7 @@ class StateCache
       # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
       # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
       # after 30 seconds to avoid a stale state.
-      Rufus::Scheduler.singleton.in '30s',
-                                    tags: 'force-nm_state-check',
-                                    overlap: false do
-        state = NetworkManager::Commands.instance.state
-        StateCache.put :nm_state, state
-        StateCache.put :online, state
-      end
+      ForceNmStateCheckJob.set(wait: 30.seconds).perform_later
     end
 
     return unless key.to_sym.eql?(:connectivity) && value.eql?(NmConnectivityState::LIMITED)
@@ -117,10 +111,7 @@ class StateCache
     else
       # Use a delayed job to ensure the connection is already persisted with
       # its current active path.
-      Rufus::Scheduler.singleton.in '10s' do
-        model = NmNetwork.find_by(active_connection_path: ac_path)&.public_info
-        StateCache.put :primary_connection, model
-      end
+      UpdatePrimaryConnectionJob.set(wait: 10.seconds).perform_later ac_path
     end
   end
 
