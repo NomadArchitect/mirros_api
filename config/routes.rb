@@ -3,6 +3,13 @@
 # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 Rails.application.routes.draw do
+
+  if Rails.env.development?
+    require 'sidekiq/web'
+    require 'sidekiq-scheduler/web'
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
   mount ActionCable.server => '/cable'
 
   jsonapi_resources :widgets do
