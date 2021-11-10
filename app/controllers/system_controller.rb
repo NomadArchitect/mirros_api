@@ -92,10 +92,10 @@ class SystemController < ApplicationController
       raise ArgumentError, 'Missing required setting.'
     end
 
-    # TODO: Refactor to repeatable job in case of connection failures.
-    SettingExecution::Network.connect
     # Schedule before connecting to network, so the job is scheduled before a potential refresh.
     System.schedule_defaults_creation if options[:create_defaults]
+
+    ConnectToNetworkJob.perform_now
 
     sleep 2
     SendWelcomeMailJob.perform_now
