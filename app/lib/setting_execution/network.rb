@@ -58,16 +58,15 @@ module SettingExecution
     end
 
     def self.schedule_ap
-      Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
-        open_ap
-      end
+      Sidekiq.set_schedule OpenSetupWiFiJob.name, {
+        in: '15m',
+        class: OpenSetupWiFiJob
+      }
       Rails.logger.info 'Scheduled AP opening in 15m'
     end
 
     def self.cancel_ap_schedule
-      Rufus::Scheduler.s.in_jobs.select do |job|
-        job.tags.include? 'ap-timeout'
-      end.each(&:unschedule)
+      Sidekiq.remove_schedule OpenSetupWiFiJob.name
       Rails.logger.info 'Unscheduled AP opening'
     end
 
