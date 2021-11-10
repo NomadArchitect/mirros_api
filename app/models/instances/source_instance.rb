@@ -184,7 +184,7 @@ class SourceInstance < Instance
     raise "instance #{id} does not have an associated source, aborting." if source.nil?
     raise "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
 
-    Rufus::Scheduler.parse(refresh_interval)
+    Fugit::Duration.parse(refresh_interval)
   rescue ArgumentError => e
     raise "Faulty refresh interval of #{source.name}: #{e.message}"
   end
