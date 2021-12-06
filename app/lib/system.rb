@@ -12,6 +12,10 @@ class System
   API_HOST = 'api.glancr.de'
   SETUP_IP = '192.168.8.1' # Fixed IP of the internal setup WiFi AP.
 
+  def self.running_in_snap?
+    ENV['SNAP'].present?
+  end
+
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
@@ -42,8 +46,14 @@ class System
     end
   end
 
+  # @return [TrueClass, FalseClass] Returns true if selected connection type is WiFi, false otherwise.
   def self.using_wifi?
     Setting.value_for(:network_connectiontype).eql? 'wlan'
+  end
+
+  # @return [TrueClass, FalseClass] True if board rotation is currently enabled, false otherwise.
+  def self.board_rotation_enabled?
+    Setting.value_for(:system_boardrotation).eql? 'on'
   end
 
   def self.reboot
@@ -96,6 +106,8 @@ class System
 
   # Quits a running cog instance, will be restarted by systemd.
   def self.reload_browser
+    return unless running_in_snap?
+
     cog_s = DBus::ASystemBus.new['com.igalia.Cog']
     cog_o = cog_s['/com/igalia/Cog']
     cog_i = cog_o['org.gtk.Actions']
@@ -293,52 +305,19 @@ class System
       SettingExecution::Network.ap_active?
   end
 
-  def self.pause_network_jobs
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:pause)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:pause)
-  end
+  def self.daily_reboot
+    return Rails.logger.info "#{__method__}: no-op in development." if Rails.env.development?
 
-  def self.resume_network_jobs
-    # NOTE: Passing an array of tags to Rufus only returns jobs that have BOTH. We want to run the same logic for each.
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:resume)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-status-check').each(&:call)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:resume)
-    Rufus::Scheduler.s.every_jobs(tag: 'network-signal-check').each(&:call)
-  rescue StandardError => e
-    Rails.logger.error e.message
-  end
+    raise NotImplementedError, "#{__method__} only implemented for Linux hosts" unless OS.linux?
 
-  # Schedules sending the welcome email.
-  # @return [Object,nil] The scheduled job, or nil if email was already sent.
-  def self.schedule_welcome_mail
-    return if SystemState.find_by(variable: :welcome_mail_sent)&.value.eql? true
-
-    tag = 'send-welcome-mail'
-    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
-
-    Rufus::Scheduler.s.every '30s', tag: tag, overlap: false do |job|
-      SettingExecution::Personal.send_setup_email
-      job.unschedule
-    ensure
-      ActiveRecord::Base.clear_active_connections!
-    end
-  end
-
-  # Schedules creating the default board.
-  # @return [Object] The scheduled job, or nil if widgets already exist.
-  def self.schedule_defaults_creation
-    return if WidgetInstance.count.positive?
-
-    tag = 'create-default-board'
-    return if Rufus::Scheduler.singleton.every_jobs(tag: tag).present?
-
-    Rufus::Scheduler.s.every '15s', tag: tag, overlap: false, first_in: '5s' do |job|
-      raise 'System not online' unless System.online?
-
-      Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
-      job.unschedule
-    ensure
-      ActiveRecord::Base.clear_active_connections!
-    end
+    next_day_2am = Time.current.at_midnight.advance(days: 1, hours: 2)
+    # noinspection LongLine
+    login_iface = DBus::ASystemBus.new['org.freedesktop.login1']['/org/freedesktop/login1']['org.freedesktop.login1.Manager'] # rubocop:disable Layout/LineLength
+    # noinspection RubyResolve
+    login_iface.ScheduleShutdown('reboot', next_day_2am.to_i * 1_000_000)
+    Rails.logger.info "Scheduled reboot at #{next_day_2am}"
+  rescue DBus::Error => e
+    Rails.logger.error "[#{__method__}]: #{e.message}"
+    raise e
   end
 end

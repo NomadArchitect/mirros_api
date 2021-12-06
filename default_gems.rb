@@ -15,6 +15,7 @@ source 'https://rubygems.org' do
   gem 'redis'
   group :development, :test do
     # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+    gem 'dotenv-rails'
     gem 'byebug', platforms: %i[mri mingw x64_mingw]
   end
 
@@ -37,13 +38,14 @@ source 'https://rubygems.org' do
   gem 'bundler', '>= 1.17.1' # extension management
   gem 'httparty', '~> 0.18'
   gem 'jsonapi-resources', '~> 0.9.10'
-  gem 'rufus-scheduler', '~> 3.6.0'
   gem 'friendly_id', '~> 5.2.5'
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
   gem 'ruby-dbus', '~> 0.16.0'
   gem 'image_processing', '~> 1.9'
   gem 'store_model', '~> 0.8'
+  gem 'sidekiq', '< 7'
+  gem 'sidekiq-scheduler', '~> 3.1'
 end
 
 ### mirr.OS bundled extensions ###

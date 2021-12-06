@@ -106,5 +106,7 @@ module MirrOSApi
     # Set custom log path for terrapin commands.
     # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
+    #
+    config.active_job.queue_adapter = :sidekiq
   end
 end

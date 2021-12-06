@@ -20,31 +20,25 @@ class StateCache
 
   def self.refresh
     init = {}
-    VALID_STATE_KEYS.each { |k| init.store k.to_s.prepend('state/'), initial_value(k) }
-    Rails.cache.write_multi init
+    VALID_STATE_KEYS.each { |k| init.store k.to_s, initial_value(k) }
+    Rails.cache.write_multi init, namespace: :state
   end
 
   def self.get(key)
-    Rails.cache.fetch "state/#{key}" do
+    Rails.cache.fetch key, namespace: :state do
       initial_value(key)
     end
   end
 
   def self.put(key, value)
-    Rails.cache.write "state/#{key}", value
+    Rails.cache.write key, value, namespace: :state
     ::System.push_status_update
 
     if key.to_sym.eql?(:nm_state) && value.eql?(NmState::CONNECTING)
       # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
       # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
       # after 30 seconds to avoid a stale state.
-      Rufus::Scheduler.singleton.in '30s',
-                                    tags: 'force-nm_state-check',
-                                    overlap: false do
-        state = NetworkManager::Commands.instance.state
-        StateCache.put :nm_state, state
-        StateCache.put :online, state
-      end
+      ForceNmStateCheckJob.set(wait: 30.seconds).perform_later
     end
 
     return unless key.to_sym.eql?(:connectivity) && value.eql?(NmConnectivityState::LIMITED)
@@ -105,10 +99,8 @@ class StateCache
   end
 
   def self.force_connectivity_check
-    Rufus::Scheduler.singleton.in '10s', tags: 'check-nm_connectivity_state', overlap: false do
-      StateCache.put :connectivity, StateCache.connectivity_from_dns
-    end
-    Rails.logger.info 'scheduled forced connectivity check in 10s'
+    job = UpdateConnectivityStatusJob.set(wait: 10.seconds).perform_later check_via_dns: true
+    Rails.logger.info "scheduled UpdateConnectivityStatusJob job #{job.provider_job_id} in 10s"
   end
 
   # @param [Object] ac_path
@@ -119,10 +111,7 @@ class StateCache
     else
       # Use a delayed job to ensure the connection is already persisted with
       # its current active path.
-      Rufus::Scheduler.singleton.in '10s' do
-        model = NmNetwork.find_by(active_connection_path: ac_path)&.public_info
-        StateCache.put :primary_connection, model
-      end
+      UpdatePrimaryConnectionJob.set(wait: 10.seconds).perform_later ac_path
     end
   end
 
@@ -133,7 +122,6 @@ class StateCache
   def self.as_json
     Rails
       .cache
-      .read_multi(*VALID_STATE_KEYS.map { |key| "state/#{key}" })
-      .transform_keys { |k| k.slice 6, k.length }
+      .read_multi(*VALID_STATE_KEYS, namespace: :state)
   end
 end

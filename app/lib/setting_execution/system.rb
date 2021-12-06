@@ -30,13 +30,14 @@ module SettingExecution
       end
     end
 
+    # Instructs the scheduler to start/stop the rotation job and start/stop rule evaluation.
+    # @param [String] state the currently active setting state
     def self.board_rotation(state)
-      RuleManager::BoardScheduler.manage_jobs rotation_active: state.eql?('on')
+      RuleManager::Scheduler.init_jobs rotation_enabled: state.eql?('on')
     end
 
     def self.board_rotation_interval(interval)
-      RuleManager::BoardScheduler.stop_rotation_interval
-      RuleManager::BoardScheduler.start_rotation_interval(interval)
+      RuleManager::Scheduler.start_rotation_interval interval
     end
 
     # Schedules a system shutdown at a given time of day.
@@ -55,7 +56,7 @@ module SettingExecution
       if parsed.blank?
         # noinspection RubyResolve
         login_iface.CancelScheduledShutdown
-        Scheduler.daily_reboot
+        ::System.daily_reboot
       else
         # Check if the current time is already past the given time of day,prevents immediate shutdown.
         usec = (parsed.past? ? parsed.next_day(1) : parsed).to_i * 1_000_000 # shutdown expects microseconds

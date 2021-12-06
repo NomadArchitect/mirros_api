@@ -20,7 +20,7 @@ class Board < ApplicationRecord
   def abort_if_active
     return unless id.eql?(Setting.value_for(:system_activeboard).to_i)
 
-    errors.add(:base, 'Cannot delete active board')
+    errors.add(:base, I18n.t('board.errors.messages.cannot_delete_active_board'))
     throw(:abort)
   end
 

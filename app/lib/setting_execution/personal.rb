@@ -5,7 +5,6 @@ module SettingExecution
   class Personal
     def self.send_setup_email
       send_email(:setup)
-      SystemState.find_by(variable: :welcome_mail_sent).update(value: true)
     end
 
     def self.send_change_email

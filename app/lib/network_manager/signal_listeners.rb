@@ -142,7 +142,7 @@ module NetworkManager
     end
 
     # Assumes that the Access Point does not change for the given SSID.
-    # TODO: Currently not called, see config/initializers/scheduler.rb:33
+    # TODO: Currently not called, see CheckWifiSignalJob
     def listen_ap_signal
       Logger.warn "Called #{__method__} which is not ready yet"
       pc_path = @nm_i['PrimaryConnection']
@@ -163,10 +163,8 @@ module NetworkManager
       Logger.debug "NmState update: #{map_state(nm_state)}"
       if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
-        System.pause_network_jobs
       else
         SettingExecution::Network.cancel_ap_schedule
-        System.resume_network_jobs
       end
       StateCache.put :nm_state, nm_state
       StateCache.put :online, nm_state

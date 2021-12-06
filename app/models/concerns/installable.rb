@@ -42,7 +42,6 @@ module Installable
   end
 
   def install_gem
-    Rufus::Scheduler.s.pause
     setup_instance
 
     begin
@@ -53,8 +52,6 @@ module Installable
       remove_from_gemfile
       bundler_rollback
       raise e
-    ensure
-      Rufus::Scheduler.s.resume
     end
 
     refresh_runtime
@@ -73,7 +70,6 @@ module Installable
 
   # Update the extension to the passed version.
   def update_gem
-    Rufus::Scheduler.s.pause
     setup_instance
     prev_version = Bundler.definition.specs.[](@gem).first.version.to_s # Save previous version in case we need to reset.
     change_gem_version(@version)
@@ -87,8 +83,6 @@ module Installable
       change_gem_version(prev_version)
       bundler_rollback
       raise e
-    ensure
-      Rufus::Scheduler.s.resume
     end
 
     # FIXME: The response does not hint to success/failure of the restart. Investigate whether we can use Thread.new or
@@ -101,7 +95,6 @@ module Installable
 
   # Uninstalls an extension gem.
   def uninstall_gem
-    Rufus::Scheduler.s.pause
     setup_instance
 
     begin
@@ -110,8 +103,6 @@ module Installable
     rescue StandardError => e
       Rails.logger.error "Error in post-uninstall of #{@gem}: #{e.message}"
       inject_gem
-    ensure
-      Rufus::Scheduler.s.resume
     end
 
     # TODO: implement service de-registration

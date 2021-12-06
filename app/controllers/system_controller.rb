@@ -13,8 +13,7 @@ class SystemController < ApplicationController
     StateCache.put :refresh_resetting, true
     ActionCable.server.broadcast 'status', payload: ::System.info
 
-    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
-    Rufus::Scheduler.s.shutdown(:kill)
+
 
     reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
     reset_line.run(env: Rails.env)
@@ -77,7 +76,7 @@ class SystemController < ApplicationController
   # @param [Hash] options
   # @option options [String] :reference_time epoch timestamp in milliseconds
   def run_setup(options = { create_defaults: true })
-    Rufus::Scheduler.s.pause
+
     ref_time = params[:reference_time]
     user_time = begin
                   ref_time.is_a?(Integer) ? ref_time / 1000 : Time.strptime(ref_time, '%Q').to_i
@@ -92,12 +91,11 @@ class SystemController < ApplicationController
       raise ArgumentError, 'Missing required setting.'
     end
 
-    # TODO: Refactor to repeatable job in case of connection failures.
-    SettingExecution::Network.connect
-
+    # Schedule before connecting to network, so the job is scheduled before a potential refresh.
+    CreateDefaultBoardJob.set(wait: 15.seconds).perform_later if options[:create_defaults]
+    ConnectToNetworkJob.perform_now
     sleep 2
-    System.schedule_welcome_mail
-    System.schedule_defaults_creation if options[:create_defaults]
+    SendWelcomeMailJob.perform_now
 
     render json: { meta: System.info }, status: :accepted
   rescue StandardError => e
@@ -107,8 +105,7 @@ class SystemController < ApplicationController
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
   ensure
-    Rufus::Scheduler.s.resume
-    Scheduler.daily_reboot
+    System.daily_reboot
   end
 
   # TODO: Respond with appropriate status codes in addition to success
@@ -200,8 +197,6 @@ stack trace:
   end
 
   def backup_settings
-    Rufus::Scheduler.s.pause
-
     if ENV['SNAP_DATA'].nil?
       head :no_content
     else
@@ -210,14 +205,11 @@ stack trace:
       backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
       send_file(backup_location) if backup_location.exist?
     end
-
-    Rufus::Scheduler.s.resume
   end
 
   def restore_settings
     return if ENV['SNAP_DATA'].nil?
 
-    Rufus::Scheduler.s.stop
     StateCache.put :resetting, true
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
 
