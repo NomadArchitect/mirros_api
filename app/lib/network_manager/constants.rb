@@ -142,5 +142,42 @@ module NetworkManager
       # The host is connected to a network, and appears to be able to reach the full Internet.
       FULL = 5
     end
+
+    # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
+    # D-Bus proxy calls String.bytesize, so we require string keys.
+    # noinspection RubyStringKeysInHashInspection
+    GLANCRSETUP_CONNECTION = {
+      'connection' => {
+        'id' => 'glancrsetup',
+        'type' => '802-11-wireless',
+        'autoconnect' => false
+      },
+      '802-11-wireless' => {
+        'ssid' => DBus.variant('ay', 'glancr setup'.bytes),
+        'mode' => 'ap'
+      },
+      'ipv4' => {
+        'address-data' => DBus.variant('aa{sv}', [{ 'address' => '192.168.8.1', 'prefix' => DBus.variant('u', 32) }]),
+        'method' => 'manual',
+        # dns: Array of IP addresses of DNS servers (as network-byte-order integers)
+        # see https://developer.gnome.org/NetworkManager/stable/nm-settings.html#id-1.2.7.4.18
+        # we want 192.168.8.1 (= localhost) as our static DNS server
+        # -> reverse for network byte order: 1.8.168.192
+        # -> binary form: 00000001.00001000.10101000.11000000
+        # -> decimal representation (without octet dots): 17344704
+        # -> Ruby style guide: underscore separators
+        'dns' => DBus.variant('au', [17_344_704]),
+        'gateway' => '192.168.8.1'
+      }
+      # TODO: IPv6 address settings for AP connection
+    }.freeze
+    # noinspection RubyStringKeysInHashInspection
+    GLANCRLAN_CONNECTION = {
+      'connection' => {
+        'id' => 'glancrlan',
+        'type' => '802-3-ethernet',
+        'autoconnect' => false
+      }
+    }.freeze
   end
 end
