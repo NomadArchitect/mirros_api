@@ -14,11 +14,7 @@ module SettingExecution
     # @param [String] password
     def self.connect_to_wifi(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      remove_stale_connections
-      Commands.instance.activate_new_wifi_connection(
-        ssid,
-        password
-      )
+      Commands.instance.activate_new_wifi_connection(ssid, password)
     end
 
     def self.list
@@ -53,7 +49,9 @@ module SettingExecution
     end
 
     def self.reset
-      remove_stale_connections
+      Commands.instance.delete_connection('glancrsetup')
+      Commands.instance.delete_connection('glancrlan')
+      Commands.instance.add_predefined_connections
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.
@@ -79,16 +77,6 @@ module SettingExecution
       Commands.instance.deactivate_connection('glancrsetup')
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
-    end
-
-    # Removes all NetworkManager WiFi connections.
-    def self.remove_stale_connections
-      Commands.instance.delete_all_wifi_connections
-    end
-
-    def self.remove_predefined_connections
-      Commands.instance.delete_connection(connection_id: 'glancrsetup')
-      Commands.instance.delete_connection(connection_id: 'glancrlan')
     end
   end
 end

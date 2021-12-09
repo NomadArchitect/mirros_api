@@ -39,6 +39,10 @@ module NetworkManager
     # @param [String] ssid SSID of the access point for which a new connection should be established.
     # @param [String] password Passphrase for this access point. @see https://developer.gnome.org/NetworkManager/1.2/ref-settings.html#id-1.4.3.31.1
     def activate_new_wifi_connection(ssid, password)
+      # Ensures we don't end up with two connection profiles for the same SSID.
+      if Cache.fetch_network ssid
+        delete_connection ssid
+      end
       # D-Bus proxy calls String.bytesize, so we can't use symbol keys.
       # noinspection RubyStringKeysInHashInspection
       conn = { '802-11-wireless-security' => { 'psk' => password } }
