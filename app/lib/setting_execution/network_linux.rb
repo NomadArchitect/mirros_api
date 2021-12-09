@@ -52,18 +52,6 @@ module SettingExecution
       nil
     end
 
-    def self.toggle_lan(state)
-      case state
-      when 'on'
-        Commands.instance.activate_connection('glancrlan')
-      when 'off'
-        Commands.instance.deactivate_connection('glancrlan')
-      else
-        raise ArgumentError,
-              "Could not toggle glancrlan to invalid state: #{state}"
-      end
-    end
-
     def self.reset
       remove_stale_connections
     end

@@ -35,15 +35,6 @@ module SettingExecution
       list.pop
     end
 
-    def self.toggle_lan(_state)
-      if prod_server
-        raise NotImplementedError, 'LAN toggle only implemented for Linux hosts'
-      end
-
-      # TODO: Use /usr/sbin/networksetup to remove a preferred network.
-      true
-    end
-
     def self.reset
       if prod_server
         raise NotImplementedError, 'Network reset only implemented for Linux hosts'

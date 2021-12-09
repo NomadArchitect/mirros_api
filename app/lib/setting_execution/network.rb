@@ -35,14 +35,6 @@ module SettingExecution
       StateCache.put :configured_at_boot, true
     end
 
-    def self.enable_lan
-      toggle_lan('on')
-    end
-
-    def self.disable_lan
-      toggle_lan('off')
-    end
-
     def self.reset
       os_subclass.reset
     end
@@ -118,20 +110,6 @@ module SettingExecution
     end
 
     private_class_method :os_subclass
-
-    def self.toggle_lan(state)
-      raise ArgumentError, 'valid args are "on" or "off"' unless %w[on off].include? state
-
-      begin
-        success = os_subclass.toggle_lan(state)
-      rescue StandardError => e
-        Rails.logger.error "Could not toggle LAN connection to #{state}, reason: #{e.message}"
-        success = false
-      end
-      success
-    end
-
-    private_class_method :toggle_lan
 
     def self.validate_connectivity
       retries = 0
