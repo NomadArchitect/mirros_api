@@ -2,7 +2,7 @@
 
 class SystemController < ApplicationController
   def status
-    render json: { meta: System.info }
+    render json: { meta: System.status }
   rescue StandardError => e
     render json: jsonapi_error('Error during status fetch', e.message, 500),
            status: :internal_server_error
@@ -11,7 +11,7 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.put :refresh_resetting, true
-    ActionCable.server.broadcast 'status', payload: ::System.info
+    ActionCable.server.broadcast 'status', payload: ::System.status
 
 
 
@@ -97,7 +97,7 @@ class SystemController < ApplicationController
     sleep 2
     SendWelcomeMailJob.perform_now
 
-    render json: { meta: System.info }, status: :accepted
+    render json: { meta: System.status }, status: :accepted
   rescue StandardError => e
     Rails.logger.error "#{__method__} #{e.message}"
     # e.g. wrong WiFi password -> no error during connection, but not online

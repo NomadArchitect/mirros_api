@@ -19,7 +19,7 @@ class System
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-  def self.info
+  def self.status
     state = {}
     SystemState.pluck(:variable, :value).each do |variable, value|
       state[variable] = value
@@ -37,7 +37,7 @@ class System
   def self.push_status_update
     attempts = 0
     begin
-      ActionCable.server.broadcast 'status', payload: info
+      ActionCable.server.broadcast 'status', payload: status
     rescue StandardError => e
       sleep 2
       retry if (attempts += 1) <= 5
