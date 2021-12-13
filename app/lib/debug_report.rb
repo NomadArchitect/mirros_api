@@ -158,7 +158,7 @@ class DebugReport
   # Retrieves the installed network-manager version.
   # @return [String (frozen)]
   def nm_version
-    NetworkManager::Commands.instance.nm_version
+    NetworkManager::Bus.new.nm_version
   rescue StandardError => e
     "Failed to get NM version: #{e.message}"
   end
