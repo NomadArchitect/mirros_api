@@ -33,11 +33,12 @@ module SettingExecution
 
     def self.compose_body
       language = Setting.value_for(:system_language).presence || 'enGb'
+      ip = NetworkManager::Bus.new.primary_connection_as_model&.ip4_address
       {
         name: Setting.value_for(:personal_name),
         email: Setting.value_for(:personal_email),
         language: convert_language_tag(language),
-        localip: ::System.current_ip_address,
+        localip: ip,
         os_version: API_VERSION
       }
     end

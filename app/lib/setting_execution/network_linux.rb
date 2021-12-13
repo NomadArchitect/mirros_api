@@ -14,7 +14,7 @@ module SettingExecution
     # @param [String] password
     def self.connect_to_wifi(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      Commands.instance.activate_new_wifi_connection(ssid, password)
+      Bus.new.activate_new_wifi_connection(ssid, password)
     end
 
     def self.list
@@ -22,7 +22,7 @@ module SettingExecution
       # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run(iface: Commands.instance.wifi_interface)&.split("\"\n")
+      results = line.run(iface: Bus.new.wifi_interface)&.split("\"\n")
       results&.map do |result|
         signal, encryption, ssid = result.split("\n")
         {
@@ -42,39 +42,40 @@ module SettingExecution
     private_class_method :normalize_signal_strength
 
     def self.wifi_signal_status
-      Commands.instance.wifi_status
+      Bus.new.wifi_status
     rescue StandardError => e
       Rails.logger.error "#{__method__}: #{e.message}"
       nil
     end
 
     def self.reset
-      Commands.instance.delete_connection('glancrsetup')
-      Commands.instance.delete_connection('glancrlan')
-      Commands.instance.add_predefined_connections
+      Bus.new.delete_connection('glancrsetup')
+      Bus.new.delete_connection('glancrlan')
+      Bus.new.add_predefined_connections
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
-      Commands.instance.activate_connection('glancrsetup')
+      Bus.new.activate_connection('glancrsetup')
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
     end
 
     #
-    # @return [Boolean] True if the AP connection is present in NetworkManager's active connection list.
+    # @return [Boolean] True if the AP connection is active and the DNS service is running.
     def self.ap_active?
-      # TODO: This should also check whether the DNS service is running
-      NmNetwork.find_by(connection_id: 'glancrsetup').active
+      dns_line = Terrapin::CommandLine.new('snapctl', "services mirros-one.dns | awk 'FNR == 2 {print $3}'")
+      result = dns_line.run&.chomp!
+      Bus.new.connection_active?('glancrsetup') && result.eql?('active')
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.
     def self.close_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
       dns_line.run
-      Commands.instance.deactivate_connection('glancrsetup')
+      Bus.new.deactivate_connection('glancrsetup')
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
     end
