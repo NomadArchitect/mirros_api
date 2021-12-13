@@ -57,7 +57,6 @@ GEM
     bootsnap (1.7.4)
       msgpack (~> 1.0)
     builder (3.2.4)
-    byebug (11.1.3)
     calendar_event_list (1.2.0)
     calendar_upcoming_event (1.0.7)
     calendar_week_overview (1.0.4)
@@ -336,7 +335,6 @@ DEPENDENCIES
   bing_traffic!
   bootsnap (>= 1.1.0)!
   bundler (>= 1.17.1)!
-  byebug!
   calendar_event_list!
   calendar_upcoming_event!
   calendar_week_overview!
@@ -376,7 +374,6 @@ DEPENDENCIES
   rubocop!
   rubocop-rails!
   ruby-dbus (~> 0.16.0)!
-  rufus-scheduler (~> 3.6.0)!
   sbb!
   sidekiq (< 7)!
   sidekiq-scheduler (~> 3.1)!
@@ -393,7 +390,7 @@ DEPENDENCIES
   video_player!
 
 RUBY VERSION
-   ruby 2.6.6p146
+   ruby 2.6.9p207
 
 BUNDLED WITH
    1.17.3
