@@ -22,6 +22,7 @@ module NetworkManager
     def add_permanent_listeners
       listen_property_changed
       listen_for_connection_changes
+      listen_ap_connection
     end
 
     def listen
@@ -72,19 +73,22 @@ module NetworkManager
 
     private
 
+    # TODO: Listen on AP connection for instant property change notifications
+
     def listen_property_changed
       @nm_iface.on_signal('PropertiesChanged') do |props|
         retry_wrap max_attempts: 3 do
           props.each do |key, value|
-            Logger.debug "Handling NM PropertiesChanged for #{key} with #{value}"
             case key.to_sym
             when :State
               handle_state_change(value)
+              ::System.push_status_update
             when :Connectivity
-              handle_connectivity_change(value)
+              ::System.push_status_update
+              # handle_connectivity_change(value)
             when :PrimaryConnection
-              Logger.debug "PrimaryConnection update: #{value}"
-              StateCache.put :primary_connection, NetworkManager::Commands.instance.model_for_active_connection(value)
+              ::System.push_status_update
+              # Logger.debug "PrimaryConnection update: #{value}"
             else
               # Rails.logger.info "unhandled property name #{key} in #{__method__}"
             end
@@ -97,7 +101,7 @@ module NetworkManager
 
     def listen_for_connection_changes
       @nm_settings_iface.on_signal('NewConnection') do |connection_path|
-        settings = NetworkManager::Commands.instance.settings_for_connection_path connection_path
+        settings = NetworkManager::Bus.new.settings_for_connection_path connection_path
         NetworkManager::Cache.store_network settings['connection']['id'], settings['connection']['uuid']
       rescue StandardError => e
         Logger.error "#{__method__} #{e.message}"
@@ -110,24 +114,25 @@ module NetworkManager
       end
     end
 
+    def listen_ap_connection
+      bus = Bus.new
+      bus.connection_object_path(connection_id: 'glancrsetup')
+      # TODO: We want to listen on the active connection, but this only exists once the connection is ... active?
+    end
 
     def handle_state_change(nm_state)
-      Logger.debug "NmState update: #{map_state(nm_state)}"
       if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
       else
         SettingExecution::Network.cancel_ap_schedule
       end
-      StateCache.put :nm_state, nm_state
-      StateCache.put :online, nm_state
     end
 
     # React to changes in NetworkManager's overall connectivity state.
     # @param [Integer] connectivity_state Integer describing NetworkManager's overall connectivity state.
     # @return [nil]
     def handle_connectivity_change(connectivity_state)
-      Logger.debug "Connectivity update: #{map_connectivity(connectivity_state)}"
-      StateCache.put :connectivity, connectivity_state
+      NetworkManager::Cache.write :connectivity, connectivity_state
     end
   end
 end
