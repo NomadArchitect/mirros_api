@@ -17,7 +17,7 @@ module SettingExecution
       when 'wlan'
         os_subclass.connect_to_wifi(ssid, password)
       when 'lan'
-        SettingExecution::Network.enable_lan
+
       else
         raise ArgumentError, "invalid connection type #{conn_type}"
       end
@@ -102,7 +102,7 @@ module SettingExecution
       if OS.linux?
         NetworkLinux
       elsif OS.mac?
-        NetworkMac
+
       else
         Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
         raise NotImplementedError, "Unsupported OS running on #{RUBY_PLATFORM}"
