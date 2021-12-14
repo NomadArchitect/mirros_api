@@ -3,7 +3,8 @@ module NetworkManager
     include NetworkManager::Constants
 
     PUBLIC_KEYS = %i[
-    nm_state
+    state
+
     connectivity
     connectivity_check_available
     network_status
@@ -36,15 +37,16 @@ module NetworkManager
     end
 
     def self.get_value(key)
+      bus = Bus.new
       case key
-      when :nm_state
-        Bus.new.state
+      when :state
+        bus.state
       when :connectivity
-        Bus.new.connectivity
+        bus.connectivity
       when :network_status
-        Bus.new.wifi_status
+        bus.wifi_status
       when :primary_connection
-        Bus.new.primary_connection
+        bus.primary_connection
       else
         nil
       end
