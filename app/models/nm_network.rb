@@ -8,11 +8,15 @@ class NmNetwork
   define_attribute_methods :id,
                            :uuid,
                            :interface_type,
-                           :active_connection_path
+                           :active_connection_path,
+                           :ip4_address,
+                           :ip6_address
   attr_accessor :id,
                 :uuid,
                 :interface_type,
-                :active_connection_path
+                :active_connection_path,
+                :ip4_address,
+                :ip6_address
 
   # TODO: Refactor as filter methods since we can't use scopes here
   # Excludes the pre-defined LAN and setup Wifi connections by connection_id
