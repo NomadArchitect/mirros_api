@@ -213,6 +213,36 @@ module NetworkManager
       nm_settings_i.GetConnectionByUuid(connection_uuid)
     end
 
+    def connectivity_check_available?
+      @nm_iface['ConnectivityCheckAvailable']
+    rescue DBus::Error => _e
+      # NM 1.2.2 doesn't have this property, and the snap version disables this
+      # feature anyway.
+      false
+    end
+
+    def connectivity
+      @nm_iface['Connectivity']
+    end
+
+    def state
+      state = @nm_iface['State']
+      # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
+      # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
+      # after 30 seconds to avoid a stale state.
+      ForceNmStateCheckJob.set(wait: 30.seconds).perform_later if state.eql?(Constants::NmState::CONNECTING)
+
+      state
+    end
+
+    def primary_connection
+      @nm_iface['PrimaryConnection']
+    end
+
+    def nm_version
+      @nm_iface['Version']
+    end
+
     private
 
     # Checks if a given active connection path has the given ID.
@@ -329,36 +359,6 @@ module NetworkManager
       end
     rescue StandardError
       NmConnectivityState::NONE
-    end
-
-    def connectivity_check_available?
-      @nm_iface['ConnectivityCheckAvailable']
-    rescue DBus::Error => _e
-      # NM 1.2.2 doesn't have this property, and the snap version disables this
-      # feature anyway.
-      false
-    end
-
-    def connectivity
-      @nm_iface['Connectivity']
-    end
-
-    def state
-      state = @nm_iface['State']
-      # NetworkManager sometimes sends CONNECTING state over DBus *after* it has
-      # activated a connection with CONNECTED_GLOBAL. This forces a manual refresh
-      # after 30 seconds to avoid a stale state.
-      ForceNmStateCheckJob.set(wait: 30.seconds).perform_later if state.eql?(Constants::NmState::CONNECTING)
-
-      state
-    end
-
-    def primary_connection
-      @nm_iface['PrimaryConnection']
-    end
-
-    def nm_version
-      @nm_iface['Version']
     end
   end
 end
