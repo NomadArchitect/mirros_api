@@ -4,7 +4,6 @@ module NetworkManager
 
     PUBLIC_KEYS = %i[
     nm_state
-    online
     connectivity
     connectivity_check_available
     network_status
@@ -40,9 +39,6 @@ module NetworkManager
       case key
       when :nm_state
         Bus.new.state
-      when :online
-        # TODO: Check if this can be stale
-        NetworkManager::Bus.new.state.eql?(NmState::CONNECTED_GLOBAL)
       when :connectivity
         Bus.new.connectivity
       when :network_status
