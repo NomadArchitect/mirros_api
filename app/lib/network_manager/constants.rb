@@ -133,15 +133,15 @@ module NetworkManager
 
     module NmConnectivityState
       # Network connectivity is unknown.
-      UNKNOWN = 1
+      UNKNOWN = 0
       # The host is not connected to any network.
-      NONE = 2
+      NONE = 1
       # The host is behind a captive portal and cannot reach the full Internet.
-      PORTAL = 3
+      PORTAL = 2
       # The host is connected to a network, but does not appear to be able to reach the full Internet.
-      LIMITED = 4
+      LIMITED = 3
       # The host is connected to a network, and appears to be able to reach the full Internet.
-      FULL = 5
+      FULL = 4
     end
 
     # for type casting, see https://developer.gnome.org/NetworkManager/1.16/gdbus-org.freedesktop.NetworkManager.IP4Config.html#gdbus-property-org-freedesktop-NetworkManager-IP4Config.AddressData
