@@ -334,7 +334,6 @@ DEPENDENCIES
   binding_of_caller (~> 0.8.0)!
   bing_traffic!
   bootsnap (>= 1.1.0)!
-  bundler (>= 1.17.1)!
   calendar_event_list!
   calendar_upcoming_event!
   calendar_week_overview!
