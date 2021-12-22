@@ -1,6 +1,8 @@
 redis: &redis
   adapter: redis
   url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  # REDIS_URL can also reference a socket, so we don't need to juggle url/path options:
+  # https://github.com/redis/redis-rb/blob/543beb26a98f16b898b8ff9730b756e1c6b87e56/lib/redis.rb#L38
 
 development:
   <<: *redis
