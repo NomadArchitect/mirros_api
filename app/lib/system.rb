@@ -33,7 +33,7 @@ class System
     }.merge(
       StateCache.as_json,
       state,
-      NetworkManager::Bus.new.state_hash
+      network: NetworkManager::Bus.new.state_hash
       )
   end
 

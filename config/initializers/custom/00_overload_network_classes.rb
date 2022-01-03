@@ -13,7 +13,7 @@ module NetworkManager
 
     def state_hash
       {
-        nm_state: state,
+        state: state,
         connectivity: connectivity,
         wifi_signal: { signal: 70, ssid: 'Bogus WiFi' },
         primary_connection: primary_connection_as_model

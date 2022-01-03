@@ -32,7 +32,7 @@ module NetworkManager
       # TODO: Do we need to include connectivity, or does NmState cover all requirements?
       connectivity_state = connectivity
       {
-        nm_state: state,
+        state: state,
         connectivity: connectivity_state.eql?(NmConnectivityState::LIMITED) ? connectivity_from_dns : connectivity_state,
         wifi_signal: wifi_status,
         primary_connection: primary_connection_as_model
