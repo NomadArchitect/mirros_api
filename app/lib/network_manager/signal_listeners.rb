@@ -14,6 +14,7 @@ module NetworkManager
       @nm_service = DBus.system_bus['org.freedesktop.NetworkManager']
       @nm_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::NETWORK_MANAGER]
       @nm_settings_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
+      @nm_props_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::PROPERTIES]
       @loop = nil
       @listening = false
       @listener_thread = nil
@@ -75,8 +76,14 @@ module NetworkManager
 
     # TODO: Listen on AP connection for instant property change notifications
 
+    # Listen to the PropertiesChanged signal of the NetworkManager properties interface.
     def listen_property_changed
-      @nm_iface.on_signal('PropertiesChanged') do |props|
+      # NetworkManager 1.22 does not expose a PropertiesChanged signal on the NM interface.
+      # We use the standard org.freedesktop.DBus.Properties interface and only act on property changes of the NM interface.
+      # @see https://developer-old.gnome.org/NetworkManager/1.22/gdbus-org.freedesktop.NetworkManager.html#gdbus-signal-org-freedesktop-NetworkManager.PropertiesChanged
+      @nm_props_iface.on_signal('PropertiesChanged') do |iface, props, _arr|
+        return unless iface.eql?(NmInterfaces::NETWORK_MANAGER)
+
         retry_wrap max_attempts: 3 do
           props.each do |key, value|
             case key.to_sym

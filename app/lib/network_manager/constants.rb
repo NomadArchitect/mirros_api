@@ -16,6 +16,7 @@ module NetworkManager
       IP4CONFIG = 'org.freedesktop.NetworkManager.IP4Config'
       IP6CONFIG = 'org.freedesktop.NetworkManager.IP6Config'
       NETWORK_MANAGER = 'org.freedesktop.NetworkManager'
+      PROPERTIES = 'org.freedesktop.DBus.Properties'
       SETTINGS = 'org.freedesktop.NetworkManager.Settings'
       SETTINGS_CONNECTION = 'org.freedesktop.NetworkManager.Settings.Connection'
     end
