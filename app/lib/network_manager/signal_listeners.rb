@@ -13,8 +13,8 @@ module NetworkManager
     def initialize
       @nm_service = DBus.system_bus['org.freedesktop.NetworkManager']
       @nm_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::NETWORK_MANAGER]
+      @nm_props_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::PROPERTIES]
       @nm_settings_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
-      @nm_props_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::PROPERTIES]
       @loop = nil
       @listening = false
       @listener_thread = nil
@@ -43,17 +43,14 @@ module NetworkManager
         Logger.debug 'stopped loop'
       end
       @listening = true
-      Logger.debug "listening in #{@listener_thread}, status: #{@listening}"
     end
 
     def quit
       return unless listening?
 
-      Logger.debug "Quitting listener #{@listener_thread}, status: #{@listening}"
       @listener_thread.exit
       Logger.debug "Killed process #{@listener_thread}"
       @listening = false
-      Logger.debug "New listening status: #{@listening}"
     end
 
     def listening?
