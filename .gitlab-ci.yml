@@ -22,7 +22,6 @@ stages:
 before_script:
   - ruby -v                         # Print out ruby version for debugging
   - gem update bundler              # Update bundler to 2.x
-  - bundle package --all-platforms
 
 # Optional - Delete if not using `rubocop`
 # rubocop:
@@ -44,18 +43,3 @@ rails:
     - export RAILS_DATABASE_HOST=mysql
     - bin/rails db:setup
     # - rails test # disabled until we're actually using tests
-  dependencies: []  # do not pass vendor/bundle to next job – it's x86-specific
-
-zipfile:
-  stage: bundle
-  script:
-    - shopt -s extglob      # enable globbing to simplify mv command
-    - git describe --always > build_version
-    - mkdir api             # put everything required in subdirectory
-    - mv !(api|docs|test) api/
-    # only dotfile required by Rails. Do not set dotglob, or mv will attempt to move parent directories
-    - mv .ruby-version api/
-
-  artifacts:
-    paths:
-      - api
