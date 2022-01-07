@@ -92,7 +92,6 @@ module NetworkManager
               # handle_connectivity_change(value)
             when :PrimaryConnection
               ::System.push_status_update
-              # Logger.debug "PrimaryConnection update: #{value}"
             else
               # Rails.logger.info "unhandled property name #{key} in #{__method__}"
             end
