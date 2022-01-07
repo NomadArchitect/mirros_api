@@ -110,12 +110,12 @@ class SystemController < ApplicationController
   # TODO: Respond with appropriate status codes in addition to success
   def setting_execution
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
-    if executor.respond_to?(params[:command])
+    if executor.respond_to?(params[:command].to_s)
       begin
-        result = if executor.method(params[:command]).arity.positive?
+        result = if executor.method(params[:command].to_s).arity.positive?
                    executor.send(params[:command], *params)
                  else
-                   executor.send(params[:command])
+                   executor.send(params[:command].to_s)
                  end
         render json: { success: true, result: result }
       rescue StandardError => e
