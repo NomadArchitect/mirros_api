@@ -75,7 +75,6 @@ Rails.application.routes.draw do
   post 'system/log_client_error', to: 'system#log_client_error'
 
   match 'system/control/:category/:command', to: 'system#setting_execution', via: %i[get patch]
-  # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|

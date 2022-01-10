@@ -2,7 +2,7 @@
 
 class SystemController < ApplicationController
   def status
-    render json: { meta: System.info }
+    render json: { meta: System.status }
   rescue StandardError => e
     render json: jsonapi_error('Error during status fetch', e.message, 500),
            status: :internal_server_error
@@ -11,7 +11,7 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.put :refresh_resetting, true
-    ActionCable.server.broadcast 'status', payload: ::System.info
+    ActionCable.server.broadcast 'status', payload: ::System.status
 
 
 
@@ -24,9 +24,8 @@ class SystemController < ApplicationController
     Thread.new do
       # Wait a bit to ensure 204 response from parent thread is properly sent.
       sleep 2
-      # Disconnect from Wifi networks if configured, disable LAN to force setup through AP
+      # Disconnect from Wifi networks if configured
       SettingExecution::Network.reset
-      SettingExecution::Network.disable_lan
       SettingExecution::Network.remove_predefined_connections
 
       MirrOSApi::Application.load_tasks
@@ -93,11 +92,11 @@ class SystemController < ApplicationController
 
     # Schedule before connecting to network, so the job is scheduled before a potential refresh.
     CreateDefaultBoardJob.set(wait: 15.seconds).perform_later if options[:create_defaults]
-    ConnectToNetworkJob.perform_now
+    ConnectToNetworkJob.perform_now unless Setting.value_for(:system_connectiontype).eql?(:lan)
     sleep 2
     SendWelcomeMailJob.perform_now
 
-    render json: { meta: System.info }, status: :accepted
+    render json: { meta: System.status }, status: :accepted
   rescue StandardError => e
     Rails.logger.error "#{__method__} #{e.message}"
     # e.g. wrong WiFi password -> no error during connection, but not online
@@ -111,12 +110,12 @@ class SystemController < ApplicationController
   # TODO: Respond with appropriate status codes in addition to success
   def setting_execution
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
-    if executor.respond_to?(params[:command])
+    if executor.respond_to?(params[:command].to_s)
       begin
-        result = if executor.method(params[:command]).arity.positive?
+        result = if executor.method(params[:command].to_s).arity.positive?
                    executor.send(params[:command], *params)
                  else
-                   executor.send(params[:command])
+                   executor.send(params[:command].to_s)
                  end
         render json: { success: true, result: result }
       rescue StandardError => e

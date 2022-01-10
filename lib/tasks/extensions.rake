@@ -28,10 +28,8 @@ namespace :extension do
     end
 
     klass = parser.extension_class
-    klass.without_callbacks('create') do |_|
-      klass.create!(parser.extension_attributes)
-    end
-
+    klass.create!(parser.extension_attributes)
+    
     puts "Inserted #{klass} #{klass.find(parser.internal_name)} into the #{Rails.env} database"
   end
 
@@ -47,15 +45,13 @@ namespace :extension do
     end
 
     klass = parser.extension_class
-    klass.without_callbacks('update') do |_|
-      record = klass.find_by(slug: parser.internal_name)
-      if record.nil?
-        raise ArgumentError, "Couldn't find #{klass} #{parser.internal_name} in the #{Rails.env} db"
-      end
-
-      record.update!(parser.extension_attributes)
+    
+    record = klass.find_by(slug: parser.internal_name)
+    if record.nil?
+      raise ArgumentError, "Couldn't find #{klass} #{parser.internal_name} in the #{Rails.env} db"
     end
-
+    record.update!(parser.extension_attributes)
+    
     puts "Updated #{klass} #{klass.find(parser.internal_name)} in the #{Rails.env} database"
   end
 

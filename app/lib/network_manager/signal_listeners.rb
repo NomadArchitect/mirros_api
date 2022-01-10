@@ -11,21 +11,19 @@ module NetworkManager
     include Singleton
 
     def initialize
-      @nm_s = DBus.system_bus['org.freedesktop.NetworkManager']
-      @nm_o = @nm_s[ObjectPaths::NETWORK_MANAGER]
-      @nm_i = @nm_o[NmInterfaces::NETWORK_MANAGER]
-      @nm_settings_i = @nm_s[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
-      @listeners = []
+      @nm_service = DBus.system_bus['org.freedesktop.NetworkManager']
+      @nm_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::NETWORK_MANAGER]
+      @nm_props_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::PROPERTIES]
+      @nm_settings_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
       @loop = nil
       @listening = false
       @listener_thread = nil
     end
 
     def add_permanent_listeners
-      listen_current_connections
       listen_property_changed
-      listen_new_connection
-      listen_connection_deleted
+      listen_for_connection_changes
+      listen_ap_connection
     end
 
     def listen
@@ -45,17 +43,14 @@ module NetworkManager
         Logger.debug 'stopped loop'
       end
       @listening = true
-      Logger.debug "listening in #{@listener_thread}, status: #{@listening}"
     end
 
     def quit
       return unless listening?
 
-      Logger.debug "Quitting listener #{@listener_thread}, status: #{@listening}"
       @listener_thread.exit
       Logger.debug "Killed process #{@listener_thread}"
       @listening = false
-      Logger.debug "New listening status: #{@listening}"
     end
 
     def listening?
@@ -76,21 +71,27 @@ module NetworkManager
 
     private
 
+    # TODO: Listen on AP connection for instant property change notifications
+
+    # Listen to the PropertiesChanged signal of the NetworkManager properties interface.
     def listen_property_changed
-      @nm_i.on_signal('PropertiesChanged') do |props|
+      # NetworkManager 1.22 does not expose a PropertiesChanged signal on the NM interface.
+      # We use the standard org.freedesktop.DBus.Properties interface and only act on property changes of the NM interface.
+      # @see https://developer-old.gnome.org/NetworkManager/1.22/gdbus-org.freedesktop.NetworkManager.html#gdbus-signal-org-freedesktop-NetworkManager.PropertiesChanged
+      @nm_props_iface.on_signal('PropertiesChanged') do |iface, props, _arr|
+        return unless iface.eql?(NmInterfaces::NETWORK_MANAGER)
+
         retry_wrap max_attempts: 3 do
           props.each do |key, value|
-            Logger.debug "Handling NM PropertiesChanged for #{key} with #{value}"
             case key.to_sym
             when :State
               handle_state_change(value)
+              ::System.push_status_update
             when :Connectivity
-              handle_connectivity_change(value)
-            when :ActiveConnections
-              value.each { |ac_path| handle_ac_change(ac_path) }
+              ::System.push_status_update
+              # handle_connectivity_change(value)
             when :PrimaryConnection
-              Logger.debug "PrimaryConnection update: #{value}"
-              StateCache.schedule_pc_refresh(value)
+              ::System.push_status_update
             else
               # Rails.logger.info "unhandled property name #{key} in #{__method__}"
             end
@@ -101,150 +102,40 @@ module NetworkManager
       end
     end
 
-    def listen_new_connection
-      @nm_settings_i.on_signal('NewConnection') do |connection_path|
-        persist_inactive_connection(settings_path: connection_path)
+    def listen_for_connection_changes
+      @nm_settings_iface.on_signal('NewConnection') do |connection_path|
+        settings = NetworkManager::Bus.new.settings_for_connection_path connection_path
+        NetworkManager::Cache.store_network settings['connection']['id'], settings['connection']['uuid']
+      rescue StandardError => e
+        Logger.error "#{__method__} #{e.message}"
+      end
+
+      @nm_settings_iface.on_signal('ConnectionRemoved') do |_connection_path|
+        NetworkManager::Cache.remove_all_networks
       rescue StandardError => e
         Logger.error "#{__method__} #{e.message}"
       end
     end
 
-    def listen_connection_deleted
-      @nm_settings_i.on_signal('ConnectionRemoved') do |connection_path|
-        NmNetwork.find_by(connection_settings_path: connection_path)&.destroy
-      rescue StandardError => e
-        Logger.error "#{__method__} #{e.message}"
-      end
-    end
-
-    def listen_current_connections
-      @nm_i['ActiveConnections'].each { |ac_path| listen_active_connection(ac_path) }
-    end
-
-    def listen_active_connection(ac_path)
-      return if @listeners.include?(ac_path)
-
-      Logger.debug "#{ac_path} not present in #{@listeners}, adding"
-      @listeners.push ac_path
-      ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
-      ac_if.on_signal('PropertiesChanged') do |props|
-        handle_connection_props_change(ac_path: ac_path, props: props)
-      rescue StandardError => e
-        # Connection going down, interface no longer available
-        Logger.warn "#{ac_path} probably going down: #{e.message}"
-        deactivate_network_by_ac_path(ac_path)
-      ensure
-        StateCache.refresh_networks
-      end
-    rescue StandardError => e
-      Logger.error "#{__method__} L:#{__LINE__} #{e.message}"
-      # deactivate_network_by_ac_path(ac_path)
-    end
-
-    # Assumes that the Access Point does not change for the given SSID.
-    # TODO: Currently not called, see CheckWifiSignalJob
-    def listen_ap_signal
-      Logger.warn "Called #{__method__} which is not ready yet"
-      pc_path = @nm_i['PrimaryConnection']
-      pc_if = @nm_s[pc_path][NmInterfaces::CONNECTION_ACTIVE]
-      ap_path = pc_if['SpecificObject']
-      Logger.debug "Adding listener for #{pc_path}, specificObj: #{ap_path}"
-      return if ap_path.eql?('/')
-
-      ap_if = @nm_s[ap_path][NmInterfaces::ACCESS_POINT]
-      ap_if.on_signal('PropertiesChanged') do |props|
-        handle_ap_props_change(ap_if: ap_if, props: props)
-      end
-    rescue DBus::Error => e
-      Logger.warn e.message
+    def listen_ap_connection
+      bus = Bus.new
+      bus.connection_object_path(connection_id: 'glancrsetup')
+      # TODO: We want to listen on the active connection, but this only exists once the connection is ... active?
     end
 
     def handle_state_change(nm_state)
-      Logger.debug "NmState update: #{map_state(nm_state)}"
       if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
       else
         SettingExecution::Network.cancel_ap_schedule
       end
-      StateCache.put :nm_state, nm_state
-      StateCache.put :online, nm_state
     end
 
     # React to changes in NetworkManager's overall connectivity state.
     # @param [Integer] connectivity_state Integer describing NetworkManager's overall connectivity state.
     # @return [nil]
     def handle_connectivity_change(connectivity_state)
-      Logger.debug "Connectivity update: #{map_connectivity(connectivity_state)}"
-      StateCache.put :connectivity, connectivity_state
-    end
-
-    # @param [String] ac_path DBus object path to an active connection.
-    def handle_ac_change(ac_path)
-      Logger.debug "reacting to ActiveConnections change for #{ac_path}"
-      retry_wrap max_attempts: 3 do
-        ac_if = @nm_s[ac_path][NmInterfaces::CONNECTION_ACTIVE]
-        state = ac_if['State']
-        case state
-        when NmActiveConnectionState::ACTIVATING
-          listen_active_connection(ac_path)
-          Logger.debug "#{__method__} #{ac_path} is activating or activated, added listener"
-        when NmActiveConnectionState::ACTIVATED
-          listen_active_connection(ac_path)
-          retry_wrap(max_attempts: 3) { change_connection_active_state(ac_path: ac_path, state: state) }
-        when NmActiveConnectionState::DEACTIVATING..NmActiveConnectionState::DEACTIVATED
-          @listeners.delete(ac_path)
-          Logger.debug "#{ac_path} deactivating, deleted from listeners: #{@listeners}"
-        else
-          Logger.debug "active connection #{ac_path} with unhandled state #{state}"
-        end
-      end
-    rescue DBus::Error => e
-      @listeners.delete(ac_path)
-      Logger.error "#{__method__} deleted #{ac_path} from listeners as we couldn't get its state: #{e.message}"
-    end
-
-    def handle_connection_props_change(ac_path:, props:)
-      props.each do |key, value|
-        Logger.debug "#{__method__} prop change for #{ac_path} #{key} #{value}"
-        case key.to_sym
-        when :State
-          change_connection_active_state(ac_path: ac_path, state: value)
-        when :Ip4Config
-          update_connection_ip_address(
-            ac_path: ac_path,
-            protocol_version: IP4_PROTOCOL,
-            ip_config_path: value
-          )
-        when :Ip6Config
-          update_connection_ip_address(
-            ac_path: ac_path,
-            protocol_version: IP6_PROTOCOL,
-            ip_config_path: value
-          )
-        else
-          # Logger.debug "unhandled property #{key} in #{__method__}"
-        end
-      rescue DBus::Error, ActiveRecordError => e
-        Logger.error "#{__method__} #{e.message}"
-      end
-    end
-
-    # TODO: Currently not in use, see listen_ap_signal
-    def handle_ap_props_change(ap_if:, props:)
-      props.each do |key, value|
-        if key.eql?('Strength')
-          StateCache.put :network_status, ssid: ap_if['Ssid'].pack('U*'), signal: value.to_i
-
-        end
-      rescue DBus::Error => e
-        Rails.logger.error e.message
-        StateCache.refresh_network_status(ssid: nil, signal: nil)
-      end
-    end
-
-    def deactivate_network_by_ac_path(ac_path:)
-      NmNetwork.find_by(active_connection_path: ac_path)&.deactivate
-      @listeners.delete ac_path
+      NetworkManager::Cache.write :connectivity, connectivity_state
     end
   end
 end

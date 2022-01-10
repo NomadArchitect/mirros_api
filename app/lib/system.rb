@@ -19,7 +19,7 @@ class System
   # FIXME: configured_at_boot is a temporary workaround to differentiate between
   # initial setup before first connection attempt and subsequent network problems.
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
-  def self.info
+  def self.status
     state = {}
     SystemState.pluck(:variable, :value).each do |variable, value|
       state[variable] = value
@@ -30,14 +30,17 @@ class System
       api_version: API_VERSION,
       os: RUBY_PLATFORM,
       rails_env: Rails.env,
-      connection_type: Setting.value_for(:network_connectiontype)
-    }.merge(StateCache.as_json, state)
+    }.merge(
+      StateCache.as_json,
+      state,
+      network: NetworkManager::Bus.new.state_hash
+      )
   end
 
   def self.push_status_update
     attempts = 0
     begin
-      ActionCable.server.broadcast 'status', payload: info
+      ActionCable.server.broadcast 'status', payload: status
     rescue StandardError => e
       sleep 2
       retry if (attempts += 1) <= 5
@@ -54,6 +57,10 @@ class System
   # @return [TrueClass, FalseClass] True if board rotation is currently enabled, false otherwise.
   def self.board_rotation_enabled?
     Setting.value_for(:system_boardrotation).eql? 'on'
+  end
+
+  def self.online?
+    NetworkManager::Bus.new.connected?
   end
 
   def self.reboot
@@ -121,77 +128,6 @@ class System
     line.run
   end
 
-  def self.current_interface
-    conn_type = Setting.value_for(:network_connectiontype)
-
-    if OS.linux?
-      map_interfaces(:linux, conn_type)
-    elsif OS.mac?
-      map_interfaces(:mac, conn_type)
-    else
-      raise NotImplementedError 'Not running on a Linux or macOS host'
-    end
-  end
-
-  def self.determine_linux_distro
-    `lsb_release -i -s`
-  end
-
-  # TODO: Add support for IPv6.
-  # FIXME: Needlessly complex due to OS specifics, split up.
-  def self.current_ip_address
-    conn_type = Setting.value_for(:network_connectiontype)
-    return nil if conn_type.blank?
-
-    begin
-      ip_address = if OS.linux?
-                     connection_id = System.using_wifi? ? Setting.value_for(:network_ssid) : :glancrlan
-                     NmNetwork.find_by(connection_id: connection_id)&.ip4_address
-                   elsif OS.mac?
-                     # FIXME: This command returns only the IPv4.
-                     line = Terrapin::CommandLine.new(
-                       'ipconfig',
-                       'getifaddr :interface',
-                       expected_outcodes: [0, 1]
-                     )
-                     line.run(interface: map_interfaces(:mac, conn_type))&.chomp!
-                   else
-                     Rails.logger.error 'Unknown or unsupported OS in query for IP address'
-                   end
-      ip_address.eql?(SETUP_IP) ? nil : ip_address
-    rescue Terrapin::ExitStatusError => e
-      Rails.logger.error "Could not determine current IP: #{e.message}"
-      nil
-    end
-  end
-
-  def self.online_state
-    if OS.linux?
-      NetworkManager::Commands.instance.state
-    else
-      # TODO: This doesn't reflect intermediate states.
-      # if current IP equals SETUP_IP, dnsmasq is active and prevents outgoing connections
-      Resolv::DNS.new.getaddress(API_HOST).to_s.eql?(SETUP_IP) ? NmState::DISCONNECTED : NmState::CONNECTED_GLOBAL
-    end
-  rescue StandardError
-    false
-  end
-
-  def self.state_is_online?(nm_state)
-    nm_state.eql?(NmState::CONNECTED_GLOBAL)
-  end
-
-  def self.online?
-    online_state.eql?(NmState::CONNECTED_GLOBAL)
-  end
-
-  # Determines if the internal access point needs to be opened because mirr.OS does
-  # not have an IP address. Also checks if the AP is already open to avoid
-  # activating an already-active connection.
-  def self.check_network_status
-    check_ip_change current_ip_address
-  end
-
   # Tests whether all required parts of the initial setup are present.
   def self.setup_completed?
     network_configured = case Setting.value_for :network_connectiontype
@@ -251,57 +187,10 @@ class System
     Rails.logger.error "#{__method__} #{e.message}"
   end
 
-  # @param [Symbol] operating_system
-  # @@param [Symbol] interface The interface to query for the current IP.
-  def self.map_interfaces(operating_system, interface)
-    devices = OS.linux? ? NetworkManager::Commands.instance.list_devices : {}
-    {
-      mac: { lan: 'en0', wlan: 'en0' },
-      linux: {
-        lan: devices[:ethernet]&.first&.fetch(:interface),
-        wlan: devices[:wifi]&.first&.fetch(:interface)
-      }
-    }[operating_system][interface.to_sym]
-  end
-
-  private_class_method :map_interfaces
-
-  def self.check_ip_change(ip)
-    # FIXME: Get macOS support working again.
-    return unless OS.linux?
-    # Do nothing if we don't have an IP
-    return if ip.nil?
-    # The IP has not changed in between checks
-    return if ip.eql?(NmNetwork.first.ip4_address)
-    # Check if the IP has changed after a period of disconnection
-    return unless last_known_ip_was_different(ip)
-
-    SettingExecution::Personal.send_change_email
-  end
-
-  private_class_method :check_ip_change
-
-  def self.last_known_ip_was_different(ip)
-    ip_file = Pathname(Rails.root.join('tmp/last_ip'))
-    unless ip_file.readable?
-      return false
-    end # No dump available, e.g. on first boot
-
-    last_known_ip = File.read(ip_file).chomp
-    if last_known_ip.eql?(ip) || ip.nil?
-      false
-    else
-      File.write(ip_file, ip)
-      true
-    end
-  end
-
-  private_class_method :last_known_ip_was_different
-
   def self.no_offline_mode_required?
-    StateCache.get :online ||
-      NmNetwork.exclude_ap.where(active: true).present? ||
-      StateCache.get(:nm_state).eql?(NmState::CONNECTING) ||
+    bus = NetworkManager::Bus.new
+    bus.state.eql?(NmState::CONNECTED_GLOBAL) ||
+      bus.state.eql?(NmState::CONNECTING) ||
       SettingExecution::Network.ap_active?
   end
 
