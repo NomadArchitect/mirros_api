@@ -90,6 +90,7 @@ ActiveRecord::Schema.define(version: 2021_06_21_115403) do
     t.datetime "updated_at", null: false
     t.string "current_weather_id"
     t.string "unit"
+    t.decimal "pop", precision: 3, scale: 2
     t.index ["current_weather_id"], name: "items_on_current_weather_id"
   end
 
