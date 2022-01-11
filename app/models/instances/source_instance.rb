@@ -58,7 +58,7 @@ class SourceInstance < Instance
   end
 
   # Run updates for metadata and re-schedule the instance.
-  # @return [SourceInstance]
+  # @return [Hash]
   def update_callbacks
     return unless saved_change_to_attribute?('configuration')
 
