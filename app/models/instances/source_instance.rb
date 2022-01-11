@@ -8,7 +8,8 @@ class SourceInstance < Instance
   has_many :record_links, dependent: :destroy
   has_many :rules, dependent: :destroy
 
-  after_create :set_meta, :schedule
+  before_create :set_meta
+  after_create :schedule
   after_update :update_callbacks
   before_destroy :unschedule
 
