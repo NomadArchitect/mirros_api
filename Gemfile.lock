@@ -186,7 +186,7 @@ GEM
     omniauth-oauth2 (1.7.1)
       oauth2 (~> 1.4)
       omniauth (>= 1.9, < 3)
-    openweathermap (1.1.10)
+    openweathermap (1.2.0)
       httparty (~> 0.18)
     os (1.0.1)
     owm_current_weather (1.0.3)
