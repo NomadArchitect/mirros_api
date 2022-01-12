@@ -13,6 +13,7 @@ class Setting < ApplicationRecord
   after_update :restart_application, if: -> { slug.eql?('system_timezone') }
   before_validation :check_license_status, unless: :changes_product_key?
   before_validation :strip_whitespace, unless: -> { ALLOW_WHITESPACE.include?(slug) }
+  after_validation :modify_widget_colors, if: -> { slug.eql?('system_fontcolor') }
 
   self.primary_key = 'slug'
   validates :slug, uniqueness: true
@@ -97,6 +98,19 @@ class Setting < ApplicationRecord
   # Currently only used for system_timezone, @see https://github.com/rails/rails/issues/24748 issue details.
   def restart_application
     ::System.restart_application if Rails.const_defined?('Server')
+  end
+
+  # Update WidgetInstances which have the previous system_fontcolor configured, as the user will likely want them to
+  # reflect the global change.
+  def modify_widget_colors
+    wi_with_default_color = WidgetInstance.where("styles->'$.font_color' = :previous_color", previous_color: value_was)
+    changed_wi = wi_with_default_color.map(&:id)
+    # Use update_all to skip the WidgetInstance.check_license_status callback. This would prevent a change to the styles
+    # attribute in case the installation has no valid license key.Also improves performance.
+    wi_with_default_color.update_all("styles = JSON_REPLACE(styles, '$.font_color', '#{value}')")
+    # Reload models and broadcast changes, update_all does not trigger ApplicationRecord.after_commit
+    # A simple Relation.reload would fail since the variable contains the WHERE query.
+    WidgetInstance.find(changed_wi).each(&:broadcast)
   end
 
   private
