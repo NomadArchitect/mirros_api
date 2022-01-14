@@ -132,23 +132,6 @@ class SystemController < ApplicationController
     end
   end
 
-  # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
-  # TODO: This is currently not used since all extensions are bundled, however it can be useful for custom installations
-  # that use different gem servers.
-  def fetch_extensions
-    render json: HTTParty.get(
-      "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
-      timeout: 5
-    )
-  rescue StandardError => e
-    Rails.logger.error "Could not fetch #{params[:type]} list from #{MirrOSApi::Application::GEM_SERVER}: #{e.message}"
-    render json: jsonapi_error(
-      "Could not fetch #{params[:type]} list",
-      e.message,
-      504
-    ), status: :gateway_timeout
-  end
-
   def log_client_error
     err_string = "
 ----------------------------------

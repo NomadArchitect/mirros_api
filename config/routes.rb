@@ -59,7 +59,6 @@ Rails.application.routes.draw do
 
   # Non-resourceful routes for controlling the system
   get 'assets/:extension_type/:extension/:asset_type/:file', to: 'assets#show', constraints: { file: /.*/ }
-  get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'
 
   get 'system/status', to: 'system#status'
   post 'system/run_setup', to: 'system#run_setup' # TODO: maybe clean those up
