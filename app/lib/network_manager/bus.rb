@@ -91,7 +91,7 @@ module NetworkManager
     def deactivate_connection(id)
       matches = @nm_iface['ActiveConnections'].select { |connection| active_connection_has_id? connection, id }
       # noinspection RubyResolve
-      @nm_iface.DeactivateConnection(matches.first)
+      @nm_iface.DeactivateConnection(matches.first) unless matches.empty?
     end
 
     # Deletes a connection from NetworkManager
@@ -292,8 +292,6 @@ module NetworkManager
       # TODO: This only returns the first address without the prefix, maybe extend it to handle the whole array
       ip6_interface['AddressData'].first&.dig('address')
     end
-
-
 
     # @param [String] ssid
     # @return [String, nil] The DBus object path for the given connection or nil if NM does not have it.
