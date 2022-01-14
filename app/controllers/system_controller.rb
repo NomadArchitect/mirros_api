@@ -13,8 +13,6 @@ class SystemController < ApplicationController
     StateCache.put :refresh_resetting, true
     ActionCable.server.broadcast 'status', payload: ::System.status
 
-
-
     reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
     reset_line.run(env: Rails.env)
 
@@ -194,18 +192,16 @@ stack trace:
   end
 
   def backup_settings
-    if ENV['SNAP_DATA'].nil?
-      head :no_content
-    else
-      # create-backup script is included in mirros-one-snap repository
-      line = Terrapin::CommandLine.new('create-backup')
-      backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
-      send_file(backup_location) if backup_location.exist?
-    end
+    return head :no_content unless System.running_in_snap?
+
+    # create-backup script is included in mirros-one-snap repository
+    line = Terrapin::CommandLine.new('create-backup')
+    backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
+    send_file(backup_location) if backup_location.exist?
   end
 
   def restore_settings
-    return if ENV['SNAP_DATA'].nil?
+    return unless System.running_in_snap?
 
     StateCache.put :resetting, true
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
