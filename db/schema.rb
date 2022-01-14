@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_21_115403) do
+ActiveRecord::Schema.define(version: 2022_01_14_100305) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -232,19 +232,6 @@ ActiveRecord::Schema.define(version: 2021_06_21_115403) do
     t.index ["group_id"], name: "index_instance_associations_on_group_id"
     t.index ["source_instance_id"], name: "index_instance_associations_on_source_instance_id"
     t.index ["widget_instance_id"], name: "index_instance_associations_on_widget_instance_id"
-  end
-
-  create_table "nm_networks", primary_key: "uuid", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.string "connection_id", null: false
-    t.string "interface_type", null: false
-    t.string "devices"
-    t.boolean "active"
-    t.string "ip4_address"
-    t.string "ip6_address"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "active_connection_path"
-    t.string "connection_settings_path"
   end
 
   create_table "record_links", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|

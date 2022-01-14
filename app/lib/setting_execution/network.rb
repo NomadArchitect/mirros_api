@@ -87,7 +87,6 @@ module SettingExecution
 
     def self.remove_predefined_connections
       os_subclass.remove_predefined_connections
-      NmNetwork.where(connection_id: %w[glancrlan glancrsetup]).destroy_all
     rescue StandardError => e
       Rails.logger.error "Could not delete predefined connections: #{e.message}"
     end
