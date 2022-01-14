@@ -53,7 +53,6 @@ module SettingExecution
       NetworkManager::Bus.new.add_predefined_connections
     end
 
-    # @return [NmNetwork] the updated glancrsetup network model.
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
