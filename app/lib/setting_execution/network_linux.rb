@@ -56,7 +56,7 @@ module SettingExecution
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
-      Bus.new.activate_connection('glancrsetup')
+      NetworkManager::Bus.new.activate_connection('glancrsetup')
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
     end
@@ -66,14 +66,14 @@ module SettingExecution
     def self.ap_active?
       dns_line = Terrapin::CommandLine.new('snapctl', "services mirros-one.dns | awk 'FNR == 2 {print $3}'")
       result = dns_line.run&.chomp!
-      Bus.new.connection_active?('glancrsetup') && result.eql?('active')
+      NetworkManager::Bus.new.connection_active?('glancrsetup') && result.eql?('active')
     end
 
     # @return [TrueClass] True if the connection was deactivated, false otherwise.
     def self.close_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
       dns_line.run
-      Bus.new.deactivate_connection('glancrsetup')
+      NetworkManager::Bus.new.deactivate_connection('glancrsetup')
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
     end
