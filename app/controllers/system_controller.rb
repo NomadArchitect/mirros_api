@@ -213,10 +213,7 @@ stack trace:
     # FIXME: Ignore return code 1 until proper rollbacks are implemented.
     # In installations with SNAP_VERSION < 1.8.0, my.cnf didn't contain a password. Calling mysql with -p triggers a
     # warning which Terrapin interprets as a fatal error.
-    line = Terrapin::CommandLine.new(
-      'restore-backup',
-      ':backup_file', expected_outcodes: [0, 1]
-    )
+    line = Terrapin::CommandLine.new('restore-backup', ':backup_file')
     line.run(backup_file: "#{ENV['SNAP_DATA']}/#{backup_file.original_filename}")
 
     Setting.find_by(slug: 'personal_email').save!
