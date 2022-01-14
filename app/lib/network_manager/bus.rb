@@ -39,8 +39,16 @@ module NetworkManager
       }
     end
 
+    # Adds the predefined setup and LAN connections if they do not exist yet.
     def add_predefined_connections
-      add_connection(GLANCRSETUP_CONNECTION) unless add_connection(GLANCRLAN_CONNECTION)
+      [GLANCRSETUP_CONNECTION, GLANCRLAN_CONNECTION].each do |connection|
+        id = connection['connection']['id']
+        next unless uuid_for_connection(id).nil?
+
+        connection_path = add_connection(connection)
+        uuid = settings_for_connection_path(connection_path)['connection']['uuid']
+        Cache.store_network id, uuid
+      end
     end
 
     def delete_all_connections
