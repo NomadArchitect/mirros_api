@@ -7,14 +7,13 @@ module SettingExecution
   # The AP-related methods assume that there is a valid NetworkManager connection
   # named `glancrsetup`.
   class NetworkLinux < Network
-    include NetworkManager
 
     # TODO: Support other authentication methods as well
     # @param [String] ssid
     # @param [String] password
     def self.connect_to_wifi(ssid, password)
       # Clear existing connections so that we only have one connection with that name.
-      Bus.new.activate_new_wifi_connection(ssid, password)
+      NetworkManager::Bus.new.activate_new_wifi_connection(ssid, password)
     end
 
     def self.list
@@ -22,7 +21,7 @@ module SettingExecution
       # would be prettier, but would require two interfaces to scan while in AP mode.
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run(iface: Bus.new.wifi_interface)&.split("\"\n")
+      results = line.run(iface: NetworkManager::Bus.new.wifi_interface)&.split("\"\n")
       results&.map do |result|
         signal, encryption, ssid = result.split("\n")
         {
@@ -42,16 +41,16 @@ module SettingExecution
     private_class_method :normalize_signal_strength
 
     def self.wifi_signal_status
-      Bus.new.wifi_status
+      NetworkManager::Bus.new.wifi_status
     rescue StandardError => e
       Rails.logger.error "#{__method__}: #{e.message}"
       nil
     end
 
     def self.reset
-      Bus.new.delete_connection('glancrsetup')
-      Bus.new.delete_connection('glancrlan')
-      Bus.new.add_predefined_connections
+      NetworkManager::Bus.new.delete_connection('glancrsetup')
+      NetworkManager::Bus.new.delete_connection('glancrlan')
+      NetworkManager::Bus.new.add_predefined_connections
     end
 
     # @return [NmNetwork] the updated glancrsetup network model.
@@ -71,7 +70,7 @@ module SettingExecution
       Bus.new.connection_active?('glancrsetup') && result.eql?('active')
     end
 
-    # @return [NmNetwork] the updated glancrsetup network model.
+    # @return [TrueClass] True if the connection was deactivated, false otherwise.
     def self.close_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'stop mirros-one.dns')
       dns_line.run
