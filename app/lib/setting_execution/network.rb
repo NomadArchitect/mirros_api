@@ -17,7 +17,7 @@ module SettingExecution
       when 'wlan'
         os_subclass.connect_to_wifi(ssid, password)
       when 'lan'
-        SettingExecution::Network.enable_lan
+
       else
         raise ArgumentError, "invalid connection type #{conn_type}"
       end
@@ -35,14 +35,6 @@ module SettingExecution
       StateCache.put :configured_at_boot, true
     end
 
-    def self.enable_lan
-      toggle_lan('on')
-    end
-
-    def self.disable_lan
-      toggle_lan('off')
-    end
-
     def self.reset
       os_subclass.reset
     end
@@ -58,16 +50,15 @@ module SettingExecution
     end
 
     def self.schedule_ap
-      Rufus::Scheduler.s.in '15m', tags: 'ap-timeout' do
-        open_ap
-      end
+      Sidekiq.set_schedule OpenSetupWiFiJob.name, {
+        in: '15m',
+        class: OpenSetupWiFiJob
+      }
       Rails.logger.info 'Scheduled AP opening in 15m'
     end
 
     def self.cancel_ap_schedule
-      Rufus::Scheduler.s.in_jobs.select do |job|
-        job.tags.include? 'ap-timeout'
-      end.each(&:unschedule)
+      Sidekiq.remove_schedule OpenSetupWiFiJob.name
       Rails.logger.info 'Unscheduled AP opening'
     end
 
@@ -96,7 +87,6 @@ module SettingExecution
 
     def self.remove_predefined_connections
       os_subclass.remove_predefined_connections
-      NmNetwork.where(connection_id: %w[glancrlan glancrsetup]).destroy_all
     rescue StandardError => e
       Rails.logger.error "Could not delete predefined connections: #{e.message}"
     end
@@ -111,7 +101,7 @@ module SettingExecution
       if OS.linux?
         NetworkLinux
       elsif OS.mac?
-        NetworkMac
+
       else
         Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
         raise NotImplementedError, "Unsupported OS running on #{RUBY_PLATFORM}"
@@ -119,20 +109,6 @@ module SettingExecution
     end
 
     private_class_method :os_subclass
-
-    def self.toggle_lan(state)
-      raise ArgumentError, 'valid args are "on" or "off"' unless %w[on off].include? state
-
-      begin
-        success = os_subclass.toggle_lan(state)
-      rescue StandardError => e
-        Rails.logger.error "Could not toggle LAN connection to #{state}, reason: #{e.message}"
-        success = false
-      end
-      success
-    end
-
-    private_class_method :toggle_lan
 
     def self.validate_connectivity
       retries = 0

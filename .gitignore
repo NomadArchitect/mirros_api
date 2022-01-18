@@ -31,3 +31,4 @@
 /build_version
 /vendor/cache
 /asdf
+.env.*.local

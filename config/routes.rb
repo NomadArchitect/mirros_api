@@ -3,6 +3,13 @@
 # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 Rails.application.routes.draw do
+
+  if Rails.env.development?
+    require 'sidekiq/web'
+    require 'sidekiq-scheduler/web'
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
   mount ActionCable.server => '/cable'
 
   jsonapi_resources :widgets do
@@ -52,7 +59,6 @@ Rails.application.routes.draw do
 
   # Non-resourceful routes for controlling the system
   get 'assets/:extension_type/:extension/:asset_type/:file', to: 'assets#show', constraints: { file: /.*/ }
-  get 'system/fetch_extensions/:type', to: 'system#fetch_extensions'
 
   get 'system/status', to: 'system#status'
   post 'system/run_setup', to: 'system#run_setup' # TODO: maybe clean those up
@@ -68,7 +74,6 @@ Rails.application.routes.draw do
   post 'system/log_client_error', to: 'system#log_client_error'
 
   match 'system/control/:category/:command', to: 'system#setting_execution', via: %i[get patch]
-  # FIXME: toggle_lan expects a parameter https://guides.rubyonrails.org/routing.html#http-verb-constraints
 
   if Rails.const_defined? 'Server'
     Source.all.each do |source|

@@ -15,12 +15,11 @@ require 'action_controller/railtie'
 # require "sprockets/railtie"
 require 'rails/test_unit/railtie'
 
-require_relative '../app/models/concerns/installable'
 require_relative 'versions.rb'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
-Bundler.require(*Rails.groups, *Installable::EXTENSION_TYPES)
+Bundler.require(*Rails.groups, :widget, :source)
 
 module MirrOSApi
   class Application < Rails::Application
@@ -106,5 +105,7 @@ module MirrOSApi
     # Set custom log path for terrapin commands.
     # TODO: Enable if sensitive commands can be filtered.
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
+    #
+    config.active_job.queue_adapter = :sidekiq
   end
 end

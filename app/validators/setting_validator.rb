@@ -30,12 +30,7 @@ class SettingValidator < ActiveModel::EachValidator
               'Please enable `multiple boards` first'
             end
           when 'system_boardrotationinterval'
-            begin
-              Rufus::Scheduler.parse_in value
-              return
-            rescue ArgumentError
-              "#{value} is not a valid interval expression. Schema is `<integer>m`"
-            end
+            'Only values between 1 and 120 are allowed' unless value.to_i.between?(1, 120)
           when 'system_scheduleshutdown'
             begin
               if value.present? && value.to_time.blank?

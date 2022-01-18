@@ -8,7 +8,8 @@ class SourceInstance < Instance
   has_many :record_links, dependent: :destroy
   has_many :rules, dependent: :destroy
 
-  after_create :set_meta, :schedule
+  before_create :set_meta
+  after_create :schedule
   after_update :update_callbacks
   before_destroy :unschedule
 
@@ -18,6 +19,29 @@ class SourceInstance < Instance
   # @return [String] The refresh interval as a time duration string
   def refresh_interval
     @refresh_interval ||= source.hooks_class.refresh_interval
+  end
+
+  # Refreshes all active sub-resources for this instance.
+  def refresh
+    # TODO: Specify should_update hook to determine if a SourceInstance needs
+    #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
+    # source_hooks_instance.should_update(group, sub_resources)
+    unless instance_associations.any?
+      Rails.logger.info("Skipped refresh for #{interval_job_tag}: no associated WidgetInstance")
+      return
+    end
+
+    # Ensure we're not working with a stale connection
+    # ActiveRecord::Base.connection.verify! unless ActiveRecord::Base.connected?
+    ActiveRecord::Base.transaction do
+      build_group_map.each do |group_id, sub_resources|
+        update_data(group_id: group_id, sub_resources: sub_resources.to_a)
+      end
+      update!(last_refresh: Time.now.utc)
+    end
+    # ensure
+    # Avoid hogging stale connections since we're outside the main Rails process.
+    # ActiveRecord::Base.connection_pool.release_connection
   end
 
   # Sets the `title` and `options` metadata for this instance.
@@ -34,7 +58,7 @@ class SourceInstance < Instance
   end
 
   # Run updates for metadata and re-schedule the instance.
-  # @return [SourceInstance]
+  # @return [Hash]
   def update_callbacks
     return unless saved_change_to_attribute?('configuration')
 
@@ -58,25 +82,16 @@ class SourceInstance < Instance
   end
 
   # Schedules a periodic refresh for this source instance and saves the job's id.
-  # @return [SourceInstance] The scheduled instance.
+  # @return [Hash] The scheduled configuration
   def schedule
     validate_setup
 
-    job_instance = Rufus::Scheduler.s.schedule_interval refresh_interval,
-                                                        timeout: '5m',
-                                                        overlap: false,
-                                                        first_in: :now,
-                                                        tag: interval_job_tag do |job|
-      if System.online? && instance_associations.any?
-        job_block(job: job)
-      else
-        Rails.logger.info("Skipped refresh for #{interval_job_tag}: System offline or no associated WidgetInstance")
-      end
-    end
-
-    update(job_id: job_instance.job_id)
-    Rails.logger.info "scheduled #{interval_job_tag}"
-    self
+    Sidekiq.set_schedule "refresh_#{interval_job_tag}",
+                         {
+                           interval: refresh_interval,
+                           class: RefreshSourceInstanceJob,
+                           args: id # TODO: GlobalID serialization doesn't seem to work properly
+                         }
   rescue RuntimeError, ArgumentError => e
     Rails.logger.error e.message
   end
@@ -84,8 +99,7 @@ class SourceInstance < Instance
   # Removes the refresh job for this instance from the central schedule.
   # @return [Object]
   def unschedule
-    Rufus::Scheduler.s.jobs(tag: interval_job_tag).each(&:unschedule)
-    Rails.logger.info "unscheduled job with tag #{interval_job_tag}"
+    Sidekiq.remove_schedule "refresh_#{interval_job_tag}"
   end
 
   # Fetch and save data for given group schema and sub-resource(s) of this instance.
@@ -148,32 +162,6 @@ class SourceInstance < Instance
     @interval_job_tag ||= "#{source.name}--#{id}"
   end
 
-  # Refreshes all active sub-resources for this instance.
-  # @param [Rufus::Scheduler::IntervalJob] job The job that calls this block
-  def job_block(job:)
-    # TODO: Specify should_update hook to determine if a SourceInstance needs
-    #   to be refreshed at all (e. g. by testing HTTP status - 304 or etag)
-    # source_hooks_instance.should_update(group, sub_resources)
-
-    # Ensure we're not working with a stale connection
-    ActiveRecord::Base.connection.verify!(0) unless ActiveRecord::Base.connected?
-
-    ActiveRecord::Base.transaction do
-      build_group_map.each do |group_id, sub_resources|
-        update_data(group_id: group_id, sub_resources: sub_resources.to_a)
-      rescue StandardError => e
-        Rails.logger.error "Error during refresh of #{source} instance #{id} for schema #{group_id}:
-            #{e.message}\n#{e.backtrace[0, 3]&.join("\n")}"
-        # Delay the next run on failures
-        job.next_time = EtOrbi::EoTime.now + (job.interval * 2)
-        next
-      end
-      update!(last_refresh: Time.now.utc)
-    end
-  ensure
-    ActiveRecord::Base.connection_pool.release_connection
-  end
-
   # Builds a map of all sub-resources currently selected in this instance's InstanceAssociations.
   # @return [Hash{String => Set}] All selected sub-resources of this instance, keyed by group_id.
   def build_group_map
@@ -197,7 +185,7 @@ class SourceInstance < Instance
     raise "instance #{id} does not have an associated source, aborting." if source.nil?
     raise "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
 
-    Rufus::Scheduler.parse(refresh_interval)
+    Fugit::Duration.parse(refresh_interval)
   rescue ArgumentError => e
     raise "Faulty refresh interval of #{source.name}: #{e.message}"
   end

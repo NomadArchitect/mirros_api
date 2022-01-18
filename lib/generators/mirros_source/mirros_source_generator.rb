@@ -56,14 +56,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   end
 
   def append_to_gemfile
-    gem name.underscore, path: @path
-  end
-
-  def initialize_git_repo
-    Dir.chdir(@path)
-    git :init
-    git add: '.'
-    git commit: "-m 'initial commit'"
+    gem name.camelize, path: @path
   end
 
   def show_dev_info

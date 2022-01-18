@@ -12,7 +12,11 @@ class Rule < ApplicationRecord
   before_validation :setup
   after_validation :normalize_timestamp, if: -> { errors.blank? && operator.eql?('betweenDates') }
 
-  validates_exclusion_of :board_id, in: ->(rule) { [Board.first.id] }, message: I18n.t('rule.errors.messages.no_default_board')
+  after_commit :refresh_board_schedule
+
+  validates_exclusion_of :board_id,
+                         in: ->(_rule) { [Board.first.id] },
+                         message: I18n.t('rule.errors.messages.no_default_board')
   validates_each :value do |record, attr, value|
     record.operator_class.parse(value)
   rescue StandardError => e
@@ -40,5 +44,12 @@ class Rule < ApplicationRecord
     tz = Setting.value_for(:system_timezone)
     Time.zone = tz unless tz.nil?
     self.value = { start: normalized.call(value['start']), end: normalized.call(value['end']) }
+  end
+
+  # Calls the board scheduler to determine which job to run.
+  #
+  # @return [Hash] The (un)scheduled configuration.
+  def refresh_board_schedule
+    RuleManager::Scheduler.init_jobs rotation_enabled: System.board_rotation_enabled?
   end
 end

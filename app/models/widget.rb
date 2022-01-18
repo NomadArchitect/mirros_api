@@ -1,8 +1,6 @@
 class Widget < ApplicationRecord
   self.primary_key = 'slug'
 
-  include Installable
-
   has_many :widget_instances, dependent: :destroy
   belongs_to :group, optional: true
 

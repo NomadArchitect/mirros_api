@@ -2,7 +2,7 @@
 
 class SystemController < ApplicationController
   def status
-    render json: { meta: System.info }
+    render json: { meta: System.status }
   rescue StandardError => e
     render json: jsonapi_error('Error during status fetch', e.message, 500),
            status: :internal_server_error
@@ -11,10 +11,7 @@ class SystemController < ApplicationController
   def reset
     # FIXME: Temporary workaround for Display app
     StateCache.put :refresh_resetting, true
-    ActionCable.server.broadcast 'status', payload: ::System.info
-
-    # Stop scheduler to prevent running jobs from calling extension methods that are no longer available.
-    Rufus::Scheduler.s.shutdown(:kill)
+    ActionCable.server.broadcast 'status', payload: ::System.status
 
     reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
     reset_line.run(env: Rails.env)
@@ -25,14 +22,11 @@ class SystemController < ApplicationController
     Thread.new do
       # Wait a bit to ensure 204 response from parent thread is properly sent.
       sleep 2
-      # Disconnect from Wifi networks if configured, disable LAN to force setup through AP
+      # Disconnect from Wifi networks if configured
       SettingExecution::Network.reset
-      SettingExecution::Network.disable_lan
-      SettingExecution::Network.remove_predefined_connections
 
       MirrOSApi::Application.load_tasks
       Rake::Task['db:recycle'].invoke
-      Rake::Task['mirros:setup:network_connections'].invoke
 
       Rails.env.development? ? System.restart_application : System.reboot
       Thread.exit
@@ -77,7 +71,7 @@ class SystemController < ApplicationController
   # @param [Hash] options
   # @option options [String] :reference_time epoch timestamp in milliseconds
   def run_setup(options = { create_defaults: true })
-    Rufus::Scheduler.s.pause
+
     ref_time = params[:reference_time]
     user_time = begin
                   ref_time.is_a?(Integer) ? ref_time / 1000 : Time.strptime(ref_time, '%Q').to_i
@@ -92,14 +86,13 @@ class SystemController < ApplicationController
       raise ArgumentError, 'Missing required setting.'
     end
 
-    # TODO: Refactor to repeatable job in case of connection failures.
-    SettingExecution::Network.connect
-
+    # Schedule before connecting to network, so the job is scheduled before a potential refresh.
+    CreateDefaultBoardJob.set(wait: 15.seconds).perform_later if options[:create_defaults]
+    ConnectToNetworkJob.perform_now unless Setting.value_for(:system_connectiontype).eql?(:lan)
     sleep 2
-    System.schedule_welcome_mail
-    System.schedule_defaults_creation if options[:create_defaults]
+    SendWelcomeMailJob.perform_now
 
-    render json: { meta: System.info }, status: :accepted
+    render json: { meta: System.status }, status: :accepted
   rescue StandardError => e
     Rails.logger.error "#{__method__} #{e.message}"
     # e.g. wrong WiFi password -> no error during connection, but not online
@@ -107,19 +100,18 @@ class SystemController < ApplicationController
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
   ensure
-    Rufus::Scheduler.s.resume
-    Scheduler.daily_reboot
+    System.daily_reboot
   end
 
   # TODO: Respond with appropriate status codes in addition to success
   def setting_execution
     executor = "SettingExecution::#{params[:category].capitalize}".safe_constantize
-    if executor.respond_to?(params[:command])
+    if executor.respond_to?(params[:command].to_s)
       begin
-        result = if executor.method(params[:command]).arity.positive?
+        result = if executor.method(params[:command].to_s).arity.positive?
                    executor.send(params[:command], *params)
                  else
-                   executor.send(params[:command])
+                   executor.send(params[:command].to_s)
                  end
         render json: { success: true, result: result }
       rescue StandardError => e
@@ -138,23 +130,6 @@ class SystemController < ApplicationController
         500
       ), status: :internal_server_error
     end
-  end
-
-  # @return [JSON] JSON:API formatted list of all available extensions for the given extension type
-  # TODO: This is currently not used since all extensions are bundled, however it can be useful for custom installations
-  # that use different gem servers.
-  def fetch_extensions
-    render json: HTTParty.get(
-      "http://#{MirrOSApi::Application::GEM_SERVER}/list/#{params[:type]}",
-      timeout: 5
-    )
-  rescue StandardError => e
-    Rails.logger.error "Could not fetch #{params[:type]} list from #{MirrOSApi::Application::GEM_SERVER}: #{e.message}"
-    render json: jsonapi_error(
-      "Could not fetch #{params[:type]} list",
-      e.message,
-      504
-    ), status: :gateway_timeout
   end
 
   def log_client_error
@@ -200,24 +175,17 @@ stack trace:
   end
 
   def backup_settings
-    Rufus::Scheduler.s.pause
+    return head :no_content unless System.running_in_snap?
 
-    if ENV['SNAP_DATA'].nil?
-      head :no_content
-    else
-      # create-backup script is included in mirros-one-snap repository
-      line = Terrapin::CommandLine.new('create-backup')
-      backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
-      send_file(backup_location) if backup_location.exist?
-    end
-
-    Rufus::Scheduler.s.resume
+    # create-backup script is included in mirros-one-snap repository
+    line = Terrapin::CommandLine.new('create-backup')
+    backup_location = Pathname.new("#{ENV['SNAP_DATA']}/#{line.run.chomp}")
+    send_file(backup_location) if backup_location.exist?
   end
 
   def restore_settings
-    return if ENV['SNAP_DATA'].nil?
+    return unless System.running_in_snap?
 
-    Rufus::Scheduler.s.stop
     StateCache.put :resetting, true
     SettingExecution::Network.close_ap # Would also be closed by run_setup, but we don't want it open that long
 
@@ -228,10 +196,7 @@ stack trace:
     # FIXME: Ignore return code 1 until proper rollbacks are implemented.
     # In installations with SNAP_VERSION < 1.8.0, my.cnf didn't contain a password. Calling mysql with -p triggers a
     # warning which Terrapin interprets as a fatal error.
-    line = Terrapin::CommandLine.new(
-      'restore-backup',
-      ':backup_file', expected_outcodes: [0, 1]
-    )
+    line = Terrapin::CommandLine.new('restore-backup', ':backup_file')
     line.run(backup_file: "#{ENV['SNAP_DATA']}/#{backup_file.original_filename}")
 
     Setting.find_by(slug: 'personal_email').save!

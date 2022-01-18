@@ -57,13 +57,6 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
     gem name.underscore, path: @path
   end
 
-  def initialize_git_repo
-    Dir.chdir(@path)
-    git :init
-    git add: '.'
-    git commit: "-m 'initial commit after generator'"
-  end
-
   def show_dev_info
     Thor::Shell::Color.new.say("Afterwards, insert your widget by invoking rails extension:insert[#{name.underscore}]", :yellow)
     Thor::Shell::Color.new.say('To ensure that all files are loaded, please restart the mirros_api Rails app.', :red)
