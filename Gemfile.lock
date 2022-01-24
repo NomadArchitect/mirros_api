@@ -2,6 +2,8 @@ GEM
   remote: https://rubygems.org/
   remote: https://extensions.glancr.net/
   specs:
+    aasm (5.2.0)
+      concurrent-ruby (~> 1.0)
     actioncable (5.2.6)
       actionpack (= 5.2.6)
       nio4r (~> 2.0)
@@ -330,6 +332,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aasm (~> 5.2)!
   better_errors (~> 2.5.0)!
   binding_of_caller (~> 0.8.0)!
   bing_traffic!

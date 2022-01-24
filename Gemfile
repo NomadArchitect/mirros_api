@@ -27,6 +27,7 @@ source 'https://rubygems.org' do
   end
 
   ### mirr.OS gems ###
+  gem "aasm", "~> 5.2"
   gem 'redis'
   gem 'dotenv-rails'
   gem 'mysql2', '~> 0.5.2'
