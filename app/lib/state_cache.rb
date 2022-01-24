@@ -6,8 +6,8 @@ class StateCache
   VALID_STATE_KEYS = %i[
     resetting
     setup_complete
-    configured_at_boot
     registered
+    running_setup
   ].freeze
 
   def self.refresh
@@ -31,7 +31,7 @@ class StateCache
     case key
     when :resetting
       false
-    when :setup_complete, :configured_at_boot
+    when :setup_complete
       System.setup_completed?
     when :registered
       RegistrationHandler.new.product_key_valid?
