@@ -16,7 +16,7 @@ class StatusChannel < ApplicationCable::Channel
   # @option data [Integer] :height The client's window height. Defaults to 1920.
   # @return [ActiveModel] The created or updated model.
   def client_display(data)
-    SystemState
+    EnvironmentVariable
       .find_or_initialize_by(variable: 'client_display')
       .update(
         value: {

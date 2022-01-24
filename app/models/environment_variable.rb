@@ -1,8 +1,8 @@
-class SystemState < ApplicationRecord
+class EnvironmentVariable < ApplicationRecord
   validates_uniqueness_of :variable
 
   # Retrieves the value for a given state variable.
-  # @param [String] variable A valid SystemState variable name
+  # @param [String] variable A valid EnvironmentVariable variable name
   def self.get_value(variable)
     find_by(variable: variable)&.value
   end
@@ -14,7 +14,7 @@ class SystemState < ApplicationRecord
   def self.dig(variable:, key:)
     find_by(variable: variable)&.value&.dig(key)
   rescue NoMethodError => e
-    raise ArgumentError, "Found a SystemState entry for #{variable}, but its value is not an object. "\
-                         "Use SystemState.get_value instead. Original error:\n#{e.message}"
+    raise ArgumentError, "Found a EnvironmentVariable entry for #{variable}, but its value is not an object. "\
+                         "Use EnvironmentVariable.get_value instead. Original error:\n#{e.message}"
   end
 end

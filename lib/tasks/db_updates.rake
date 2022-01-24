@@ -139,7 +139,7 @@ namespace :db do
       wi.save(validate: false)
     end
 
-    SystemState.create_with(value: false).find_or_create_by(variable: :welcome_mail_sent)
+    EnvironmentVariable.create_with(value: false).find_or_create_by(variable: :welcome_mail_sent)
 
     interval = Setting.find_or_create_by(slug: 'system_boardrotationinterval')
     interval.update(value: Fugit.parse_duration(interval.value)&.to_h[:min] || 1)

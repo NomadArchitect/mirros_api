@@ -21,7 +21,7 @@ class System
   # Remove once https://gitlab.com/glancr/mirros_api/issues/87 lands
   def self.status
     state = {}
-    SystemState.pluck(:variable, :value).each do |variable, value|
+    EnvironmentVariable.pluck(:variable, :value).each do |variable, value|
       state[variable] = value
     end
 

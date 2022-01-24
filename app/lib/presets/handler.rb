@@ -21,7 +21,7 @@ module Presets
 
     # Creates the default widget instances, based on the current display layout.
     def create_widget_instances
-      orientation = SystemState.dig(variable: 'client_display', key: 'orientation') || 'portrait' # rubocop:disable Style/SingleArgumentDig
+      orientation = EnvironmentVariable.dig(variable: 'client_display', key: 'orientation') || 'portrait' # rubocop:disable Style/SingleArgumentDig
       default_board = Board.find_by(title: 'default')
       instances = []
       @defaults['widget_instances'].each do |slug, config|

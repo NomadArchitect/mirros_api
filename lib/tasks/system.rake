@@ -14,7 +14,7 @@ namespace :system do
       raise ArgumentError, "#{args} given, must be one of [pre-refresh, post-refresh]"
     end
 
-    SystemState.find_or_initialize_by(variable: 'snap_refresh_status')
+    EnvironmentVariable.find_or_initialize_by(variable: 'snap_refresh_status')
                .update(value: args[:snap_update_status])
     System.push_status_update
   end

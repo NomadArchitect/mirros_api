@@ -19,7 +19,7 @@ namespace :mirros do
       Setting.find_by(slug: 'personal_email').update!(value: email)
       Setting.find_by(slug: 'personal_name').update!(value: name)
 
-      SystemState.find_or_initialize_by(variable: 'client_display')
+      EnvironmentVariable.find_or_initialize_by(variable: 'client_display')
                  .update(
                    value: {
                      orientation: orientation,
