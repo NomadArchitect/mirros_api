@@ -6,6 +6,7 @@ class StateCache
   VALID_STATE_KEYS = %i[
     resetting
     setup_complete
+    running_setup_tasks
     configured_at_boot
     registered
   ].freeze
@@ -30,6 +31,8 @@ class StateCache
   def self.initial_value(key = nil)
     case key
     when :resetting
+      false
+    when :running_setup_tasks
       false
     when :setup_complete, :configured_at_boot
       System.setup_completed?
