@@ -9,10 +9,7 @@ class SystemController < ApplicationController
   end
 
   def reset
-    # FIXME: Temporary workaround for Display app
-    StateCache.put :refresh_resetting, true
-    ActionCable.server.broadcast 'status', payload: ::System.status
-
+    StateCache.put :resetting, true
 
     # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
