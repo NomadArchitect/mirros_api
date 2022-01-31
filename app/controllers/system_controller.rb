@@ -13,8 +13,6 @@ class SystemController < ApplicationController
     StateCache.put :refresh_resetting, true
     ActionCable.server.broadcast 'status', payload: ::System.status
 
-    reset_line = Terrapin::CommandLine.new('sh', "#{Rails.root.join('reset.sh')} :env")
-    reset_line.run(env: Rails.env)
 
     # All good until here, send the reset email.
     SettingExecution::Personal.send_reset_email
@@ -38,7 +36,6 @@ class SystemController < ApplicationController
     Rails.logger.error e.message
     render json: jsonapi_error('Error during reset', e.message, 500),
            status: :internal_server_error
-    # TODO: Remove installed extensions as well, since they're no longer registered in the database
   end
 
   def reboot
