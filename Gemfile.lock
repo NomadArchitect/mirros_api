@@ -120,7 +120,7 @@ GEM
       icalendar (~> 2.0)
       ice_cube (~> 0.16)
     ice_cube (0.16.4)
-    idioms (0.2.2)
+    idioms (0.2.3)
     idioms_source (0.1.4)
     image_processing (1.12.1)
       mini_magick (>= 4.9.5, < 5)
