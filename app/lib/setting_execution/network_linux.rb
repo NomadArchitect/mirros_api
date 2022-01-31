@@ -48,9 +48,9 @@ module SettingExecution
     end
 
     def self.reset
-      NetworkManager::Bus.new.delete_connection('glancrsetup')
-      NetworkManager::Bus.new.delete_connection('glancrlan')
-      NetworkManager::Bus.new.add_predefined_connections
+      bus = NetworkManager::Bus.new
+      bus.delete_all_connections
+      bus.add_predefined_connections
     end
 
     def self.open_ap
