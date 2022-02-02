@@ -36,9 +36,10 @@ namespace :mirros do
       # Test online status
       SettingExecution::Network.send(:validate_connectivity)
 
+      sleep 2
       # System has internet connectivity, complete seed and send setup mail
-      SettingExecution::Personal.send_setup_email
-      Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
+      CreateDefaultBoardJob.perform_now
+      SendWelcomeMailJob.perform_now
       puts 'Setup complete'
     end
   end
