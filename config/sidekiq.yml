@@ -1,3 +1,5 @@
+# Equal amount of threads for sidekiq as for Rails
+:concurrency: 3
 :queues:
   - system
   - sources
