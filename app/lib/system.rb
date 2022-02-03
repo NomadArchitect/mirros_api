@@ -187,13 +187,6 @@ class System
     Rails.logger.error "#{__method__} #{e.message}"
   end
 
-  def self.no_offline_mode_required?
-    bus = NetworkManager::Bus.new
-    bus.state.eql?(NmState::CONNECTED_GLOBAL) ||
-      bus.state.eql?(NmState::CONNECTING) ||
-      SettingExecution::Network.ap_active?
-  end
-
   def self.daily_reboot
     return Rails.logger.info "#{__method__}: no-op in development." if Rails.env.development?
 
