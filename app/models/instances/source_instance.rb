@@ -31,17 +31,12 @@ class SourceInstance < Instance
       return
     end
 
-    # Ensure we're not working with a stale connection
-    # ActiveRecord::Base.connection.verify! unless ActiveRecord::Base.connected?
     ActiveRecord::Base.transaction do
       build_group_map.each do |group_id, sub_resources|
         update_data(group_id: group_id, sub_resources: sub_resources.to_a)
       end
       update!(last_refresh: Time.now.utc)
     end
-    # ensure
-    # Avoid hogging stale connections since we're outside the main Rails process.
-    # ActiveRecord::Base.connection_pool.release_connection
   end
 
   # Sets the `title` and `options` metadata for this instance.
