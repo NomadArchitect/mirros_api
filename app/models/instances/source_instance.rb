@@ -88,7 +88,7 @@ class SourceInstance < Instance
                            args: id # TODO: GlobalID serialization doesn't seem to work properly
                          }
   rescue RuntimeError, ArgumentError => e
-    Rails.logger.error e.message
+    Rails.logger.error e.message # TODO: This may cause instances that never refresh without warning the user!
   end
 
   # Removes the refresh job for this instance from the central schedule.
