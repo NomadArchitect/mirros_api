@@ -2,9 +2,12 @@
 
 return if OS.linux?
 
+require 'dbus'
+
 # Static dummy replacement for NetworkManager::Bus class in case we're not running on Linux host.
 module NetworkManager
   class Bus
+    include NetworkManager::Constants
     attr_reader :wifi_interface
 
     def initialize
@@ -49,8 +52,24 @@ module NetworkManager
       true
     end
 
+    def connecting?
+      state.eql?(NmState::CONNECTING)
+    end
+
+    def connected_local?
+      state.eql?(NmState::CONNECTED_LOCAL)
+    end
+
+    def connected_site?
+      state.eql?(NmState::CONNECTED_SITE)
+    end
+
     def connected?
-      true
+      state.eql?(NmState::CONNECTED_GLOBAL)
+    end
+
+    def any_connectivity?
+      connected? || connecting? || connected_local? || connected_site?
     end
 
     def connectivity_check_available?
@@ -58,11 +77,11 @@ module NetworkManager
     end
 
     def connectivity
-      4 # NmConnectivityState::FULL
+      NmConnectivityState::FULL
     end
 
     def state
-      70 # NmState::CONNECTED_GLOBAL
+      NmState::CONNECTED_GLOBAL
     end
 
     def primary_connection
