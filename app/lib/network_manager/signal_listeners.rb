@@ -127,6 +127,7 @@ module NetworkManager
       if nm_state.between?(NmState::UNKNOWN, NmState::DISCONNECTED)
         SettingExecution::Network.schedule_ap
       else
+        # TODO: Add logic to close AP if LAN is connected.
         SettingExecution::Network.cancel_ap_schedule
       end
     end
