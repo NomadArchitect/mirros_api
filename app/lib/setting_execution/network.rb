@@ -44,9 +44,15 @@ module SettingExecution
       os_subclass.wifi_signal_status
     end
 
-    def self.schedule_ap
+    def self.schedule_ap(delay = '15m')
+      begin
+        Fugit::Duration.do_parse(delay)
+      rescue ArgumentError => e
+        raise "Unparseable delay #{delay}: #{e.message}"
+      end
+
       Sidekiq.set_schedule OpenSetupWiFiJob.name, {
-        in: '15m',
+        in: delay,
         class: OpenSetupWiFiJob
       }
       Rails.logger.info 'Scheduled AP opening in 15m'

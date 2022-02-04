@@ -66,7 +66,7 @@ module SettingExecution
     def self.ap_active?
       dns_line = Terrapin::CommandLine.new('snapctl', "services mirros-one.dns | awk 'FNR == 2 {print $3}'")
       result = dns_line.run&.chomp!
-      NetworkManager::Bus.new.connection_active?('glancrsetup') && result.eql?('active')
+      result.eql?('active') && NetworkManager::Bus.new.connection_active?('glancrsetup')
     end
 
     # @return [TrueClass] True if the connection was deactivated, false otherwise.
