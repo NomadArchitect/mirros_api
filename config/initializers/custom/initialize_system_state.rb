@@ -11,4 +11,6 @@ System.reset_timezone if System.running_in_snap?
 StateCache.refresh
 
 # Determine if we need the AP right away
-SettingExecution::Network.open_ap unless System.no_offline_mode_required?
+unless StateCache.get(:setup_complete) && NetworkManager::Bus.new.any_connectivity?
+  SettingExecution::Network.open_ap
+end

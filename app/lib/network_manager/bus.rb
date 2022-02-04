@@ -116,8 +116,24 @@ module NetworkManager
       false
     end
 
+    def connecting?
+      state.eql?(NmState::CONNECTING)
+    end
+
+    def connected_local?
+      state.eql?(NmState::CONNECTED_LOCAL)
+    end
+
+    def connected_site?
+      state.eql?(NmState::CONNECTED_SITE)
+    end
+
     def connected?
       state.eql?(NmState::CONNECTED_GLOBAL)
+    end
+
+    def any_connectivity?
+      state >= NmState::CONNECTING
     end
 
     def list_devices

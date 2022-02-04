@@ -88,7 +88,7 @@ class SourceInstance < Instance
                            args: id # TODO: GlobalID serialization doesn't seem to work properly
                          }
   rescue RuntimeError, ArgumentError => e
-    Rails.logger.error e.message
+    Rails.logger.error e.message # TODO: This may cause instances that never refresh without warning the user!
   end
 
   # Removes the refresh job for this instance from the central schedule.
@@ -180,8 +180,8 @@ class SourceInstance < Instance
     raise "instance #{id} does not have an associated source, aborting." if source.nil?
     raise "Could not instantiate hooks class of engine #{source.name}" if source.hooks_class.nil?
 
-    Fugit::Duration.parse(refresh_interval)
+    Fugit::Duration.do_parse(refresh_interval)
   rescue ArgumentError => e
-    raise "Faulty refresh interval of #{source.name}: #{e.message}"
+    raise "Unparseable refresh interval of #{source.name}: #{e.message}"
   end
 end
