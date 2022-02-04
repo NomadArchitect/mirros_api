@@ -133,7 +133,7 @@ module NetworkManager
     end
 
     def any_connectivity?
-      connected? || connecting? || connected_local? || connected_site?
+      state >= NmState::CONNECTING
     end
 
     def list_devices
