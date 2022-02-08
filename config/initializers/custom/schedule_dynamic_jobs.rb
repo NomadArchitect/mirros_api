@@ -9,5 +9,3 @@ if shutdown_time.present?
 elsif StateCache.get(:configured_at_boot) || System.setup_completed?
   System.daily_reboot
 end
-
-RuleManager::Scheduler.init_jobs rotation_enabled: System.board_rotation_enabled?

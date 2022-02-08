@@ -20,3 +20,7 @@
     in: '15s'
     queue: system
     description: 'Schedules all existing source instances at startup'
+  InitBoardScheduleJob:
+    in: '5s'
+    queue: system
+    description: 'Schedules board rotation jobs per current configuration'
