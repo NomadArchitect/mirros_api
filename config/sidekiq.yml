@@ -15,3 +15,7 @@
     cron: '0 */8 * * *'
     queue: system
     description: 'Attempts a browser restart every eight hours'
+  ScheduleSourceInstancesJob:
+    in: '15s'
+    queue: system
+    description: 'Schedules all existing source instances at startup'
