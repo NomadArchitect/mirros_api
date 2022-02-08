@@ -34,6 +34,8 @@ module Presets
     # Creates the default holiday calendar configuration.
     # @see SystemController.create_widget_instances must run before to create the widget instance.
     def create_default_cal_instances
+      return if @defaults['source_instances'].nil?
+
       locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
       calendar_settings = default_holiday_calendar(locale)
 
@@ -64,6 +66,8 @@ module Presets
     end
 
     def create_default_feed_instances
+      return if @defaults['source_instances'].nil?
+
       locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
       newsfeed_source = SourceInstance.new(
         source: Source.find_by(slug: 'rss_feeds'),
