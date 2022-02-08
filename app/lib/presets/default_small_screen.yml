@@ -1,0 +1,49 @@
+# Assumes a minimum screen size of 480x800 px
+widget_instances:
+  clock:
+    title: ''
+    showtitle: false
+    configuration: {
+      hourFormat: "24",
+      showSeconds: true,
+      useCustomTimezone: false,
+      customTimezone: ""
+    }
+    position:
+      portrait: { "x": 0, "y": 0, "width": 3, "height": 1 }
+      landscape: { "x": 0, "y": 0, "width": 3, "height": 1 }
+    styles:
+      font_size: 400
+  current_date:
+    title: ''
+    showtitle: false
+    configuration: {
+      weekday: "short",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+    position:
+      portrait: { "x": 0, "y": 1, "width": 3, "height": 1 }
+      landscape: { "x": 0, "y": 1, "width": 3, "height": 1 }
+    styles:
+      font_size: 130
+  network:
+    title: ''
+    showtitle: false
+    configuration: { }
+    position:
+      portrait: { "x": 0, "y": 3, "width": 4, "height": 2 }
+      landscape: { "x": 7, "y": 0, "width": 3, "height": 2 }
+  text_field:
+    title: ''
+    showtitle: false
+    configuration: {
+      "content": ''
+    }
+    position:
+      portrait: { "x": 0, "y": 5, "width": 4, "height": 2 }
+      landscape: { "x": 2, "y": 2, "width": 4, "height": 2 }
+    styles:
+      horizontal_align: 'center'
+      font_size: 200
