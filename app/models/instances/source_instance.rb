@@ -97,6 +97,12 @@ class SourceInstance < Instance
     Sidekiq.remove_schedule "refresh_#{interval_job_tag}"
   end
 
+  # Checks if the SourceInstance is scheduled in sidekiq.
+  # @return [TrueClass, FalseClass] True if the refresh job is scheduled, false otherwise.
+  def scheduled?
+    Sidekiq.get_schedule("refresh_#{interval_job_tag}").present?
+  end
+
   # Fetch and save data for given group schema and sub-resource(s) of this instance.
   # @param [String] group_id The group schema to fetch.
   # @param [Array<String>] sub_resources UIDs of the sub-resources that should be fetched.

@@ -5,6 +5,7 @@
   - sources
   - default
 :dynamic: true
+:dynamic_every: 10s
 :schedule:
   CheckWiFiSignalJob:
     every: '2m'
@@ -15,3 +16,11 @@
     cron: '0 */8 * * *'
     queue: system
     description: 'Attempts a browser restart every eight hours'
+  ScheduleSourceInstancesJob:
+    in: '15s'
+    queue: system
+    description: 'Schedules all existing source instances at startup'
+  InitBoardScheduleJob:
+    in: '5s'
+    queue: system
+    description: 'Schedules board rotation jobs per current configuration'
