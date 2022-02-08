@@ -8,7 +8,15 @@ class CreateDefaultBoardJob < ApplicationJob
 
     raise 'System not online' unless System.online?
 
-    Presets::Handler.run Rails.root.join('app/lib/presets/default_extensions.yml')
+    # rubocop:disable Style/SingleArgumentDig
+    # Use different defaults for smaller screens that have less than 12 columns.
+    orientation = SystemState.dig(variable: 'client_display', key: 'orientation') || 'portrait'
+    display_width = SystemState.dig(variable: 'client_display', key: 'width') || 1080
+    # rubocop:enable Style/SingleArgumentDig
+    standard_width = orientation.eql?('portrait') ? 1080 : 1920
+    preset = display_width < standard_width ? 'app/lib/presets/default_small_screen.yml' : 'app/lib/presets/default_extensions.yml'
+
+    Presets::Handler.run Rails.root.join(preset)
   end
 
   def complete_setup
