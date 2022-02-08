@@ -5,6 +5,7 @@
   - sources
   - default
 :dynamic: true
+:dynamic_every: 10s
 :schedule:
   CheckWiFiSignalJob:
     every: '2m'
