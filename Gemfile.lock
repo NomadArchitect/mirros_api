@@ -1,6 +1,173 @@
+PATH
+  remote: sources/ical
+  specs:
+    ical (1.1.9)
+      httparty (~> 0.20)
+      icalendar (~> 2.4)
+      icalendar-recurrence (~> 1.1)
+
+PATH
+  remote: sources/idioms_source
+  specs:
+    idioms_source (0.1.4)
+
+PATH
+  remote: sources/mirros-source-microsoft_todo
+  specs:
+    mirros-source-microsoft_todo (1.0.4)
+      omniauth (~> 1.9)
+      omniauth-oauth2 (~> 1.7.0)
+
+PATH
+  remote: sources/mirros-source-netatmo
+  specs:
+    mirros-source-netatmo (1.0.3)
+      lhc
+      netatmo (~> 0.1.2)
+
+PATH
+  remote: sources/openweathermap
+  specs:
+    openweathermap (1.2.0)
+      httparty (~> 0.18)
+
+PATH
+  remote: sources/rss_feeds
+  specs:
+    rss_feeds (1.1.0)
+      feedjira (~> 3.2)
+      httparty (~> 0.20)
+
+PATH
+  remote: sources/sbb
+  specs:
+    sbb (0.2.6)
+      httparty (~> 0.18)
+
+PATH
+  remote: sources/todoist
+  specs:
+    todoist (0.1.6)
+      httparty (~> 0.18)
+
+PATH
+  remote: sources/vbb
+  specs:
+    vbb (0.1.13)
+      httparty (~> 0.18)
+
+PATH
+  remote: widgets/bing_traffic
+  specs:
+    bing_traffic (1.0.8)
+
+PATH
+  remote: widgets/calendar_event_list
+  specs:
+    calendar_event_list (1.2.0)
+
+PATH
+  remote: widgets/calendar_upcoming_event
+  specs:
+    calendar_upcoming_event (1.0.6)
+
+PATH
+  remote: widgets/calendar_week_overview
+  specs:
+    calendar_week_overview (1.0.6)
+
+PATH
+  remote: widgets/clock
+  specs:
+    clock (1.0.3)
+
+PATH
+  remote: widgets/countdown
+  specs:
+    countdown (1.0.3)
+
+PATH
+  remote: widgets/current_date
+  specs:
+    current_date (0.2.1)
+
+PATH
+  remote: widgets/fuel_prices
+  specs:
+    fuel_prices (0.2.5)
+
+PATH
+  remote: widgets/idioms
+  specs:
+    idioms (0.2.3)
+
+PATH
+  remote: widgets/ip_cam
+  specs:
+    ip_cam (0.1.7)
+
+PATH
+  remote: widgets/network
+  specs:
+    network (0.1.4)
+
+PATH
+  remote: widgets/owm_current_weather
+  specs:
+    owm_current_weather (1.1.3)
+
+PATH
+  remote: widgets/owm_daily_values
+  specs:
+    owm_daily_values (0.2.6)
+
+PATH
+  remote: widgets/owm_forecast
+  specs:
+    owm_forecast (1.1.0)
+
+PATH
+  remote: widgets/pictures
+  specs:
+    pictures (1.1.0)
+
+PATH
+  remote: widgets/public_transport_departures
+  specs:
+    public_transport_departures (0.2.5)
+
+PATH
+  remote: widgets/qrcode
+  specs:
+    qrcode (0.2.6)
+
+PATH
+  remote: widgets/styling
+  specs:
+    styling (0.3.2)
+
+PATH
+  remote: widgets/text_field
+  specs:
+    text_field (2.0.1)
+
+PATH
+  remote: widgets/ticker
+  specs:
+    ticker (0.2.2)
+
+PATH
+  remote: widgets/todos
+  specs:
+    todos (0.1.9)
+
+PATH
+  remote: widgets/video_player
+  specs:
+    video_player (1.0.3)
+
 GEM
   remote: https://rubygems.org/
-  remote: https://extensions.glancr.net/
   specs:
     actioncable (5.2.6)
       actionpack (= 5.2.6)
@@ -43,8 +210,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.7.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
     arel (9.0.0)
     ast (2.4.2)
     better_errors (2.5.1)
@@ -53,84 +220,83 @@ GEM
       rack (>= 0.9.0)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    bing_traffic (1.0.8)
     bootsnap (1.7.4)
       msgpack (~> 1.0)
     builder (3.2.4)
-    calendar_event_list (1.2.0)
-    calendar_upcoming_event (1.0.7)
-    calendar_week_overview (1.0.5)
     choice (0.2.0)
     climate_control (0.2.0)
-    clock (1.0.3)
     coderay (1.1.3)
     concurrent-ruby (1.1.9)
     connection_pool (2.2.5)
-    countdown (1.0.3)
     crass (1.0.6)
-    current_date (0.2.1)
     debug_inspector (1.1.0)
     dotenv (2.7.6)
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
     e2mmap (0.1.0)
-    easy_enum (0.1.4)
+    easy_enum (0.1.5)
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
-    ethon (0.14.0)
+    ethon (0.15.0)
       ffi (>= 1.15.0)
-    faraday (1.4.1)
+    faraday (1.10.2)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0)
+      faraday-multipart (~> 1.0)
       faraday-net_http (~> 1.0)
-      faraday-net_http_persistent (~> 1.1)
-      multipart-post (>= 1.2, < 3)
+      faraday-net_http_persistent (~> 1.0)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
+      faraday-retry (~> 1.0)
       ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
     faraday-net_http (1.0.1)
-    faraday-net_http_persistent (1.1.0)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday-retry (1.0.3)
     feedjira (3.2.1)
       loofah (>= 2.3.1)
       sax-machine (>= 1.0)
     ffi (1.15.0)
     friendly_id (5.2.5)
       activerecord (>= 4.0.0)
-    fuel_prices (0.2.5)
     fugit (1.4.5)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.4)
-    geocoder (1.6.7)
+    geocoder (1.8.1)
     git (1.5.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    hashie (4.1.0)
+    hashie (5.0.0)
     httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     i18n (1.9.1)
       concurrent-ruby (~> 1.0)
-    ical (1.1.9)
-      httparty (~> 0.20)
-      icalendar (~> 2.4)
-      icalendar-recurrence (~> 1.1)
-    icalendar (2.7.1)
+    icalendar (2.8.0)
       ice_cube (~> 0.16)
     icalendar-recurrence (1.1.3)
       icalendar (~> 2.0)
       ice_cube (~> 0.16)
     ice_cube (0.16.4)
-    idioms (0.2.3)
-    idioms_source (0.1.4)
     image_processing (1.12.1)
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
-    ip_cam (0.1.7)
     jsonapi-resources (0.9.11)
       activerecord (>= 4.1)
       concurrent-ruby
       railties (>= 4.1)
-    jwt (2.2.3)
+    jwt (2.5.0)
     lhc (13.2.0)
       activesupport (>= 5.2)
       addressable
@@ -153,54 +319,39 @@ GEM
     mini_mime (1.1.2)
     mini_portile2 (2.7.1)
     minitest (5.15.0)
-    mirros-source-microsoft_todo (1.0.4)
-      omniauth (~> 1.9)
-      omniauth-oauth2 (~> 1.7.0)
-    mirros-source-netatmo (1.0.3)
-      lhc
-      netatmo (~> 0.1.2)
     msgpack (1.4.2)
-    multi_json (1.15.0)
     multi_xml (0.6.0)
-    multipart-post (2.1.1)
+    multipart-post (2.2.3)
     mysql2 (0.5.3)
     netatmo (0.1.3)
       easy_enum (~> 0.1.4)
       faraday (~> 1.0)
       geocoder (~> 1.6)
       zeitwerk (~> 2.3)
-    network (0.1.4)
     nio4r (2.5.8)
     nokogiri (1.13.0)
       mini_portile2 (~> 2.7.0)
       racc (~> 1.4)
-    oauth2 (1.4.7)
-      faraday (>= 0.8, < 2.0)
+    oauth2 (2.0.9)
+      faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
-      multi_json (~> 1.3)
       multi_xml (~> 0.5)
-      rack (>= 1.2, < 3)
-    omniauth (1.9.1)
+      rack (>= 1.2, < 4)
+      snaky_hash (~> 2.0)
+      version_gem (~> 1.1)
+    omniauth (1.9.2)
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
-    omniauth-oauth2 (1.7.1)
-      oauth2 (~> 1.4)
+    omniauth-oauth2 (1.7.3)
+      oauth2 (>= 1.4, < 3)
       omniauth (>= 1.9, < 3)
-    openweathermap (1.2.0)
-      httparty (~> 0.18)
     os (1.0.1)
-    owm_current_weather (1.1.3)
-    owm_daily_values (0.2.6)
-    owm_forecast (1.1.0)
     parallel (1.21.0)
     parser (3.1.0.0)
       ast (~> 2.4.1)
-    pictures (1.1.0)
-    public_suffix (4.0.6)
-    public_transport_departures (0.2.5)
+    public_suffix (5.0.0)
     puma (4.0.1)
       nio4r (~> 2.0)
-    qrcode (0.2.6)
     raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
@@ -245,9 +396,6 @@ GEM
     redis (4.2.5)
     regexp_parser (2.2.0)
     rexml (3.2.5)
-    rss_feeds (1.1.0)
-      feedjira (~> 3.2)
-      httparty (~> 0.20)
     rubocop (1.25.0)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
@@ -269,13 +417,11 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-vips (2.0.17)
       ffi (~> 1.9)
-    ruby2_keywords (0.0.4)
+    ruby2_keywords (0.0.5)
     ruby_dep (1.5.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     sax-machine (1.3.2)
-    sbb (0.2.6)
-      httparty (~> 0.18)
     sidekiq (6.2.2)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
@@ -287,6 +433,9 @@ GEM
       sidekiq (>= 3)
       thwait
       tilt (>= 1.4.0)
+    snaky_hash (2.0.1)
+      hashie
+      version_gem (~> 1.1, >= 1.1.1)
     spring (2.1.1)
     spring-watcher-listen (2.0.1)
       listen (>= 2.7, < 4.0)
@@ -300,31 +449,23 @@ GEM
       sprockets (>= 3.0.0)
     store_model (0.9.0)
       activerecord (>= 5.2)
-    styling (0.3.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
-    text_field (2.0.1)
     thor (1.2.1)
     thread_safe (0.3.6)
     thwait (0.2.0)
       e2mmap
-    ticker (0.2.2)
     tilt (2.0.10)
-    todoist (0.1.7)
-      httparty (~> 0.18)
-    todos (0.1.9)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
     unicode-display_width (2.1.0)
-    vbb (0.1.13)
-      httparty (~> 0.18)
-    video_player (1.0.4)
+    version_gem (1.1.1)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.4.2)
+    zeitwerk (2.6.1)
 
 PLATFORMS
   ruby
