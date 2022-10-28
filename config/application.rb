@@ -107,5 +107,7 @@ module MirrOSApi
     # Terrapin::CommandLine.logger = Logger.new("#{Rails.root}/log/system_commands.log")
     #
     config.active_job.queue_adapter = :sidekiq
+
+    config.action_dispatch.default_headers = config.action_dispatch.default_headers.except('X-Frame-Options')
   end
 end
