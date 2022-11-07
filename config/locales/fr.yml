@@ -1,0 +1,15 @@
+fr:
+  rule:
+    errors:
+      messages:
+        no_default_board: 'Le conseil par défaut ne peut pas avoir de règles'
+  board:
+    errors:
+      messages:
+        default_board_deletion: 'Impossible de supprimer le tableau par défaut'
+        cannot_delete_active_board: 'Impossible de supprimer le tableau actuellement actif'
+  setup:
+    local_network_mode:
+      config:
+        text_field: 'Félicitations, mirr.OS est configuré ! Tu as activé le mode "réseau local", mirr.OS ne peut donc pas récupérer de données sur Internet. Dans un navigateur, appelle http://glancr.local pour continuer à configurer mirr.OS.'
+

@@ -1,0 +1,15 @@
+pl:
+  rule:
+    errors:
+      messages:
+        no_default_board: 'Domyślna rada nie może mieć zasad'
+  board:
+    errors:
+      messages:
+        default_board_deletion: 'Nie można usunąć domyślnej tablicy'
+        cannot_delete_active_board: 'Nie można usunąć aktualnie aktywnej tablicy'
+  setup:
+    local_network_mode:
+      config:
+        text_field: 'Gratulacje, mirr.OS jest ustawiony! Aktywowałeś tryb "sieć lokalna", więc mirr.OS nie może pobierać danych z Internetu. Wejdź na stronę http://glancr.local w przeglądarce, aby dalej skonfigurować mirr.OS.'
+
