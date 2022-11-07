@@ -54,6 +54,11 @@ class System
     Setting.value_for(:network_connectiontype).eql? 'wlan'
   end
 
+  # @return [TrueClass, FalseClass] Returns true if local network mode is enabled, false otherwise.
+  def self.local_network_mode_enabled?
+    Setting.value_for(:network_localmode).eql? 'on'
+  end
+
   # @return [TrueClass, FalseClass] True if board rotation is currently enabled, false otherwise.
   def self.board_rotation_enabled?
     Setting.value_for(:system_boardrotation).eql? 'on'
