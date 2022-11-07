@@ -44,7 +44,7 @@ module Presets
     def create_default_cal_instances
       return if @defaults['source_instances'].nil?
 
-      locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
+      locale = Setting.value_for(:system_language) || 'enGb'
       calendar_settings = default_holiday_calendar(locale)
 
       calendar_source = SourceInstance.new(
