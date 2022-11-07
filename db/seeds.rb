@@ -26,6 +26,11 @@ settings = [
     value: ''
   },
   {
+    category: 'network',
+    key: 'localMode',
+    value: 'off'
+  },
+  {
     category: 'personal',
     key: 'email',
     value: ''
