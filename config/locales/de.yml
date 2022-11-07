@@ -8,3 +8,8 @@ de:
       messages:
         default_board_deletion: 'Das Default-Board kann nicht gelöscht werden'
         cannot_delete_active_board: 'Das gerade aktive Board kann nicht gelöscht werden'
+  setup:
+    local_network_mode:
+      config:
+        text_field: 'Glückwunsch, mirr.OS ist eingerichtet! Du hast den Modus „lokales Netzwerk” aktiviert, mirr.OS kann also keine Daten aus dem Internet abrufen. Rufe in einem Browser http://glancr.local auf, um mirr.OS weiter zu konfigurieren.'
+
