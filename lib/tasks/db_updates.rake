@@ -143,6 +143,12 @@ namespace :db do
 
     interval = Setting.find_or_create_by(slug: 'system_boardrotationinterval')
     interval.update(value: Fugit.parse_duration(interval.value)&.to_h[:min] || 1)
+
+    Setting.find_or_create_by(slug: 'network_localmode') do |entry|
+      entry.category = 'network'
+      entry.key = 'localMode'
+      entry.value = 'off'
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'

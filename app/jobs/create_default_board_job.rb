@@ -6,7 +6,7 @@ class CreateDefaultBoardJob < ApplicationJob
   def perform(*_args)
     return if WidgetInstance.count.positive?
 
-    raise 'System not online' unless System.online?
+    raise 'System not online' unless System.online? || System.local_network_mode_enabled?
 
     # rubocop:disable Style/SingleArgumentDig
     # Use different defaults for smaller screens that have less than 12 columns.

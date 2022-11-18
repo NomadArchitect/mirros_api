@@ -3,21 +3,30 @@
 namespace :mirros do
   namespace :dev do
     desc 'Perform an automated setup routine with pre-set settings'
-    task :run_setup, %i[orientation user email] => :environment do |_task, args|
-      email = args[:email] || `git config --get user.email`.chomp!
-      name = args[:user] || `git config --get user.name`.chomp!
-      p "Using #{name} / #{email} for setup"
-      raise ArgumentError if name.empty? || email.empty?
+    task :run_setup, %i[orientation name email language local_network_mode] => :environment do |_task, args|
+      args.with_defaults(
+        :orientation =>  'portrait',
+        :name => `git config --get user.name`.chomp!,
+        :email => `git config --get user.email`.chomp!,
+        :language => 'enGb',
+        :local_network_mode => 'off',
+      )
 
-      orientation = args[:orientation] || 'portrait'
+      p "Using #{args[:name]} / #{args[:email]} for setup"
+      raise ArgumentError if args[:name].empty? || args[:email].empty?
+
+      orientation = args[:orientation]
       p "Using #{orientation} mode"
 
-      Setting.find_by(slug: 'system_language').update!(value: 'enGb')
+      p "local network mode #{args[:local_network_mode]}"
+
+      Setting.find_by(slug: 'system_language').update!(value: args[:language])
       Setting.find_by(slug: 'system_timezone').update!(value: 'Europe/Berlin')
       Setting.find_by(slug: 'personal_privacyConsent').update!(value: 'yes')
       Setting.find_by(slug: 'network_connectiontype').update!(value: 'lan')
-      Setting.find_by(slug: 'personal_email').update!(value: email)
-      Setting.find_by(slug: 'personal_name').update!(value: name)
+      Setting.find_by(slug: 'network_localmode').update!(value: args[:local_network_mode])
+      Setting.find_by(slug: 'personal_email').update!(value: args[:email])
+      Setting.find_by(slug: 'personal_name').update!(value: args[:name])
 
       SystemState.find_or_initialize_by(variable: 'client_display')
                  .update(
@@ -39,7 +48,7 @@ namespace :mirros do
       sleep 2
       # System has internet connectivity, complete seed and send setup mail
       CreateDefaultBoardJob.perform_now
-      SendWelcomeMailJob.perform_now
+      SendWelcomeMailJob.perform_now unless args[:local_network_mode].eql?('on')
       puts 'Setup complete'
     end
   end
