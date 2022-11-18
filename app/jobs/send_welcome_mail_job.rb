@@ -2,7 +2,7 @@
 
 # Sends the post-setup welcome email.
 class SendWelcomeMailJob < ApplicationJob
-  queue_as :default
+  queue_as :system
 
   # Sends a welcome email if setup is completed and the SystemState has not been set yet.
   def perform(*_args)

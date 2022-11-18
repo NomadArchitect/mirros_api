@@ -1,5 +1,5 @@
 class EvaluateBoardRulesJob < ApplicationJob
-  queue_as :default
+  queue_as :system
 
   def perform(*args)
     # Do something later
