@@ -1,3 +1,4 @@
 Rails.configuration.after_initialize do
-  I18n.default_locale = ::Setting.value_for('system_language')&.slice(0, 2)&.to_sym || :en
+  configured_locale = ::Setting.value_for('system_language')&.slice(0, 2)
+  I18n.default_locale = configured_locale&.present? ? configured_locale.to_sym : :en
 end
