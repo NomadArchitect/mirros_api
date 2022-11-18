@@ -99,10 +99,8 @@ module SettingExecution
     end
 
     def self.os_subclass
-      if OS.linux?
+      if OS.linux? || OS.mac?
         NetworkLinux
-      elsif OS.mac?
-
       else
         Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
         raise NotImplementedError, "Unsupported OS running on #{RUBY_PLATFORM}"
