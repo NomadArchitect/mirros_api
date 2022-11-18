@@ -5,6 +5,7 @@ namespace :mirros do
     desc 'Perform an automated setup routine with pre-set settings'
     task :run_setup, %i[orientation name email language local_network_mode] => :environment do |_task, args|
       args.with_defaults(
+        :orientation =>  'portrait',
         :name => `git config --get user.name`.chomp!,
         :email => `git config --get user.email`.chomp!,
         :language => 'enGb',
@@ -14,8 +15,10 @@ namespace :mirros do
       p "Using #{args[:name]} / #{args[:email]} for setup"
       raise ArgumentError if args[:name].empty? || args[:email].empty?
 
-      orientation = args[:orientation] || 'portrait'
+      orientation = args[:orientation]
       p "Using #{orientation} mode"
+
+      p "local network mode #{args[:local_network_mode]}"
 
       Setting.find_by(slug: 'system_language').update!(value: args[:language])
       Setting.find_by(slug: 'system_timezone').update!(value: 'Europe/Berlin')
@@ -45,7 +48,7 @@ namespace :mirros do
       sleep 2
       # System has internet connectivity, complete seed and send setup mail
       CreateDefaultBoardJob.perform_now
-      SendWelcomeMailJob.perform_now
+      SendWelcomeMailJob.perform_now unless args[:local_network_mode].eql?('on')
       puts 'Setup complete'
     end
   end
