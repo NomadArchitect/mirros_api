@@ -56,7 +56,7 @@ class MirrosSourceGenerator < Rails::Generators::NamedBase
   end
 
   def append_to_gemfile
-    gem name.camelize, path: @path
+    gem name, path: @path
   end
 
   def show_dev_info

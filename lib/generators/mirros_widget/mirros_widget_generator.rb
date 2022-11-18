@@ -54,7 +54,7 @@ class MirrosWidgetGenerator < Rails::Generators::NamedBase
   end
 
   def append_to_gemfile
-    gem name.underscore, path: @path
+    gem name, path: @path
   end
 
   def show_dev_info
