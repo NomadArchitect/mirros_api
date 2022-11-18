@@ -20,6 +20,9 @@ module Presets
     def initialize(defaults_file_path)
       @defaults = YAML.load_file(defaults_file_path).with_indifferent_access
 
+      configured_locale = ::Setting.value_for('system_language')&.slice(0, 2)
+      I18n.locale = configured_locale&.present? ? configured_locale.to_sym : :en
+
       if System.local_network_mode_enabled?
         @defaults['widget_instances'].select! { |extension, _config| ALLOWED_IN_LOCAL_NETWORK_MODE.include? extension }
         @defaults.delete 'source_instances'
