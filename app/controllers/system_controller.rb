@@ -86,7 +86,7 @@ class SystemController < ApplicationController
     CreateDefaultBoardJob.set(wait: 5.seconds).perform_later if options[:create_defaults]
     ConnectToNetworkJob.perform_now unless Setting.value_for(:system_connectiontype).eql?(:lan)
     sleep 2
-    SendWelcomeMailJob.perform_now
+    SendWelcomeMailJob.perform_now unless System.local_network_mode_enabled?
 
     render json: { meta: System.status }, status: :accepted
   rescue StandardError => e
