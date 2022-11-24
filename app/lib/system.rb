@@ -64,6 +64,8 @@ class System
     Setting.value_for(:system_boardrotation).eql? 'on'
   end
 
+  # Checks if system is fully connected to the internet.
+  # @return [TrueClass, FalseClass] True if system has full connectivity, false otherwise.
   def self.online?
     NetworkManager::Bus.new.connected?
   end
