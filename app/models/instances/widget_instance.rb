@@ -13,6 +13,8 @@ class WidgetInstance < Instance
   attribute :styles, WidgetInstanceStyles.to_type, default: WidgetInstanceStyles.new
   before_create :override_default_styles
   validates :styles, store_model: { merge_errors: true }
+  validate :validate_configuration, if: :configuration_changed?
+
   before_validation :check_license_status,
                     if: -> { persisted? && changed_attributes.key?('styles') }
 
@@ -39,6 +41,18 @@ class WidgetInstance < Instance
     engine = widget.engine_class
     return unless engine&.const_defined?(:DEFAULT_STYLES, false)
 
-    self.styles = engine.const_get(:DEFAULT_STYLES)
+    self.styles = engine&.const_get(:DEFAULT_STYLES)
   end
+
+  # Validates the current configuration against the widget's validator.
+  def validate_configuration
+    validator_class = widget.validator_class
+    if validator_class.present? && validator_class.respond_to?(:validate_configuration)
+      validator_class.validate_configuration configuration
+    end
+    rescue StandardError => e
+      Rails.logger.warn "[#{__method__} #{widget_id}] #{e.message}"
+      errors.add(:configuration, e.message)
+  end
+
 end
