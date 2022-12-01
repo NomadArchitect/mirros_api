@@ -19,6 +19,9 @@
 [submodule "widgets/current_date"]
 	path = widgets/current_date
 	url = ../widget-current_date.git
+[submodule "widgets/mirros-widget-embed_iframe"]
+	path = widgets/mirros-widget-embed_iframe
+	url = ../mirros-widget-embed_iframe.git
 [submodule "widgets/fuel_prices"]
 	path = widgets/fuel_prices
 	url = ../widget-fuel_prices.git
