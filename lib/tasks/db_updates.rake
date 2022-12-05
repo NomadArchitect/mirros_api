@@ -149,6 +149,19 @@ namespace :db do
       entry.key = 'localMode'
       entry.value = 'off'
     end
+
+    # Update existing widget instances to use their corresponding Configuration object model.
+    WidgetInstance.all.each do |wi|
+      current_configuration = wi.configuration
+      configuration_model = wi.widget.configuration_model
+      unless current_configuration.is_a?(configuration_model)
+        # Use update_columns to avoid validation, which would discard all attributes because it
+        # casts to a generic WidgetInstanceConfiguration.
+        wi.update_columns(
+          configuration: configuration_model.new(current_configuration.unknown_attributes)
+        )
+      end
+    end
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
