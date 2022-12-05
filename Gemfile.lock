@@ -79,7 +79,7 @@ PATH
 PATH
   remote: widgets/clock
   specs:
-    clock (1.0.3)
+    clock (1.1.0)
 
 PATH
   remote: widgets/countdown
