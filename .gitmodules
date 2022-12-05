@@ -22,6 +22,9 @@
 [submodule "widgets/mirros-widget-embed_iframe"]
 	path = widgets/mirros-widget-embed_iframe
 	url = ../mirros-widget-embed_iframe.git
+[submodule "widgets/mirros-widget-embed_pdf"]
+	path = widgets/mirros-widget-embed_pdf
+	url = ../mirros-widget-embed_pdf.git
 [submodule "widgets/fuel_prices"]
 	path = widgets/fuel_prices
 	url = ../widget-fuel_prices.git
