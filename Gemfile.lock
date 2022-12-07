@@ -41,7 +41,7 @@ PATH
 PATH
   remote: sources/sbb
   specs:
-    sbb (0.2.6)
+    sbb (0.2.7)
       httparty (~> 0.18)
 
 PATH
@@ -115,7 +115,7 @@ PATH
 PATH
   remote: widgets/mirros-widget-embed_pdf
   specs:
-    mirros-widget-embed_pdf (0.1.0)
+    mirros-widget-embed_pdf (1.0.0)
       rails (~> 5.2.6)
 
 PATH
@@ -141,22 +141,22 @@ PATH
 PATH
   remote: widgets/pictures
   specs:
-    pictures (1.1.0)
+    pictures (1.1.1)
 
 PATH
   remote: widgets/public_transport_departures
   specs:
-    public_transport_departures (0.2.5)
+    public_transport_departures (0.3.0)
 
 PATH
   remote: widgets/qrcode
   specs:
-    qrcode (0.2.6)
+    qrcode (0.3.0)
 
 PATH
   remote: widgets/styling
   specs:
-    styling (0.3.2)
+    styling (0.3.3)
 
 PATH
   remote: widgets/text_field
@@ -166,17 +166,17 @@ PATH
 PATH
   remote: widgets/ticker
   specs:
-    ticker (0.2.2)
+    ticker (0.2.3)
 
 PATH
   remote: widgets/todos
   specs:
-    todos (0.1.9)
+    todos (0.1.10)
 
 PATH
   remote: widgets/video_player
   specs:
-    video_player (1.0.3)
+    video_player (1.1.0)
 
 GEM
   remote: https://rubygems.org/
