@@ -111,6 +111,11 @@ PATH
   specs:
     mirros-widget-embed_iframe (1.0.0)
       rails (~> 5.2.6)
+
+PATH
+  remote: widgets/mirros-widget-embed_pdf
+  specs:
+    mirros-widget-embed_pdf (0.1.0)
       rails (~> 5.2.6)
 
 PATH
@@ -504,6 +509,7 @@ DEPENDENCIES
   mirros-source-microsoft_todo!
   mirros-source-netatmo!
   mirros-widget-embed_iframe!
+  mirros-widget-embed_pdf!
   mysql2 (~> 0.5.2)!
   network!
   openweathermap!
