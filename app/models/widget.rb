@@ -5,7 +5,7 @@ class Widget < ExtensionBase
   include FriendlyId
   friendly_id :name, use: :slugged
 
-  has_many :widget_instances, dependent: :destroy
+  has_many :widget_instances, inverse_of: :widget, dependent: :destroy
   belongs_to :group, optional: true
 
   validates :title, presence: true

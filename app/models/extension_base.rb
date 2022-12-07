@@ -19,10 +19,12 @@ class ExtensionBase < ApplicationRecord
     @hooks_class ||= find_extension_class(:Hooks)
   end
 
-  # Returns the class constant for this extension's Validator implementation.
-  # @return [Validator,nil] The Validator class constant if loaded, nil otherwise.
-  def validator_class
-    @validator_class ||= find_extension_class(:Validator)
+  def instance_class
+    @instance_class ||= find_extension_class(:Instance)
+  end
+
+  def configuration_model
+    @configuration_model ||= find_extension_class(:Configuration)
   end
 
   private

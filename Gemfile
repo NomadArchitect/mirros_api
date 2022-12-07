@@ -33,6 +33,7 @@ source 'https://rubygems.org' do
   gem 'httparty', '~> 0.18'
   gem 'jsonapi-resources', '~> 0.9.10'
   gem 'friendly_id', '~> 5.2.5'
+  gem "lhc", "~> 13.2"
   gem 'os', '~> 1.0.0'
   gem 'terrapin', '~> 0.6.0'
   gem 'ruby-dbus', '~> 0.16.0'
@@ -51,6 +52,7 @@ group :widget do
   gem 'clock', path: 'widgets/clock'
   gem 'countdown', path: 'widgets/countdown'
   gem 'current_date', path: 'widgets/current_date'
+  gem 'mirros-widget-embed_pdf', path: 'widgets/mirros-widget-embed_pdf'
   gem 'fuel_prices', path: 'widgets/fuel_prices'
   gem 'idioms', path: 'widgets/idioms'
   gem 'ip_cam', path: 'widgets/ip_cam'

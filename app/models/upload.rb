@@ -4,6 +4,7 @@ class Upload < ApplicationRecord
   has_one_attached :file, dependent: :destroy
 
   delegate :content_type, to: :file
+  delegate :filename, to: :file
 
   validate :test_if_processable, if: :attached_file_is_image?
 

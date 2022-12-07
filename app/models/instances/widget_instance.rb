@@ -13,7 +13,15 @@ class WidgetInstance < Instance
   attribute :styles, WidgetInstanceStyles.to_type, default: WidgetInstanceStyles.new
   before_create :override_default_styles
   validates :styles, store_model: { merge_errors: true }
-  validate :validate_configuration, if: :configuration_changed?
+
+  # Store model for each widget is dynamically injected before validation.
+  ModelSelector = StoreModel.one_of do |json|
+    json["_model"]&.constantize || WidgetInstanceConfiguration
+  end
+  attribute :configuration, ModelSelector.to_type
+  before_validation :configuration_default, on: :create
+  validates :configuration, store_model: { merge_errors: true }, if: :configuration_changed?
+  after_validation :after_validation_callback, if: :configuration_changed?
 
   before_validation :check_license_status,
                     if: -> { persisted? && changed_attributes.key?('styles') }
@@ -44,15 +52,21 @@ class WidgetInstance < Instance
     self.styles = engine&.const_get(:DEFAULT_STYLES)
   end
 
-  # Validates the current configuration against the widget's validator.
-  def validate_configuration
-    validator_class = widget.validator_class
-    if validator_class.present? && validator_class.respond_to?(:validate_configuration)
-      validator_class.validate_configuration configuration
+  # Set the default configuration for a new widget instance from its widget.
+  def configuration_default
+    model = widget.configuration_model
+    if model.present? && model.ancestors.include?(WidgetInstanceConfiguration)
+      self.configuration = model.new
+    else
+      raise RuntimeError, "Implement configuration class for #{widget.name}"
     end
-    rescue StandardError => e
-      Rails.logger.warn "[#{__method__} #{widget_id}] #{e.message}"
-      errors.add(:configuration, e.message)
+  end
+
+  # Allows widget to act after configuration has been validated.
+  def after_validation_callback
+    if configuration.respond_to? :after_validation
+      configuration.after_validation
+    end
   end
 
 end
