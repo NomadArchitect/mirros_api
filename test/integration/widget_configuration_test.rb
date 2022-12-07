@@ -8,7 +8,9 @@ class WidgetConfigurationTest < ActionDispatch::IntegrationTest
             .map(&:name)
 
      widgets.each do |widget|
-      assert "#{widget.classify}::Configuration".constantize.present?
+      assert "#{widget.gsub('-', '/').camelize}::Configuration".constantize.present?
      end
+   rescue NameError => e
+     fail e.message
    end
 end
