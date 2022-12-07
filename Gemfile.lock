@@ -59,7 +59,7 @@ PATH
 PATH
   remote: widgets/bing_traffic
   specs:
-    bing_traffic (1.1.0)
+    bing_traffic (1.1.3)
 
 PATH
   remote: widgets/calendar_event_list
@@ -89,7 +89,7 @@ PATH
 PATH
   remote: widgets/current_date
   specs:
-    current_date (0.2.1)
+    current_date (0.3.0)
 
 PATH
   remote: widgets/fuel_prices
@@ -109,7 +109,8 @@ PATH
 PATH
   remote: widgets/mirros-widget-embed_iframe
   specs:
-    mirros-widget-embed_iframe (0.1.0)
+    mirros-widget-embed_iframe (1.0.0)
+      rails (~> 5.2.6)
       rails (~> 5.2.6)
 
 PATH
