@@ -19,12 +19,17 @@ class SourcesControllerTest < ActionDispatch::IntegrationTest
 
   test 'should update source' do
     patch source_url(@source), params: {
-      source: {
-        creator: @source.creator,
-        name: @source.name,
-        download: @source.download,
-        version: @source.version,
-        homepage: @source.homepage
+      data: {
+        id: @source.id,
+        type: 'sources',
+        attributes: {
+          creator: @source.creator,
+          name: @source.name,
+          download: @source.download,
+          version: @source.version,
+          homepage: @source.homepage,
+          active: true,
+        }
       }
     }, as: :json, headers: jsonapi_headers
     assert_response 200

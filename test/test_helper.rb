@@ -8,21 +8,6 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
-    VALID_LICENSE = '173AB351-D746-48CD-ACD2-764BE02AF52F'
-    INVALID_LICENSE = 'fnord'
-
-    def save_valid_product_key
-      license = settings('personal_productkey')
-      license.update(value: VALID_LICENSE)
-      license
-    end
-
-    def save_invalid_product_key
-      license = settings('personal_productkey')
-      license.update(value: INVALID_LICENSE)
-      license
-    end
-
     def jsonapi_headers
       {
         'ACCEPT': 'application/vnd.api+json',
