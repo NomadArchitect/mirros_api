@@ -15,10 +15,10 @@ class WidgetInstance < Instance
   validates :styles, store_model: { merge_errors: true }
 
   # Store model for each widget is dynamically injected before validation.
-  ModelSelector = StoreModel.one_of do |json|
+  MODEL_SELECTOR = StoreModel.one_of do |json|
     json["_model"]&.constantize || WidgetInstanceConfiguration
   end
-  attribute :configuration, ModelSelector.to_type
+  attribute :configuration, MODEL_SELECTOR.to_type
   before_validation :configuration_default, on: :create
   validates :configuration, store_model: { merge_errors: true }, if: :configuration_changed?
   after_validation :after_validation_callback, if: :configuration_changed?
