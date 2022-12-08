@@ -46,11 +46,6 @@ settings = [
     value: 'no' # Requires frontend to specify checkbox values.
   },
   {
-    category: 'personal',
-    key: 'productKey',
-    value: ''
-  },
-  {
     category: 'system',
     key: 'backgroundColor',
     value: '#000000'

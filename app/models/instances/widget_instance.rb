@@ -23,9 +23,6 @@ class WidgetInstance < Instance
   validates :configuration, store_model: { merge_errors: true }, if: :configuration_changed?
   after_validation :after_validation_callback, if: :configuration_changed?
 
-  before_validation :check_license_status,
-                    if: -> { persisted? && changed_attributes.key?('styles') }
-
   after_commit :update_board
 
   private
@@ -34,14 +31,6 @@ class WidgetInstance < Instance
   # @return [TrueClass]
   def update_board
     board.save
-  end
-
-  # Checks if this installation is registered and adds a RecordInvalid error if not.
-  # @return [nil]
-  def check_license_status
-    return if RegistrationHandler.new.product_key_valid?
-
-    errors.add('styles', 'this requires a valid product key.')
   end
 
   # Overrides the style defaults if the widget specifies its own.

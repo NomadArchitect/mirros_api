@@ -39,12 +39,6 @@ namespace :db do
     Upload.find_by(id: bg_setting.value.to_i)&.destroy if bg_setting&.value.present?
     bg_setting&.destroy
 
-    Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
-      entry.category = 'personal'
-      entry.key = 'productKey'
-      entry.value = ''
-    end
-
     Setting.find_or_create_by(slug: 'system_themecolor') do |entry|
       entry.category = 'system'
       entry.key = 'themeColor'
@@ -162,6 +156,9 @@ namespace :db do
         )
       end
     end
+
+    # Product key requirement was dropped in 1.11.0.
+    Setting.find_by(slug: 'personal_productkey')&.destroy
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'
