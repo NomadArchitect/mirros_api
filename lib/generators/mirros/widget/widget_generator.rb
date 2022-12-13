@@ -46,7 +46,7 @@ module Mirros
       gemspec = "#{@path}/#{name}.gemspec"
       prepend_to_file gemspec, "require 'json'\n"
       insert_into_file gemspec,
-                       after: /^[\s]+spec\.license[\s]+= "MIT"+\n/ do
+                       after: /^\s+spec\.license\s+= "MIT"+\n/ do
         <<-RUBY
   spec.metadata    = { 'json' =>
     {
