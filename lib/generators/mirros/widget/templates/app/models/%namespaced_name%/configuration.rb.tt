@@ -1,0 +1,5 @@
+<%= wrap_with_namespace <<-rb.strip_heredoc
+class Configuration < WidgetInstanceConfiguration
+end
+rb
+%>
