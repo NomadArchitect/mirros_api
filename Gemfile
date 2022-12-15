@@ -57,6 +57,7 @@ group :widget do
   gem 'idioms', path: 'widgets/idioms'
   gem 'ip_cam', path: 'widgets/ip_cam'
   gem 'mirros-widget-embed_iframe', path: 'widgets/mirros-widget-embed_iframe'
+  gem 'mirros-widget-data_table', path: 'widgets/mirros-widget-data_table'
   gem 'network', path: 'widgets/network'
   gem 'owm_current_weather', path: 'widgets/owm_current_weather'
   gem 'owm_daily_values', path: 'widgets/owm_daily_values'
