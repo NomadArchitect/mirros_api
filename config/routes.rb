@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   mount IpCam::Engine, at: '/ip_cam'
   mount Mirros::Widget::EmbedPdf::Engine, at: '/embed_pdf'
   mount Mirros::Widget::EmbedIframe::Engine, at: '/embed_iframe'
+  mount Mirros::Widget::DataTable::Engine, at: '/data_table'
   mount Network::Engine, at: '/network'
   mount OwmCurrentWeather::Engine, at: '/owm_current_weather'
   mount OwmDailyValues::Engine, at: '/owm_daily_values'
