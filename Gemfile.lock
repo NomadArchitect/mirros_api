@@ -109,7 +109,7 @@ PATH
 PATH
   remote: widgets/mirros-widget-data_table
   specs:
-    mirros-widget-data_table (1.0.0)
+    mirros-widget-data_table (1.0.1)
       rails (~> 5.2.6)
 
 PATH
@@ -121,7 +121,7 @@ PATH
 PATH
   remote: widgets/mirros-widget-embed_pdf
   specs:
-    mirros-widget-embed_pdf (1.0.0)
+    mirros-widget-embed_pdf (1.0.1)
       rails (~> 5.2.6)
 
 PATH
