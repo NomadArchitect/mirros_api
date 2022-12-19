@@ -147,10 +147,14 @@ namespace :db do
       current_configuration = wi.configuration
       configuration_model = wi.widget.configuration_model
       unless current_configuration.is_a?(configuration_model)
+        # Old configuration might be nil.
+        #noinspection RubyRedundantSafeNavigation
+        transformed_config = current_configuration&.unknown_attributes&.transform_keys { |key| key.to_s.underscore }
+
         # Use update_columns to avoid validation, which would discard all attributes because it
         # casts to a generic WidgetInstanceConfiguration.
         wi.update_columns(
-          configuration: configuration_model.new(current_configuration.unknown_attributes)
+          configuration: configuration_model.new(transformed_config)
         )
       end
     end
