@@ -7,7 +7,6 @@ namespace :db do
     # FIXME: Replace with cleaner variant e.g. like in seeds.rb
 
     Setting.skip_callback :update, :before, :apply_setting
-    Setting.skip_callback :update, :after, :update_cache
     Setting.skip_callback :update, :after, :check_setup_status
 
     # Introduced with 0.5.0 / cbddf259756ce98a659b5f4e7a86187ef0af0511
@@ -20,7 +19,6 @@ namespace :db do
     end
 
     Setting.set_callback :update, :before, :apply_setting
-    Setting.set_callback :update, :after, :update_cache
     Setting.set_callback :update, :after, :check_setup_status
 
     Setting.find_or_create_by(slug: 'system_backgroundcolor') do |entry|
