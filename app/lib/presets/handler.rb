@@ -3,6 +3,8 @@
 module Presets
   # Handles creating the default board widget and source instances.
   class Handler
+    ALLOWED_IN_LOCAL_NETWORK_MODE = %w[clock current_date network qrcode text_field]
+
     def self.run(defaults_file_path)
       return if WidgetInstance.count.positive?
 
@@ -16,7 +18,16 @@ module Presets
 
     # @param [Object] defaults_file_path  Path to a valid defaults definition file.
     def initialize(defaults_file_path)
-      @defaults = YAML.load_file(defaults_file_path)
+      @defaults = YAML.load_file(defaults_file_path).with_indifferent_access
+
+      configured_locale = ::Setting.value_for('system_language')&.slice(0, 2)
+      I18n.locale = configured_locale&.present? ? configured_locale.to_sym : :en
+
+      if System.local_network_mode_enabled?
+        @defaults['widget_instances'].select! { |extension, _config| ALLOWED_IN_LOCAL_NETWORK_MODE.include? extension }
+        @defaults.delete 'source_instances'
+        @defaults['widget_instances']['text_field'].deep_merge!({ configuration: { content: I18n.t('setup.local_network_mode.config.text_field') } })
+      end
     end
 
     # Creates the default widget instances, based on the current display layout.
@@ -36,7 +47,7 @@ module Presets
     def create_default_cal_instances
       return if @defaults['source_instances'].nil?
 
-      locale = Setting.value_for(:system_language).nil? ? 'enGb' : Setting.value_for(:system_language)
+      locale = Setting.value_for(:system_language) || 'enGb'
       calendar_settings = default_holiday_calendar(locale)
 
       calendar_source = SourceInstance.new(

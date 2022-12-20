@@ -48,20 +48,12 @@ personal_privacyconsent:
   key: privacyConsent
   value: no # Requires frontend to specify checkbox values.
 
-personal_productkey:
-  slug: personal_productkey
-  category: personal
-  key: productKey
-  value: ''
-
 system_multipleboards:
   slug: system_multipleboards
   category: system
   key: multipleBoards
   value: 'off'
 
-
-# Premium features
 system_themecolor:
   slug: system_themecolor
   category: system

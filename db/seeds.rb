@@ -26,6 +26,11 @@ settings = [
     value: ''
   },
   {
+    category: 'network',
+    key: 'localMode',
+    value: 'off'
+  },
+  {
     category: 'personal',
     key: 'email',
     value: ''
@@ -39,11 +44,6 @@ settings = [
     category: 'personal',
     key: 'privacyConsent',
     value: 'no' # Requires frontend to specify checkbox values.
-  },
-  {
-    category: 'personal',
-    key: 'productKey',
-    value: ''
   },
   {
     category: 'system',

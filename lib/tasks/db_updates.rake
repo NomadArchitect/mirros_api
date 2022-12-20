@@ -7,7 +7,6 @@ namespace :db do
     # FIXME: Replace with cleaner variant e.g. like in seeds.rb
 
     Setting.skip_callback :update, :before, :apply_setting
-    Setting.skip_callback :update, :after, :update_cache
     Setting.skip_callback :update, :after, :check_setup_status
 
     # Introduced with 0.5.0 / cbddf259756ce98a659b5f4e7a86187ef0af0511
@@ -20,7 +19,6 @@ namespace :db do
     end
 
     Setting.set_callback :update, :before, :apply_setting
-    Setting.set_callback :update, :after, :update_cache
     Setting.set_callback :update, :after, :check_setup_status
 
     Setting.find_or_create_by(slug: 'system_backgroundcolor') do |entry|
@@ -38,12 +36,6 @@ namespace :db do
     bg_setting = Setting.find_by(slug: 'system_backgroundimage')
     Upload.find_by(id: bg_setting.value.to_i)&.destroy if bg_setting&.value.present?
     bg_setting&.destroy
-
-    Setting.find_or_create_by(slug: 'personal_productkey') do |entry|
-      entry.category = 'personal'
-      entry.key = 'productKey'
-      entry.value = ''
-    end
 
     Setting.find_or_create_by(slug: 'system_themecolor') do |entry|
       entry.category = 'system'
@@ -143,6 +135,32 @@ namespace :db do
 
     interval = Setting.find_or_create_by(slug: 'system_boardrotationinterval')
     interval.update(value: Fugit.parse_duration(interval.value)&.to_h[:min] || 1)
+
+    Setting.find_or_create_by(slug: 'network_localmode') do |entry|
+      entry.category = 'network'
+      entry.key = 'localMode'
+      entry.value = 'off'
+    end
+
+    # Update existing widget instances to use their corresponding Configuration object model.
+    WidgetInstance.all.each do |wi|
+      current_configuration = wi.configuration
+      configuration_model = wi.widget.configuration_model
+      unless current_configuration.is_a?(configuration_model)
+        # Old configuration might be nil.
+        #noinspection RubyRedundantSafeNavigation
+        transformed_config = current_configuration&.unknown_attributes&.transform_keys { |key| key.to_s.underscore }
+
+        # Use update_columns to avoid validation, which would discard all attributes because it
+        # casts to a generic WidgetInstanceConfiguration.
+        wi.update_columns(
+          configuration: configuration_model.new(transformed_config)
+        )
+      end
+    end
+
+    # Product key requirement was dropped in 1.11.0.
+    Setting.find_by(slug: 'personal_productkey')&.destroy
   end
 
   desc 'Sync all default extension\'s gem specs to the database. Deletes removed extensions from the DB, unless they were manually installed.'

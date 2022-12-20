@@ -1,5 +1,5 @@
 class RotateActiveBoardJob < ApplicationJob
-  queue_as :default
+  queue_as :system
 
   def perform(*_args)
     active_board_setting = Setting.find_by(slug: :system_activeboard)

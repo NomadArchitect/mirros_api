@@ -18,6 +18,7 @@ class WidgetResource < JSONAPI::Resource
              :download,
              :languages
   has_many :widget_instances,
+           inverse_of: :widget,
            always_include_linkage_data: true,
            exclude_links: [:self]
   has_one :group,

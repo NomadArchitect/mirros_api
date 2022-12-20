@@ -54,11 +54,25 @@ class System
     Setting.value_for(:network_connectiontype).eql? 'wlan'
   end
 
+  # @return [TrueClass, FalseClass] Returns true if local network mode is enabled, false otherwise.
+  def self.local_network_mode_enabled?
+    Setting.value_for(:network_localmode).eql? 'on'
+  end
+
   # @return [TrueClass, FalseClass] True if board rotation is currently enabled, false otherwise.
   def self.board_rotation_enabled?
     Setting.value_for(:system_boardrotation).eql? 'on'
   end
 
+
+  # Checks if system is connected to a local network.
+  # @return [TrueClass, FalseClass] True if NetworkManager indicates NmState::CONNECTED_SITE state, false otherwise.
+  def self.local_network_connectivity?
+    NetworkManager::Bus.new.connected_site?
+  end
+
+  # Checks if system is fully connected to the internet.
+  # @return [TrueClass, FalseClass] True if system has full connectivity, false otherwise.
   def self.online?
     NetworkManager::Bus.new.connected?
   end

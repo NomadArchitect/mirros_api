@@ -84,9 +84,9 @@ class SystemController < ApplicationController
 
     # Schedule before connecting to network, so the job is scheduled before a potential refresh.
     CreateDefaultBoardJob.set(wait: 5.seconds).perform_later if options[:create_defaults]
-    ConnectToNetworkJob.perform_now unless Setting.value_for(:system_connectiontype).eql?(:lan)
+    ConnectToNetworkJob.perform_later if System.using_wifi?
     sleep 2
-    SendWelcomeMailJob.perform_now
+    SendWelcomeMailJob.perform_later unless System.local_network_mode_enabled?
 
     render json: { meta: System.status }, status: :accepted
   rescue StandardError => e

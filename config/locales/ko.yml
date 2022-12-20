@@ -1,0 +1,15 @@
+ko:
+  rule:
+    errors:
+      messages:
+        no_default_board: '기본 보드에는 규칙이 있을 수 없습니다.'
+  board:
+    errors:
+      messages:
+        default_board_deletion: '기본 보드를 삭제할 수 없습니다'
+        cannot_delete_active_board: '현재 활성 보드를 삭제할 수 없습니다'
+  setup:
+    local_network_mode:
+      config:
+        text_field: '축하합니다. mirr.OS가 설정되었습니다! 로컬 네트워크 모드를 활성화했으므로 mirr.OS는 인터넷에서 데이터를 가져올 수 없습니다. mirr.OS를 추가로 구성하려면 브라우저에서 http://glancr.local 방문하십시오.'
+

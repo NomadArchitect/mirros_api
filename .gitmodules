@@ -1,0 +1,102 @@
+[submodule "widgets/calendar_week_overview"]
+	path = widgets/calendar_week_overview
+	url = ../widget-calendar_week_overview.git
+[submodule "widgets/calendar_upcoming_event"]
+	path = widgets/calendar_upcoming_event
+	url = ../widget-calendar_upcoming_event.git
+[submodule "widgets/calendar_event_list"]
+	path = widgets/calendar_event_list
+	url = ../widget-calendar_event_list.git
+[submodule "widgets/bing_traffic"]
+	path = widgets/bing_traffic
+	url = ../widget-bing_traffic.git
+[submodule "widgets/clock"]
+	path = widgets/clock
+	url = ../widget-clock.git
+[submodule "widgets/countdown"]
+	path = widgets/countdown
+	url = ../widget-countdown.git
+[submodule "widgets/current_date"]
+	path = widgets/current_date
+	url = ../widget-current_date.git
+[submodule "widgets/mirros-widget-data_table"]
+	path = widgets/mirros-widget-data_table
+	url = ../mirros-widget-data_table.git
+[submodule "widgets/mirros-widget-embed_iframe"]
+	path = widgets/mirros-widget-embed_iframe
+	url = ../mirros-widget-embed_iframe.git
+[submodule "widgets/mirros-widget-embed_pdf"]
+	path = widgets/mirros-widget-embed_pdf
+	url = ../mirros-widget-embed_pdf.git
+[submodule "widgets/fuel_prices"]
+	path = widgets/fuel_prices
+	url = ../widget-fuel_prices.git
+[submodule "widgets/idioms"]
+	path = widgets/idioms
+	url = ../widget-idioms.git
+[submodule "widgets/ip_cam"]
+	path = widgets/ip_cam
+	url = ../widget-ip_cam.git
+[submodule "widgets/network"]
+	path = widgets/network
+	url = ../widget-network.git
+[submodule "widgets/owm_current_weather"]
+	path = widgets/owm_current_weather
+	url = ../widget-owm_current_weather.git
+[submodule "widgets/owm_daily_values"]
+	path = widgets/owm_daily_values
+	url = ../widget-owm_daily_values.git
+[submodule "widgets/owm_forecast"]
+	path = widgets/owm_forecast
+	url = ../widget-owm_forecast.git
+[submodule "widgets/pictures"]
+	path = widgets/pictures
+	url = ../widget-pictures.git
+[submodule "widgets/public_transport_departures"]
+	path = widgets/public_transport_departures
+	url = ../widget-public_transport_departures.git
+[submodule "widgets/styling"]
+	path = widgets/styling
+	url = ../widget-styling.git
+[submodule "widgets/text_field"]
+	path = widgets/text_field
+	url = ../widget-text_field.git
+[submodule "widgets/ticker"]
+	path = widgets/ticker
+	url = ../widget-ticker.git
+[submodule "widgets/todos"]
+	path = widgets/todos
+	url = ../widget-todos.git
+[submodule "widgets/video_player"]
+	path = widgets/video_player
+	url = ../widget-video_player.git
+[submodule "sources/ical"]
+	path = sources/ical
+	url = ../source-ical.git
+[submodule "sources/idioms_source"]
+	path = sources/idioms_source
+	url = ../source-idioms_source.git
+[submodule "sources/mirros-source-netatmo"]
+	path = sources/mirros-source-netatmo
+	url = ../mirros-source-netatmo.git
+[submodule "sources/openweathermap"]
+	path = sources/openweathermap
+	url = ../source-openweathermap.git
+[submodule "sources/rss_feeds"]
+	path = sources/rss_feeds
+	url = ../source-rss_feeds.git
+[submodule "sources/sbb"]
+	path = sources/sbb
+	url = ../source-sbb.git
+[submodule "sources/todoist"]
+	path = sources/todoist
+	url = ../source-todoist.git
+[submodule "sources/vbb"]
+	path = sources/vbb
+	url = ../source-vbb.git
+[submodule "sources/mirros-source-microsoft_todo"]
+	path = sources/mirros-source-microsoft_todo
+	url = ../mirros-source-microsoft_todo.git
+[submodule "widgets/qrcode"]
+	path = widgets/qrcode
+	url = ../widget-qrcode.git

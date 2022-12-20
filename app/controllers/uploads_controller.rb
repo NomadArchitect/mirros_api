@@ -10,23 +10,23 @@ class UploadsController < ApplicationController
   rescue_from StandardError, with: :render_error
 
   def index
-    render json: @type.all, methods: %i[file_url content_type]
+    render json: @type.all, methods: %i[file_url content_type filename]
   end
 
   def create
     render json: @type.create!(upload_params),
-           methods: %i[file_url content_type],
+           methods: %i[file_url content_type filename],
            status: :created
   end
 
   def show
     render json: @type.find(params[:id]),
-           methods: %i[file_url content_type]
+           methods: %i[file_url content_type filename]
   end
 
   def update
     render json: @type.find(params[:id]).update(upload_params),
-           methods: %i[file_url content_type]
+           methods: %i[file_url content_type filename]
   end
 
   def destroy

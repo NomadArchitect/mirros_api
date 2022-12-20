@@ -52,6 +52,3 @@ Note: This does not start the scheduler, which would cause thread issues otherwi
 ```shell script
 bin/rails console
 ```
-
-### Gotchas
-Changes in your extension's Ruby files are currently not autoloaded, since they're outside the app directories. We're working on it, but until then, you need to restart the Rails server to get changes in. 

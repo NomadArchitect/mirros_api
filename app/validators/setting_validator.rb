@@ -18,9 +18,6 @@ class SettingValidator < ActiveModel::EachValidator
             unless value =~ /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
               "#{value} is not a valid email address"
             end
-          when 'personal_productkey'
-            handler = RegistrationHandler.new(value)
-            "#{value} is not a valid product key." unless handler.product_key_valid? || handler.deregister?
 
           when 'system_boardrotation'
             if Setting.find_by(slug: 'system_multipleboards')&.value.eql?('on')

@@ -1,5 +1,5 @@
 class ConnectToNetworkJob < ApplicationJob
-  queue_as :default
+  queue_as :system
 
   def perform(*_args)
     SettingExecution::Network.connect

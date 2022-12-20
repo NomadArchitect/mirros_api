@@ -153,7 +153,7 @@ class SourceInstance < Instance
   # @return [Object] A new instance of the corresponding source's Hooks class.
   def hook_instance
     # TODO: Use memoization here, or possible stale issues?
-    source.hooks_class.new(id, configuration)
+    source.hooks_class&.new(id, configuration)
   end
 
   # Returns a unique Rufus scheduler tag for this instance. Instance variable is lazy on purpose.

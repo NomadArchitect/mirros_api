@@ -14,27 +14,23 @@ widget_instances:
       landscape: { "x": 0, "y": 0, "width": 3, "height": 1 }
     styles:
       font_size: 400
-  current_date:
+  qrcode:
     title: ''
     showtitle: false
     configuration: {
-      weekday: "short",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
+      content: "",
+      inputType: "text"
     }
     position:
-      portrait: { "x": 0, "y": 1, "width": 3, "height": 1 }
-      landscape: { "x": 0, "y": 1, "width": 3, "height": 1 }
-    styles:
-      font_size: 130
+      portrait: { "x": 0, "y": 1, "width": 2, "height": 2 }
+      landscape: { "x": 0, "y": 1, "width": 2, "height": 2 }
   network:
     title: ''
     showtitle: false
     configuration: { }
     position:
-      portrait: { "x": 0, "y": 3, "width": 4, "height": 2 }
-      landscape: { "x": 7, "y": 0, "width": 3, "height": 2 }
+      portrait: { "x": 2, "y": 1, "width": 2, "height": 2 }
+      landscape: { "x": 2, "y": 1, "width": 2, "height": 2 }
   text_field:
     title: ''
     showtitle: false
@@ -42,8 +38,8 @@ widget_instances:
       "content": ''
     }
     position:
-      portrait: { "x": 0, "y": 5, "width": 4, "height": 2 }
-      landscape: { "x": 2, "y": 2, "width": 4, "height": 2 }
+      portrait: { "x": 0, "y": 3, "width": 5, "height": 6 }
+      landscape: { "x": 0, "y": 3, "width": 5, "height": 6 }
     styles:
       horizontal_align: 'center'
       font_size: 200

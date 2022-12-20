@@ -9,6 +9,7 @@ variables:
   # Configure mysql environment variables (https://hub.docker.com/_/mysql/)
   MYSQL_DATABASE: "mirrOS_api_test"
   MYSQL_ROOT_PASSWORD: "glancr"
+  GIT_SUBMODULE_STRATEGY: recursive
 
 # Cache gems in between builds
 cache:

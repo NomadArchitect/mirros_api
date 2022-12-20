@@ -75,17 +75,41 @@ Rails.application.routes.draw do
 
   match 'system/control/:category/:command', to: 'system#setting_execution', via: %i[get patch]
 
-  if Rails.const_defined? 'Server'
-    Source.all.each do |source|
-      engine = source.engine_class
+  # Widget routes.
+  mount BingTraffic::Engine, at: '/bing_traffic'
+  mount CalendarEventList::Engine , at: '/calendar_event_list'
+  mount CalendarWeekOverview::Engine, at: '/calendar_week_overview'
+  mount CalendarUpcomingEvent::Engine, at: '/calendar_upcoming_event'
+  mount Clock::Engine, at: '/clock'
+  mount Countdown::Engine, at: '/countdown'
+  mount CurrentDate::Engine, at: '/current_date'
+  mount FuelPrices::Engine, at: '/fuel_prices'
+  mount Idioms::Engine, at: '/idioms'
+  mount IpCam::Engine, at: '/ip_cam'
+  mount Mirros::Widget::EmbedPdf::Engine, at: '/embed_pdf'
+  mount Mirros::Widget::EmbedIframe::Engine, at: '/embed_iframe'
+  mount Mirros::Widget::DataTable::Engine, at: '/data_table'
+  mount Network::Engine, at: '/network'
+  mount OwmCurrentWeather::Engine, at: '/owm_current_weather'
+  mount OwmDailyValues::Engine, at: '/owm_daily_values'
+  mount OwmForecast::Engine, at: '/owm_forecast'
+  mount Pictures::Engine, at: '/pictures'
+  mount PublicTransportDepartures::Engine, at: '/public_transport_departures'
+  mount Styling::Engine, at: '/styling'
+  mount TextField::Engine, at: '/text_field'
+  mount Ticker::Engine, at: '/ticker'
+  mount Todos::Engine, at: '/todos'
+  mount Qrcode::Engine, at: '/qrcode'
+  mount VideoPlayer::Engine, at: '/video_player'
 
-      mount engine, at: "/#{source.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
-    end
-
-    Widget.all.each do |widget|
-      engine = widget.engine_class
-
-      mount engine, at: "/#{widget.id}" unless engine.config.paths['config/routes.rb'].existent.empty?
-    end
-  end
+  # Source routes.
+  mount Ical::Engine, at: '/ical'
+  mount Openweathermap::Engine, at: '/openweathermap'
+  mount RssFeeds::Engine, at: '/rss_feeds'
+  mount IdiomsSource::Engine, at: '/idioms_source'
+  mount Sbb::Engine, at: '/sbb'
+  mount Todoist::Engine, at: '/todoist'
+  mount Vbb::Engine, at: '/vbb'
+  mount Mirros::Source::Netatmo::Engine, at: '/netatmo'
+  # mount mirros-source-microsoft_todo, at: '/microsoft_todo' FIXME: Engine uses global namespace.
 end

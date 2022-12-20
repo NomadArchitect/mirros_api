@@ -99,10 +99,8 @@ module SettingExecution
     end
 
     def self.os_subclass
-      if OS.linux?
+      if OS.linux? || OS.mac?
         NetworkLinux
-      elsif OS.mac?
-
       else
         Rails.logger.error "Unsupported OS running on #{RUBY_PLATFORM}"
         raise NotImplementedError, "Unsupported OS running on #{RUBY_PLATFORM}"
@@ -113,7 +111,7 @@ module SettingExecution
 
     def self.validate_connectivity
       retries = 0
-      until retries > 24 || ::System.online?
+      until retries > 24 || (::System.online? || ::System.local_network_connectivity?)
         sleep 5
         retries += 1
       end

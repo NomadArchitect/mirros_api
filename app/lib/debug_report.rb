@@ -5,7 +5,6 @@ class DebugReport
   UUID_REGEX = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/.freeze
   REQUIRED_SETTINGS = %i[
       personal_email
-      personal_productkey
       network_connectiontype
       system_language
       system_timezone
@@ -78,7 +77,6 @@ class DebugReport
       description: description,
       email: email.nil? ? settings[:personal_email] : email,
       # Use yes/no to avoid type conversions of booleans during transit and support scripts.
-      validProductKey: settings[:personal_productkey].match?(UUID_REGEX) ? :yes : :no,
       debugging_info: "
         pi_model: #{ENV['SNAP'].nil? ? 'not in snap env' : pi_model}
         uptime_snapshot: #{ENV['SNAP'].nil? ? 'not in snap env' : uptime_snapshot}

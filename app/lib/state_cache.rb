@@ -8,7 +8,6 @@ class StateCache
     setup_complete
     running_setup_tasks
     configured_at_boot
-    registered
   ].freeze
 
   def self.refresh
@@ -36,8 +35,6 @@ class StateCache
       false
     when :setup_complete, :configured_at_boot
       System.setup_completed?
-    when :registered
-      RegistrationHandler.new.product_key_valid?
     else
       nil
     end

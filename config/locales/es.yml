@@ -1,0 +1,15 @@
+es:
+  rule:
+    errors:
+      messages:
+        no_default_board: 'La junta por defecto no puede tener reglas'
+  board:
+    errors:
+      messages:
+        default_board_deletion: 'No se puede eliminar el tablero por defecto'
+        cannot_delete_active_board: 'No se puede eliminar el tablero actualmente activo'
+  setup:
+    local_network_mode:
+      config:
+        text_field: '¡Enhorabuena, mirr.OS está configurado! Has activado el modo "red local", por lo que mirr.OS no puede recuperar datos de Internet. Vaya a http://glancr.local en un navegador para seguir configurando mirr.OS.'
+
