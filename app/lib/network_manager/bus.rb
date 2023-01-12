@@ -145,9 +145,7 @@ module NetworkManager
       @nm_iface.GetDevices.each do |dev|
         nm_dev_i = @nm_service[dev][NmInterfaces::DEVICE]
         device_state = nm_dev_i['State']
-        unless device_state.between? NMDeviceState::DISCONNECTED, NMDeviceState::ACTIVATED
-          next
-        end
+        next unless device_state >= NMDeviceState::DISCONNECTED
 
         dev_info = { interface: nm_dev_i['Interface'], state: device_state, path: dev }
         case nm_dev_i['DeviceType']
@@ -284,7 +282,7 @@ module NetworkManager
       begin
         nm_wifi_i = @nm_service[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
         # noinspection RubyResolve
-        nm_wifi_i['AccessPoints']
+        nm_wifi_i.GetAllAccessPoints
       rescue DBus::Error => e
         sleep 1
         retry if (attempts += 1) <= 3
