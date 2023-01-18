@@ -9,15 +9,12 @@ module SettingExecution
     # @param [String] tz_identifier A valid timezone identifier, see zoneinfo.
     def self.timezone(tz_identifier)
       if OS.linux?
-        sysbus = DBus::ASystemBus.new
-        timedated_interface = sysbus['org.freedesktop.timedate1']['/org/freedesktop/timedate1']['org.freedesktop.timedate1']
+        timedated_interface = DBusServices::Timedate1.instance
         # @see https://www.freedesktop.org/wiki/Software/systemd/timedated/
         # tz needs to be a valid timezone from /usr/share/zoneinfo/zone.tab
         # bool: User interaction
         # noinspection RubyResolve
         timedated_interface.SetTimezone(tz_identifier, false)
-        #::System.toggle_timesyncd_ntp(true)
-        # TODO: See if this needs additional error handling, either here or in controller
       else
         # Bail in macOS dev env or if invoked during rake task
         return if Rails.env.development? || !Rails.const_defined?('Server')
