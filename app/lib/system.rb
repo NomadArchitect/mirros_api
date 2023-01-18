@@ -170,26 +170,10 @@ class System
     Rails.logger.error "could not toggle NTP via timesyncd: #{e.message}"
   end
 
+  # Schedules a system time change.
   # @param [Integer] epoch_timestamp A valid Unix timestamp in seconds.
-  # @return [Array] Return messages from DBus call, if any
   def self.change_system_time(epoch_timestamp)
-    return if OS.mac? && Rails.env.development? # Bail in macOS dev env.
-    raise NotImplementedError, 'timedate control only implemented for Linux hosts' unless OS.linux?
-    unless epoch_timestamp.instance_of?(Integer)
-      raise ArgumentError, "not an integer: #{epoch_timestamp}"
-    end
-
-    timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
-    timedated_object = timedated_service['/org/freedesktop/timedate1']
-    timedated_interface = timedated_object['org.freedesktop.timedate1']
-    # noinspection RubyResolve
-    timedated_interface.SetNTP(false, false) # Disable NTP to allow setting the time
-    # noinspection RubyResolve
-    timedated_interface.SetTime(epoch_timestamp * 1_000_000, false, false) # timedated requires microseconds
-    # noinspection RubyResolve
-    timedated_interface.SetNTP(true, false) # Re-enable NTP
-  rescue DBus::Error => e
-    Rails.logger.error "could not change system time via timesyncd: #{e.message}"
+    ChangeSystemTimeJob.perform_later epoch_timestamp
   end
 
   def self.reset_timezone
