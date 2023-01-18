@@ -163,9 +163,7 @@ class System
       raise ArgumentError, "not a valid boolean: #{bool}"
     end
 
-    timedated_service = DBus::ASystemBus.new['org.freedesktop.timedate1']
-    timedated_object = timedated_service['/org/freedesktop/timedate1']
-    timedated_interface = timedated_object['org.freedesktop.timedate1']
+    timedated_interface = DBusServices::Timedate1.instance
     # noinspection RubyResolve
     timedated_interface.SetNTP(bool, false) # Restarts systemd-timesyncd
   rescue DBus::Error => e
