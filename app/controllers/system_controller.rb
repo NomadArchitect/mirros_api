@@ -95,8 +95,6 @@ class SystemController < ApplicationController
     SettingExecution::Network.open_ap
     render json: jsonapi_error('Error during setup', e.message, 500),
            status: :internal_server_error
-  ensure
-    System.daily_reboot
   end
 
   # TODO: Respond with appropriate status codes in addition to success
