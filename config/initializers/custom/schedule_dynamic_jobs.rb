@@ -6,6 +6,4 @@ shutdown_time = Setting.value_for(:system_scheduleshutdown)
 if shutdown_time.present?
   SettingExecution::System.schedule_shutdown shutdown_time
   Rails.logger.info "Scheduled shutdown at #{shutdown_time.to_time}"
-elsif StateCache.get(:configured_at_boot) || System.setup_completed?
-  System.daily_reboot
 end
