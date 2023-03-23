@@ -22,7 +22,8 @@ module SettingExecution
       line = Terrapin::CommandLine.new('iwlist',
                                        ':iface scan | egrep "Quality|Encryption key|ESSID"')
       results = line.run(iface: NetworkManager::Bus.new.wifi_interface)&.split("\"\n")
-      results&.map do |result|
+
+      results&.map! do |result|
         signal, encryption, ssid = result.split("\n")
         {
           ssid: ssid.match(/".*$/).to_s.delete('"'),
@@ -30,6 +31,11 @@ module SettingExecution
           signal: normalize_signal_strength(signal)
         }
       end
+
+      # NetworkManager lists each access point for mesh networks.Only show the strongest signal per SSID.
+      results.sort! { |network_a, network_b| network_a[:signal] <=> network_b[:signal] }
+            .reverse!
+            .uniq! { |network| network[:ssid] }
     end
 
     # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
