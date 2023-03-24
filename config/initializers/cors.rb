@@ -11,6 +11,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins(
       /localhost:\d{2,4}/,
+      /glancr.conf:\d{2,4}/,
       /\d{3}.\d{3}.\d{1,3}.\d{1,3}:\d{2,4}/, # local network access
       /[\w-]+.local:\d{2,4}/ # local network via bonjour / zeroconf
     )

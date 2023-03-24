@@ -84,7 +84,7 @@ PATH
 PATH
   remote: widgets/countdown
   specs:
-    countdown (1.0.3)
+    countdown (1.0.4)
 
 PATH
   remote: widgets/current_date
