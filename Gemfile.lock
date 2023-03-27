@@ -127,7 +127,7 @@ PATH
 PATH
   remote: widgets/network
   specs:
-    network (0.1.4)
+    network (0.1.5)
 
 PATH
   remote: widgets/owm_current_weather
