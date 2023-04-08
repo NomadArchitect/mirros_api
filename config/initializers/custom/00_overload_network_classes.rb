@@ -23,6 +23,26 @@ module NetworkManager
       }
     end
 
+    def list_wifi_networks(scan: false)
+      [
+        {
+         ssid: 'Bogus WiFi',
+         encryption: true,
+         signal: 70
+       },
+        {
+          ssid: 'Another Bogus WiFi',
+          encryption: false,
+          signal: 30
+        },
+        {
+          ssid: 'Another Bogus WiFi',
+          encryption: false,
+          signal: 80
+        }
+      ]
+    end
+
     def add_predefined_connections
       true
     end
