@@ -15,11 +15,16 @@ module NetworkManager
     VALID_CONNECTION_TYPES = [CONNECTION_TYPE_WIFI, CONNECTION_TYPE_ETHERNET]
     WIFI_CONNECT_TIMEOUT = 45 # seconds
     WIFI_SCAN_TIMEOUT = 20 # seconds
+    DISCARDED_SSIDS = ['glancr setup', ''].freeze
+
+    def self.service_bus
+      DBus::ASystemBus.new['org.freedesktop.NetworkManager']
+    end
 
     # TODO: Refactor to less lines if object is just needed for a single interface
     # see https://www.rubydoc.info/github/mvidner/ruby-dbus/file/doc/Reference.md#Errors
     def initialize
-      @nm_service = DBus::ASystemBus.new['org.freedesktop.NetworkManager']
+      @nm_service = self.class.service_bus
       @nm_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::NETWORK_MANAGER]
       @nm_settings_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
 
@@ -160,6 +165,62 @@ module NetworkManager
       devices
     end
 
+    # Lists WiFi networks visible to the primary WiFi device.
+    # @return [Array<Hash>]  A list of access points with their SSID, signal strength and if they require a password.
+    def list_wifi_networks
+      access_points = list_access_point_paths.map! do |ap_path|
+        ap_if = self.class.service_bus[ap_path][NmInterfaces::ACCESS_POINT]
+        {
+          ssid: ap_if['Ssid'].pack('U*'),
+          encryption: ap_if['RsnFlags'] > 0, # ruby-dbus converts hexadecimal notation to integer.
+          signal: ap_if['Strength'].to_i
+        }
+      end
+      # Drop the setup AP and hidden SSIDs from the results.
+      access_points.reject { |wifi| DISCARDED_SSIDS.include? wifi[:ssid] }
+    end
+
+    # Request the primary WiFi device to rescan for access points.
+    # @return [Hash] The CLOCK_BOOTTIME timestamp of the last scan before the request.
+    def request_scan
+      nm_wifi_if = @nm_service[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
+      last_scan = nm_wifi_if['LastScan']
+
+      Thread.new do
+        wifi_device_if = @nm_service[@wifi_device][NmInterfaces::DEVICE]
+        active_wifi_connection_path = wifi_device_if['ActiveConnection']
+        Thread.current.exit if active_wifi_connection_path.eql?('/')
+        active_connection_if = @nm_service[active_wifi_connection_path][NmInterfaces::CONNECTION_ACTIVE]
+
+        connection_uuid = active_connection_if['Uuid']
+        # noinspection RubyResolve
+        @nm_iface.DeactivateConnection(active_wifi_connection_path)
+        # noinspection RubyResolve
+        nm_wifi_if.RequestScan({})
+
+        started_scanning = DateTime.now
+        while nm_wifi_if['LastScan'].eql?(last_scan) && started_scanning > 30.seconds.ago
+          sleep 0.5
+        end
+
+        nm_settings_i = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
+        # noinspection RubyResolve
+        connection_to_activate = nm_settings_i.GetConnectionByUuid(connection_uuid)
+        # noinspection RubyResolve
+        @nm_iface.ActivateConnection(connection_to_activate, @wifi_device, '/')
+
+        Thread.current.exit
+      end
+
+      { last_scan: last_scan }
+    end
+
+    # Queries The primary WiFi device when it last scanned for access points.
+    # @return [Hash] The CLOCK_BOOTTIME in milliseconds since the last scan.
+    def last_scan
+      { last_scan: @nm_service[@wifi_device][NmInterfaces::DEVICE_WIRELESS]['LastScan'] }
+    end
+
     # Retrieves SSID and signal strength of the currently active AccessPoint.
     # Returns nil for both values if no access point is active or an error occurred.
     # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70)
@@ -229,8 +290,7 @@ module NetworkManager
       connection_uuid ||= Cache.fetch_network connection_id
       raise ArgumentError, "Probably invalid connection ID #{connection_id}, could not get UUID" if connection_uuid.nil?
 
-      nm_settings_o = @nm_service['/org/freedesktop/NetworkManager/Settings']
-      nm_settings_i = nm_settings_o[NmInterfaces::SETTINGS]
+      nm_settings_i = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
       # noinspection RubyResolve
       nm_settings_i.GetConnectionByUuid(connection_uuid)
     end
@@ -336,7 +396,7 @@ module NetworkManager
     # @return [String]
     def scan_for_ssid(ssid = '')
       nm_wifi_i = @nm_service[@wifi_device][NmInterfaces::DEVICE_WIRELESS]
-      request_scan(dbus_wifi_iface: nm_wifi_i, ssid: ssid)
+      request_scan_for_ssid(dbus_wifi_iface: nm_wifi_i, ssid: ssid)
       time_elapsed = 0
       result = while time_elapsed < WIFI_SCAN_TIMEOUT
                  sleep 2
@@ -359,7 +419,7 @@ module NetworkManager
       nm_settings_i.AddConnection(connection_settings)
     end
 
-    def request_scan(dbus_wifi_iface:, ssid: '')
+    def request_scan_for_ssid(dbus_wifi_iface:, ssid: '')
       # noinspection RubyResolve, RubyStringKeysInHashInspection
       dbus_wifi_iface.RequestScan('ssid' => DBus.variant('aay', [ssid.bytes]))
     rescue DBus::Error => e
