@@ -38,6 +38,15 @@ module SettingExecution
     def self.list
       os_subclass.list
     end
+
+    # Request the WiFi device to rescan for available networks.
+    def self.request_scan
+      os_subclass.request_scan
+    end
+
+    # Retrieves when the WiFi device last scanned for available networks.
+    def self.last_scan
+      os_subclass.last_scan
     end
 
     def self.wifi_signal_status

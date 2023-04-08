@@ -44,6 +44,19 @@ module SettingExecution
 
     private_class_method :normalize_signal_strength
 
+    # Requests the WiFi device to re-scan for available networks via NetworkManager.
+    # @return [Hash{Symbol=>Integer}] `last_scan` contains the last scan timestamp in CLOCK_BOOTTIME before the request.
+    def self.request_scan
+      NetworkManager::Bus.new.request_scan
+    end
+
+    # Retrieves the timestamp of the last scan for WiFi networks from NetworkManager.
+    # @return [Hash{Symbol=>Integer}] `last_scan` contains the last scan timestamp in CLOCK_BOOTTIME before the request.
+    def self.last_scan
+      NetworkManager::Bus.new.last_scan
+    end
+
+    # Retrieves WiFi details like signal strength and SSID for the currently active WiFi connection.
     def self.wifi_signal_status
       NetworkManager::Bus.new.wifi_status
     rescue StandardError => e
@@ -51,12 +64,14 @@ module SettingExecution
       nil
     end
 
+    # Resets all network connections to the factory default.
     def self.reset
       bus = NetworkManager::Bus.new
       bus.delete_all_connections
       bus.add_predefined_connections
     end
 
+    # Starts the setup access point connection in NetworkManager.
     def self.open_ap
       dns_line = Terrapin::CommandLine.new('snapctl', 'start mirros-one.dns')
       dns_line.run # throws on error
@@ -65,7 +80,7 @@ module SettingExecution
       Rails.logger.warn "#{__method__} #{e.message}"
     end
 
-    #
+    # Checks if the setup access point is currently active.
     # @return [Boolean] True if the AP connection is active and the DNS service is running.
     def self.ap_active?
       dns_line = Terrapin::CommandLine.new('snapctl', "services mirros-one.dns | awk 'FNR == 2 {print $3}'")
