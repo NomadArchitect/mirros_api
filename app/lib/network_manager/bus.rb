@@ -290,8 +290,7 @@ module NetworkManager
       connection_uuid ||= Cache.fetch_network connection_id
       raise ArgumentError, "Probably invalid connection ID #{connection_id}, could not get UUID" if connection_uuid.nil?
 
-      nm_settings_o = @nm_service['/org/freedesktop/NetworkManager/Settings']
-      nm_settings_i = nm_settings_o[NmInterfaces::SETTINGS]
+      nm_settings_i = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
       # noinspection RubyResolve
       nm_settings_i.GetConnectionByUuid(connection_uuid)
     end
