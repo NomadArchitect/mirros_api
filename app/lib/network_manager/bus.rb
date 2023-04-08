@@ -15,11 +15,16 @@ module NetworkManager
     VALID_CONNECTION_TYPES = [CONNECTION_TYPE_WIFI, CONNECTION_TYPE_ETHERNET]
     WIFI_CONNECT_TIMEOUT = 45 # seconds
     WIFI_SCAN_TIMEOUT = 20 # seconds
+    DISCARDED_SSIDS = ['glancr setup', ''].freeze
+
+    def self.service_bus
+      DBus::ASystemBus.new['org.freedesktop.NetworkManager']
+    end
 
     # TODO: Refactor to less lines if object is just needed for a single interface
     # see https://www.rubydoc.info/github/mvidner/ruby-dbus/file/doc/Reference.md#Errors
     def initialize
-      @nm_service = DBus::ASystemBus.new['org.freedesktop.NetworkManager']
+      @nm_service = self.class.service_bus
       @nm_iface = @nm_service[ObjectPaths::NETWORK_MANAGER][NmInterfaces::NETWORK_MANAGER]
       @nm_settings_iface = @nm_service[ObjectPaths::NM_SETTINGS][NmInterfaces::SETTINGS]
 
@@ -160,6 +165,20 @@ module NetworkManager
       devices
     end
 
+    # Lists WiFi networks visible to the primary WiFi device.
+    # @return [Array<Hash>]  A list of access points with their SSID, signal strength and if they require a password.
+    def list_wifi_networks
+      access_points = list_access_point_paths.map! do |ap_path|
+        ap_if = self.class.service_bus[ap_path][NmInterfaces::ACCESS_POINT]
+        {
+          ssid: ap_if['Ssid'].pack('U*'),
+          encryption: ap_if['RsnFlags'] > 0, # ruby-dbus converts hexadecimal notation to integer.
+          signal: ap_if['Strength'].to_i
+        }
+      end
+      # Drop the setup AP and hidden SSIDs from the results.
+      access_points.reject { |wifi| DISCARDED_SSIDS.include? wifi[:ssid] }
+    end
     # Retrieves SSID and signal strength of the currently active AccessPoint.
     # Returns nil for both values if no access point is active or an error occurred.
     # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70)
