@@ -34,10 +34,10 @@ module SettingExecution
       os_subclass.reset
     end
 
+    # List available networks.
     def self.list
-      available_networks = os_subclass.list
-      Rails.logger.error 'Could not retrieve WiFi list' if available_networks.empty?
-      available_networks
+      os_subclass.list
+    end
     end
 
     def self.wifi_signal_status

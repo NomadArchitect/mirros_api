@@ -16,30 +16,28 @@ module SettingExecution
       NetworkManager::Bus.new.activate_new_wifi_connection(ssid, password)
     end
 
+    # Lists WiFi networks visible to the primary WiFi device.
+    # Uses iwlist as a fallback since NetworkManager cannot properly scan when it is connected
+    # to an access point or our setup AP is up. Curiously, after iwlist has scanned, NetworkManager
+    # shows all available networks again.
+    # @return [Array<Hash{Symbol=>String,Integer,true,false}>]
     def self.list
-      # TODO: Obtaining visible Access Points via NetworkManager Wifi device interface
-      # would be prettier, but would require two interfaces to scan while in AP mode.
-      line = Terrapin::CommandLine.new('iwlist',
-                                       ':iface scan | egrep "Quality|Encryption key|ESSID"')
-      results = line.run(iface: NetworkManager::Bus.new.wifi_interface)&.split("\"\n")
-
-      results&.map! do |result|
-        signal, encryption, ssid = result.split("\n")
-        {
-          ssid: ssid.match(/".*$/).to_s.delete('"'),
-          encryption: encryption.include?('on'),
-          signal: normalize_signal_strength(signal)
-        }
+      results = NetworkManager::Bus.new.list_wifi_networks
+      if results.blank?
+        results = wifi_networks_via_iwlist
+        Rails.logger.warn "#{__method__}: using iwlist for wifi listing"
       end
-
-      # NetworkManager lists each access point for mesh networks.Only show the strongest signal per SSID.
+      # Sort by signal strength and only keep the strongest signal for each SSID.
       results.sort! { |network_a, network_b| network_a[:signal] <=> network_b[:signal] }
-            .reverse!
-            .uniq! { |network| network[:ssid] }
+             .reverse!
+             .uniq! { |network| network[:ssid] }
+
+      results
     end
 
-    # iwlist prints signal strength on a scale to 70; normalize to 0-100 percent.
-    # @param [String] signal string containing the signal strength as a two-digit integer
+    # Normalize iwlist signal quality scale 0-70 to match NetworkManager's 0-100 (percent).
+    # @see https://superuser.com/a/1360447
+    # @param [String] signal quality output line from iwlist which contains a two-digit integer
     def self.normalize_signal_strength(signal)
       (Integer(signal.match(/\d{2}/).to_s).fdiv(70).floor(2) * 100).to_i
     end
@@ -83,5 +81,39 @@ module SettingExecution
     rescue StandardError => e
       Rails.logger.warn "#{__method__} #{e.message}"
     end
+
+    # If NetworkManager does not list connections, we can try to fetch them with iwlist.
+    # Since NM manages the WiFi device, we need to catch exceptions that the device is busy.
+    # @return [Array] The WiFi access points found by iwlist.
+    def self.wifi_networks_via_iwlist
+      line = Terrapin::CommandLine.new(
+        'iwlist',
+        ':iface scan | egrep "Quality|Encryption key|ESSID:\".+\""'
+      )
+      attempts = 0
+      begin
+        results = line.run(iface: NetworkManager::Bus.new.wifi_interface)&.split("\"\n")
+      rescue CommandLineError => e
+        Rails.logger.warn "#{__method__} #{e.message}"
+        sleep 1
+        retry if (attempts += 1) <= 3
+
+        raise e
+      end
+
+      results.map! do |result|
+        signal, encryption, ssid = result.split("\n").each(&:strip!)
+        {
+          ssid: ssid.slice(/^ESSID:"(?<ssid>.+)$/, 'ssid'),
+          encryption: encryption.include?('on'),
+          signal: normalize_signal_strength(signal)
+        }
+      end
+
+      results
+    end
+
+    private_class_method :wifi_networks_via_iwlist
+
   end
 end
