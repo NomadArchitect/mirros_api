@@ -179,6 +179,12 @@ module NetworkManager
       # Drop the setup AP and hidden SSIDs from the results.
       access_points.reject { |wifi| DISCARDED_SSIDS.include? wifi[:ssid] }
     end
+    # Queries The primary WiFi device when it last scanned for access points.
+    # @return [Hash] The CLOCK_BOOTTIME in milliseconds since the last scan.
+    def last_scan
+      { last_scan: @nm_service[@wifi_device][NmInterfaces::DEVICE_WIRELESS]['LastScan'] }
+    end
+
     # Retrieves SSID and signal strength of the currently active AccessPoint.
     # Returns nil for both values if no access point is active or an error occurred.
     # @return [Hash] Connected SSID and its signal strength in percent (e.g. 70)
