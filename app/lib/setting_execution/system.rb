@@ -49,6 +49,7 @@ module SettingExecution
       if parsed.blank?
         # noinspection RubyResolve
         login_iface.CancelScheduledShutdown
+        ::System.daily_reboot
       else
         # Check if the current time is already past the given time of day,prevents immediate shutdown.
         usec = (parsed.past? ? parsed.next_day(1) : parsed).to_i * 1_000_000 # shutdown expects microseconds
